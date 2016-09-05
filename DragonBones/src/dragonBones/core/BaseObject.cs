@@ -107,8 +107,10 @@ namespace dragonBones
          * @param objectConstructor ∂‘œÛ¿‡°£
          * @version DragonBones 4.5
          */
-        public static T borrowObject<T>()
+        public static T borrowObject<T>() where T : BaseObject, new()
         {
+            //new T();
+            return null;
         }
 
         protected BaseObject()

@@ -83,44 +83,53 @@ namespace dragonBones
     public class DragonBones  
     {
         public const float PI = 3.14159265358979323846f;
+
         /**
          * @private
          */
         public const float PI_D = PI * 2.0f;
+
         /**
          * @private
          */
         public const float PI_H = PI / 2.0f;
+
         /**
          * @private
          */
         public const float PI_Q = PI / 4.0f;
+
         /**
          * @private
          */
         public const float ANGLE_TO_RADIAN = PI / 180.0f;
+
         /**
          * @private
          */
         public const float RADIAN_TO_ANGLE = 180.0f / PI;
+
         /**
          * @private
          */
         public const float SECOND_TO_MILLISECOND = 1000.0f;
+
         /**
          * @private
          */
         public const float NO_TWEEN = 100.0f;
 
         public const string VSESION = "4.7.2";
+
         /**
          * @private
          */
-        public const bool debug = false;
+        public static bool debug = false;
+
         /**
          * @private
          */
-        public const bool debugDraw = false;
+        public static bool debugDraw = false;
 
         public static void assert(string message)
         {
