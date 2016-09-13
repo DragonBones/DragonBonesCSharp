@@ -1,24 +1,25 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace dragonBones
 {
     /**
      * @private
      */
-    public enum ArmatureType 
+    public enum ArmatureType
     {
-        Armature = 0, 
-        MovieClip = 1, 
+        Armature = 0,
+        MovieClip = 1,
         Stage = 2
     }
 
     /**
      * @private
      */
-    public enum DisplayType 
+    public enum DisplayType
     {
-        Image = 0, 
-        Armature = 1, 
+        Image = 0,
+        Armature = 1,
         Mesh = 2
     }
 
@@ -80,7 +81,7 @@ namespace dragonBones
         Subtract = 13
     }
 
-    public class DragonBones  
+    public class DragonBones
     {
         public const float PI = 3.14159265358979323846f;
 
@@ -131,9 +132,43 @@ namespace dragonBones
          */
         public static bool debugDraw = false;
 
-        public static void assert(string message)
+        /**
+         * @private
+         */
+        public static void warn(string message)
         {
             Debug.Assert(true, message);
+        }
+
+        /**
+         * @private
+         */
+        public static bool isAvailableString(string str)
+        {
+            return str != null && str.Length > 0;
+        }
+
+        /**
+         * @private
+         */
+        public static void resizeList<T>(List<T> list, int count, T value)
+        {
+            if (list.Count == count)
+            {
+                return;
+            }
+            else if (list.Count > count)
+            {
+                list.Capacity = count;
+            }
+            else
+            {
+                list.Capacity = count;
+                for (int i = list.Count, l = count; i < l; ++i)
+                {
+                    list[i] = value;
+                }
+            }
         }
     }
 }

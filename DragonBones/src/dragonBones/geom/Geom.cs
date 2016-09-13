@@ -285,10 +285,7 @@ namespace dragonBones
          */
         public float rotation
         {
-            get
-            {
-                return skewY;
-            }
+            get { return skewY; }
 
             set
             {

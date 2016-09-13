@@ -175,7 +175,7 @@ namespace dragonBones
             }
             else
             {
-                DragonBones.assert("");
+                DragonBones.warn("");
             }
         }
 
@@ -190,7 +190,7 @@ namespace dragonBones
             }
             else
             {
-                DragonBones.assert("");
+                DragonBones.warn("");
             }
         }
 
@@ -215,12 +215,12 @@ namespace dragonBones
                 }
                 else
                 {
-                    DragonBones.assert("");
+                    DragonBones.warn("");
                 }
             }
             else
             {
-                DragonBones.assert("");
+                DragonBones.warn("");
             }
         }
 

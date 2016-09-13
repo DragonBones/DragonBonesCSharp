@@ -263,7 +263,7 @@ namespace dragonBones
             }
             else
             {
-                DragonBones.assert("");
+                DragonBones.warn("");
             }
         }
 
@@ -280,7 +280,7 @@ namespace dragonBones
             }
             else
             {
-                DragonBones.assert("");
+                DragonBones.warn("");
             }
         }
 
@@ -299,7 +299,7 @@ namespace dragonBones
             }
             else
             {
-                DragonBones.assert("");
+                DragonBones.warn("");
             }
         }
 
@@ -318,7 +318,7 @@ namespace dragonBones
             }
             else
             {
-                DragonBones.assert("");
+                DragonBones.warn("");
             }
         }
 
@@ -660,7 +660,7 @@ namespace dragonBones
             }
             else
             {
-                DragonBones.assert("");
+                DragonBones.warn("");
             }
         }
 
@@ -750,9 +750,9 @@ namespace dragonBones
 
         public List<float> uvs = new List<float>(); // vertices * 2
         public List<float> vertices = new List<float>(); // vertices * 2
-        public List<uint> vertexIndices = new List<uint>(); // triangles * 3
+        public List<int> vertexIndices = new List<int>(); // triangles * 3
 
-        public List<List<uint>> boneIndices = new List<List<uint>>(); // vertices bones
+        public List<List<int>> boneIndices = new List<List<int>>(); // vertices bones
         public List<List<float>> weights = new List<List<float>>(); // vertices bones
         public List<List<float>> boneVertices = new List<List<float>>(); // vertices bones * 2
 

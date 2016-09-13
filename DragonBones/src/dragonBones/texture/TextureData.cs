@@ -79,7 +79,7 @@ namespace dragonBones
             }
             else
             {
-                DragonBones.assert("");
+                DragonBones.warn("");
             }
         }
 
