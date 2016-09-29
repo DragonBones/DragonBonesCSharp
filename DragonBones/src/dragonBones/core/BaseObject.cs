@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace dragonBones
 {
-    public abstract class BaseObject
+    abstract public class BaseObject
     {
         private static uint _defaultMaxCount = 5000;
         private static Dictionary<System.Type, uint> _maxCountMap = new Dictionary<System.Type, uint>();
@@ -11,8 +11,8 @@ namespace dragonBones
         private static void _returnObject(BaseObject obj)
         {
             var classType = obj.GetType();
-            var maxCount = BaseObject._maxCountMap.ContainsKey(classType) ? BaseObject._defaultMaxCount : BaseObject._maxCountMap[classType];
-            var pool = BaseObject._poolsMap.ContainsKey(classType) ? BaseObject._poolsMap[classType] : BaseObject._poolsMap[classType] = new List<BaseObject>();
+            var maxCount = _maxCountMap.ContainsKey(classType) ? _defaultMaxCount : _maxCountMap[classType];
+            var pool = _poolsMap.ContainsKey(classType) ? _poolsMap[classType] : _poolsMap[classType] = new List<BaseObject>();
 
             if (pool.Count < maxCount)
             {
@@ -38,10 +38,10 @@ namespace dragonBones
         {
             if (classType != null)
             {
-                BaseObject._maxCountMap[classType] = maxCount;
-                if (BaseObject._poolsMap.ContainsKey(classType))
+                _maxCountMap[classType] = maxCount;
+                if (_poolsMap.ContainsKey(classType))
                 {
-                    var pool = BaseObject._poolsMap[classType];
+                    var pool = _poolsMap[classType];
                     if (pool.Count > maxCount)
                     {
                         //pool.Count = maxCount;
@@ -50,17 +50,17 @@ namespace dragonBones
             }
             else
             {
-                BaseObject._defaultMaxCount = maxCount;
-                foreach (var pair in BaseObject._poolsMap)
+                _defaultMaxCount = maxCount;
+                foreach (var pair in _poolsMap)
                 {
-                    if (!BaseObject._maxCountMap.ContainsKey(pair.Key))
+                    if (!_maxCountMap.ContainsKey(pair.Key))
                     {
                         continue;
                     }
 
-                    BaseObject._maxCountMap[pair.Key] = maxCount;
+                    _maxCountMap[pair.Key] = maxCount;
 
-                    var pool = BaseObject._poolsMap[pair.Key];
+                    var pool = _poolsMap[pair.Key];
                     if (pool.Count > maxCount)
                     {
                         //pool.Count = maxCount;
@@ -79,9 +79,9 @@ namespace dragonBones
         {
             if (classType != null)
             {
-                if (BaseObject._poolsMap.ContainsKey(classType))
+                if (_poolsMap.ContainsKey(classType))
                 {
-                    var pool = BaseObject._poolsMap[classType];
+                    var pool = _poolsMap[classType];
                     if (pool.Count > 0)
                     {
                         pool.Clear();
@@ -90,9 +90,9 @@ namespace dragonBones
             }
             else
             {
-                foreach (var pair in BaseObject._poolsMap)
+                foreach (var pair in _poolsMap)
                 {
-                    var pool = BaseObject._poolsMap[pair.Key];
+                    var pool = _poolsMap[pair.Key];
                     if (pool.Count > 0)
                     {
                         pool.Clear();
@@ -109,8 +109,21 @@ namespace dragonBones
          */
         public static T borrowObject<T>() where T : BaseObject, new()
         {
-            //new T();
-            return null;
+            var type = typeof(T);
+            var pool = _poolsMap.ContainsKey(type) ? _poolsMap[type] : null;
+            if (pool != null && pool.Count > 0)
+            {
+                var index = pool.Count - 1;
+                var obj = pool[index];
+                pool.RemoveAt(index);
+                return (T)obj;
+            }
+            else
+            {
+                var obj = new T();
+                obj._onClear();
+                return obj;
+            }
         }
 
         protected BaseObject()
@@ -120,7 +133,7 @@ namespace dragonBones
         /**
          * @private
          */
-        protected abstract void _onClear();
+        abstract protected void _onClear();
 
         /**
          * @language zh_CN

@@ -98,11 +98,13 @@ namespace dragonBones
         /**
          * @private
          */
-        protected ArmatureData _parseArmature(Dictionary<string, object> rawData)
+        protected ArmatureData _parseArmature(Dictionary<string, object> rawData, float scale)
         {
             var armature = BaseObject.borrowObject<ArmatureData>();
             armature.name = _getString(rawData, NAME, null);
             armature.frameRate = _getNumber(rawData, FRAME_RATE, this._data.frameRate);
+            armature.scale = scale;
+
             if (armature.frameRate == 0)
             {
                 armature.frameRate = 24;
@@ -206,7 +208,7 @@ namespace dragonBones
             bone.inheritTranslation = _getBoolean(rawData, INHERIT_TRANSLATION, true);
             bone.inheritRotation = _getBoolean(rawData, INHERIT_ROTATION, true);
             bone.inheritScale = _getBoolean(rawData, INHERIT_SCALE, true);
-            bone.length = _getNumber(rawData, LENGTH, 0.0f) * this._armatureScale;
+            bone.length = _getNumber(rawData, LENGTH, 0.0f) * this._armature.scale;
 
             if (rawData.ContainsKey(TRANSFORM))
             {
@@ -395,8 +397,8 @@ namespace dragonBones
             {
                 var transformObject = (Dictionary<string, object>)rawData[TRANSFORM];
                 display.isRelativePivot = false;
-                display.pivot.x = _getNumber(transformObject, PIVOT_X, 0.0f) * this._armatureScale;
-                display.pivot.y = _getNumber(transformObject, PIVOT_Y, 0.0f) * this._armatureScale;
+                display.pivot.x = _getNumber(transformObject, PIVOT_X, 0.0f) * this._armature.scale;
+                display.pivot.y = _getNumber(transformObject, PIVOT_Y, 0.0f) * this._armature.scale;
             }
             else
             {
@@ -459,8 +461,8 @@ namespace dragonBones
                     mesh.slotPose.b = rawSlotPose[1];
                     mesh.slotPose.c = rawSlotPose[2];
                     mesh.slotPose.d = rawSlotPose[3];
-                    mesh.slotPose.tx = rawSlotPose[4];
-                    mesh.slotPose.ty = rawSlotPose[5];
+                    mesh.slotPose.tx = rawSlotPose[4] * this._armature.scale;
+                    mesh.slotPose.ty = rawSlotPose[5] * this._armature.scale;
                 }
 
                 if (rawData.ContainsKey(BONE_POSE))
@@ -474,8 +476,8 @@ namespace dragonBones
                         boneMatrix.b = rawBonePose[i + 2];
                         boneMatrix.c = rawBonePose[i + 3];
                         boneMatrix.d = rawBonePose[i + 4];
-                        boneMatrix.tx = rawBonePose[i + 5];
-                        boneMatrix.ty = rawBonePose[i + 6];
+                        boneMatrix.tx = rawBonePose[i + 5] * this._armature.scale;
+                        boneMatrix.ty = rawBonePose[i + 6] * this._armature.scale;
                         boneMatrix.invert();
                     }
                 }
@@ -486,8 +488,8 @@ namespace dragonBones
                 var iN = i + 1;
                 var vertexIndex = i / 2;
 
-                var x = mesh.vertices[i] = rawVertices[i] * this._armatureScale;
-                var y = mesh.vertices[iN] = rawVertices[iN] * this._armatureScale;
+                var x = mesh.vertices[i] = rawVertices[i] * this._armature.scale;
+                var y = mesh.vertices[iN] = rawVertices[iN] * this._armature.scale;
                 mesh.uvs[i] = rawUVs[i];
                 mesh.uvs[iN] = rawUVs[iN];
 
@@ -912,8 +914,8 @@ namespace dragonBones
                 }
                 else
                 {
-                    x = rawVertices[i - offset] * this._armatureScale;
-                    y = rawVertices[i + 1 - offset] * this._armatureScale;
+                    x = rawVertices[i - offset] * this._armature.scale;
+                    y = rawVertices[i + 1 - offset] * this._armature.scale;
                 }
 
                 if (this._mesh.skinned) // If mesh is skinned, transform point by bone bind pose.
@@ -1188,8 +1190,8 @@ namespace dragonBones
          */
         protected void _parseTransform(Dictionary<string, object> rawData, Transform transform)
         {
-            transform.x = _getNumber(rawData, X, 0.0f) * this._armatureScale;
-            transform.y = _getNumber(rawData, Y, 0.0f) * this._armatureScale;
+            transform.x = _getNumber(rawData, X, 0.0f) * this._armature.scale;
+            transform.y = _getNumber(rawData, Y, 0.0f) * this._armature.scale;
             transform.skewX = _getNumber(rawData, SKEW_X, 0.0f) * DragonBones.ANGLE_TO_RADIAN;
             transform.skewY = _getNumber(rawData, SKEW_Y, 0.0f) * DragonBones.ANGLE_TO_RADIAN;
             transform.scaleX = _getNumber(rawData, SCALE_X, 1.0f);
@@ -1229,8 +1231,6 @@ namespace dragonBones
                     this._isGlobalTransform = false;
                 }
 
-                this._armatureScale = scale;
-
                 if (
                     version == DATA_VERSION ||
                     version == DATA_VERSION_4_0 ||
@@ -1252,7 +1252,7 @@ namespace dragonBones
                         var armatures = (List<Dictionary<string, object>>)rawData[ARMATURE];
                         foreach (var armatureObject in armatures)
                         {
-                            data.addArmature(_parseArmature(armatureObject));
+                            data.addArmature(_parseArmature(armatureObject, scale));
                         }
 
                         this._data = null;

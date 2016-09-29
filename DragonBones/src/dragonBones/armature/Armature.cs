@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace dragonBones
 {
@@ -51,6 +50,11 @@ namespace dragonBones
          * @private
          */
         public object _replacedTexture;
+
+        /**
+         * @private
+         */
+        public IEventDispatcher _eventManager;
 
         /**
          * @private
@@ -132,6 +136,7 @@ namespace dragonBones
 
             _parent = null;
             _replacedTexture = null;
+            _eventManager = null;
 
             _delayDispose = false;
             _lockDispose = false;
@@ -211,23 +216,23 @@ namespace dragonBones
             switch (value.type)
             {
                 case ActionType.Play:
-                    _animation.play(value.data[0], value.data[1]);
+                    _animation.play((string)value.data[0], (int)value.data[1]);
                     break;
 
                 case ActionType.Stop:
-                    _animation.stop(value.data[0]);
+                    _animation.stop((string)value.data[0]);
                     break;
 
                 case ActionType.GotoAndPlay:
-                    _animation.gotoAndPlayByTime(value.data[0], value.data[1], value.data[2]);
+                    _animation.gotoAndPlayByTime((string)value.data[0], (float)value.data[1], (int)value.data[2]);
                     break;
 
                 case ActionType.GotoAndStop:
-                    _animation.gotoAndStopByTime(value.data[0], value.data[1]);
+                    _animation.gotoAndStopByTime((string)value.data[0], (float)value.data[1]);
                     break;
 
                 case ActionType.FadeIn:
-                    _animation.fadeIn(value.data[0], value.data[1], value.data[2]);
+                    _animation.fadeIn((string)value.data[0], (float)value.data[1], (int)value.data[2]);
                     break;
 
                 case ActionType.FadeOut:
@@ -396,9 +401,9 @@ namespace dragonBones
                 {
                     foreach (var evt in _events)
                     {
-                        if (EventObject._soundEventManager != null && evt.type == EventObject.SOUND_EVENT)
+                        if (_eventManager != null && evt.type == EventObject.SOUND_EVENT)
                         {
-                            EventObject._soundEventManager._dispatchEvent(evt);
+                            _eventManager._dispatchEvent(evt);
                         }
                         else
                         {

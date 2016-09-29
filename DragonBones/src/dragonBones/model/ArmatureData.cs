@@ -23,11 +23,6 @@ namespace dragonBones
         public uint frameRate;
 
         /**
-         * @private
-         */
-        public uint cacheFrameRate;
-
-        /**
          * @language zh_CN
          * 骨架类型。
          * @see dragonBones.ArmatureType
@@ -89,6 +84,16 @@ namespace dragonBones
          */
         public List<ActionData> actions = new List<ActionData>();
 
+        /**
+         * @private
+         */
+        public uint cacheFrameRate;
+
+        /**
+         * @private
+         */
+        public float scale;
+
         private bool _boneDirty;
         private bool _slotDirty;
         private SkinData _defaultSkin;
@@ -135,12 +140,14 @@ namespace dragonBones
             }
 
             frameRate = 0;
-            cacheFrameRate = 0;
             type = ArmatureType.Armature;
             name = null;
             parent = null;
             aabb.clear();
             actions.Clear();
+
+            cacheFrameRate = 0;
+            scale = 1.0f;
 
             _boneDirty = false;
             _slotDirty = false;
@@ -511,7 +518,7 @@ namespace dragonBones
             bendPositive = false;
             chain = 0;
             chainIndex = 0;
-            weight = 0;
+            weight = 0.0f;
             length = 0.0f;
             name = null;
             parent = null;

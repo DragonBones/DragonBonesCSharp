@@ -269,7 +269,7 @@ namespace dragonBones
         /**
          * @private Bone
          */
-        public abstract void _updateVisible();
+        internal abstract void _updateVisible();
 
         /**
          * @private
@@ -315,6 +315,61 @@ namespace dragonBones
             }
 
             return false;
+        }
+
+        /**
+         * @private
+         */
+        protected void _updatePivot(DisplayData rawDisplayData, DisplayData currentDisplayData, TextureData currentTextureData)
+        {
+            var isReplaceDisplay = rawDisplayData != null && rawDisplayData != currentDisplayData;
+            if (_meshData != null && _display == _meshDisplay)
+            {
+                if (_meshData != rawDisplayData.mesh && isReplaceDisplay)
+                {
+                    _pivotX = rawDisplayData.transform.x - currentDisplayData.transform.x;
+                    _pivotY = rawDisplayData.transform.y - currentDisplayData.transform.y;
+                }
+                else
+                {
+                    _pivotX = 0.0f;
+                    _pivotY = 0.0f;
+                }
+            }
+            else
+            {
+                _pivotX = currentDisplayData.pivot.x;
+                _pivotY = currentDisplayData.pivot.y;
+
+                if (currentDisplayData.isRelativePivot)
+                {
+                    var scale = this._armature.armatureData.scale;
+                    var rect = currentTextureData.frame != null ? currentTextureData.frame : currentTextureData.region;
+                    var width = rect.width * scale;
+                    var height = rect.height * scale;
+
+                    if (currentTextureData.rotated)
+                    {
+                        width = rect.height;
+                        height = rect.width;
+                    }
+
+                    _pivotX *= width;
+                    _pivotY *= height;
+                }
+
+                if (currentTextureData.frame != null)
+                {
+                    _pivotX += currentTextureData.frame.x;
+                    _pivotY += currentTextureData.frame.y;
+                }
+
+                if (isReplaceDisplay)
+                {
+                    _pivotX += rawDisplayData.transform.x - currentDisplayData.transform.x;
+                    _pivotY += rawDisplayData.transform.y - currentDisplayData.transform.y;
+                }
+            }
         }
 
         /**
@@ -407,8 +462,8 @@ namespace dragonBones
 
                         // Child armature action.                        
                         var slotData = _armature.armatureData.getSlot(name);
-                        var actions = slotData.actions.length > 0 ? slotData.actions : _childArmature.armatureData.actions;
-                        if (actions.length > 0)
+                        var actions = slotData.actions.Count > 0 ? slotData.actions : _childArmature.armatureData.actions;
+                        if (actions.Count > 0)
                         {
                             foreach (var action in actions)
                             {
@@ -749,7 +804,7 @@ namespace dragonBones
         /**
          * @private
          */
-        public object MeshDisplay
+        public object meshDisplay
         {
             get { return this._meshDisplay; }
         }

@@ -241,8 +241,7 @@ namespace dragonBones
         protected bool _isAutoTween = false; // For 2.x ~ 3.x
         protected float _animationTweenEasing = 0.0f; // For 2.x ~ 3.x
         protected Point _timelinePivot = new Point(); // For 2.x ~ 3.x
-
-        protected float _armatureScale = 1.0f;
+        
         protected Point _helpPoint = new Point();
         protected Transform _helpTransformA = new Transform();
         protected Transform _helpTransformB = new Transform();
@@ -278,13 +277,13 @@ namespace dragonBones
                     tweenProgress = (position - frame.position) / frame.duration;
                     if (frame.tweenEasing != 0.0f)
                     {
-                        tweenProgress = TweenTimelineState._getEasingValue(tweenProgress, frame.tweenEasing);
+                        tweenProgress = TweenTimelineState<BoneFrameData, BoneTimelineData>._getEasingValue(tweenProgress, frame.tweenEasing);
                     }
                 }
                 else if (frame.curve != null)
                 {
                     tweenProgress = (position - frame.position) / frame.duration;
-                    tweenProgress = TweenTimelineState._getCurveEasingValue(tweenProgress, frame.curve);
+                    tweenProgress = TweenTimelineState<BoneFrameData, BoneTimelineData>._getCurveEasingValue(tweenProgress, frame.curve);
                 }
 
                 var nextFrame = frame.next;
