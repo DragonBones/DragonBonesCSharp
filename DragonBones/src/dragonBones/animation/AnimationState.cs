@@ -149,22 +149,22 @@ namespace dragonBones
         /**
          * @private
          */
-        private List<string> _boneMask = new List<string>();
+        private readonly List<string> _boneMask = new List<string>();
 
         /**
          * @private
          */
-        private List<BoneTimelineState> _boneTimelines = new List<BoneTimelineState>();
+        private readonly List<BoneTimelineState> _boneTimelines = new List<BoneTimelineState>();
 
         /**
          * @private
          */
-        private List<SlotTimelineState> _slotTimelines = new List<SlotTimelineState>();
+        private readonly List<SlotTimelineState> _slotTimelines = new List<SlotTimelineState>();
 
         /**
          * @private
          */
-        private List<FFDTimelineState> _ffdTimelines = new List<FFDTimelineState>();
+        private readonly List<FFDTimelineState> _ffdTimelines = new List<FFDTimelineState>();
 
         /**
          * @private

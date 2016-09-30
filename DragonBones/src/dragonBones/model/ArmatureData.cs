@@ -45,7 +45,7 @@ namespace dragonBones
         /**
          * @private
          */
-        public Rectangle aabb = new Rectangle();
+        public readonly Rectangle aabb = new Rectangle();
 
         /**
          * @language zh_CN
@@ -53,7 +53,7 @@ namespace dragonBones
          * @see dragonBones.BoneData
          * @version DragonBones 3.0
          */
-        public Dictionary<string, BoneData> bones = new Dictionary<string, BoneData>();
+        public readonly Dictionary<string, BoneData> bones = new Dictionary<string, BoneData>();
 
         /**
          * @language zh_CN
@@ -61,7 +61,7 @@ namespace dragonBones
          * @see dragonBones.SlotData
          * @version DragonBones 3.0
          */
-        public Dictionary<string, SlotData> slots = new Dictionary<string, SlotData>();
+        public readonly Dictionary<string, SlotData> slots = new Dictionary<string, SlotData>();
 
         /**
          * @language zh_CN
@@ -69,7 +69,7 @@ namespace dragonBones
          * @see dragonBones.SkinData
          * @version DragonBones 3.0
          */
-        public Dictionary<string, SkinData> skins = new Dictionary<string, SkinData>();
+        public readonly Dictionary<string, SkinData> skins = new Dictionary<string, SkinData>();
 
         /**
          * @language zh_CN
@@ -77,12 +77,12 @@ namespace dragonBones
          * @see dragonBones.AnimationData
          * @version DragonBones 3.0
          */
-        public Dictionary<string, AnimationData> animations = new Dictionary<string, AnimationData>();
+        public readonly Dictionary<string, AnimationData> animations = new Dictionary<string, AnimationData>();
 
         /**
          * @private
          */
-        public List<ActionData> actions = new List<ActionData>();
+        public readonly List<ActionData> actions = new List<ActionData>();
 
         /**
          * @private
@@ -98,9 +98,9 @@ namespace dragonBones
         private bool _slotDirty;
         private SkinData _defaultSkin;
         private AnimationData _defaultAnimation;
-        private List<BoneData> _sortedBones = new List<BoneData>();
-        private List<SlotData> _sortedSlots = new List<SlotData>();
-        private Dictionary<string, List<BoneData>> _bonesChildren = new Dictionary<string, List<BoneData>>();
+        private readonly List<BoneData> _sortedBones = new List<BoneData>();
+        private readonly List<SlotData> _sortedSlots = new List<SlotData>();
+        private readonly Dictionary<string, List<BoneData>> _bonesChildren = new Dictionary<string, List<BoneData>>();
 
         /**
          * @private
@@ -185,19 +185,19 @@ namespace dragonBones
                     continue;
                 }
 
-                if (bone.parent != null && _sortedBones.Contains(bone.parent))
+                if (bone.parent != null && !_sortedBones.Contains(bone.parent))
                 {
                     continue;
                 }
 
-                if (bone.ik != null && _sortedBones.Contains(bone.ik))
+                if (bone.ik != null && !_sortedBones.Contains(bone.ik))
                 {
                     continue;
                 }
 
                 if (bone.ik != null && bone.chain > 0 && bone.chainIndex == bone.chain)
                 {
-                    //_sortedBones.splice(_sortedBones.indexOf(bone.parent) + 1, 0, bone); // TODO
+                    _sortedBones.Insert(_sortedBones.IndexOf(bone.parent) + 1, bone);
                 }
                 else
                 {
@@ -338,7 +338,7 @@ namespace dragonBones
          */
         public BoneData getBone(string name)
         {
-            return bones[name];
+            return bones.ContainsKey(name) ? bones[name] : null;
         }
 
         /**
@@ -350,7 +350,7 @@ namespace dragonBones
          */
         public SlotData getSlot(string name)
         {
-            return slots[name];
+            return slots.ContainsKey(name) ? slots[name] : null;
         }
 
         /**
@@ -362,7 +362,7 @@ namespace dragonBones
          */
         public SkinData getSkin(string name)
         {
-            return name != null ? skins[name] : _defaultSkin;
+            return name != null ? (skins.ContainsKey(name) ? skins[name] : null) : _defaultSkin;
         }
 
         /**
@@ -374,7 +374,7 @@ namespace dragonBones
          */
         public AnimationData getAnimation(string name)
         {
-            return name != null ? animations[name] : _defaultAnimation;
+            return name != null ? (animations.ContainsKey(name) ? animations[name] : null) : _defaultAnimation;
         }
 
         /**

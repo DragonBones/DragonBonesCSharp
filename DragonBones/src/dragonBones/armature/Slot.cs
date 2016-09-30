@@ -97,17 +97,17 @@ namespace dragonBones
         /**
          * @private
          */
-        public ColorTransform _colorTransform = new ColorTransform();
+        public readonly ColorTransform _colorTransform = new ColorTransform();
 
         /**
          * @private
          */
-        public List<float> _ffdVertices = new List<float>();
+        public readonly List<float> _ffdVertices = new List<float>();
 
         /**
          * @private
          */
-        public List<DisplayData> _replacedDisplayDataSet = new List<DisplayData>();
+        public readonly List<DisplayData> _replacedDisplayDataSet = new List<DisplayData>();
 
         /**
          * @private
@@ -147,17 +147,17 @@ namespace dragonBones
         /**
          * @private
          */
-        protected Matrix _localMatrix = new Matrix();
+        protected readonly Matrix _localMatrix = new Matrix();
 
         /**
          * @private
          */
-        protected List<object> _displayList = new List<object>();
+        protected readonly List<object> _displayList = new List<object>();
 
         /**
          * @private
          */
-        protected List<Bone> _meshBones = new List<Bone>();
+        protected readonly List<Bone> _meshBones = new List<Bone>();
 
         public Slot()
         {
@@ -176,7 +176,7 @@ namespace dragonBones
             {
                 if (
                     eachDisplay != _rawDisplay && eachDisplay != _meshDisplay &&
-                    disposeDisplayList.IndexOf(eachDisplay) < 0
+                    !disposeDisplayList.Contains(eachDisplay)
                 )
                 {
                     disposeDisplayList.Add(eachDisplay);
@@ -714,7 +714,7 @@ namespace dragonBones
                     var eachDisplay = value[i];
                     if (
                         eachDisplay != null && eachDisplay != _rawDisplay && eachDisplay != _meshDisplay &&
-                        !(eachDisplay is Armature) && _displayList.IndexOf(eachDisplay) < 0
+                        !(eachDisplay is Armature) && !_displayList.Contains(eachDisplay)
                     )
                     {
                         _initDisplay(eachDisplay);
@@ -851,8 +851,8 @@ namespace dragonBones
                 {
                     if (
                         eachDisplay != null && eachDisplay != _rawDisplay && eachDisplay != _meshDisplay &&
-                        _displayList.IndexOf(eachDisplay) < 0 &&
-                        disposeDisplayList.IndexOf(eachDisplay) < 0
+                        !_displayList.Contains(eachDisplay) &&
+                        !disposeDisplayList.Contains(eachDisplay)
                     )
                     {
                         disposeDisplayList.Add(eachDisplay);

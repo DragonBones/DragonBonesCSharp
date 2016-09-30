@@ -36,7 +36,7 @@ namespace dragonBones
          * @see dragonBones.Transform
          * @version DragonBones 3.0
          */
-        public Transform global = new Transform();
+        public readonly Transform global = new Transform();
 
         /**
          * @language zh_CN
@@ -44,7 +44,7 @@ namespace dragonBones
          * @see dragonBones.Transform
          * @version DragonBones 3.0
          */
-        public Transform origin = new Transform();
+        public readonly Transform origin = new Transform();
 
         /**
          * @language zh_CN
@@ -52,7 +52,7 @@ namespace dragonBones
          * @see dragonBones.Transform
          * @version DragonBones 3.0
          */
-        public Transform offset = new Transform();
+        public readonly Transform offset = new Transform();
 
         /**
          * @private
@@ -67,7 +67,7 @@ namespace dragonBones
         /**
          * @private
          */
-        protected Matrix _globalTransformMatrix = new Matrix();
+        protected readonly Matrix _globalTransformMatrix = new Matrix();
 
         /**
          * @private

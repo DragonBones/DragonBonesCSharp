@@ -3,6 +3,8 @@ using UnityEngine;
 
 namespace dragonBones
 {
+
+
     public class UnityFactory : BaseFactory
     {
         /**
@@ -10,16 +12,16 @@ namespace dragonBones
          * 一个可以直接使用的全局工厂实例.
          * @version DragonBones 4.7
          */
-        public static UnityFactory factory = new UnityFactory();
+        public static readonly UnityFactory factory = new UnityFactory();
 
         /**
          * @private
          */
-        internal static WorldClock _clock = new WorldClock();
+        internal static readonly WorldClock _clock = new WorldClock();
 
         private static void _clockHandler(float time)
         {
-            _clock.advanceTime(-1.0f);
+            _clock.advanceTime(Time.deltaTime);
         }
 
         /**
@@ -81,8 +83,12 @@ namespace dragonBones
             var displayList = new List<object>();
 
             slot.name = slotData.name;
+            slot._zOrder = slotData.zOrder;
             slot._rawDisplay = new GameObject();
-            slot._meshDisplay = new GameObject();
+            slot._meshDisplay = slot._rawDisplay;
+
+            var renderer = ((GameObject)slot._rawDisplay).AddComponent<SpriteRenderer>(); // TODO
+            renderer.sortingOrder = slot._zOrder;
 
             foreach (var displayData in slotDisplayDataSet.displays)
             {

@@ -17,7 +17,7 @@ namespace dragonBones
         /**
          * @private
          */
-        public List<T> frames = new List<T>();
+        public readonly List<T> frames = new List<T>();
 
         public TimelineData()
         {
@@ -36,11 +36,10 @@ namespace dragonBones
                     prevFrame.returnToPool();
                 }
                 prevFrame = frame;
-
-                scale = 1.0f;
-                offset = 0.0f;
-
             }
+
+            scale = 1.0f;
+            offset = 0.0f;
 
             frames.Clear();
         }
@@ -60,8 +59,8 @@ namespace dragonBones
         }
 
         public BoneData bone;
-        public Transform originTransform = new Transform();
-        public List<Matrix> cachedFrames = new List<Matrix>();
+        public readonly Transform originTransform = new Transform();
+        public readonly List<Matrix> cachedFrames = new List<Matrix>();
 
         public BoneTimelineData()
         {
@@ -100,7 +99,7 @@ namespace dragonBones
         }
 
         public SlotData slot;
-        public List<Matrix> cachedFrames = new List<Matrix>();
+        public readonly List<Matrix> cachedFrames = new List<Matrix>();
 
         public SlotTimelineData()
         {
@@ -120,7 +119,7 @@ namespace dragonBones
         public void cacheFrames(uint cacheFrameCount)
         {
             cachedFrames.Clear();
-            // cachedFrames.length = cacheFrameCount; // TODO
+            DragonBones.resizeList(cachedFrames, (int)cacheFrameCount, null);
         }
     }
 

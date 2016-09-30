@@ -74,22 +74,22 @@ namespace dragonBones
         /**
          * @private Store bones based on bones' hierarchy (From root to leaf)
          */
-        private List<Bone> _bones = new List<Bone>();
+        private readonly List<Bone> _bones = new List<Bone>();
 
         /**
          * @private Store slots based on slots' zOrder (From low to high)
          */
-        private List<Slot> _slots = new List<Slot>();
+        private readonly List<Slot> _slots = new List<Slot>();
 
         /**
          * @private
          */
-        private List<ActionData> _actions = new List<ActionData>();
+        private readonly List<ActionData> _actions = new List<ActionData>();
 
         /**
          * @private
          */
-        private List<EventObject> _events = new List<EventObject>();
+        private readonly List<EventObject> _events = new List<EventObject>();
 
         public Armature()
         {
@@ -173,17 +173,17 @@ namespace dragonBones
                     index = 0;
                 }
 
-                if (_bones.IndexOf(bone) >= 0)
+                if (_bones.Contains(bone))
                 {
                     continue;
                 }
 
-                if (bone.parent != null && _bones.IndexOf(bone.parent) < 0)
+                if (bone.parent != null && !_bones.Contains(bone.parent))
                 {
                     continue;
                 }
 
-                if (bone.ik != null && _bones.IndexOf(bone.ik) < 0)
+                if (bone.ik != null && !_bones.Contains(bone.ik))
                 {
                     continue;
                 }
@@ -249,7 +249,7 @@ namespace dragonBones
          */
         public void _addBoneToBoneList(Bone value)
         {
-            if (_bones.IndexOf(value) < 0)
+            if (!_bones.Contains(value))
             {
                 _bonesDirty = true;
                 _bones.Add(value);
@@ -262,10 +262,9 @@ namespace dragonBones
          */
         public void _removeBoneFromBoneList(Bone value)
         {
-            var index = _bones.IndexOf(value);
-            if (index >= 0)
+            if (_bones.Contains(value))
             {
-                _bones.RemoveAt(index);
+                _bones.Remove(value);
                 _animation._timelineStateDirty = true;
             }
         }
@@ -275,7 +274,7 @@ namespace dragonBones
          */
         public void _addSlotToSlotList(Slot value)
         {
-            if (_slots.IndexOf(value) < 0)
+            if (!_slots.Contains(value))
             {
                 _slotsDirty = true;
                 _slots.Add(value);
@@ -288,10 +287,9 @@ namespace dragonBones
          */
         public void _removeSlotFromSlotList(Slot value)
         {
-            var index = _slots.IndexOf(value);
-            if (index >= 0)
+            if (_slots.Contains(value))
             {
-                _slots.RemoveAt(index);
+                _slots.Remove(value);
                 _animation._timelineStateDirty = true;
             }
         }

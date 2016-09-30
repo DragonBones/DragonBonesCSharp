@@ -33,9 +33,9 @@ namespace dragonBones
          * @see dragonBones.ArmatureData
          * @version DragonBones 3.0
          */
-        public Dictionary<string, ArmatureData> armatures = new Dictionary<string, ArmatureData>();
+        public readonly Dictionary<string, ArmatureData> armatures = new Dictionary<string, ArmatureData>();
 
-        private List<string> _armatureNames = new List<string>();
+        private readonly List<string> _armatureNames = new List<string>();
 
         /**
          * @private
@@ -70,7 +70,7 @@ namespace dragonBones
          */
         public ArmatureData getArmature(string name)
         {
-            return armatures[name];
+            return armatures.ContainsKey(name) ? armatures[name] : null;
         }
 
         /**

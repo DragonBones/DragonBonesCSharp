@@ -9,7 +9,7 @@ namespace dragonBones
      */
     public class UnitySlot : Slot
     {
-        private static Shader _defaultShader = Shader.Find("Transparent/Depth Ordered Unlit");
+        private static Vector3 _helpVector3 = new Vector3();
 
         private GameObject _renderDisplay;
 
@@ -20,7 +20,6 @@ namespace dragonBones
          */
         public UnitySlot()
         {
-            
         }
 
         /**
@@ -77,8 +76,15 @@ namespace dragonBones
         {
             var container = (UnityArmatureDisplay)this._armature._display;
             var prevDisplay = (GameObject)value;
-            _renderDisplay.transform.parent = container.gameObject.transform;
             prevDisplay.transform.parent = null;
+            _renderDisplay.transform.parent = container.gameObject.transform;
+
+            /*var renderer = _renderDisplay.GetComponent<Renderer>();
+            if (renderer)
+            {
+                renderer.sortingOrder = prevDisplay.GetComponent<Renderer>().sortingOrder;
+            }*/
+
         }
 
         /**
@@ -95,6 +101,12 @@ namespace dragonBones
         override internal void _updateVisible()
         {
             _renderDisplay.SetActive(this._parent.visible);
+
+            var renderer = (SpriteRenderer)_renderDisplay.GetComponent<SpriteRenderer>();
+            if (renderer)
+            {
+                renderer.enabled = this._parent.visible;
+            }
         }
 
         /**
@@ -124,9 +136,9 @@ namespace dragonBones
         override protected void _updateColor()
         {
             if (
-                this._colorTransform.redMultiplier != 1 ||
-                this._colorTransform.greenMultiplier != 1 ||
-                this._colorTransform.blueMultiplier != 1 ||
+                this._colorTransform.redMultiplier != 1.0f ||
+                this._colorTransform.greenMultiplier != 1.0f ||
+                this._colorTransform.blueMultiplier != 1.0f ||
                 this._colorTransform.redOffset != 0 ||
                 this._colorTransform.greenOffset != 0 ||
                 this._colorTransform.blueOffset != 0 ||
@@ -157,13 +169,11 @@ namespace dragonBones
                 if (currentTextureData != null)
                 {
                     var textureAtlasTexture = ((UnityTextureAtlasData)currentTextureData.parent).texture;
-                    if (currentTextureData.texture == null && textureAtlasTexture != null) // Create and cache material.
+                    if (currentTextureData.texture == null && textureAtlasTexture != null) // Create and cache texture.
                     {
-                        var rect = new Rect(currentTextureData.region.x, currentTextureData.region.y, currentTextureData.region.width, currentTextureData.region.height);
+                        var rect = new Rect(currentTextureData.region.x, textureAtlasTexture.height - currentTextureData.region.y - currentTextureData.region.height, currentTextureData.region.width, currentTextureData.region.height);
                         var pivot = new Vector2();
-                        //currentTextureData.material = new Material(_defaultShader);
-                        //currentTextureData.material.mainTexture = textureAtlasTexture;
-                        currentTextureData.texture = Sprite.Create(textureAtlasTexture, rect, pivot);
+                        currentTextureData.texture = Sprite.Create(textureAtlasTexture, rect, pivot, 1.0f);
                     }
 
                     if (currentTextureData.texture)
@@ -207,6 +217,7 @@ namespace dragonBones
                     }
                     else // Normal texture.
                     {
+                        this._pivotY -= currentTextureData.region.height * this._armature.armatureData.scale;
                         frameDisplay.sprite = currentTextureData.texture;
                     }
 
@@ -216,20 +227,18 @@ namespace dragonBones
                 }
             }
 
-            this._pivotX = 0;
-            this._pivotY = 0;
+            this._pivotX = 0.0f;
+            this._pivotY = 0.0f;
 
-            /*
-            frameDisplay.visible = false;
+            _renderDisplay.SetActive(false);
+            frameDisplay.enabled = false;
             frameDisplay.sprite = null;
-            frameDisplay.
-                x = this.origin.x;
-            frameDisplay.y = this.origin.y;
-            */
 
-            var position = frameDisplay.transform.position;
-            position.x = this.origin.x;
-            position.y = this.origin.y;
+            _helpVector3.x = this.origin.x;
+            _helpVector3.y = this.origin.y;
+            _helpVector3.z = 0.0f;
+
+            frameDisplay.transform.localPosition = _helpVector3;
         }
 
         /**
@@ -305,9 +314,23 @@ namespace dragonBones
          */
         override protected void _updateTransform()
         {
-            var position = _renderDisplay.transform.position;
-            position.x = this.globalTransformMatrix.tx - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
-            position.y = this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY);
+            _helpVector3.x = this.globalTransformMatrix.tx - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
+            _helpVector3.y = -(this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY));
+            _helpVector3.z = 0.0f;
+
+            _renderDisplay.transform.localPosition = _helpVector3;
+
+            _helpVector3.x = 0.0f;
+            _helpVector3.y = 0.0f;
+            _helpVector3.z = -this.global.skewY * DragonBones.RADIAN_TO_ANGLE;
+
+            _renderDisplay.transform.localEulerAngles = _helpVector3;
+
+            _helpVector3.x = this.global.scaleX;
+            _helpVector3.y = this.global.scaleY;
+            _helpVector3.z = 0.0f;
+
+            _renderDisplay.transform.localScale = _helpVector3;
         }
     }
 }

@@ -240,13 +240,13 @@ namespace dragonBones
         protected bool _isGlobalTransform = false; // For 2.x ~ 3.x
         protected bool _isAutoTween = false; // For 2.x ~ 3.x
         protected float _animationTweenEasing = 0.0f; // For 2.x ~ 3.x
-        protected Point _timelinePivot = new Point(); // For 2.x ~ 3.x
+        protected readonly Point _timelinePivot = new Point(); // For 2.x ~ 3.x
         
-        protected Point _helpPoint = new Point();
-        protected Transform _helpTransformA = new Transform();
-        protected Transform _helpTransformB = new Transform();
-        protected Matrix _helpMatrix = new Matrix();
-        protected List<BoneData> _rawBones = new List<BoneData>(); // For skinned mesh
+        protected readonly Point _helpPoint = new Point();
+        protected readonly Transform _helpTransformA = new Transform();
+        protected readonly Transform _helpTransformB = new Transform();
+        protected readonly Matrix _helpMatrix = new Matrix();
+        protected readonly List<BoneData> _rawBones = new List<BoneData>(); // For skinned mesh
 
         public DataParser() { }
 

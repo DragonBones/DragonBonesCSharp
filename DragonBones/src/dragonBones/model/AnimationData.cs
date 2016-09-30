@@ -70,22 +70,22 @@ namespace dragonBones
         /**
          * @private
          */
-        public Dictionary<string, BoneTimelineData> boneTimelines = new Dictionary<string, BoneTimelineData>();
+        public readonly Dictionary<string, BoneTimelineData> boneTimelines = new Dictionary<string, BoneTimelineData>();
 
         /**
          * @private
          */
-        public Dictionary<string, SlotTimelineData> slotTimelines = new Dictionary<string, SlotTimelineData>();
+        public readonly Dictionary<string, SlotTimelineData> slotTimelines = new Dictionary<string, SlotTimelineData>();
 
         /**
          * @private
          */
-        public Dictionary<string, Dictionary<string, Dictionary<string, FFDTimelineData>>> ffdTimelines = new Dictionary<string, Dictionary<string, Dictionary<string, FFDTimelineData>>>(); // skin slot displayIndex
+        public readonly Dictionary<string, Dictionary<string, Dictionary<string, FFDTimelineData>>> ffdTimelines = new Dictionary<string, Dictionary<string, Dictionary<string, FFDTimelineData>>>(); // skin slot displayIndex
 
         /**
          * @private
          */
-        public List<bool> cachedFrames = new List<bool>();
+        public readonly List<bool> cachedFrames = new List<bool>();
 
         /**
          * @private
@@ -229,7 +229,7 @@ namespace dragonBones
          */
         public BoneTimelineData getBoneTimeline(string name)
         {
-            return boneTimelines[name];
+            return boneTimelines.ContainsKey(name) ? boneTimelines[name] : null;
         }
 
         /**
@@ -237,7 +237,7 @@ namespace dragonBones
          */
         public SlotTimelineData getSlotTimeline(string name)
         {
-            return slotTimelines[name];
+            return slotTimelines.ContainsKey(name) ? slotTimelines[name] : null;
         }
 
         /**

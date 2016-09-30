@@ -36,7 +36,7 @@ namespace dragonBones
         /**
          * @private
          */
-        public Dictionary<string, TextureData> textures = new Dictionary<string, TextureData>();
+        public readonly Dictionary<string, TextureData> textures = new Dictionary<string, TextureData>();
 
         /**
          * @private
@@ -106,7 +106,7 @@ namespace dragonBones
         public string name;
         public Rectangle frame;
         public TextureAtlasData parent;
-        public Rectangle region = new Rectangle();
+        public readonly Rectangle region = new Rectangle();
 
         public TextureData()
         {

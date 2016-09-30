@@ -11,7 +11,7 @@ namespace dragonBones
         public ActionType type;
         public BoneData bone;
         public SlotData slot;
-        public ArrayList data = new ArrayList();
+        public readonly ArrayList data = new ArrayList();
 
         public ActionData()
         {
@@ -152,8 +152,8 @@ namespace dragonBones
      */
     public class AnimationFrameData : FrameData<AnimationFrameData>
     {
-        public List<ActionData> actions = new List<ActionData>();
-        public List<EventData> events = new List<EventData>();
+        public readonly List<ActionData> actions = new List<ActionData>();
+        public readonly List<EventData> events = new List<EventData>();
 
         public AnimationFrameData()
         {
@@ -188,7 +188,7 @@ namespace dragonBones
     {
         public bool tweenScale;
         public float tweenRotate;
-        public Transform transform = new Transform();
+        public readonly Transform transform = new Transform();
 
         public BoneFrameData()
         {
@@ -212,7 +212,7 @@ namespace dragonBones
      */
     public class SlotFrameData : TweenFrameData<SlotFrameData>
     {
-        public static ColorTransform DEFAULT_COLOR = new ColorTransform();
+        public static readonly ColorTransform DEFAULT_COLOR = new ColorTransform();
         public static ColorTransform generateColor()
         {
             return new ColorTransform();
@@ -245,8 +245,8 @@ namespace dragonBones
     public class ExtensionFrameData : TweenFrameData<ExtensionFrameData>
     {
         public ExtensionType type;
-        public List<float> tweens = new List<float>();
-        public List<float> keys = new List<float>();
+        public readonly List<float> tweens = new List<float>();
+        public readonly List<float> keys = new List<float>();
 
         public ExtensionFrameData()
         {

@@ -17,7 +17,7 @@ namespace dragonBones
          * 一个可以直接使用的全局 WorldClock 实例.
          * @version DragonBones 3.0
          */
-        public static WorldClock clock = new WorldClock();
+        public static readonly WorldClock clock = new WorldClock();
 
         /**
          * @language zh_CN
@@ -34,7 +34,7 @@ namespace dragonBones
          */
         public float timeScale = 1.0f;
 
-        private List<IAnimateble> _animatebles = new List<IAnimateble>();
+        private readonly List<IAnimateble> _animatebles = new List<IAnimateble>();
 
         /**
          * @language zh_CN

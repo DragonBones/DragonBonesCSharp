@@ -24,7 +24,7 @@ namespace dragonBones
      */
     public abstract class BaseFactory
     {
-        protected static ObjectDataParser _defaultDataParser = new ObjectDataParser();
+        protected static readonly ObjectDataParser _defaultDataParser = new ObjectDataParser();
 
         /**
          * @language zh_CN
@@ -44,12 +44,12 @@ namespace dragonBones
         /**
          * @private
          */
-        protected Dictionary<string, DragonBonesData> _dragonBonesDataMap = new Dictionary<string, DragonBonesData>();
+        protected readonly Dictionary<string, DragonBonesData> _dragonBonesDataMap = new Dictionary<string, DragonBonesData>();
 
         /**
          * @private
          */
-        protected Dictionary<string, List<TextureAtlasData>> _textureAtlasDataMap = new Dictionary<string, List<TextureAtlasData>>();
+        protected readonly Dictionary<string, List<TextureAtlasData>> _textureAtlasDataMap = new Dictionary<string, List<TextureAtlasData>>();
 
         /** 
          * @private 

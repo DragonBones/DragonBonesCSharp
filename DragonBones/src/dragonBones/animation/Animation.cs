@@ -115,17 +115,17 @@ namespace dragonBones
         /**
          * @private
          */
-        protected Dictionary<string, AnimationData> _animations = new Dictionary<string, AnimationData>();
+        protected readonly Dictionary<string, AnimationData> _animations = new Dictionary<string, AnimationData>();
 
         /**
          * @private
          */
-        protected List<string> _animationNames = new List<string>();
+        protected readonly List<string> _animationNames = new List<string>();
 
         /**
          * @private
          */
-        protected List<AnimationState> _animationStates = new List<AnimationState>();
+        protected readonly List<AnimationState> _animationStates = new List<AnimationState>();
 
         /**
          * @private

@@ -166,7 +166,7 @@ namespace dragonBones
                 list.Capacity = count;
                 for (int i = list.Count, l = count; i < l; ++i)
                 {
-                    list[i] = value;
+                    list.Add(value);
                 }
             }
         }

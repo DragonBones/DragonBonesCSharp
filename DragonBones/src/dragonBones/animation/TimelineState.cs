@@ -200,9 +200,9 @@ namespace dragonBones
         private TweenType _tweenScale;
         private Transform _boneTransform;
         private Transform _originTransform;
-        private Transform _transform = new Transform();
-        private Transform _currentTransform = new Transform();
-        private Transform _durationTransform = new Transform();
+        private readonly Transform _transform = new Transform();
+        private readonly Transform _currentTransform = new Transform();
+        private readonly Transform _durationTransform = new Transform();
 
         public BoneTimelineState()
         {
@@ -460,8 +460,8 @@ namespace dragonBones
         private bool _colorDirty;
         private TweenType _tweenColor;
         private ColorTransform _slotColor;
-        private ColorTransform _color = new ColorTransform();
-        private ColorTransform _durationColor = new ColorTransform();
+        private readonly ColorTransform _color = new ColorTransform();
+        private readonly ColorTransform _durationColor = new ColorTransform();
 
         public SlotTimelineState()
         {
@@ -672,7 +672,7 @@ namespace dragonBones
         private TweenType _tweenFFD;
         private List<float> _slotFFDVertices;
         private ExtensionFrameData _durationFFDFrame;
-        private List<float> _ffdVertices = new List<float>();
+        private readonly List<float> _ffdVertices = new List<float>();
 
         public FFDTimelineState()
         {

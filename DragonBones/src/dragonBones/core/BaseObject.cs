@@ -5,8 +5,8 @@ namespace dragonBones
     abstract public class BaseObject
     {
         private static uint _defaultMaxCount = 5000;
-        private static Dictionary<System.Type, uint> _maxCountMap = new Dictionary<System.Type, uint>();
-        private static Dictionary<System.Type, List<BaseObject>> _poolsMap = new Dictionary<System.Type, List<BaseObject>>();
+        private static readonly Dictionary<System.Type, uint> _maxCountMap = new Dictionary<System.Type, uint>();
+        private static readonly Dictionary<System.Type, List<BaseObject>> _poolsMap = new Dictionary<System.Type, List<BaseObject>>();
         
         private static void _returnObject(BaseObject obj)
         {

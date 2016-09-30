@@ -83,7 +83,7 @@ namespace dragonBones
         /**
          * @private
          */
-        public Transform _animationPose = new Transform();
+        public readonly Transform _animationPose = new Transform();
 
         /**
          * @private
@@ -108,12 +108,12 @@ namespace dragonBones
         /**
          * @private
          */
-        private List<Bone> _bones = new List<Bone>();
+        private readonly List<Bone> _bones = new List<Bone>();
 
         /**
          * @private
          */
-        private List<Slot> _slots = new List<Slot>();
+        private readonly List<Slot> _slots = new List<Slot>();
 
         /**
          * @private

@@ -44,8 +44,8 @@ namespace dragonBones
         }
 
         /**
-		 * @inheritDoc
-		 */
+         * @inheritDoc
+         */
         override protected void _onClear()
         {
             _isCompleted = false;
