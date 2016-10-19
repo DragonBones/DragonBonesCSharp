@@ -97,19 +97,19 @@ namespace DragonBones
                 {
                     //try
                     //{
-                        //var dragonBonesData = UnityFactory.factory.loadDragonBonesData(_dragonBoneJSON);
-                        //if (dragonBonesData == null)
-                        //{
-                            //_dragonBoneJSON = _armatureComponent.draggonBonesJSON;
-                        //}
-                        //else
-                        //{
-                            //UnityFactory.factory.removeDragonBonesData(_dragonBoneJSON.name);
-                        //}
+                    //var dragonBonesData = UnityFactory.factory.loadDragonBonesData(_dragonBoneJSON);
+                    //if (dragonBonesData == null)
+                    //{
+                    //_dragonBoneJSON = _armatureComponent.draggonBonesJSON;
+                    //}
+                    //else
+                    //{
+                    //UnityFactory.factory.removeDragonBonesData(_dragonBoneJSON.name);
+                    //}
                     //}
                     //catch
                     //{
-                        //_dragonBoneJSON = _armatureComponent.draggonBonesJSON;
+                    //_dragonBoneJSON = _armatureComponent.draggonBonesJSON;
                     //}
                 }
             }
@@ -117,20 +117,23 @@ namespace DragonBones
             if (_armatureComponent.draggonBonesJSON != _dragonBoneJSON && GUILayout.Button(_armatureComponent.armature == null ? "Create" : "Change"))
             {
                 DragonBonesData dragonBonesData = null;
+                _armatureComponent.draggonBonesJSON = _dragonBoneJSON;
 
-                try
+                if (_armatureComponent.draggonBonesJSON != null)
                 {
-                    _armatureComponent.draggonBonesJSON = _dragonBoneJSON;
-                    _armatureComponent.textureAtlasJSON = new List<string>();
-                    _getTextureAtlasConfigs(
-                        _armatureComponent.textureAtlasJSON,
-                        AssetDatabase.GetAssetPath(_armatureComponent.draggonBonesJSON.GetInstanceID())
-                        );
+                    try
+                    {
+                        _armatureComponent.textureAtlasJSON = new List<string>();
+                        _getTextureAtlasConfigs(
+                            _armatureComponent.textureAtlasJSON,
+                            AssetDatabase.GetAssetPath(_armatureComponent.draggonBonesJSON.GetInstanceID())
+                            );
 
-                    dragonBonesData = _armatureComponent.LoadData();
-                }
-                catch
-                {
+                        dragonBonesData = _armatureComponent.LoadData();
+                    }
+                    catch
+                    {
+                    }
                 }
 
                 if (dragonBonesData == null)
@@ -148,7 +151,7 @@ namespace DragonBones
             }
 
             GUILayout.EndHorizontal();
-            
+
             EditorGUILayout.Space();
 
             if (_armatureComponent.armature != null)
@@ -219,15 +222,15 @@ namespace DragonBones
         private void _getTextureAtlasConfigs(List<string> textureAtlasFiles, string filePath, string rawName = null, string suffix = "texture")
         {
             var folder = Directory.GetParent(filePath).ToString();
-			var name = rawName != null ? rawName : filePath.Substring(0, filePath.LastIndexOf(".")).Substring(filePath.LastIndexOf("/") + 1);
+            var name = rawName != null ? rawName : filePath.Substring(0, filePath.LastIndexOf(".")).Substring(filePath.LastIndexOf("/") + 1);
             int index = 0;
             var textureAtlasName = "";
             var textureAtlasConfigFile = "";
 
             textureAtlasName = DragonBones.IsAvailableString(name) ? name + (DragonBones.IsAvailableString(suffix) ? "_" + suffix : suffix) : suffix;
-			textureAtlasConfigFile = folder + "/" + textureAtlasName + ".json";
+            textureAtlasConfigFile = folder + "/" + textureAtlasName + ".json";
 
-			if (File.Exists(textureAtlasConfigFile))
+            if (File.Exists(textureAtlasConfigFile))
             {
                 textureAtlasFiles.Add(textureAtlasConfigFile);
                 return;
@@ -238,19 +241,19 @@ namespace DragonBones
                 return;
             }
 
-			while (true) 
-			{
-				textureAtlasName = (DragonBones.IsAvailableString(name) ? name + (DragonBones.IsAvailableString(suffix) ? "_" + suffix : suffix) : suffix) + "_" + (index++);
-				textureAtlasConfigFile = folder + "/" + textureAtlasName + ".json";
-				if (File.Exists(textureAtlasConfigFile))
-				{
-					textureAtlasFiles.Add(textureAtlasConfigFile);
-				}
-				else if (index > 1) 
-				{
-					break;
-				}
-			}
+            while (true)
+            {
+                textureAtlasName = (DragonBones.IsAvailableString(name) ? name + (DragonBones.IsAvailableString(suffix) ? "_" + suffix : suffix) : suffix) + "_" + (index++);
+                textureAtlasConfigFile = folder + "/" + textureAtlasName + ".json";
+                if (File.Exists(textureAtlasConfigFile))
+                {
+                    textureAtlasFiles.Add(textureAtlasConfigFile);
+                }
+                else if (index > 1)
+                {
+                    break;
+                }
+            }
 
             _getTextureAtlasConfigs(textureAtlasFiles, filePath, "", suffix);
             if (textureAtlasFiles.Count > 0)
