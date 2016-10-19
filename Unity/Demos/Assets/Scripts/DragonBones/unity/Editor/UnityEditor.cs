@@ -63,6 +63,7 @@ namespace DragonBones
                     if (DragonBones.IsAvailableString(_armatureComponent.animationName))
                     {
                         _armatureComponent.animation.Play(_armatureComponent.animationName);
+						_armatureComponent.animation.Stop();
                     }
                 }
             }
@@ -179,10 +180,18 @@ namespace DragonBones
                     GUILayout.BeginHorizontal();
                     var animationIndex = EditorGUILayout.Popup("Animation", _animationIndex, _animationNames.ToArray());
 
-                    if (_animationIndex >= 0 && EditorApplication.isPlayingOrWillChangePlaymode && GUILayout.Button("Play"))
-                    {
-                        _armatureComponent.animation.Play();
-                    }
+					if (_animationIndex >= 0)
+					{
+						if(_armatureComponent.animation.isPlaying){
+							if(GUILayout.Button("Stop")){
+								_armatureComponent.animation.Stop();
+							}
+						}else{
+							if(GUILayout.Button("Play")){
+								_armatureComponent.animation.Play();
+							}
+						}
+					}
 
                     GUILayout.EndHorizontal();
 
@@ -206,7 +215,17 @@ namespace DragonBones
                 _armatureComponent.animation.timeScale = GUILayout.HorizontalSlider(_armatureComponent.animation.timeScale, 0.0f, 2.0f);
                 GUILayout.EndHorizontal();
             }
+			if(!Application.isPlaying && Selection.activeObject==_armatureComponent.gameObject){
+				EditorUtility.SetDirty (_armatureComponent);
+				HandleUtility.Repaint();
+			}
         }
+
+		void OnSceneGUI(){
+			if(!Application.isPlaying && _armatureComponent.animation.isPlaying){
+				_armatureComponent.armature.AdvanceTime(1/60f);
+			}
+		}
 
         private void _update()
         {
