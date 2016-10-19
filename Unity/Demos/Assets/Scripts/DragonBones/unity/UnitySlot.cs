@@ -64,7 +64,6 @@ namespace DragonBones
         override protected void _disposeDisplay(object value)
         {
             var gameObject = value as GameObject;
-            gameObject.transform.parent = null;
 #if UNITY_EDITOR
             Object.DestroyImmediate(gameObject);
 #else
