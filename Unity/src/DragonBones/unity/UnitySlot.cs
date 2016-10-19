@@ -297,7 +297,7 @@ namespace DragonBones
                         {
                             _renderDisplay.transform.localPosition = new Vector3(0.0f, 0.0f, _renderDisplay.transform.localPosition.z);
                             _renderDisplay.transform.localEulerAngles = new Vector3();
-                            _renderDisplay.transform.localScale = new Vector3();
+                            _renderDisplay.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
                         }
                     }
                     else // Normal texture.

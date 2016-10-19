@@ -304,6 +304,14 @@ namespace DragonBones
         }
 
         /**
+         * @private
+         */
+        override public string ToString()
+        {
+            return "[object DragonBones.Matrix] a:" + a + " b:" + b + " c:" + c + " d:" + d + " tx:" + tx + " ty:" + ty;
+        }
+
+        /**
          * @language zh_CN
          * 复制矩阵。
          * @param value 需要复制的矩阵。

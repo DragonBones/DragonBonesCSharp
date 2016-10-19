@@ -518,8 +518,9 @@ namespace DragonBones
             var numTriangles = (int)(rawTriangles.Count / 3); // uint
 
             var inverseBindPose = new List<Matrix>(this._armature.sortedBones.Count);
+            DragonBones.ResizeList(inverseBindPose, this._armature.sortedBones.Count, null);
 
-            mesh.skinned = (rawData.ContainsKey(WEIGHTS)) && (rawData[WEIGHTS] as List<object>).Count > 0;
+            mesh.skinned = rawData.ContainsKey(WEIGHTS) && (rawData[WEIGHTS] as List<object>).Count > 0;
 
             DragonBones.ResizeList(mesh.uvs, numVertices * 2, 0.0f);
             DragonBones.ResizeList(mesh.vertices, numVertices * 2, 0.0f);
@@ -547,15 +548,16 @@ namespace DragonBones
                     var rawBonePose = rawData[BONE_POSE] as List<object>;
                     for (int i = 0, l = rawBonePose.Count; i < l; i += 7)
                     {
-                        var rawBoneIndex = (int)rawBonePose[i]; // uint
+                        var rawBoneIndex = Convert.ToInt32(rawBonePose[i]); // uint
                         var boneMatrix = inverseBindPose[rawBoneIndex] = new Matrix();
-                        boneMatrix.a = _getParameter(rawBonePose, 0, 1.0f);
-                        boneMatrix.b = _getParameter(rawBonePose, 1, 0.0f);
-                        boneMatrix.c = _getParameter(rawBonePose, 2, 0.0f);
-                        boneMatrix.d = _getParameter(rawBonePose, 3, 1.0f);
-                        boneMatrix.tx = _getParameter(rawBonePose, 4, 0.0f) * this._armature.scale;
-                        boneMatrix.ty = _getParameter(rawBonePose, 5, 0.0f) * this._armature.scale;
+                        boneMatrix.a = _getParameter(rawBonePose, i + 1, 1.0f);
+                        boneMatrix.b = _getParameter(rawBonePose, i + 2, 0.0f);
+                        boneMatrix.c = _getParameter(rawBonePose, i + 3, 0.0f);
+                        boneMatrix.d = _getParameter(rawBonePose, i + 4, 1.0f);
+                        boneMatrix.tx = _getParameter(rawBonePose, i + 5, 0.0f) * this._armature.scale;
+                        boneMatrix.ty = _getParameter(rawBonePose, i + 6, 0.0f) * this._armature.scale;
                         boneMatrix.Invert();
+
                     }
                 }
             }
@@ -578,6 +580,10 @@ namespace DragonBones
                     var weights = mesh.weights[vertexIndex] = new List<float>(numBones);
                     var boneVertices = mesh.boneVertices[vertexIndex] = new List<float>(numBones * 2);
 
+                    DragonBones.ResizeList(indices, numBones, 0);
+                    DragonBones.ResizeList(weights, numBones, 0.0f);
+                    DragonBones.ResizeList(boneVertices, numBones * 2, 0.0f);
+
                     mesh.slotPose.TransformPoint(x, y, this._helpPoint);
                     x = mesh.vertices[i] = this._helpPoint.x;
                     y = mesh.vertices[iN] = this._helpPoint.y;
@@ -585,13 +591,15 @@ namespace DragonBones
                     for (int iB = 0; iB < numBones; ++iB)
                     {
                         var iI = iW + 1 + iB * 2;
-                        var rawBoneIndex = (int)rawWeights[iI]; // uint
+                        var rawBoneIndex = Convert.ToInt32(rawWeights[iI]); // uint
                         var boneData = this._rawBones[rawBoneIndex];
 
                         var boneIndex = mesh.bones.IndexOf(boneData);
                         if (boneIndex < 0)
                         {
                             boneIndex = mesh.bones.Count;
+                            DragonBones.ResizeList(mesh.bones, boneIndex + 1, null);
+                            DragonBones.ResizeList(mesh.inverseBindPose, boneIndex + 1, null);
                             mesh.bones[boneIndex] = boneData;
                             mesh.inverseBindPose[boneIndex] = inverseBindPose[rawBoneIndex];
                         }
