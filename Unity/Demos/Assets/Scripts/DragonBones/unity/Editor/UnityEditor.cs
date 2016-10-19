@@ -222,7 +222,7 @@ namespace DragonBones
         }
 
 		void OnSceneGUI(){
-			if(!Application.isPlaying && _armatureComponent.animation.isPlaying){
+			if(!Application.isPlaying && _armatureComponent.draggonBonesJSON != null && _armatureComponent.animation.isPlaying){
 				_armatureComponent.armature.AdvanceTime(1/60f);
 			}
 		}
