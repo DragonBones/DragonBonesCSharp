@@ -33,6 +33,30 @@ namespace DragonBones
         private bool _disposeGameObject = true;
         private float _zSpace = 0.0f;
 
+		[SerializeField]
+		protected string _sortingLayerName = "Default";
+		public string sortingLayerName{
+			get { return _sortingLayerName; }
+			set {
+				_sortingLayerName = value;
+				foreach(Renderer render in GetComponentsInChildren<Renderer>(true)){
+					render.sortingLayerName = value;
+				}
+			}
+		}
+
+		[SerializeField]
+		protected int _sortingOrder = 0;
+		public int sortingOrder{
+			get { return _sortingOrder; }
+			set {
+				_sortingOrder = value;
+				foreach(Renderer render in GetComponentsInChildren<Renderer>(true)){
+					render.sortingOrder = value;
+				}
+			}
+		}
+
         /**
          * @private
          */
@@ -56,6 +80,8 @@ namespace DragonBones
             if (DragonBones.IsAvailableString(armatureName))
             {
                 UnityFactory.factory.BuildArmatureComponent(armatureName, null, null, this.gameObject);
+				sortingLayerName = sortingLayerName;
+				sortingOrder = sortingOrder;
             }
 
             if (_armature != null && DragonBones.IsAvailableString(animationName))
