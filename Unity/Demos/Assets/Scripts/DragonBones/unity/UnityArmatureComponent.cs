@@ -71,7 +71,7 @@ namespace DragonBones
         {
             if (Application.isPlaying)
             {
-                Dispose(true);
+                //Dispose(true);
             }
         }
 
