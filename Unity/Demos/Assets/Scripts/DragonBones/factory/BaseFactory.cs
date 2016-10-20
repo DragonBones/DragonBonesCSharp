@@ -214,11 +214,11 @@ namespace DragonBones
 
             foreach (var slotData in dataPackage.armature.sortedSlots)
             {
-                var slotDisplayDataSet = slotDisplayDataSetMap[slotData.name];
-                if (slotDisplayDataSet == null)
+                if (!slotDisplayDataSetMap.ContainsKey(slotData.name))
                 {
                     continue;
                 }
+                var slotDisplayDataSet = slotDisplayDataSetMap[slotData.name];
 
                 var slot = _generateSlot(dataPackage, slotDisplayDataSet, armature);
                 if (slot != null)
