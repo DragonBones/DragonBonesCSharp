@@ -2,6 +2,8 @@
 using System.IO;
 using UnityEngine;
 using UnityEditor;
+using UnityEditorInternal;
+using System.Reflection;
 
 namespace DragonBones
 {
@@ -36,6 +38,8 @@ namespace DragonBones
         private List<string> _armatureNames = null;
         private List<string> _animationNames = null;
         private UnityArmatureComponent _armatureComponent = null;
+		private string[] _sortingLayerNames;
+		private int _selectedOption;
 
         void Reset()
         {
@@ -70,6 +74,12 @@ namespace DragonBones
 
             _update();
         }
+
+		void OnEnable(){
+			_armatureComponent = this.target as UnityArmatureComponent;
+			_sortingLayerNames = GetSortingLayerNames();
+			_selectedOption = GetSortingLayerIndex(_armatureComponent.sortingLayerName);  
+		}
 
         void OnDestroy()
         {
@@ -157,6 +167,21 @@ namespace DragonBones
 
             if (_armatureComponent.armature != null)
             {
+				_selectedOption = EditorGUILayout.Popup("Sorting Layer", _selectedOption, _sortingLayerNames);
+				if (_sortingLayerNames[_selectedOption] != _armatureComponent.sortingLayerName)
+				{
+					Undo.RecordObject(_armatureComponent, "Sorting Layer");
+					_armatureComponent.sortingLayerName = _sortingLayerNames[_selectedOption];
+					EditorUtility.SetDirty(_armatureComponent);
+				}
+				int newSortingLayerOrder = EditorGUILayout.IntField("Order in Layer", _armatureComponent.sortingOrder);
+				if (newSortingLayerOrder != _armatureComponent.sortingOrder)
+				{
+					Undo.RecordObject(_armatureComponent, "Edit Sorting Order");
+					_armatureComponent.sortingOrder = newSortingLayerOrder;
+					EditorUtility.SetDirty(_armatureComponent);
+				}
+
                 var dragonBonesData = _armatureComponent.armature.armatureData.parent;
 
                 if (
@@ -325,6 +350,21 @@ namespace DragonBones
                 slot.childArmature = _armatureComponent.armature;
                 UnityFactory.clock.Remove(_armatureComponent.armature);
             }
+
+			_armatureComponent.sortingLayerName = _armatureComponent.sortingLayerName;
+			_armatureComponent.sortingOrder = _armatureComponent.sortingOrder;
         }
+
+		private string[] GetSortingLayerNames() {
+			System.Type internalEditorUtilityType = typeof(InternalEditorUtility);
+			PropertyInfo sortingLayersProperty = internalEditorUtilityType.GetProperty("sortingLayerNames", BindingFlags.Static | BindingFlags.NonPublic);
+			return (string[])sortingLayersProperty.GetValue(null, new object[0]);
+		}
+		private int GetSortingLayerIndex(string layerName){
+			for(int i = 0; i < _sortingLayerNames.Length; ++i){  
+				if(_sortingLayerNames[i] == layerName) return i;  
+			}  
+			return 0;  
+		}
     }
 }
