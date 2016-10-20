@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 
 namespace DragonBones
 {
@@ -47,7 +46,7 @@ namespace DragonBones
          */
         void Awake()
         {
-            if (EditorApplication.isPlayingOrWillChangePlaymode)
+            if (Application.isPlaying)
             {
                 ClearChildren();
             }
@@ -70,7 +69,7 @@ namespace DragonBones
          */
         void OnDestroy()
         {
-            if (EditorApplication.isPlayingOrWillChangePlaymode)
+            if (Application.isPlaying)
             {
                 Dispose(true);
             }

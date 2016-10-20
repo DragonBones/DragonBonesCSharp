@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 
 namespace DragonBones
 {
@@ -87,7 +86,7 @@ namespace DragonBones
             }
 
             //
-            if (EditorApplication.isPlayingOrWillChangePlaymode)
+            if (Application.isPlaying)
             {
                 if (_gameObject == null)
                 {
@@ -187,7 +186,7 @@ namespace DragonBones
                             // hide
                             var childArmatureDisplay = childArmature.display as GameObject;
                             var armatureComponent = childArmatureDisplay.GetComponent<UnityArmatureComponent>();
-                            if (armatureComponent != null && EditorApplication.isPlayingOrWillChangePlaymode)
+                            if (armatureComponent != null && Application.isPlaying)
                             {
                                 childArmatureDisplay.transform.parent = _hiddenObject.transform;
                             }
@@ -258,6 +257,8 @@ namespace DragonBones
             return this.ParseDragonBonesData((Dictionary<string, object>)MiniJSON.Json.Deserialize(dragonBonesJSON.text), name, 0.01f); // Unity default Scale Factor.
         }
 
+
+        private string _textureAtlasPath = null;
         public UnityTextureAtlasData LoadTextureAtlasData(string path, string name = null, float scale = 0.0f)
         {
             var index = path.LastIndexOf("Resources");
@@ -277,6 +278,8 @@ namespace DragonBones
                 return _pathTextureAtlasDataMap[path] as UnityTextureAtlasData;
             }
 
+            _textureAtlasPath = path;
+
             return LoadTextureAtlasData(Resources.Load<TextAsset>(path), name, scale);
         }
 
@@ -288,7 +291,7 @@ namespace DragonBones
             }
 
             var textureAtlasData = this.ParseTextureAtlasData((Dictionary<string, object>)MiniJSON.Json.Deserialize(textureAtlasJSON.text), null, name, scale) as UnityTextureAtlasData;
-            var path = AssetDatabase.GetAssetPath(textureAtlasJSON.GetInstanceID());
+            var path = _textureAtlasPath;
 
             var index = path.LastIndexOf("Resources");
             if (index > 0)

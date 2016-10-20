@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEditor;
 
 namespace DragonBones
 {
@@ -109,7 +108,7 @@ namespace DragonBones
             _renderDisplay.transform.parent = container.transform;
 
             var armatureComponent = container.GetComponent<UnityArmatureComponent>();
-            if (armatureComponent != null && EditorApplication.isPlayingOrWillChangePlaymode)
+            if (armatureComponent != null && Application.isPlaying)
             {
                 prevDisplay.transform.parent = UnityFactory._hiddenObject.transform;
             }
