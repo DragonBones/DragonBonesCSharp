@@ -20,7 +20,7 @@ namespace performanceTest
                     var armatureComponent = UnityFactory.factory.BuildArmatureComponent("centaur/charactor");
                     armatureComponent.armature.cacheFrameRate = 30; // Cache animation.
                     armatureComponent.animation.Play("run");
-                    armatureComponent.transform.localPosition = new Vector3((x - lX * 0.5f) * 100.0f, (y - lY * 0.5f) * 100.0f, x + lX * y);
+                    armatureComponent.transform.localPosition = new Vector3((x - lX * 0.5f) * 1.0f, (y - lY * 0.5f) * 1.0f, x + lX * y * 0.01f);
                 }
             }
         }

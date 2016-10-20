@@ -46,7 +46,7 @@ namespace DragonBones
         /**
          * @private
          */
-        protected static uint _getUint(Dictionary<string, object> rawData, string key, uint defaultValue)
+        protected static uint _getNumber(Dictionary<string, object> rawData, string key, uint defaultValue)
         {
             if (rawData.ContainsKey(key))
             {
@@ -72,7 +72,7 @@ namespace DragonBones
         /**
          * @private
          */
-        protected static int _getInt(Dictionary<string, object> rawData, string key, int defaultValue)
+        protected static int _getNumber(Dictionary<string, object> rawData, string key, int defaultValue)
         {
             if (rawData.ContainsKey(key))
             {
@@ -97,7 +97,7 @@ namespace DragonBones
         /**
          * @private
          */
-        protected static float _getFloat(Dictionary<string, object> rawData, string key, float defaultValue)
+        protected static float _getNumber(Dictionary<string, object> rawData, string key, float defaultValue)
         {
             if (rawData.ContainsKey(key))
             {
@@ -179,7 +179,7 @@ namespace DragonBones
         {
             var armature = BaseObject.BorrowObject<ArmatureData>();
             armature.name = _getString(rawData, NAME, null);
-            armature.frameRate = _getUint(rawData, FRAME_RATE, this._data.frameRate);
+            armature.frameRate = _getNumber(rawData, FRAME_RATE, this._data.frameRate);
             armature.scale = scale;
 
             if (armature.frameRate == 0)
@@ -193,7 +193,7 @@ namespace DragonBones
             }
             else
             {
-                armature.type = (ArmatureType)_getInt(rawData, TYPE, (int)ArmatureType.Armature);
+                armature.type = (ArmatureType)_getNumber(rawData, TYPE, (int)ArmatureType.Armature);
             }
 
             this._armature = armature;
@@ -202,10 +202,10 @@ namespace DragonBones
             if (rawData.ContainsKey(AABB))
             {
                 var aabbObject = rawData[AABB] as Dictionary<string, object>;
-                armature.aabb.x = _getFloat(aabbObject, X, 0.0f);
-                armature.aabb.y = _getFloat(aabbObject, Y, 0.0f);
-                armature.aabb.width = _getFloat(aabbObject, WIDTH, 0.0f);
-                armature.aabb.height = _getFloat(aabbObject, HEIGHT, 0.0f);
+                armature.aabb.x = _getNumber(aabbObject, X, 0.0f);
+                armature.aabb.y = _getNumber(aabbObject, Y, 0.0f);
+                armature.aabb.width = _getNumber(aabbObject, WIDTH, 0.0f);
+                armature.aabb.height = _getNumber(aabbObject, HEIGHT, 0.0f);
             }
 
             if (rawData.ContainsKey(BONE))
@@ -285,7 +285,7 @@ namespace DragonBones
             bone.inheritTranslation = _getBoolean(rawData, INHERIT_TRANSLATION, true);
             bone.inheritRotation = _getBoolean(rawData, INHERIT_ROTATION, true);
             bone.inheritScale = _getBoolean(rawData, INHERIT_SCALE, true);
-            bone.length = _getFloat(rawData, LENGTH, 0.0f) * this._armature.scale;
+            bone.length = _getNumber(rawData, LENGTH, 0.0f) * this._armature.scale;
 
             if (rawData.ContainsKey(TRANSFORM))
             {
@@ -310,8 +310,8 @@ namespace DragonBones
             {
                 bone.ik = this._armature.GetBone(_getString(rawData, TARGET, null));
                 bone.bendPositive = _getBoolean(rawData, BEND_POSITIVE, true);
-                bone.chain = _getUint(rawData, CHAIN, 0);
-                bone.weight = _getFloat(rawData, WEIGHT, 1.0f);
+                bone.chain = _getNumber(rawData, CHAIN, (uint)0);
+                bone.weight = _getNumber(rawData, WEIGHT, 1.0f);
 
                 if (bone.chain > 0 && bone.parent != null && bone.parent.ik == null)
                 {
@@ -336,8 +336,8 @@ namespace DragonBones
             var slot = BaseObject.BorrowObject<SlotData>();
             slot.name = _getString(rawData, NAME, null);
             slot.parent = this._armature.GetBone(_getString(rawData, PARENT, null));
-            slot.displayIndex = _getInt(rawData, DISPLAY_INDEX, (int)0);
-            slot.zOrder = _getInt(rawData, Z_ORDER, zOrder); // TODO zOrder.
+            slot.displayIndex = _getNumber(rawData, DISPLAY_INDEX, (int)0);
+            slot.zOrder = _getNumber(rawData, Z_ORDER, zOrder); // TODO zOrder.
 
             if (
                 rawData.ContainsKey(COLOR) ||
@@ -358,7 +358,7 @@ namespace DragonBones
             }
             else
             {
-                slot.blendMode = (BlendMode)_getInt(rawData, BLEND_MODE, (int)BlendMode.Normal);
+                slot.blendMode = (BlendMode)_getNumber(rawData, BLEND_MODE, (int)BlendMode.Normal);
             }
 
             if (
@@ -458,7 +458,7 @@ namespace DragonBones
             }
             else
             {
-                display.type = (DisplayType)_getInt(rawData, TYPE, (int)DisplayType.Image);
+                display.type = (DisplayType)_getNumber(rawData, TYPE, (int)DisplayType.Image);
             }
 
             display.isRelativePivot = true;
@@ -466,15 +466,15 @@ namespace DragonBones
             if (rawData.ContainsKey(PIVOT))
             {
                 var pivotObject = rawData[PIVOT] as Dictionary<string, object>;
-                display.pivot.x = _getFloat(pivotObject, X, 0.0f);
-                display.pivot.y = _getFloat(pivotObject, Y, 0.0f);
+                display.pivot.x = _getNumber(pivotObject, X, 0.0f);
+                display.pivot.y = _getNumber(pivotObject, Y, 0.0f);
             }
             else if (this._isOldData) // Support 2.x ~ 3.x data.
             {
                 var transformObject = rawData[TRANSFORM] as Dictionary<string, object>;
                 display.isRelativePivot = false;
-                display.pivot.x = _getFloat(transformObject, PIVOT_X, 0.0f) * this._armature.scale;
-                display.pivot.y = _getFloat(transformObject, PIVOT_Y, 0.0f) * this._armature.scale;
+                display.pivot.x = _getNumber(transformObject, PIVOT_X, 0.0f) * this._armature.scale;
+                display.pivot.y = _getNumber(transformObject, PIVOT_Y, 0.0f) * this._armature.scale;
             }
             else
             {
@@ -576,13 +576,9 @@ namespace DragonBones
                 {
                     var rawWeights = rawData[WEIGHTS] as List<object>;
                     var numBones = _getParameter(rawWeights, iW, 0);
-                    var indices = mesh.boneIndices[vertexIndex] = new List<int>(numBones);
-                    var weights = mesh.weights[vertexIndex] = new List<float>(numBones);
-                    var boneVertices = mesh.boneVertices[vertexIndex] = new List<float>(numBones * 2);
-
-                    DragonBones.ResizeList(indices, numBones, 0);
-                    DragonBones.ResizeList(weights, numBones, 0.0f);
-                    DragonBones.ResizeList(boneVertices, numBones * 2, 0.0f);
+                    var indices = mesh.boneIndices[vertexIndex] = new int[numBones];
+                    var weights = mesh.weights[vertexIndex] = new float[numBones];
+                    var boneVertices = mesh.boneVertices[vertexIndex] = new float[numBones * 2];
 
                     mesh.slotPose.TransformPoint(x, y, this._helpPoint);
                     x = mesh.vertices[i] = this._helpPoint.x;
@@ -636,11 +632,11 @@ namespace DragonBones
                 animation.name = "__default";
             }
 
-            animation.frameCount = Math.Max(_getUint(rawData, DURATION, 1), 1);
-            animation.position = _getFloat(rawData, POSITION, 0.0f) / this._armature.frameRate;
+            animation.frameCount = Math.Max(_getNumber(rawData, DURATION, (uint)1), 1);
+            animation.position = _getNumber(rawData, POSITION, 0.0f) / this._armature.frameRate;
             animation.duration = (float)animation.frameCount / this._armature.frameRate;
-            animation.playTimes = _getUint(rawData, PLAY_TIMES, 1);
-            animation.fadeInTime = _getFloat(rawData, FADE_IN_TIME, 0.0f);
+            animation.playTimes = _getNumber(rawData, PLAY_TIMES, (uint)1);
+            animation.fadeInTime = _getNumber(rawData, FADE_IN_TIME, 0.0f);
 
             this._animation = animation;
 
@@ -688,8 +684,8 @@ namespace DragonBones
             if (this._isOldData) // Support 2.x ~ 3.x data.
             {
                 this._isAutoTween = _getBoolean(rawData, AUTO_TWEEN, true);
-                this._animationTweenEasing = _getFloat(rawData, TWEEN_EASING, 0.0f);
-                animation.playTimes = _getUint(rawData, LOOP, 1);
+                this._animationTweenEasing = _getNumber(rawData, TWEEN_EASING, 0.0f);
+                animation.playTimes = _getNumber(rawData, LOOP, (uint)1);
 
                 if (rawData.ContainsKey(TIMELINE))
                 {
@@ -807,8 +803,8 @@ namespace DragonBones
 
             if (this._isOldData && (rawData.ContainsKey(PIVOT_X) || rawData.ContainsKey(PIVOT_Y))) // Support 2.x ~ 3.x data.
             {
-                this._timelinePivot.x = _getFloat(rawData, PIVOT_X, 0.0f);
-                this._timelinePivot.y = _getFloat(rawData, PIVOT_Y, 0.0f);
+                this._timelinePivot.x = _getNumber(rawData, PIVOT_X, 0.0f);
+                this._timelinePivot.y = _getNumber(rawData, PIVOT_Y, 0.0f);
             }
             else
             {
@@ -892,7 +888,7 @@ namespace DragonBones
         protected BoneFrameData _parseBoneFrame(Dictionary<string, object> rawData, uint frameStart, uint frameCount)
         {
             var frame = BaseObject.BorrowObject<BoneFrameData>();
-            frame.tweenRotate = _getFloat(rawData, TWEEN_ROTATE, 0.0f);
+            frame.tweenRotate = _getNumber(rawData, TWEEN_ROTATE, 0.0f);
             frame.tweenScale = _getBoolean(rawData, TWEEN_SCALE, true);
 
             _parseTweenFrame(rawData, frame, frameStart, frameCount);
@@ -904,8 +900,8 @@ namespace DragonBones
 
                 if (this._isOldData) // Support 2.x ~ 3.x data.
                 {
-                    this._helpPoint.x = this._timelinePivot.x + _getFloat(transformObject, PIVOT_X, 0.0f);
-                    this._helpPoint.y = this._timelinePivot.y + _getFloat(transformObject, PIVOT_Y, 0.0f);
+                    this._helpPoint.x = this._timelinePivot.x + _getNumber(transformObject, PIVOT_X, 0.0f);
+                    this._helpPoint.y = this._timelinePivot.y + _getNumber(transformObject, PIVOT_Y, 0.0f);
                     frame.transform.ToMatrix(this._helpMatrix);
                     this._helpMatrix.TransformPoint(this._helpPoint.x, this._helpPoint.y, this._helpPoint, true);
                     frame.transform.x += this._helpPoint.x;
@@ -942,7 +938,7 @@ namespace DragonBones
         protected SlotFrameData _parseSlotFrame(Dictionary<string, object> rawData, uint frameStart, uint frameCount)
         {
             var frame = BaseObject.BorrowObject<SlotFrameData>();
-            frame.displayIndex = _getInt(rawData, DISPLAY_INDEX, 0);
+            frame.displayIndex = _getNumber(rawData, DISPLAY_INDEX, 0);
             //frame.zOrder = _getNumber(rawData, Z_ORDER, -2); // TODO zorder
 
             _parseTweenFrame(rawData, frame, frameStart, frameCount);
@@ -982,12 +978,12 @@ namespace DragonBones
         protected ExtensionFrameData _parseFFDFrame(Dictionary<string, object> rawData, uint frameStart, uint frameCount)
         {
             var frame = BaseObject.BorrowObject<ExtensionFrameData>();
-            frame.type = (ExtensionType)_getInt(rawData, TYPE, (int)ExtensionType.FFD);
+            frame.type = (ExtensionType)_getNumber(rawData, TYPE, (int)ExtensionType.FFD);
 
             _parseTweenFrame(rawData, frame, frameStart, frameCount);
 
             var rawVertices = rawData[VERTICES] as List<object>;
-            var offset = _getInt(rawData, OFFSET, 0); // uint
+            var offset = _getNumber(rawData, OFFSET, 0); // uint
             var x = 0.0f;
             var y = 0.0f;
             for (int i = 0, l = this._mesh.vertices.Count; i < l; i += 2)
@@ -1038,7 +1034,7 @@ namespace DragonBones
             {
                 if (rawData.ContainsKey(TWEEN_EASING))
                 {
-                    frame.tweenEasing = _getFloat(rawData, TWEEN_EASING, DragonBones.NO_TWEEN);
+                    frame.tweenEasing = _getNumber(rawData, TWEEN_EASING, DragonBones.NO_TWEEN);
                 }
                 else if (this._isOldData) // Support 2.x ~ 3.x data.
                 {
@@ -1087,8 +1083,8 @@ namespace DragonBones
          */
         protected void _parseTimeline<T>(Dictionary<string, object> rawData, TimelineData<T> timeline, Func<Dictionary<string, object>, uint, uint, T> frameParser) where T : FrameData<T>
         {
-            timeline.scale = _getFloat(rawData, SCALE, 1.0f);
-            timeline.offset = _getFloat(rawData, OFFSET, 0.0f);
+            timeline.scale = _getNumber(rawData, SCALE, 1.0f);
+            timeline.offset = _getNumber(rawData, OFFSET, 0.0f);
 
             this._timeline = timeline;
 
@@ -1100,7 +1096,7 @@ namespace DragonBones
                     if (rawFrames.Count == 1) // Only one frame.
                     {
                         DragonBones.ResizeList(timeline.frames, 1, null);
-                        timeline.frames[0] = frameParser(rawFrames[0] as Dictionary<string, object>, 0, _getUint(rawFrames[0] as Dictionary<string, object>, DURATION, 1));
+                        timeline.frames[0] = frameParser(rawFrames[0] as Dictionary<string, object>, 0, _getNumber(rawFrames[0] as Dictionary<string, object>, DURATION, (uint)1));
                     }
                     else
                     {
@@ -1117,7 +1113,7 @@ namespace DragonBones
                             {
                                 var frameObject = rawFrames[iW++] as Dictionary<string, object>;
                                 frameStart = (uint)i;
-                                frameCount = _getUint(frameObject, DURATION, 1);
+                                frameCount = _getNumber(frameObject, DURATION, (uint)1);
                                 frame = frameParser(frameObject, frameStart, frameCount);
 
                                 if (prevFrame != null)
@@ -1128,7 +1124,7 @@ namespace DragonBones
                                     if (this._isOldData) // Support 2.x ~ 3.x data.
                                     {
                                         // TweenFrameData<T> TODO
-                                        if (prevFrame is BoneFrameData && _getInt(frameObject, DISPLAY_INDEX, 0) == -1)
+                                        if (prevFrame is BoneFrameData && _getNumber(frameObject, DISPLAY_INDEX, 0) == -1)
                                         {
                                             (prevFrame as BoneFrameData).tweenEasing = DragonBones.NO_TWEEN;
                                         }
@@ -1152,7 +1148,7 @@ namespace DragonBones
                         if (this._isOldData) // Support 2.x ~ 3.x data.
                         {
                             // TweenFrameData<T> TODO
-                            if (prevFrame is BoneFrameData && _getInt(rawFrames[0] as Dictionary<string, object>, DISPLAY_INDEX, 0) == -1)
+                            if (prevFrame is BoneFrameData && _getNumber(rawFrames[0] as Dictionary<string, object>, DISPLAY_INDEX, 0) == -1)
                             {
                                 (prevFrame as BoneFrameData).tweenEasing = DragonBones.NO_TWEEN;
                             }
@@ -1284,12 +1280,12 @@ namespace DragonBones
          */
         protected void _parseTransform(Dictionary<string, object> rawData, Transform transform)
         {
-            transform.x = _getFloat(rawData, X, 0.0f) * this._armature.scale;
-            transform.y = _getFloat(rawData, Y, 0.0f) * this._armature.scale;
-            transform.skewX = _getFloat(rawData, SKEW_X, 0.0f) * DragonBones.ANGLE_TO_RADIAN;
-            transform.skewY = _getFloat(rawData, SKEW_Y, 0.0f) * DragonBones.ANGLE_TO_RADIAN;
-            transform.scaleX = _getFloat(rawData, SCALE_X, 1.0f);
-            transform.scaleY = _getFloat(rawData, SCALE_Y, 1.0f);
+            transform.x = _getNumber(rawData, X, 0.0f) * this._armature.scale;
+            transform.y = _getNumber(rawData, Y, 0.0f) * this._armature.scale;
+            transform.skewX = _getNumber(rawData, SKEW_X, 0.0f) * DragonBones.ANGLE_TO_RADIAN;
+            transform.skewY = _getNumber(rawData, SKEW_Y, 0.0f) * DragonBones.ANGLE_TO_RADIAN;
+            transform.scaleX = _getNumber(rawData, SCALE_X, 1.0f);
+            transform.scaleY = _getNumber(rawData, SCALE_Y, 1.0f);
         }
 
         /**
@@ -1297,14 +1293,14 @@ namespace DragonBones
          */
         protected void _parseColorTransform(Dictionary<string, object> rawData, ColorTransform color)
         {
-            color.alphaMultiplier = _getFloat(rawData, ALPHA_MULTIPLIER, 100.0f) * 0.01f;
-            color.redMultiplier = _getFloat(rawData, RED_MULTIPLIER, 100.0f) * 0.01f;
-            color.greenMultiplier = _getFloat(rawData, GREEN_MULTIPLIER, 100.0f) * 0.01f;
-            color.blueMultiplier = _getFloat(rawData, BLUE_MULTIPLIER, 100.0f) * 0.01f;
-            color.alphaOffset = _getInt(rawData, ALPHA_OFFSET, (int)0);
-            color.redOffset = _getInt(rawData, RED_OFFSET, (int)0);
-            color.greenOffset = _getInt(rawData, GREEN_OFFSET, (int)0);
-            color.blueOffset = _getInt(rawData, BLUE_OFFSET, (int)0);
+            color.alphaMultiplier = _getNumber(rawData, ALPHA_MULTIPLIER, 100.0f) * 0.01f;
+            color.redMultiplier = _getNumber(rawData, RED_MULTIPLIER, 100.0f) * 0.01f;
+            color.greenMultiplier = _getNumber(rawData, GREEN_MULTIPLIER, 100.0f) * 0.01f;
+            color.blueMultiplier = _getNumber(rawData, BLUE_MULTIPLIER, 100.0f) * 0.01f;
+            color.alphaOffset = _getNumber(rawData, ALPHA_OFFSET, (int)0);
+            color.redOffset = _getNumber(rawData, RED_OFFSET, (int)0);
+            color.greenOffset = _getNumber(rawData, GREEN_OFFSET, (int)0);
+            color.blueOffset = _getNumber(rawData, BLUE_OFFSET, (int)0);
         }
 
         /**
@@ -1333,7 +1329,7 @@ namespace DragonBones
                 {
                     var data = BaseObject.BorrowObject<DragonBonesData>();
                     data.name = _getString(rawData, NAME, null);
-                    data.frameRate = _getUint(rawData, FRAME_RATE, 24);
+                    data.frameRate = _getNumber(rawData, FRAME_RATE, (uint)24);
                     if (data.frameRate == 0)
                     {
                         data.frameRate = 24;
@@ -1384,7 +1380,7 @@ namespace DragonBones
                 }
                 else // Use data scale.
                 {
-                    scale = textureAtlasData.scale = _getFloat(rawData, SCALE, textureAtlasData.scale);
+                    scale = textureAtlasData.scale = _getNumber(rawData, SCALE, textureAtlasData.scale);
                 }
 
                 scale = 1.0f / scale;
@@ -1397,18 +1393,18 @@ namespace DragonBones
                         var textureData = textureAtlasData.GenerateTextureData();
                         textureData.name = _getString(textureObject, NAME, null);
                         textureData.rotated = _getBoolean(textureObject, ROTATED, false);
-                        textureData.region.x = _getFloat(textureObject, X, 0.0f) * scale;
-                        textureData.region.y = _getFloat(textureObject, Y, 0.0f) * scale;
-                        textureData.region.width = _getFloat(textureObject, WIDTH, 0.0f) * scale;
-                        textureData.region.height = _getFloat(textureObject, HEIGHT, 0.0f) * scale;
+                        textureData.region.x = _getNumber(textureObject, X, 0.0f) * scale;
+                        textureData.region.y = _getNumber(textureObject, Y, 0.0f) * scale;
+                        textureData.region.width = _getNumber(textureObject, WIDTH, 0.0f) * scale;
+                        textureData.region.height = _getNumber(textureObject, HEIGHT, 0.0f) * scale;
 
-                        var frameWidth = _getFloat(textureObject, FRAME_WIDTH, -1.0f);
-                        var frameHeight = _getFloat(textureObject, FRAME_HEIGHT, -1.0f);
+                        var frameWidth = _getNumber(textureObject, FRAME_WIDTH, -1.0f);
+                        var frameHeight = _getNumber(textureObject, FRAME_HEIGHT, -1.0f);
                         if (frameWidth > 0.0f && frameHeight > 0.0f)
                         {
                             textureData.frame = TextureData.GenerateRectangle();
-                            textureData.frame.x = _getFloat(textureObject, FRAME_X, 0.0f) * scale;
-                            textureData.frame.y = _getFloat(textureObject, FRAME_Y, 0.0f) * scale;
+                            textureData.frame.x = _getNumber(textureObject, FRAME_X, 0.0f) * scale;
+                            textureData.frame.y = _getNumber(textureObject, FRAME_Y, 0.0f) * scale;
                             textureData.frame.width = frameWidth * scale;
                             textureData.frame.height = frameHeight * scale;
                         }

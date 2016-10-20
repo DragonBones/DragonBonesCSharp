@@ -11,10 +11,10 @@ namespace coreElement
         private const string AIM_ANIMATION_GROUP = "aim";
         private const string ATTACK_ANIMATION_GROUP = "attack";
 
-        private const float G = -0.5f;
+        private const float G = -0.005f;
         private const float GROUND = 0.0f;
-        private const float JUMP_SPEED = -20.0f;
-        private const float NORMALIZE_MOVE_SPEED = 3.0f;
+        private const float JUMP_SPEED = -0.2f;
+        private const float NORMALIZE_MOVE_SPEED = 0.03f;
         private const float MAX_MOVE_SPEED_FRONT = NORMALIZE_MOVE_SPEED * 1.4f;
         private const float MAX_MOVE_SPEED_BACK = NORMALIZE_MOVE_SPEED * 1.0f;
         private static readonly string[] WEAPON_LEFT_LIST = { "weapon_1502b_l", "weapon_1005", "weapon_1005b", "weapon_1005c", "weapon_1005d" };
@@ -250,15 +250,15 @@ namespace coreElement
 
         private void _fire(Vector3 firePoint)
         {
-            firePoint.x += Random.Range(-1.0f, 1.0f);
-            firePoint.y += Random.Range(-1.0f, 1.0f);
-            firePoint.z = -20.0f;
+            firePoint.x += Random.Range(-0.01f, 0.01f);
+            firePoint.y += Random.Range(-0.01f, 0.01f);
+            firePoint.z = -0.2f;
 
             var bulletArmatureComonponnet = UnityFactory.factory.BuildArmatureComponent("bullet_01");
             var bulletComonponnet = bulletArmatureComonponnet.gameObject.AddComponent<Bullet>();
             var radian = _faceDir < 0 ? Mathf.PI - _aimRadian : _aimRadian;
             bulletArmatureComonponnet.animation.timeScale = _armatureComponent.animation.timeScale;            bulletComonponnet.transform.position = firePoint;
-            bulletComonponnet.Init("fireEffect_01", radian + Random.Range(-0.01f, 0.01f), 40.0f);
+            bulletComonponnet.Init("fireEffect_01", radian + Random.Range(-0.01f, 0.01f), 0.4f);
         }
 
         private void _updateAnimation()
@@ -322,19 +322,19 @@ namespace coreElement
             {
                 position.x += _speed.x * _armatureComponent.animation.timeScale;
 
-                if (position.x < -400.0f)
+                if (position.x < -4.0f)
                 {
-                    position.x = -400.0f;
+                    position.x = -4.0f;
                 }
-                else if (position.x > 400.0f)
+                else if (position.x > 4.0f)
                 {
-                    position.x = 400.0f;
+                    position.x = 4.0f;
                 }
             }
 
             if (_isJumpingB)
             {
-                if (_speed.y > -5.0f && _speed.y + G <= -5.0f)
+                if (_speed.y > -0.05f && _speed.y + G <= -0.05f)
                 {
                     _armatureComponent.animation.FadeIn("jump_3", -1.0f, -1, 0, NORMAL_ANIMATION_GROUP);
                 }
@@ -480,8 +480,8 @@ namespace coreElement
             this.transform.localPosition += _speed;
 
             if (
-                this.transform.localPosition.x < -700.0f || this.transform.localPosition.x > 700.0f ||
-                this.transform.localPosition.y < -700.0f || this.transform.localPosition.y > 700.0f
+                this.transform.localPosition.x < -7.0f || this.transform.localPosition.x > 7.0f ||
+                this.transform.localPosition.y < -7.0f || this.transform.localPosition.y > 7.0f
             )
             {
                 _armatureComponent.armature.Dispose();

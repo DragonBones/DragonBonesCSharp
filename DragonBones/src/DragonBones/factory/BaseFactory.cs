@@ -214,11 +214,11 @@ namespace DragonBones
 
             foreach (var slotData in dataPackage.armature.sortedSlots)
             {
-                var slotDisplayDataSet = slotDisplayDataSetMap[slotData.name];
-                if (slotDisplayDataSet == null)
+                if (!slotDisplayDataSetMap.ContainsKey(slotData.name))
                 {
                     continue;
                 }
+                var slotDisplayDataSet = slotDisplayDataSetMap[slotData.name];
 
                 var slot = _generateSlot(dataPackage, slotDisplayDataSet, armature);
                 if (slot != null)
@@ -316,9 +316,9 @@ namespace DragonBones
          * @see dragonBones.DragonBonesData
          * @version DragonBones 4.5
          */
-        public DragonBonesData ParseDragonBonesData(Dictionary<string, object> rawData, string name = null)
+        public DragonBonesData ParseDragonBonesData(Dictionary<string, object> rawData, string name = null, float scale = 1.0f)
         {
-            var dragonBonesData = _dataParser.ParseDragonBonesData(rawData, 1.0f);
+            var dragonBonesData = _dataParser.ParseDragonBonesData(rawData, scale);
             AddDragonBonesData(dragonBonesData, name);
 
             return dragonBonesData;

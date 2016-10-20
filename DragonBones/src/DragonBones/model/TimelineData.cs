@@ -51,7 +51,7 @@ namespace DragonBones
      */
     public class BoneTimelineData : TimelineData<BoneFrameData>
     {
-        public const uint COUNT = 11;
+        public const uint CACHE_FRAME_COUNT = 11;
 
         public BoneData bone;
         public float[] cachedFrames; // flag a b c d tx ty skewX skewY scaleX scaleY
@@ -75,7 +75,7 @@ namespace DragonBones
 
         public void CacheFrames(uint cacheFrameCount)
         {
-            cachedFrames = new float[cacheFrameCount * COUNT];
+            cachedFrames = new float[cacheFrameCount * CACHE_FRAME_COUNT];
             for (int i = 0, l = cachedFrames.Length; i < l; ++i)
             {
                 cachedFrames[i] = -1.0f;
@@ -88,7 +88,7 @@ namespace DragonBones
      */
     public class SlotTimelineData : TimelineData<SlotFrameData>
     {
-        public const uint COUNT = 11;
+        public const uint CACHE_FRAME_COUNT = 11;
 
         public SlotData slot;
         public float[] cachedFrames; // flag a b c d tx ty skewX skewY scaleX scaleY
@@ -110,7 +110,7 @@ namespace DragonBones
 
         public void CacheFrames(uint cacheFrameCount)
         {
-            cachedFrames = new float[cacheFrameCount * COUNT];
+            cachedFrames = new float[cacheFrameCount * CACHE_FRAME_COUNT];
             for (int i = 0, l = cachedFrames.Length; i < l; ++i)
             {
                 cachedFrames[i] = -1.0f;

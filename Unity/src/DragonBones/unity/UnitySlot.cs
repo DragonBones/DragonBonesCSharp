@@ -94,7 +94,7 @@ namespace DragonBones
             _renderDisplay.transform.parent = container.transform;
 
             // TODO sortingGroup(Unity 5.5)
-            _helpVector3.Set(0.0f, 0.0f, -this._zOrder * (armatureComponent.zSpace + 0.001f));
+            _helpVector3.Set(0.0f, 0.0f, -this._zOrder * (armatureComponent.zSpace + 0.00001f));
             _renderDisplay.transform.localPosition = _helpVector3;
         }
 
@@ -215,7 +215,7 @@ namespace DragonBones
                             currentTextureData.region.height
                         );
 
-                        currentTextureData.texture = Sprite.Create(textureAtlasTexture, rect, new Vector2(), 1.0f);
+                        currentTextureData.texture = Sprite.Create(textureAtlasTexture, rect, new Vector2());
                     }
 
                     if (currentTextureData.texture != null)
@@ -365,7 +365,7 @@ namespace DragonBones
                     var xG = 0.0f;
                     var yG = 0.0f;
 
-                    for (int iB = 0, lB = boneIndices.Count; iB < lB; ++iB)
+                    for (int iB = 0, lB = boneIndices.Length; iB < lB; ++iB)
                     {
                         var bone = this._meshBones[boneIndices[iB]];
                         var matrix = bone.globalTransformMatrix;

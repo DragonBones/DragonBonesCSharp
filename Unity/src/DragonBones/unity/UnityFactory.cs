@@ -255,7 +255,7 @@ namespace DragonBones
                 }
             }
 
-            return this.ParseDragonBonesData((Dictionary<string, object>)MiniJSON.Json.Deserialize(dragonBonesJSON.text), name);
+            return this.ParseDragonBonesData((Dictionary<string, object>)MiniJSON.Json.Deserialize(dragonBonesJSON.text), name, 0.01f); // Unity default Scale Factor.
         }
 
         public UnityTextureAtlasData LoadTextureAtlasData(string path, string name = null, float scale = 0.0f)
