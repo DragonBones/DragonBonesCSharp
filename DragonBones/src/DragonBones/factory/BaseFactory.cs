@@ -316,9 +316,9 @@ namespace DragonBones
          * @see dragonBones.DragonBonesData
          * @version DragonBones 4.5
          */
-        public DragonBonesData ParseDragonBonesData(Dictionary<string, object> rawData, string name = null)
+        public DragonBonesData ParseDragonBonesData(Dictionary<string, object> rawData, string name = null, float scale = 1.0f)
         {
-            var dragonBonesData = _dataParser.ParseDragonBonesData(rawData, 1.0f);
+            var dragonBonesData = _dataParser.ParseDragonBonesData(rawData, scale);
             AddDragonBonesData(dragonBonesData, name);
 
             return dragonBonesData;

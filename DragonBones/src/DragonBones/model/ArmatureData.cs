@@ -779,9 +779,9 @@ namespace DragonBones
         public readonly List<float> vertices = new List<float>(); // vertices * 2
         public readonly List<int> vertexIndices = new List<int>(); // triangles * 3
 
-        public readonly List<List<int>> boneIndices = new List<List<int>>(); // vertices bones
-        public readonly List<List<float>> weights = new List<List<float>>(); // vertices bones
-        public readonly List<List<float>> boneVertices = new List<List<float>>(); // vertices bones * 2
+        public readonly List<int[]> boneIndices = new List<int[]>(); // vertices bones
+        public readonly List<float[]> weights = new List<float[]>(); // vertices bones
+        public readonly List<float[]> boneVertices = new List<float[]>(); // vertices bones * 2
 
         public readonly List<BoneData> bones = new List<BoneData>(); // bones
         public readonly List<Matrix> inverseBindPose = new List<Matrix>(); // bones

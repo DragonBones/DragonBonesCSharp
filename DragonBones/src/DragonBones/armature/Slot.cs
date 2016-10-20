@@ -347,12 +347,12 @@ namespace DragonBones
             }
             else
             {
+                var scale = this._armature.armatureData.scale;
                 _pivotX = currentDisplayData.pivot.x;
                 _pivotY = currentDisplayData.pivot.y;
 
                 if (currentDisplayData.isRelativePivot)
                 {
-                    var scale = this._armature.armatureData.scale;
                     var rect = currentTextureData.frame != null ? currentTextureData.frame : currentTextureData.region;
                     var width = rect.width * scale;
                     var height = rect.height * scale;
@@ -369,8 +369,8 @@ namespace DragonBones
 
                 if (currentTextureData.frame != null)
                 {
-                    _pivotX += currentTextureData.frame.x;
-                    _pivotY += currentTextureData.frame.y;
+                    _pivotX += currentTextureData.frame.x * scale;
+                    _pivotY += currentTextureData.frame.y * scale;
                 }
 
                 if (isReplaceDisplay)
@@ -578,7 +578,7 @@ namespace DragonBones
                         var ffdVerticesCount = 0;
                         for (int i = 0, l = _meshData.boneIndices.Count; i < l; ++i)
                         {
-                            ffdVerticesCount += _meshData.boneIndices[i].Count;
+                            ffdVerticesCount += _meshData.boneIndices[i].Length;
                         }
                         
                         DragonBones.ResizeList(_ffdVertices, ffdVerticesCount * 2, 0.0f);
@@ -662,7 +662,7 @@ namespace DragonBones
                 _updateLocalTransformMatrix();
             }
 
-            var frameIndex = cacheFrameIndex * SlotTimelineData.COUNT;
+            var frameIndex = cacheFrameIndex * SlotTimelineData.CACHE_FRAME_COUNT;
             if (cacheFrameIndex >= 0)
             {
                 var frameFlag = _cacheFrames[frameIndex];

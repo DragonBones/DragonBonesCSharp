@@ -433,7 +433,7 @@ namespace DragonBones
         {
             _blendIndex = 0;
 
-            var frameIndex = cacheFrameIndex * BoneTimelineData.COUNT;
+            var frameIndex = cacheFrameIndex * BoneTimelineData.CACHE_FRAME_COUNT;
             if (cacheFrameIndex >= 0)
             {
                 var frameFlag = _cacheFrames[frameIndex];
