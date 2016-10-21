@@ -31,6 +31,8 @@ namespace DragonBones
         internal Armature _armature = null;
         
         private bool _disposeGameObject = true;
+
+		[SerializeField]
         private float _zSpace = 0.0f;
 
         /**
