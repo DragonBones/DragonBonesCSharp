@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace DragonBones
 {
@@ -11,8 +12,11 @@ namespace DragonBones
     {
         public static string defaultShaderName = "Sprites/Default";
 
+        private static readonly int[] TRIANGLES = { 0, 1, 2, 0, 2, 3 };
         private static Vector3 _helpVector3 = new Vector3();
         private static Color _helpColor = new Color();
+        private static readonly Vector2[] _helpVector2s = { new Vector2(), new Vector2(), new Vector2(), new Vector2() };
+        private static readonly Vector3[] _helpVector3s = { new Vector3(), new Vector3(), new Vector3(), new Vector3() };
 
         private GameObject _renderDisplay;
         private Mesh _mesh;
@@ -104,21 +108,14 @@ namespace DragonBones
         {
             var container = this._armature._display as GameObject;
             var prevDisplay = value as GameObject;
+            prevDisplay.hideFlags = HideFlags.HideInHierarchy;
+            prevDisplay.transform.parent = null;
+            prevDisplay.SetActive(false);
 
+            _renderDisplay.hideFlags = HideFlags.None;
             _renderDisplay.transform.parent = container.transform;
-
-            var armatureComponent = container.GetComponent<UnityArmatureComponent>();
-            if (armatureComponent != null && Application.isPlaying)
-            {
-                prevDisplay.transform.parent = UnityFactory._hiddenObject.transform;
-            }
-            else
-            {
-                _renderDisplay.SetActive(true);
-                prevDisplay.SetActive(false);
-            }
-
             _renderDisplay.transform.localPosition = prevDisplay.transform.localPosition; // TODO sortingGroup(Unity 5.5)
+            _renderDisplay.SetActive(true);
         }
 
         /**
@@ -196,6 +193,9 @@ namespace DragonBones
          */
         override protected void _updateFrame()
         {
+            var renderer = _renderDisplay.GetComponent<MeshRenderer>();
+            var meshFilter = _renderDisplay.GetComponent<MeshFilter>();
+
             if (this._display != null && this._displayIndex >= 0)
             {
                 var rawDisplayData = this._displayIndex < this._displayDataSet.displays.Count ? this._displayDataSet.displays[this._displayIndex] : null;
@@ -204,8 +204,10 @@ namespace DragonBones
                 var currentTextureData = currentDisplayData.texture as UnityTextureData;
                 if (currentTextureData != null)
                 {
-                    var textureAtlasTexture = (currentTextureData.parent as UnityTextureAtlasData).texture;
-                    if (currentTextureData.texture == null && textureAtlasTexture != null) // Create and cache texture.
+                    var textureAtlasData = currentTextureData.parent as UnityTextureAtlasData;
+                    var textureAtlasTexture = textureAtlasData.texture;
+
+                    /*if (currentTextureData.texture == null && textureAtlasTexture != null) // Create and cache texture.
                     {
                         var rect = new Rect(
                             currentTextureData.region.x, 
@@ -230,20 +232,26 @@ namespace DragonBones
                             Object.Destroy(prevTexture);
 #endif
                         }
+                    }*/
+
+                    if (textureAtlasData.material == null)
+                    {
+                        var shader = Shader.Find(defaultShaderName);
+                        textureAtlasData.material = new Material(shader);
+                        textureAtlasData.material.mainTexture = textureAtlasTexture;
+                    }
+
+                    if (_mesh == null)
+                    {
+                        _mesh = new Mesh();
                     }
 
                     this._updatePivot(rawDisplayData, currentDisplayData, currentTextureData);
-                    
+
                     if (this._meshData != null && this._display == this._meshDisplay) // Mesh.
                     {
-                        if (_mesh == null)
-                        {
-                            _mesh = new Mesh();
-                        }
-
                         _uvs = new Vector2[this._meshData.uvs.Count / 2];
                         _vertices = new Vector3[this._meshData.vertices.Count / 2];
-                        //var triangles = new int[this._meshData.vertexIndices.Count];
 
                         for (int i = 0, l = this._meshData.uvs.Count; i < l; i += 2)
                         {
@@ -257,39 +265,9 @@ namespace DragonBones
                             _vertices[iN] = new Vector3(this._meshData.vertices[i], -this._meshData.vertices[i + 1], 0.0f);
                         }
 
-                        //for (int i = 0, l = this._meshData.vertexIndices.Count; i < l; ++i)
-                        //{
-                        //    triangles[i] = this._meshData.vertexIndices[i];
-                        //}
-
                         _mesh.vertices = _vertices; // Must set vertices before uvs.
                         _mesh.uv = _uvs;
                         _mesh.triangles = this._meshData.vertexIndices.ToArray();
-                        
-                        if (currentTextureData.material == null)
-                        {
-                            var shader = Shader.Find(defaultShaderName);
-                            currentTextureData.material = new Material(shader);
-                            currentTextureData.material.mainTexture = currentTextureData.texture.texture;
-                        }
-
-                        var meshRenderer = _renderDisplay.GetComponent<MeshRenderer>();
-                        if (meshRenderer == null)
-                        {
-                            Object.DestroyImmediate(_renderDisplay.GetComponent<Renderer>()); // RemoveComponent
-                            meshRenderer = _renderDisplay.AddComponent<MeshRenderer>();
-                        }
-
-                        meshRenderer.enabled = true;
-                        meshRenderer.material = currentTextureData.material;
-
-                        var meshFilter = _renderDisplay.GetComponent<MeshFilter>();
-                        if (meshFilter == null)
-                        {
-                            meshFilter = _renderDisplay.AddComponent<MeshFilter>();
-                        }
-
-                        meshFilter.mesh = _mesh;
 
                         // Identity transform.
                         if (this._meshData.skinned)
@@ -302,20 +280,50 @@ namespace DragonBones
                     else // Normal texture.
                     {
                         this._pivotY -= currentTextureData.region.height * this._armature.armatureData.scale;
-
-                        var spriteRendererA = _renderDisplay.GetComponent<SpriteRenderer>();
-                        if (spriteRendererA == null)
+                        
+                        for (int i = 0, l = 4; i < l; ++i)
                         {
-                            Object.DestroyImmediate(_renderDisplay.GetComponent<Renderer>()); // RemoveComponent
-                            Object.DestroyImmediate(_renderDisplay.GetComponent<MeshFilter>()); // RemoveComponent
-                            spriteRendererA = _renderDisplay.AddComponent<SpriteRenderer>();
+                            var u = 0.0f;
+                            var v = 0.0f;
+
+                            switch (i)
+                            {
+                                case 0:
+                                    break;
+
+                                case 1:
+                                    u = 1.0f;
+                                    break;
+
+                                case 2:
+                                    u = 1.0f;
+                                    v = 1.0f;
+                                    break;
+
+                                case 3:
+                                    v = 1.0f;
+                                    break;
+
+                                default:
+                                    break;
+                            }
+
+                            _helpVector2s[i].x = (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasTexture.width;
+                            _helpVector2s[i].y = 1.0f - (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasTexture.height;
+                            _helpVector3s[i].x = u * currentTextureData.region.width * 0.01f;
+                            _helpVector3s[i].y = (1.0f - v) * currentTextureData.region.height * 0.01f;
+                            _helpVector3s[i].z = 0.0f * 0.01f;
                         }
 
-                        spriteRendererA.enabled = true;
-                        spriteRendererA.sprite = currentTextureData.texture;
+                        _mesh.vertices = _helpVector3s; // Must set vertices before uvs.
+                        _mesh.uv = _helpVector2s;
+                        _mesh.triangles = TRIANGLES;
                     }
 
-                    //this._updateVisible();
+                    meshFilter.mesh = _mesh;
+                    renderer.sharedMaterial = textureAtlasData.material;
+
+                    this._updateVisible();
 
                     return;
                 }
@@ -324,18 +332,7 @@ namespace DragonBones
             this._pivotX = 0.0f;
             this._pivotY = 0.0f;
             
-            //_renderDisplay.SetActive(false);
-
-            var spriteRendererB = _renderDisplay.GetComponent<SpriteRenderer>();
-            if (spriteRendererB == null)
-			{
-				Object.DestroyImmediate(_renderDisplay.GetComponent<Renderer>()); // RemoveComponent
-                Object.DestroyImmediate(_renderDisplay.GetComponent<MeshFilter>()); // RemoveComponent
-                spriteRendererB = _renderDisplay.AddComponent<SpriteRenderer>();
-            }
-
-            spriteRendererB.enabled = false;
-            spriteRendererB.sprite = null;
+            _renderDisplay.SetActive(false);
 
             _helpVector3.x = this.origin.x;
             _helpVector3.y = this.origin.y;

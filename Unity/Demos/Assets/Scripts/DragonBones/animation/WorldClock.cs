@@ -70,7 +70,7 @@ namespace DragonBones
          */
         public void AdvanceTime(float passedTime)
         {
-			if (float.IsNaN(passedTime))
+            if (float.IsNaN(passedTime))
             {
                 passedTime = 0.0f;
             }

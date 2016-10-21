@@ -105,7 +105,7 @@ namespace DragonBones
         public static float NormalizeRadian(float value)
         {
             value = (value + DragonBones.PI) % (DragonBones.PI * 2);
-			value += value > 0.0f ? -DragonBones.PI : DragonBones.PI;
+            value += value > 0.0f ? -DragonBones.PI : DragonBones.PI;
 
             return value;
         }
@@ -228,19 +228,19 @@ namespace DragonBones
 
             skewX = (float)Math.Atan(-matrix.c / matrix.d);
             skewY = (float)Math.Atan(matrix.b / matrix.a);
-			if (float.IsNaN(skewX)) skewX = 0.0f;
-			if (float.IsNaN(skewY)) skewY = 0.0f;
+            if (float.IsNaN(skewX)) skewX = 0.0f;
+            if (float.IsNaN(skewY)) skewY = 0.0f;
 
             scaleY = (float)((skewX > -DragonBones.PI_Q && skewX < DragonBones.PI_Q) ? matrix.d / Math.Cos(skewX) : -matrix.c / Math.Sin(skewX));
             scaleX = (float)((skewY > -DragonBones.PI_Q && skewY < DragonBones.PI_Q) ? matrix.a / Math.Cos(skewY) : matrix.b / Math.Sin(skewY));
 
-			if (backupScaleX >= 0.0f && scaleX < 0.0f)
+            if (backupScaleX >= 0.0f && scaleX < 0.0f)
             {
                 scaleX = -scaleX;
                 skewY = skewY - DragonBones.PI;
             }
 
-			if (backupScaleY >= 0.0f && scaleY < 0.0f)
+            if (backupScaleY >= 0.0f && scaleY < 0.0f)
             {
                 scaleY = -scaleY;
                 skewX = skewX - DragonBones.PI;

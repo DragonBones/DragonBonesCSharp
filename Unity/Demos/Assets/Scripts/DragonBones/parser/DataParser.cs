@@ -391,20 +391,20 @@ namespace DragonBones
                 var startFrame = BaseObject.BorrowObject<AnimationFrameData>(); // Add start frame.
                 startFrame.position = 0.0f;
 
-				if (_animation.frameCount > 1) {
-					DragonBones.ResizeList (frames, (int)_animation.frameCount + 1, null); // One more count for zero duration frame.
+                if (_animation.frameCount > 1) {
+                    DragonBones.ResizeList (frames, (int)_animation.frameCount + 1, null); // One more count for zero duration frame.
 
-					var endFrame = BaseObject.BorrowObject<AnimationFrameData> (); // Add end frame to keep animation timeline has two different frames atleast.
-					endFrame.position = _animation.frameCount / _armature.frameRate;
+                    var endFrame = BaseObject.BorrowObject<AnimationFrameData> (); // Add end frame to keep animation timeline has two different frames atleast.
+                    endFrame.position = _animation.frameCount / _armature.frameRate;
 
-					frames[0] = startFrame;
-					frames[(int)_animation.frameCount] = endFrame;
-				} 
-				else // TODO
-				{
-					DragonBones.ResizeList(frames, 1, null);
-					frames[0] = startFrame;
-				}
+                    frames[0] = startFrame;
+                    frames[(int)_animation.frameCount] = endFrame;
+                } 
+                else // TODO
+                {
+                    DragonBones.ResizeList(frames, 1, null);
+                    frames[0] = startFrame;
+                }
             }
 
             AnimationFrameData insertedFrame = null;

@@ -33,55 +33,18 @@ namespace DragonBones
         private bool _disposeGameObject = true;
         private float _zSpace = 0.0f;
 
-		[SerializeField]
-		protected string _sortingLayerName = "Default";
-		public string sortingLayerName{
-			get { return _sortingLayerName; }
-			set {
-				_sortingLayerName = value;
-				foreach(Renderer render in GetComponentsInChildren<Renderer>(true)){
-					render.sortingLayerName = value;
-				}
-			}
-		}
-
-		[SerializeField]
-		protected int _sortingOrder = 0;
-		public int sortingOrder{
-			get { return _sortingOrder; }
-			set {
-				_sortingOrder = value;
-				foreach(Renderer render in GetComponentsInChildren<Renderer>(true)){
-					render.sortingOrder = value;
-				}
-			}
-		}
-
-        /**
-         * @private
-         */
-        void Reset()
-        {
-            animationName = null;
-        }
-
         /**
          * @private
          */
         void Awake()
         {
-            if (Application.isPlaying)
-            {
-                ClearChildren();
-            }
-
             LoadData();
 
             if (DragonBones.IsAvailableString(armatureName))
             {
                 UnityFactory.factory.BuildArmatureComponent(armatureName, null, null, this.gameObject);
-				sortingLayerName = sortingLayerName;
-				sortingOrder = sortingOrder;
+                sortingLayerName = sortingLayerName;
+                sortingOrder = sortingOrder;
             }
 
             if (_armature != null && DragonBones.IsAvailableString(animationName))
@@ -125,7 +88,7 @@ namespace DragonBones
          */
         public DragonBonesData LoadData()
         {
-			var dragonBonesData = draggonBonesJSON != null ? UnityFactory.factory.LoadDragonBonesData(draggonBonesJSON) : null;
+            var dragonBonesData = draggonBonesJSON != null ? UnityFactory.factory.LoadDragonBonesData(draggonBonesJSON) : null;
 
             if (textureAtlasJSON != null)
             {
@@ -222,6 +185,36 @@ namespace DragonBones
         new public Animation animation
         {
             get { return _armature != null ? _armature.animation : null; }
+        }
+
+        [SerializeField]
+        protected string _sortingLayerName = "Default";
+        public string sortingLayerName
+        {
+            get { return _sortingLayerName; }
+            set
+            {
+                _sortingLayerName = value;
+                foreach (Renderer render in GetComponentsInChildren<Renderer>(true))
+                {
+                    render.sortingLayerName = value;
+                }
+            }
+        }
+
+        [SerializeField]
+        protected int _sortingOrder = 0;
+        public int sortingOrder
+        {
+            get { return _sortingOrder; }
+            set
+            {
+                _sortingOrder = value;
+                foreach (Renderer render in GetComponentsInChildren<Renderer>(true))
+                {
+                    render.sortingOrder = value;
+                }
+            }
         }
     }
 }

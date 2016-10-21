@@ -16,6 +16,8 @@ namespace DragonBones
          */
         public Texture2D texture;
 
+        public Material material;
+
         /**
          * @private
          */
@@ -30,11 +32,22 @@ namespace DragonBones
         {
             base._onClear();
 
-            if (texture)
+            if (texture != null)
             {
                 //Object.Destroy(texture);
-                texture = null;
             }
+
+            if (material != null)
+            {
+#if UNITY_EDITOR
+                Object.DestroyImmediate(material);
+#else
+                Object.Destroy(metrial);
+#endif
+            }
+
+            texture = null;
+            material = null;
         }
 
         /**
@@ -51,9 +64,6 @@ namespace DragonBones
      */
     public class UnityTextureData : TextureData
     {
-        public Sprite texture;
-        public Material material;
-
         public UnityTextureData()
         {
         }
@@ -64,26 +74,6 @@ namespace DragonBones
         override protected void _onClear()
         {
             base._onClear();
-
-            if (texture != null)
-            {
-#if UNITY_EDITOR
-                Object.DestroyImmediate(texture);
-#else
-                Object.Destroy(texture);
-#endif
-                texture = null;
-            }
-
-            if (material)
-            {
-#if UNITY_EDITOR
-                Object.DestroyImmediate(material);
-#else
-                Object.Destroy(metrial);
-#endif
-                material = null;
-            }
         }
     }
 }

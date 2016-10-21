@@ -236,7 +236,7 @@ namespace DragonBones
             _blendModeDirty = false;
             _originDirty = false;
             _transformDirty = false;
-            _displayIndex = -1;
+            _displayIndex = -2;
             _cacheFrameIndex = -1;
             _blendMode = BlendMode.Normal;
             _display = null;
@@ -458,12 +458,6 @@ namespace DragonBones
                 if (_childArmature != null)
                 {
                     _childArmature._parent = this; // Update child armature parent.
-
-                    if (_childArmature._clock != null)
-                    {
-                        _childArmature._clock.Remove(_childArmature);
-                        _childArmature._clock = null;
-                    }
 
                     if (inheritAnimation)
                     {
@@ -970,6 +964,13 @@ namespace DragonBones
                 if (_childArmature == value)
                 {
                     return;
+                }
+
+                //
+                if (value != null && value._clock != null)
+                {
+                    value._clock.Remove(value);
+                    value._clock = null;
                 }
 
                 this.display = value;
