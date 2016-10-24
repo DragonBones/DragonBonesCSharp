@@ -38,12 +38,12 @@ namespace DragonBones
         private TextAsset _dragonBoneJSON = null;
         private List<string> _armatureNames = null;
         private List<string> _animationNames = null;
-		private UnityArmatureComponent _armatureComponent = null;
-		private long _nowTime;
+        private UnityArmatureComponent _armatureComponent = null;
+        private long _nowTime;
 
         void Awake()
         {
-			_nowTime = System.DateTime.Now.Ticks;
+            _nowTime = System.DateTime.Now.Ticks;
             _armatureComponent = this.target as UnityArmatureComponent;
             _dragonBoneJSON = _armatureComponent.draggonBonesJSON;
             
@@ -108,8 +108,8 @@ namespace DragonBones
 
                 if (_armatureComponent.draggonBonesJSON != null)
                 {
-                    try
-                    {
+                    //try
+                    //{
                         _armatureComponent.textureAtlasJSON = new List<string>();
                         _getTextureAtlasConfigs(
                             _armatureComponent.textureAtlasJSON,
@@ -117,10 +117,10 @@ namespace DragonBones
                             );
 
                         dragonBonesData = _armatureComponent.LoadData();
-                    }
+                    /*}
                     catch
                     {
-                    }
+                    }*/
                 }
 
                 if (dragonBonesData == null)
@@ -206,7 +206,7 @@ namespace DragonBones
 
                 // TimeScale
                 GUILayout.BeginHorizontal();
-				EditorGUILayout.LabelField("Time Scale", GUILayout.Width(120.0f));
+                EditorGUILayout.LabelField("Time Scale", GUILayout.Width(120.0f));
                 _armatureComponent.animation.timeScale = GUILayout.HorizontalSlider(_armatureComponent.animation.timeScale, 0.0f, 2.0f);
                 GUILayout.EndHorizontal();
 
@@ -240,11 +240,11 @@ namespace DragonBones
         {
             if (!EditorApplication.isPlayingOrWillChangePlaymode && _armatureComponent.armature != null && _armatureComponent.animation.isPlaying)
             {
-				long dt = System.DateTime.Now.Ticks-_nowTime;
-				if(dt>=1f/_armatureComponent.armature.armatureData.frameRate*1000000f){
-					_armatureComponent.armature.AdvanceTime(dt*0.0000001f);
-					_nowTime = System.DateTime.Now.Ticks;
-				}
+                long dt = System.DateTime.Now.Ticks-_nowTime;
+                if(dt>=1f/_armatureComponent.armature.armatureData.frameRate*1000000f){
+                    _armatureComponent.armature.AdvanceTime(dt*0.0000001f);
+                    _nowTime = System.DateTime.Now.Ticks;
+                }
             }
         }
 

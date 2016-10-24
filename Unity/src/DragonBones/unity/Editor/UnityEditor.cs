@@ -39,9 +39,11 @@ namespace DragonBones
         private List<string> _armatureNames = null;
         private List<string> _animationNames = null;
         private UnityArmatureComponent _armatureComponent = null;
+        private long _nowTime;
 
         void Awake()
         {
+            _nowTime = System.DateTime.Now.Ticks;
             _armatureComponent = this.target as UnityArmatureComponent;
             _dragonBoneJSON = _armatureComponent.draggonBonesJSON;
             
@@ -106,8 +108,8 @@ namespace DragonBones
 
                 if (_armatureComponent.draggonBonesJSON != null)
                 {
-                    try
-                    {
+                    //try
+                    //{
                         _armatureComponent.textureAtlasJSON = new List<string>();
                         _getTextureAtlasConfigs(
                             _armatureComponent.textureAtlasJSON,
@@ -115,10 +117,10 @@ namespace DragonBones
                             );
 
                         dragonBonesData = _armatureComponent.LoadData();
-                    }
+                    /*}
                     catch
                     {
-                    }
+                    }*/
                 }
 
                 if (dragonBonesData == null)
@@ -238,7 +240,11 @@ namespace DragonBones
         {
             if (!EditorApplication.isPlayingOrWillChangePlaymode && _armatureComponent.armature != null && _armatureComponent.animation.isPlaying)
             {
-                _armatureComponent.armature.AdvanceTime(Time.deltaTime);
+                long dt = System.DateTime.Now.Ticks-_nowTime;
+                if(dt>=1f/_armatureComponent.armature.armatureData.frameRate*1000000f){
+                    _armatureComponent.armature.AdvanceTime(dt*0.0000001f);
+                    _nowTime = System.DateTime.Now.Ticks;
+                }
             }
         }
 

@@ -982,7 +982,7 @@ namespace DragonBones
 
             _parseTweenFrame(rawData, frame, frameStart, frameCount);
 
-            var rawVertices = rawData[VERTICES] as List<object>;
+            var rawVertices = rawData.ContainsKey(VERTICES) ? rawData[VERTICES] as List<object> : null;
             var offset = _getNumber(rawData, OFFSET, 0); // uint
             var x = 0.0f;
             var y = 0.0f;

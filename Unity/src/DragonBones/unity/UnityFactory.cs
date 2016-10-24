@@ -33,6 +33,8 @@ namespace DragonBones
          */
         public static readonly UnityFactory factory = new UnityFactory();
 
+        public string defaultShaderName = "Sprites/Default";
+        
         private string _textureAtlasPath = null;
         private GameObject _armatureGameObject = null;
         private readonly Dictionary<string, DragonBonesData> _pathDragonBonesDataMap = new Dictionary<string, DragonBonesData>();
@@ -69,7 +71,7 @@ namespace DragonBones
         {
             if (textureAtlasData != null)
             {
-                (textureAtlasData as UnityTextureAtlasData).texture = textureAtlas as Texture2D;
+                (textureAtlasData as UnityTextureAtlasData).texture = textureAtlas as Material;
             }
             else
             {
@@ -302,7 +304,11 @@ namespace DragonBones
             }
             
             var textureAtlas = Resources.Load<Texture2D>(textureAtlasData.imagePath);
-            textureAtlasData.texture = textureAtlas;
+            var shader = Shader.Find(defaultShaderName);
+            var material = new Material(shader);
+            material.mainTexture = textureAtlas;
+
+            textureAtlasData.texture = material;
 
             return textureAtlasData;
         }

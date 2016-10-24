@@ -10,11 +10,9 @@ namespace DragonBones
      */
     public class UnitySlot : Slot
     {
-        public static string defaultShaderName = "Sprites/Default";
-
         private static readonly int[] TRIANGLES = { 0, 1, 2, 0, 2, 3 };
         private static Vector3 _helpVector3 = new Vector3();
-        private static Color _helpColor = new Color();
+        //private static Color _helpColor = new Color();
         private static readonly Vector2[] _helpVector2s = { new Vector2(), new Vector2(), new Vector2(), new Vector2() };
         private static readonly Vector3[] _helpVector3s = { new Vector3(), new Vector3(), new Vector3(), new Vector3() };
 
@@ -158,28 +156,37 @@ namespace DragonBones
          */
         override protected void _updateColor()
         {
-            var renderer = _renderDisplay.GetComponent<SpriteRenderer>();
+            // TODO
+            /*var renderer = _renderDisplay.GetComponent<SpriteRenderer>();
             if (renderer != null)
             {
-                // TODO
-                /*if (
-                    this._colorTransform.redMultiplier != 1.0f ||
-                    this._colorTransform.greenMultiplier != 1.0f ||
-                    this._colorTransform.blueMultiplier != 1.0f ||
-                    this._colorTransform.redOffset != 0 ||
-                    this._colorTransform.greenOffset != 0 ||
-                    this._colorTransform.blueOffset != 0 ||
-                    this._colorTransform.alphaOffset != 0
-                )
-                {
-                }*/
-
                 _helpColor.r = this._colorTransform.redMultiplier;
                 _helpColor.g = this._colorTransform.greenMultiplier;
                 _helpColor.b = this._colorTransform.blueMultiplier;
                 _helpColor.a = this._colorTransform.alphaMultiplier;
 
                 renderer.color = _helpColor;
+            }*/
+
+            var meshFilter = _renderDisplay.GetComponent<MeshFilter>();
+            if (meshFilter != null)
+            {
+                var mesh = meshFilter.sharedMesh;
+                if (mesh != null)
+                {
+                    var colors = new List<Color>(mesh.vertices.Length);
+                    for (int i = 0, l = mesh.vertices.Length; i < l; ++i)
+                    {
+                        colors.Add(new Color(
+                            this._colorTransform.redMultiplier, 
+                            this._colorTransform.greenMultiplier, 
+                            this._colorTransform.blueMultiplier, 
+                            this._colorTransform.alphaMultiplier
+                        ));
+                    }
+
+                    mesh.SetColors(colors);
+                }
             }
         }
 
@@ -206,40 +213,8 @@ namespace DragonBones
                 {
                     var textureAtlasData = currentTextureData.parent as UnityTextureAtlasData;
                     var textureAtlasTexture = textureAtlasData.texture;
-
-                    /*if (currentTextureData.texture == null && textureAtlasTexture != null) // Create and cache texture.
-                    {
-                        var rect = new Rect(
-                            currentTextureData.region.x, 
-                            textureAtlasTexture.height - currentTextureData.region.y - currentTextureData.region.height, 
-                            currentTextureData.region.width, 
-                            currentTextureData.region.height
-                        );
-
-                        currentTextureData.texture = Sprite.Create(textureAtlasTexture, rect, new Vector2());
-                    }
-
-                    if (currentTextureData.texture != null)
-                    {
-                        var currentTextureAtlasTexture = this._armature._replacedTexture != null ? (this._armature._replacedTexture as Texture2D) : textureAtlasTexture;
-                        if (currentTextureData.texture.texture != currentTextureAtlasTexture)
-                        {
-                            var prevTexture = currentTextureData.texture;
-                            currentTextureData.texture = Sprite.Create(currentTextureAtlasTexture, prevTexture.textureRect, prevTexture.pivot, prevTexture.pixelsPerUnit);
-#if UNITY_EDITOR
-                            Object.DestroyImmediate(prevTexture);
-#else
-                            Object.Destroy(prevTexture);
-#endif
-                        }
-                    }*/
-
-                    if (textureAtlasData.material == null)
-                    {
-                        var shader = Shader.Find(defaultShaderName);
-                        textureAtlasData.material = new Material(shader);
-                        textureAtlasData.material.mainTexture = textureAtlasTexture;
-                    }
+                    var textureAtlasWidth = textureAtlasTexture.mainTexture.width;
+                    var textureAtlasHeight = textureAtlasTexture.mainTexture.height;
 
                     if (_mesh == null)
                     {
@@ -259,8 +234,8 @@ namespace DragonBones
                             var u = this._meshData.uvs[i];
                             var v = this._meshData.uvs[i + 1];
                             _uvs[iN] = new Vector2(
-                                (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasTexture.width,
-                                1.0f - (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasTexture.height
+                                (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasWidth,
+                                1.0f - (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasHeight
                             );
                             _vertices[iN] = new Vector3(this._meshData.vertices[i], -this._meshData.vertices[i + 1], 0.0f);
                         }
@@ -308,8 +283,8 @@ namespace DragonBones
                                     break;
                             }
 
-                            _helpVector2s[i].x = (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasTexture.width;
-                            _helpVector2s[i].y = 1.0f - (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasTexture.height;
+                            _helpVector2s[i].x = (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasWidth;
+                            _helpVector2s[i].y = 1.0f - (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasHeight;
                             _helpVector3s[i].x = u * currentTextureData.region.width * 0.01f;
                             _helpVector3s[i].y = (1.0f - v) * currentTextureData.region.height * 0.01f;
                             _helpVector3s[i].z = 0.0f * 0.01f;
@@ -320,8 +295,16 @@ namespace DragonBones
                         _mesh.triangles = TRIANGLES;
                     }
 
-                    meshFilter.mesh = _mesh;
-                    renderer.sharedMaterial = textureAtlasData.material;
+                    meshFilter.sharedMesh = _mesh;
+
+                    if (this._armature._replacedTexture != null)
+                    {
+                        renderer.sharedMaterial = this._armature._replacedTexture as Material;
+                    }
+                    else
+                    {
+                        renderer.sharedMaterial = textureAtlasData.texture;
+                    }
 
                     this._updateVisible();
 

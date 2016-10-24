@@ -14,9 +14,7 @@ namespace DragonBones
          * Unity 贴图。
          * @version DragonBones 3.0
          */
-        public Texture2D texture;
-
-        public Material material;
+        public Material texture;
 
         /**
          * @private
@@ -37,17 +35,7 @@ namespace DragonBones
                 //Object.Destroy(texture);
             }
 
-            if (material != null)
-            {
-#if UNITY_EDITOR
-                Object.DestroyImmediate(material);
-#else
-                Object.Destroy(metrial);
-#endif
-            }
-
             texture = null;
-            material = null;
         }
 
         /**

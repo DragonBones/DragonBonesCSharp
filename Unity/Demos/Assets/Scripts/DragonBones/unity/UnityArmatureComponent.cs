@@ -32,7 +32,7 @@ namespace DragonBones
         
         private bool _disposeGameObject = true;
 
-		[SerializeField]
+        [SerializeField]
         private float _zSpace = 0.0f;
 
         /**
@@ -76,7 +76,7 @@ namespace DragonBones
             if (_disposeGameObject)
             {
 #if UNITY_EDITOR
-                Object.DestroyImmediate(this.gameObject);
+                //Object.DestroyImmediate(this.gameObject);
 #else
                 Object.Destroy(this.gameObject);
 #endif
