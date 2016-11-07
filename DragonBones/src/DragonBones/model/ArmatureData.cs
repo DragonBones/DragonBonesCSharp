@@ -48,6 +48,11 @@ namespace DragonBones
         public readonly Rectangle aabb = new Rectangle();
 
         /**
+         * @private
+         */
+        public readonly List<ActionData> actions = new List<ActionData>();
+
+        /**
          * @language zh_CN
          * 所有的骨骼数据。
          * @see dragonBones.BoneData
@@ -78,11 +83,6 @@ namespace DragonBones
          * @version DragonBones 3.0
          */
         public readonly Dictionary<string, AnimationData> animations = new Dictionary<string, AnimationData>();
-
-        /**
-         * @private
-         */
-        public readonly List<ActionData> actions = new List<ActionData>();
 
         /**
          * @private
@@ -146,6 +146,10 @@ namespace DragonBones
             parent = null;
             aabb.Clear();
             actions.Clear();
+            bones.Clear();
+            slots.Clear();
+            skins.Clear();
+            animations.Clear();
 
             cacheFrameRate = 0;
             scale = 1.0f;

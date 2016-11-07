@@ -58,6 +58,7 @@ namespace DragonBones
             frameRate = 0;
             name = null;
             armatures.Clear();
+
             _armatureNames.Clear();
         }
 

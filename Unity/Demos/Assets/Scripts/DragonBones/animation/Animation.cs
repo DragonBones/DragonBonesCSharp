@@ -60,7 +60,7 @@ namespace DragonBones
          */
         protected static int _sortAnimationState(AnimationState a, AnimationState b)
         {
-            return a.layer > b.layer ? 1 : -1;
+            return a.layer > b.layer ? -1 : 1;
         }
 
         /**
