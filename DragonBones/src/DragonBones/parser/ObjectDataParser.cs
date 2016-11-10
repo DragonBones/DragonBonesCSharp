@@ -530,7 +530,7 @@ namespace DragonBones
             {
                 DragonBones.ResizeList(mesh.boneIndices, numVertices, null);
                 DragonBones.ResizeList(mesh.weights, numVertices, null);
-                DragonBones.ResizeList(mesh.boneVertices, numTriangles, null);
+                DragonBones.ResizeList(mesh.boneVertices, numVertices, null);
 
                 if (rawData.ContainsKey(SLOT_POSE))
                 {
