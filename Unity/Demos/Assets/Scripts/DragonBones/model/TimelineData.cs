@@ -49,6 +49,13 @@ namespace DragonBones
     /**
      * @private
      */
+    public class ZOrderTimelineData : TimelineData<ZOrderFrameData>
+    {
+    }
+
+    /**
+     * @private
+     */
     public class BoneTimelineData : TimelineData<BoneFrameData>
     {
         public const uint CACHE_FRAME_COUNT = 11;

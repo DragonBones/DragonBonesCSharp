@@ -83,48 +83,61 @@ namespace DragonBones
      */
     public abstract class TweenFrameData<T> : FrameData<T> where T : TweenFrameData<T>
     {
-        public static float[]SamplingCurve(float[] curve, uint frameCount)
+        private static void _getCurvePoint(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, float t, Point result)
+        {
+            var l_t = 1 - t;
+            var powA = l_t * l_t;
+            var powB = t * t;
+            var kA = l_t * powA;
+            var kB = 3.0f * t * powA;
+            var kC = 3.0f * l_t * powB;
+            var kD = t * powB;
+
+            result.x = kA * x1 + kB * x2 + kC * x3 + kD * x4;
+            result.y = kA * y1 + kB * y2 + kC * y3 + kD * y4;
+        }
+
+        public static void SamplingEasingCurve(float[] curve, float[] samples)
         {
             var curveCount = curve.Length;
-            if (curveCount == 0 || frameCount == 0)
-            {
-                return null;
-            }
-
-            var samplingTimes = frameCount + 2;
-            var samplingStep = 1.0f / samplingTimes;
-            var sampling = new float[(int)(samplingTimes - 1) * 2];
+            var result = new Point();
+            
             var stepIndex = -2;
-
-            for (var i = 0; i<samplingTimes - 1; ++i) {
-                var step = samplingStep * (i + 1);
-                while ((stepIndex + 6 < curveCount ? curve[stepIndex + 6] : 1.0f) < step) // stepIndex + 3 * 2
-                {
-                    stepIndex += 6; // stepIndex += 3 * 2
+            for (int i = 0, l = samples.Length; i < l; ++i) {
+                var t = (float)(i + 1) / (l + 1);
+                while ((stepIndex + 6 < curveCount ? curve[stepIndex + 6] : 1) < t) // stepIndex + 3 * 2
+                { 
+                    stepIndex += 6;
                 }
 
                 var isInCurve = stepIndex >= 0 && stepIndex + 6 < curveCount;
                 var x1 = isInCurve ? curve[stepIndex] : 0.0f;
                 var y1 = isInCurve ? curve[stepIndex + 1] : 0.0f;
+                var x2 = curve[stepIndex + 2];
+                var y2 = curve[stepIndex + 3];
+                var x3 = curve[stepIndex + 4];
+                var y3 = curve[stepIndex + 5];
                 var x4 = isInCurve ? curve[stepIndex + 6] : 1.0f;
                 var y4 = isInCurve ? curve[stepIndex + 7] : 1.0f;
 
-                var t = (step - x1) / (x4 - x1);
-                var l_t = 1 - t;
+                var lower = 0.0f;
+                var higher = 1.0f;
+                while (higher - lower > 0.01f)
+                {
+                    var percentage = (higher + lower) / 2.0f;
+                    _getCurvePoint(x1, y1, x2, y2, x3, y3, x4, y4, percentage, result);
+                    if (t - result.x > 0.00f)
+                    {
+                        lower = percentage;
+                    }
+                    else
+                    {
+                        higher = percentage;
+                    }
+                }
 
-                var powA = l_t * l_t;
-                var powB = t * t;
-
-                var kA = l_t * powA;
-                var kB = 3 * t * powA;
-                var kC = 3 * l_t * powB;
-                var kD = t * powB;
-
-                sampling[i * 2] = kA * x1 + kB * curve[stepIndex + 2] + kC * curve[stepIndex + 4] + kD * x4;
-                sampling[i * 2 + 1] = kA * y1 + kB * curve[stepIndex + 3] + kC * curve[stepIndex + 5] + kD * y4;
+                samples[i] = result.y;
             }
-
-            return sampling;
         }
 
         public float tweenEasing;
@@ -183,6 +196,28 @@ namespace DragonBones
     /**
      * @private
      */
+    public class ZOrderFrameData : FrameData<ZOrderFrameData>
+    {
+        public List<int> zOrder = new List<int>();
+
+        public ZOrderFrameData()
+        {
+        }
+
+        /**
+         * @inheritDoc
+         */
+        protected override void _onClear()
+        {
+            base._onClear();
+
+            zOrder.Clear();
+        }
+    }
+
+    /**
+     * @private
+     */
     public class BoneFrameData : TweenFrameData<BoneFrameData>
     {
         public bool tweenScale;
@@ -218,7 +253,6 @@ namespace DragonBones
         }
 
         public int displayIndex;
-        public int zOrder;
         public ColorTransform color;
 
         public SlotFrameData()
@@ -233,7 +267,6 @@ namespace DragonBones
             base._onClear();
 
             displayIndex = 0;
-            zOrder = 0;
             color = null;
         }
     }

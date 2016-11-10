@@ -37,32 +37,12 @@ namespace DragonBones
         /**
          * @private
          */
-        internal bool _colorDirty;
-
-        /**
-         * @private
-         */
-        internal bool _ffdDirty;
-
-        /**
-         * @private
-         */
         internal int _blendIndex;
 
         /**
          * @private
          */
         internal int _zOrder;
-
-        /**
-         * @private
-         */
-        internal float _pivotX;
-
-        /**
-         * @private
-         */
-        internal float _pivotY;
 
         /**
          * @private
@@ -112,12 +92,21 @@ namespace DragonBones
         /**
          * @private
          */
-        protected bool _displayDirty;
+        internal bool _zOrderDirty;
 
         /**
          * @private
          */
+        protected bool _displayDirty;
+        /**
+         * @private
+         */
         protected bool _blendModeDirty;
+
+        /**
+         * @private
+         */
+        internal bool _colorDirty;
 
         /**
          * @private
@@ -128,6 +117,11 @@ namespace DragonBones
          * @private
          */
         protected bool _transformDirty;
+
+        /**
+         * @private
+         */
+        internal bool _ffdDirty;
 
         /**
          * @private
@@ -143,6 +137,16 @@ namespace DragonBones
          * @private
          */
         protected BlendMode _blendMode;
+
+        /**
+         * @private
+         */
+        protected float _pivotX;
+
+        /**
+         * @private
+         */
+        protected float _pivotY;
 
         /**
          * @private
@@ -216,12 +220,8 @@ namespace DragonBones
             inheritAnimation = true;
             displayController = null;
 
-            _colorDirty = false;
-            _ffdDirty = false;
             _blendIndex = -1;
             _zOrder = 0;
-            _pivotX = 0.0f;
-            _pivotY = 0.0f;
             _displayDataSet = null;
             _meshData = null;
             _childArmature = null;
@@ -232,13 +232,18 @@ namespace DragonBones
             _ffdVertices.Clear();
             _replacedDisplayDataSet.Clear();
 
+            _zOrderDirty = false;
             _displayDirty = false;
             _blendModeDirty = false;
+            _colorDirty = false;
             _originDirty = false;
             _transformDirty = false;
+            _ffdDirty = false;
             _displayIndex = -2;
             _cacheFrameIndex = -1;
             _blendMode = BlendMode.Normal;
+            _pivotX = 0.0f;
+            _pivotY = 0.0f;
             _display = null;
             _localMatrix.Identity();
             _displayList.Clear();
@@ -274,6 +279,11 @@ namespace DragonBones
          * @private
          */
         protected abstract void _removeDisplay();
+
+        /**
+         * @private
+         */
+        protected abstract void _updateZOrder();
 
         /**
          * @private Bone
@@ -458,6 +468,10 @@ namespace DragonBones
                 if (_childArmature != null)
                 {
                     _childArmature._parent = this; // Update child armature parent.
+                    
+                    // Update child armature flip.
+                    _childArmature.flipX = this._armature.flipX;
+                    _childArmature.flipY = this._armature.flipY;
 
                     if (inheritAnimation)
                     {
@@ -610,6 +624,12 @@ namespace DragonBones
         internal void _update(int cacheFrameIndex)
         {
             _blendIndex = 0;
+
+            if (_zOrderDirty)
+            {
+                _zOrderDirty = false;
+                _updateZOrder();
+            }
 
             if (_displayDirty)
             {

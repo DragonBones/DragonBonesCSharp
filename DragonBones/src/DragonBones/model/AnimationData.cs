@@ -70,6 +70,11 @@ namespace DragonBones
         /**
          * @private
          */
+        public ZOrderTimelineData zOrderTimeline;
+
+        /**
+         * @private
+         */
         public bool[] cachedFrames;
 
         /**
@@ -131,6 +136,7 @@ namespace DragonBones
             cacheTimeToFrameScale = 0.0f;
             name = null;
             animation = null;
+            zOrderTimeline = null;
             cachedFrames = null;
             boneTimelines.Clear();
             slotTimelines.Clear();

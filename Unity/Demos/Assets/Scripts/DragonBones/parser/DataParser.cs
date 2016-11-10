@@ -33,6 +33,7 @@ namespace DragonBones
         protected const string SKIN = "skin";
         protected const string DISPLAY = "display";
         protected const string ANIMATION = "animation";
+        protected const string Z_ORDER = "zOrder";
         protected const string FFD = "ffd";
         protected const string FRAME = "frame";
 
@@ -51,7 +52,6 @@ namespace DragonBones
         protected const string LENGTH = "length";
         protected const string DATA = "data";
         protected const string DISPLAY_INDEX = "displayIndex";
-        protected const string Z_ORDER = "z";
         protected const string BLEND_MODE = "blendMode";
         protected const string INHERIT_TRANSLATION = "inheritTranslation";
         protected const string INHERIT_ROTATION = "inheritRotation";
@@ -107,12 +107,10 @@ namespace DragonBones
         protected const string TIMELINE = "timeline";
         protected const string PIVOT_X = "pX";
         protected const string PIVOT_Y = "pY";
+        protected const string Z = "z";
         protected const string LOOP = "loop";
         protected const string AUTO_TWEEN = "autoTween";
         protected const string HIDE = "hide";
-
-        protected const string RECTANGLE = "rectangle";
-        protected const string ELLIPSE = "ellipse";
 
         protected static ArmatureType _getArmatureType(string value)
         {

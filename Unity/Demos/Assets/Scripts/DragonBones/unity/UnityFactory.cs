@@ -229,7 +229,13 @@ namespace DragonBones
                 return _pathDragonBonesDataMap[path];
             }
 
-            return LoadDragonBonesData(Resources.Load<TextAsset>(path), name);
+            var dragonBonesData = LoadDragonBonesData(Resources.Load<TextAsset>(path), name);
+            if (dragonBonesData != null)
+            {
+                _pathDragonBonesDataMap[path] = dragonBonesData;
+            }
+
+            return dragonBonesData;
         }
 
         public DragonBonesData LoadDragonBonesData(TextAsset dragonBonesJSON, string name = null)
@@ -272,7 +278,13 @@ namespace DragonBones
 
             _textureAtlasPath = path;
 
-            return LoadTextureAtlasData(Resources.Load<TextAsset>(path), name, scale);
+            var textureAtlasData = LoadTextureAtlasData(Resources.Load<TextAsset>(path), name, scale);
+            if (textureAtlasData != null)
+            {
+                _pathTextureAtlasDataMap[path] = textureAtlasData;
+            }
+
+            return textureAtlasData;
         }
 
         public UnityTextureAtlasData LoadTextureAtlasData(TextAsset textureAtlasJSON, string name = null, float scale = 0.0f)
@@ -361,7 +373,6 @@ namespace DragonBones
             base.RemoveTextureAtlasData(name, disposeData);
         }
 
-
         /**
          * @inheritDoc
          */
@@ -371,6 +382,28 @@ namespace DragonBones
 
             _pathDragonBonesDataMap.Clear();
             _pathTextureAtlasDataMap.Clear();
+        }
+
+        /**
+         * @private
+         */
+        public void RefreshAllTextureAtlas()
+        {
+            foreach (var textureAtlasDatas in this._textureAtlasDataMap.Values)
+            {
+                foreach (UnityTextureAtlasData textureAtlasData in textureAtlasDatas)
+                {
+                    if (textureAtlasData.texture == null)
+                    {
+                        var textureAtlas = Resources.Load<Texture2D>(textureAtlasData.imagePath);
+                        var shader = Shader.Find(defaultShaderName);
+                        var material = new Material(shader);
+                        material.mainTexture = textureAtlas;
+
+                        textureAtlasData.texture = material;
+                    }
+                }
+            }
         }
 
         /**

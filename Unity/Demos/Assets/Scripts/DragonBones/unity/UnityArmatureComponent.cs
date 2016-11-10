@@ -8,7 +8,7 @@ namespace DragonBones
         /**
          * @private
          */
-        public TextAsset draggonBonesJSON = null;
+        public TextAsset dragonBonesJSON = null;
 
         /**
          * @private
@@ -32,15 +32,12 @@ namespace DragonBones
         
         private bool _disposeGameObject = true;
 
-        [SerializeField]
-        private float _zSpace = 0.0f;
-
         /**
          * @private
          */
         void Awake()
         {
-            LoadData();
+            LoadData(dragonBonesJSON, textureAtlasJSON);
 
             if (DragonBones.IsAvailableString(armatureName))
             {
@@ -60,10 +57,6 @@ namespace DragonBones
          */
         void OnDestroy()
         {
-            if (Application.isPlaying)
-            {
-                //Dispose(true);
-            }
         }
 
         /**
@@ -76,7 +69,7 @@ namespace DragonBones
             if (_disposeGameObject)
             {
 #if UNITY_EDITOR
-                //Object.DestroyImmediate(this.gameObject);
+                Object.DestroyImmediate(this.gameObject);
 #else
                 Object.Destroy(this.gameObject);
 #endif
@@ -88,42 +81,24 @@ namespace DragonBones
         /**
          * @private
          */
-        public DragonBonesData LoadData()
+        public DragonBonesData LoadData(TextAsset dragonBonesJSON, List<string> textureAtlasJSON)
         {
-            var dragonBonesData = draggonBonesJSON != null ? UnityFactory.factory.LoadDragonBonesData(draggonBonesJSON) : null;
+            DragonBonesData dragonBonesData = null;
 
-            if (textureAtlasJSON != null)
+            if (dragonBonesJSON != null)
             {
-                foreach (var eachJSON in textureAtlasJSON)
+                dragonBonesData = UnityFactory.factory.LoadDragonBonesData(dragonBonesJSON);
+
+                if (dragonBonesData != null && textureAtlasJSON != null)
                 {
-                    UnityFactory.factory.LoadTextureAtlasData(eachJSON);
+                    foreach (var eachJSON in textureAtlasJSON)
+                    {
+                        UnityFactory.factory.LoadTextureAtlasData(eachJSON);
+                    }
                 }
             }
 
             return dragonBonesData;
-        }
-
-        /**
-         * @private
-         */
-        public void ClearChildren()
-        {
-            var children = new List<GameObject>();
-            int childCount = this.transform.childCount;
-            for (int i = 0; i < childCount; ++i)
-            {
-                var child = this.transform.GetChild(i).gameObject;
-                children.Add(child);
-            }
-            for (int i = 0; i < childCount; ++i)
-            {
-                var child = children[i];
-#if UNITY_EDITOR
-                Object.DestroyImmediate(child);
-#else
-                Object.Destroy(child);
-#endif
-            }
         }
 
         public void Dispose(bool disposeGameObject)
@@ -134,34 +109,6 @@ namespace DragonBones
             {
                 _armature.Dispose();
                 _armature = null;
-            }
-        }
-        
-        public float zSpace
-        {
-            get { return _zSpace; }
-            set
-            {
-                if (value < 0.0f || float.IsNaN(value))
-                {
-                    value = 0.0f;
-                }
-
-                if (_zSpace == value)
-                {
-                    return;
-                }
-
-                _zSpace = value;
-
-                foreach (var slot in _armature.GetSlots())
-                {
-                    var display = slot.display as GameObject;
-                    if (display != null)
-                    {
-                        display.transform.localPosition = new Vector3(display.transform.localPosition.x, display.transform.localPosition.y, -slot._zOrder * (_zSpace + 0.001f));
-                    }
-                }
             }
         }
 
@@ -196,8 +143,14 @@ namespace DragonBones
             get { return _sortingLayerName; }
             set
             {
+                if (_sortingLayerName == value)
+                {
+                    return;
+                }
+
                 _sortingLayerName = value;
-                foreach (Renderer render in GetComponentsInChildren<Renderer>(true))
+
+                foreach (var render in GetComponentsInChildren<Renderer>(true))
                 {
                     render.sortingLayerName = value;
                 }
@@ -211,10 +164,46 @@ namespace DragonBones
             get { return _sortingOrder; }
             set
             {
+                if (_sortingOrder == value)
+                {
+                    return;
+                }
+
                 _sortingOrder = value;
-                foreach (Renderer render in GetComponentsInChildren<Renderer>(true))
+
+                foreach (var render in GetComponentsInChildren<Renderer>(true))
                 {
                     render.sortingOrder = value;
+                }
+            }
+        }
+
+        [SerializeField]
+        protected float _zSpace = 0.0f;
+        public float zSpace
+        {
+            get { return _zSpace; }
+            set
+            {
+                if (value < 0.0f || float.IsNaN(value))
+                {
+                    value = 0.0f;
+                }
+
+                if (_zSpace == value)
+                {
+                    return;
+                }
+
+                _zSpace = value;
+
+                foreach (var slot in _armature.GetSlots())
+                {
+                    var display = slot.display as GameObject;
+                    if (display != null)
+                    {
+                        display.transform.localPosition = new Vector3(display.transform.localPosition.x, display.transform.localPosition.y, -slot._zOrder * (_zSpace + 0.000001f));
+                    }
                 }
             }
         }

@@ -69,7 +69,7 @@ namespace DragonBones
         /**
          * @private
          */
-        internal bool _isFadeOutComplete;
+        internal int _fadeState;
 
         /**
          * @private
@@ -119,11 +119,6 @@ namespace DragonBones
         /**
          * @private
          */
-        private bool _isFadeOut;
-
-        /**
-         * @private
-         */
         private float _fadeTime;
 
         /**
@@ -145,6 +140,11 @@ namespace DragonBones
          * @private
          */
         private AnimationData _animationData;
+
+        /**
+         * @private
+         */
+        private ZOrderTimelineState _zOrderTimeline;
 
         /**
          * @private
@@ -193,6 +193,16 @@ namespace DragonBones
                 ffdTimelineState.ReturnToPool();
             }
 
+            if (_timeline != null)
+            {
+                _timeline.ReturnToPool();
+            }
+
+            if (_zOrderTimeline != null)
+            {
+                _zOrderTimeline.ReturnToPool();
+            }
+
             displayControl = true;
             additiveBlending = false;
             actionEnabled = false;
@@ -202,28 +212,23 @@ namespace DragonBones
             autoFadeOutTime = -1.0f;
             fadeTotalTime = 0.0f;
 
-            _isFadeOutComplete = false;
+            _fadeState = 0;
             _layer = 0;
             _position = 0.0f;
             _duration = 0.0f;
             _weightResult = 0.0f;
             _fadeProgress = 0.0f;
             _group = null;
-
-            if (_timeline != null)
-            {
-                _timeline.ReturnToPool();
-                _timeline = null;
-            }
+            _timeline = null;
 
             _isPlaying = true;
             _isPausePlayhead = false;
-            _isFadeOut = false;
             _fadeTime = 0.0f;
             _time = 0.0f;
             _name = null;
             _armature = null;
             _animationData = null;
+            _zOrderTimeline = null;
             _boneMask.Clear();
             _boneTimelines.Clear();
             _slotTimelines.Clear();
@@ -245,15 +250,15 @@ namespace DragonBones
             var fadeProgress = 0.0f;
             if (_fadeTime >= fadeTotalTime) // Fade complete.
             {
-                fadeProgress = _isFadeOut ? 0.0f : 1.0f;
+                fadeProgress = _fadeState > 0 ? 0.0f : 1.0f;
             }
             else if (_fadeTime > 0.0f) // Fading.
             {
-                fadeProgress = _isFadeOut ? (1 - _fadeTime / fadeTotalTime) : (_fadeTime / fadeTotalTime);
+                fadeProgress = _fadeState > 0 ? (1 - _fadeTime / fadeTotalTime) : (_fadeTime / fadeTotalTime);
             }
             else // Before fade.
             {
-                fadeProgress = _isFadeOut ? 1.0f : 0.0f;
+                fadeProgress = _fadeState > 0 ? 1.0f : 0.0f;
             }
 
             if (_fadeProgress != fadeProgress)
@@ -264,7 +269,7 @@ namespace DragonBones
 
                 if (_fadeTime <= passedTime)
                 {
-                    if (_isFadeOut)
+                    if (_fadeState > 0)
                     {
                         if (eventDispatcher.HasEventListener(EventObject.FADE_OUT))
                         {
@@ -286,10 +291,8 @@ namespace DragonBones
 
                 if (_fadeTime >= fadeTotalTime)
                 {
-                    if (_isFadeOut)
+                    if (_fadeState > 0)
                     {
-                        _isFadeOutComplete = true;
-
                         if (eventDispatcher.HasEventListener(EventObject.FADE_OUT_COMPLETE))
                         {
                             var evt = BaseObject.BorrowObject<EventObject>();
@@ -300,6 +303,7 @@ namespace DragonBones
                     else
                     {
                         _isPausePlayhead = false;
+                        _fadeState = 0;
 
                         if (eventDispatcher.HasEventListener(EventObject.FADE_IN_COMPLETE))
                         {
@@ -350,6 +354,7 @@ namespace DragonBones
             this.timeScale = timeScale;
             fadeTotalTime = fadeInTime;
 
+            _fadeState = -1;
             _position = position;
             _duration = duration;
             _time = time;
@@ -361,6 +366,12 @@ namespace DragonBones
 
             _timeline = BaseObject.BorrowObject<AnimationTimelineState>();
             _timeline.FadeIn(_armature, this, _animationData, _time);
+
+            if (_animationData.zOrderTimeline != null)
+            {
+                _zOrderTimeline = BaseObject.BorrowObject<ZOrderTimelineState>();
+                _zOrderTimeline.FadeIn(_armature, this, _animationData.zOrderTimeline, _time);
+            }
 
             _updateTimelineStates();
         }
@@ -424,7 +435,7 @@ namespace DragonBones
                 var parentTimelineName = slot.parent.name;
                 var slotTimelineData = _animationData.GetSlotTimeline(slotTimelineName);
 
-                if (slotTimelineData != null && ContainsBoneMask(parentTimelineName) && !_isFadeOut)
+                if (slotTimelineData != null && ContainsBoneMask(parentTimelineName) && _fadeState <= 0)
                 {
                     var slotTimelineState = slotTimelineStates.ContainsKey(slotTimelineName) ? slotTimelineStates[slotTimelineName] : null;
                     if (slotTimelineState != null) // Remove slot timeline from map.
@@ -523,7 +534,10 @@ namespace DragonBones
         internal void _advanceTime(float passedTime, float weightLeft, int index)
         {
             // Update fade time. (Still need to be update even if the passedTime is zero)
-            _advanceFadeTime(passedTime);
+            if (_fadeState != 0)
+            {
+                _advanceFadeTime(passedTime);
+            }
 
             // Update time.
             passedTime *= timeScale;
@@ -549,6 +563,11 @@ namespace DragonBones
                 if (!_animationData.hasAsynchronyTimeline)
                 {
                     time = _timeline._currentTime;
+                }
+
+                if (_zOrderTimeline != null)
+                {
+                    _zOrderTimeline.Update(time);
                 }
 
                 if (isCacheEnabled)
@@ -662,7 +681,7 @@ namespace DragonBones
 
             _isPausePlayhead = pausePlayhead;
 
-            if (_isFadeOut)
+            if (_fadeState > 0)
             {
                 if (fadeOutTime > fadeOutTime - _fadeTime)
                 {
@@ -672,7 +691,7 @@ namespace DragonBones
             }
             else
             {
-                _isFadeOut = true;
+                _fadeState = 1;
 
                 if (fadeOutTime <= 0.0f || _fadeProgress <= 0.0f)
                 {
@@ -903,6 +922,11 @@ namespace DragonBones
 
                 _time = value;
                 _timeline.setCurrentTime(_time);
+
+                if (_zOrderTimeline != null)
+                {
+                    _zOrderTimeline._isCompleted = false;
+                }
 
                 foreach (var boneTimelineState in _boneTimelines)
                 {

@@ -25,7 +25,7 @@ namespace DragonBones
 
         protected void _onCrossFrame(AnimationFrameData frame)
         {
-            if (_animationState.actionEnabled)
+            if (this._animationState.actionEnabled)
             {
                 foreach (var action in frame.actions)
                 {
@@ -54,7 +54,7 @@ namespace DragonBones
                 )
                 {
                     var eventObject = BaseObject.BorrowObject<EventObject>();
-                    eventObject.animationState = _animationState;
+                    eventObject.animationState = this._animationState;
                     eventObject.frame = frame;
 
                     if (eventData.bone != null)
@@ -98,7 +98,7 @@ namespace DragonBones
                     if (eventDispatcher.HasEventListener(EventObject.START))
                     {
                         var eventObject = BaseObject.BorrowObject<EventObject>();
-                        eventObject.animationState = _animationState;
+                        eventObject.animationState = this._animationState;
                         _armature._bufferEvent(eventObject, EventObject.START);
                     }
                 }
@@ -165,14 +165,14 @@ namespace DragonBones
                     if (eventDispatcher.HasEventListener(EventObject.LOOP_COMPLETE))
                     {
                         var eventObject = BaseObject.BorrowObject<EventObject>();
-                        eventObject.animationState = _animationState;
+                        eventObject.animationState = this._animationState;
                         _armature._bufferEvent(eventObject, EventObject.LOOP_COMPLETE);
                     }
 
                     if (_isCompleted && eventDispatcher.HasEventListener(EventObject.COMPLETE))
                     {
                         var eventObject = BaseObject.BorrowObject<EventObject>();
-                        eventObject.animationState = _animationState;
+                        eventObject.animationState = this._animationState;
                         _armature._bufferEvent(eventObject, EventObject.COMPLETE);
                     }
                     _currentFrame = null;
@@ -186,6 +186,22 @@ namespace DragonBones
             this._currentFrame = null;
         }
     }
+
+    /**
+     * @private
+     */
+    public class ZOrderTimelineState : TimelineState<ZOrderFrameData, ZOrderTimelineData>
+    {
+        public ZOrderTimelineState()
+        {
+        }
+
+        override protected void _onArriveAtFrame(bool isUpdate)
+        {
+            base._onArriveAtFrame(isUpdate);
+            this._armature._sortZOrder(this._currentFrame.zOrder);
+        }
+}
 
     /**
      * @private
@@ -331,7 +347,7 @@ namespace DragonBones
                         tweenProgress = _tweenProgress;
                     }
 
-                    if (_animationState.additiveBlending) // Additive blending.
+                    if (this._animationState.additiveBlending) // Additive blending.
                     {
                         _transform.x = _currentTransform.x + _durationTransform.x * tweenProgress;
                         _transform.y = _currentTransform.y + _durationTransform.y * tweenProgress;
@@ -355,7 +371,7 @@ namespace DragonBones
                         tweenProgress = _tweenProgress;
                     }
 
-                    if (_animationState.additiveBlending) // Additive blending.
+                    if (this._animationState.additiveBlending) // Additive blending.
                     {
                         _transform.skewX = _currentTransform.skewX + _durationTransform.skewX * tweenProgress;
                         _transform.skewY = _currentTransform.skewY + _durationTransform.skewY * tweenProgress;
@@ -379,7 +395,7 @@ namespace DragonBones
                         tweenProgress = _tweenProgress;
                     }
 
-                    if (_animationState.additiveBlending) // Additive blending.
+                    if (this._animationState.additiveBlending) // Additive blending.
                     {
                         _transform.scaleX = _currentTransform.scaleX + _durationTransform.scaleX * tweenProgress;
                         _transform.scaleY = _currentTransform.scaleY + _durationTransform.scaleY * tweenProgress;
@@ -414,7 +430,7 @@ namespace DragonBones
             base.Update(time);
 
             // Blend animation state.
-            var weight = _animationState._weightResult;
+            var weight = this._animationState._weightResult;
 
             if (weight > 0.0f)
             {
@@ -438,9 +454,8 @@ namespace DragonBones
                 }
 
                 bone._blendIndex++;
-
-                var fadeProgress = _animationState._fadeProgress;
-                if (fadeProgress < 1.0f)
+                
+                if (this._animationState._fadeState != 0)
                 {
                     bone.InvalidUpdate();
                 }
@@ -485,7 +500,7 @@ namespace DragonBones
         {
             base._onArriveAtFrame(isUpdate);
 
-            if (_animationState._isDisabled(slot))
+            if (this._animationState._isDisabled(slot))
             {
                 _tweenEasing = DragonBones.NO_TWEEN;
                 _curve = null;
@@ -624,12 +639,13 @@ namespace DragonBones
             // Fade animation.
             if (_tweenColor != TweenType.None || _colorDirty)
             {
-                var weight = _animationState._weightResult;
+                var weight = this._animationState._weightResult;
                 if (weight > 0.0f)
                 {
-                    var fadeProgress = _animationState._fadeProgress;
-                    if (fadeProgress < 1.0f)
+                    if (this._animationState._fadeState != 0)
                     {
+                        var fadeProgress = this._animationState._fadeProgress;
+
                         _slotColor.alphaMultiplier += (_color.alphaMultiplier - _slotColor.alphaMultiplier) * fadeProgress;
                         _slotColor.redMultiplier += (_color.redMultiplier - _slotColor.redMultiplier) * fadeProgress;
                         _slotColor.greenMultiplier += (_color.greenMultiplier - _slotColor.greenMultiplier) * fadeProgress;
@@ -776,7 +792,7 @@ namespace DragonBones
             base.Update(time);
 
             // Blend animation.
-            var weight = _animationState._weightResult;
+            var weight = this._animationState._weightResult;
             if (weight > 0.0f)
             {
                 if (slot._blendIndex == 0)
@@ -795,9 +811,8 @@ namespace DragonBones
                 }
 
                 slot._blendIndex++;
-
-                var fadeProgress = _animationState._fadeProgress;
-                if (fadeProgress < 1.0f)
+               
+                if (this._animationState._fadeState != 0)
                 {
                     slot._ffdDirty = true;
                 }

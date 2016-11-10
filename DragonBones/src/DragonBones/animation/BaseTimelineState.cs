@@ -236,7 +236,7 @@ namespace DragonBones
             return (value - progress) * easing + progress;
         }
 
-        internal static float _getCurveEasingValue(float progress, float[] sampling)
+        internal static float _getCurveEasingValue(float progress, float[] samples)
         {
             if (progress <= 0.0f)
             {
@@ -247,29 +247,12 @@ namespace DragonBones
                 return 1.0f;
             }
 
-            var x = 0.0f;
-            var y = 0.0f;
+            var segmentCount = samples.Length + 1; // + 2 - 1
+            var valueIndex = (uint)(progress * segmentCount); // floor
+            var fromValue = valueIndex == 0 ? 0 : samples[valueIndex - 1];
+            var toValue = (valueIndex == segmentCount - 1) ? 1 : samples[valueIndex];
 
-            for (int i = 0, l = sampling.Length; i < l; i += 2)
-            {
-                x = sampling[i];
-                y = sampling[i + 1];
-                if (x >= progress)
-                {
-                    if (i == 0)
-                    {
-                        return y * progress / x;
-                    }
-                    else
-                    {
-                        var xP = sampling[i - 2];
-                        var yP = sampling[i - 1]; // i - 2 + 1
-                        return yP + (y - yP) * (progress - xP) / (x - xP);
-                    }
-                }
-            }
-
-            return y + (1.0f - y) * (progress - x) / (1.0f - x);
+            return fromValue + (toValue - fromValue) * (progress - valueIndex / segmentCount);
         }
 
         protected float _tweenProgress;

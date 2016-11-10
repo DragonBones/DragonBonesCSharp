@@ -29,6 +29,16 @@ namespace DragonBones
         /**
          * @private
          */
+        internal bool _flipX;
+
+        /**
+         * @private
+         */
+        internal bool _flipY;
+
+        /**
+         * @private
+         */
         internal int _cacheFrameIndex;
 
         /**
@@ -165,6 +175,8 @@ namespace DragonBones
             userData = null;
 
             _bonesDirty = false;
+            _flipX = false;
+            _flipY = false;
             _cacheFrameIndex = -1;
             _armatureData = null;
             _skinData = null;
@@ -330,6 +342,30 @@ namespace DragonBones
                 _slots.Remove(value);
                 _animation._timelineStateDirty = true;
             }
+        }
+
+        /**
+         * @private
+         */
+        public void _sortZOrder(List<int> slotIndices)
+        {
+            var sortedSlots = _armatureData.sortedSlots;
+            var isOriginal = slotIndices.Count < 1;
+
+            for (int i = 0, l = sortedSlots.Count; i < l; ++i)
+            {
+                var slotIndex = isOriginal ? i : slotIndices[i];
+                var slotData = sortedSlots[slotIndex];
+                var slot = GetSlot(slotData.name);
+
+                if (slot != null && slot._zOrder != i)
+                {
+                    slot._zOrder = i;
+                    slot._zOrderDirty = true;
+                }
+            }
+
+            this._slotsDirty = true;
         }
 
         /**
@@ -628,26 +664,6 @@ namespace DragonBones
 
         /**
          * @language zh_CN
-         * 将一个指定的插槽从骨架中移除。
-         * @param value 需要移除的插槽
-         * @see dragonBones.Slot
-         * @version DragonBones 3.0
-         */
-        public void RemoveSlot(Slot value)
-        {
-            if (value != null && value.armature == this)
-            {
-                value._setParent(null);
-                value._setArmature(null);
-            }
-            else
-            {
-                DragonBones.Warn("");
-            }
-        }
-
-        /**
-         * @language zh_CN
          * 获取指定名称的骨骼。
          * @param name 骨骼的名称。
          * @returns 骨骼。
@@ -696,26 +712,6 @@ namespace DragonBones
             {
                 value._setArmature(this);
                 value._setParent(DragonBones.IsAvailableString(parentName) ? GetBone(parentName) : null);
-            }
-            else
-            {
-                DragonBones.Warn("");
-            }
-        }
-
-        /**
-         * @language zh_CN
-         * 将一个指定的骨骼从骨架中移除。
-         * @param value 需要移除的骨骼。
-         * @see dragonBones.Bone
-         * @version DragonBones 3.0
-         */
-        public void RemoveBone(Bone value)
-        {
-            if (value != null && value.armature == this)
-            {
-                value._setParent(null);
-                value._setArmature(null);
             }
             else
             {
@@ -855,6 +851,60 @@ namespace DragonBones
                         }
                     }
                 }
+            }
+        }
+
+        public bool flipX
+        {
+            get { return _flipX; }
+
+            set
+            {
+                if (_flipX == value)
+                {
+                    return;
+                }
+
+                _flipX = value;
+                
+                // Flipping child armature.
+                foreach (var slot in _slots)
+                {
+                    var childArmature = slot.childArmature;
+                    if (childArmature != null)
+                    {
+                        childArmature.flipX = _flipX;
+                    }
+                }
+
+                InvalidUpdate();
+            }
+        }
+
+        public bool flipY
+        {
+            get { return _flipY; }
+
+            set
+            {
+                if (_flipY == value)
+                {
+                    return;
+                }
+
+                _flipY = value;
+
+                // Flipping child armature.
+                foreach (var slot in _slots)
+                {
+                    var childArmature = slot.childArmature;
+                    if (childArmature != null)
+                    {
+                        childArmature.flipY = _flipY;
+                    }
+                }
+
+                InvalidUpdate();
             }
         }
     }

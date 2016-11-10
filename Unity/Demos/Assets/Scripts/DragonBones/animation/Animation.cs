@@ -233,7 +233,7 @@ namespace DragonBones
             if (animationStateCount == 1)
             {
                 var animationState = _animationStates[0];
-                if (animationState._isFadeOutComplete)
+                if (animationState._fadeState > 0 && animationState._fadeProgress <= 0.0f)
                 {
                     animationState.ReturnToPool();
                     _animationStates.Clear();
@@ -260,7 +260,7 @@ namespace DragonBones
                 for (int i = 0, r = 0; i < animationStateCount; ++i)
                 {
                     var animationState = _animationStates[i];
-                    if (animationState._isFadeOutComplete)
+                    if (animationState._fadeState > 0 && animationState._fadeProgress <= 0.0f)
                     {
                         r++;
                         animationState.ReturnToPool();

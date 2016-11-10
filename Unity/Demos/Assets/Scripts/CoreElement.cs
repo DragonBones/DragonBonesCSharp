@@ -155,7 +155,7 @@ namespace coreElement
             if (eventObject.name == "onFire")
             {
                 var firePointBone = eventObject.armature.GetBone("firePoint");
-                var localPoint = new Vector3(firePointBone.global.x, -firePointBone.global.y, 0.0f);
+                var localPoint = new Vector3(eventObject.armature.flipX ? -firePointBone.global.x : firePointBone.global.x, -firePointBone.global.y, 0.0f);
                 var globalPoint = (eventObject.armature.display as GameObject).transform.worldToLocalMatrix.inverse.MultiplyPoint(localPoint);
                 _fire(globalPoint);
             }
@@ -371,11 +371,9 @@ namespace coreElement
             var position = this.transform.localPosition;
             _faceDir = _target.x > position.x ? 1 : -1;
 
-            if (this.transform.localScale.x * _faceDir < 0.0f)
+            if (_faceDir < 0.0f ? !_armatureComponent.armature.flipX : _armatureComponent.armature.flipX)
             {
-                var scale = this.transform.localScale;
-                scale.x *= -1.0f;
-                this.transform.localScale = scale;
+                _armatureComponent.armature.flipX = !_armatureComponent.armature.flipX;
 
                 if (_moveDir != 0)
                 {
@@ -510,12 +508,13 @@ namespace coreElement
                 var effectRotation = _effectComponent.transform.localEulerAngles;
                 var effectScale = _effectComponent.transform.localScale;
                 effectRotation.z = -radian * DragonBones.DragonBones.RADIAN_TO_ANGLE;
-                effectScale.x = Random.Range(1.0f, 2.0f);
-                effectScale.y = Random.Range(1.0f, 1.5f);
                 if (Random.Range(0.0f, 1.0f) < 0.5)
                 {
-                    effectScale.y *= -1.0f;
+                    effectRotation.x = 180.0f;
+                    effectRotation.z = -effectRotation.z;
                 }
+                effectScale.x = Random.Range(1.0f, 2.0f);
+                effectScale.y = Random.Range(1.0f, 1.5f);
 
                 _effectComponent.animation.timeScale = _armatureComponent.animation.timeScale;
                 _effectComponent.transform.localPosition = this.transform.localPosition;

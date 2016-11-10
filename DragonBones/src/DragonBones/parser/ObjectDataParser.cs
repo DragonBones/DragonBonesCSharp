@@ -337,7 +337,7 @@ namespace DragonBones
             slot.name = _getString(rawData, NAME, null);
             slot.parent = this._armature.GetBone(_getString(rawData, PARENT, null));
             slot.displayIndex = _getNumber(rawData, DISPLAY_INDEX, (int)0);
-            slot.zOrder = _getNumber(rawData, Z_ORDER, zOrder); // TODO zOrder.
+            slot.zOrder = _getNumber(rawData, Z, zOrder); // TODO zOrder.
 
             if (
                 rawData.ContainsKey(COLOR) ||
@@ -654,6 +654,12 @@ namespace DragonBones
 
             _parseTimeline(rawData, animation, _parseAnimationFrame);
 
+            if (rawData.ContainsKey(Z_ORDER))
+            {
+                animation.zOrderTimeline = BaseObject.BorrowObject<ZOrderTimelineData>();
+                _parseTimeline(rawData[Z_ORDER] as Dictionary<string, object>, animation.zOrderTimeline, _parseZOrderFrame);
+            }
+
             if (rawData.ContainsKey(BONE))
             {
                 var boneTimelines = rawData[BONE] as List<object>;
@@ -881,6 +887,63 @@ namespace DragonBones
 
             return frame;
         }
+        
+        /**
+         * @private
+         */
+        protected ZOrderFrameData _parseZOrderFrame(Dictionary<string, object> rawData, uint frameStart, uint frameCount)
+        {
+            var frame = BaseObject.BorrowObject<ZOrderFrameData>();
+
+            _parseFrame(rawData, frame, frameStart, frameCount);
+
+            if (rawData.ContainsKey(Z_ORDER))
+            {
+                var rawZOrder = rawData[Z_ORDER] as List<object>;
+                if (rawZOrder.Count > 0)
+                {
+                    var slotCount = this._armature.sortedSlots.Count;
+                    var unchanged = new int[slotCount - rawZOrder.Count / 2];
+
+                    DragonBones.ResizeList(frame.zOrder, slotCount, -1);
+                    for (int i = 0; i < slotCount; ++i)
+                    {
+                        frame.zOrder[i] = -1;
+                    }
+
+                    var originalIndex = 0;
+                    var unchangedIndex = 0;
+                    for (int i = 0, l = rawZOrder.Count; i < l; i += 2)
+                    {
+                        var slotIndex = _getParameter(rawZOrder, i, 0);
+                        var offset = _getParameter(rawZOrder, i + 1, 0);
+
+                        while (originalIndex != slotIndex)
+                        {
+                            unchanged[unchangedIndex++] = originalIndex++;
+                        }
+
+                        frame.zOrder[originalIndex + offset] = originalIndex++;
+                    }
+
+                    while (originalIndex < slotCount)
+                    {
+                        unchanged[unchangedIndex++] = originalIndex++;
+                    }
+
+                    var iC = slotCount;
+                    while (iC-- != 0)
+                    {
+                        if (frame.zOrder[iC] == -1)
+                        {
+                            frame.zOrder[iC] = unchanged[--unchangedIndex];
+                        }
+                    }
+                }
+            }
+
+            return frame;
+        }
 
         /**
          * @private
@@ -939,7 +1002,6 @@ namespace DragonBones
         {
             var frame = BaseObject.BorrowObject<SlotFrameData>();
             frame.displayIndex = _getNumber(rawData, DISPLAY_INDEX, 0);
-            //frame.zOrder = _getNumber(rawData, Z_ORDER, -2); // TODO zorder
 
             _parseTweenFrame(rawData, frame, frameStart, frameCount);
 
@@ -1059,7 +1121,8 @@ namespace DragonBones
                         curve[i] = Convert.ToSingle(rawCurve[i]);
                     }
 
-                    frame.curve = TweenFrameData<T>.SamplingCurve(curve, frameCount);
+                    frame.curve = new float[frameCount * 2 - 1];
+                    TweenFrameData<T>.SamplingEasingCurve(curve, frame.curve);
                 }
             }
             else
