@@ -48,20 +48,6 @@ namespace DragonBones
          */
         public UnityFactory(DataParser dataParser = null) : base(dataParser)
         {
-            if (Application.isPlaying)
-            {
-                if (_gameObject == null)
-                {
-                    _gameObject = new GameObject("DragonBones Object", typeof(ClockHandler));
-                    _gameObject.isStatic = true;
-                    _gameObject.hideFlags = HideFlags.HideInHierarchy;
-                }
-
-                if (_eventManager == null)
-                {
-                    _eventManager = _gameObject.AddComponent<UnityArmatureComponent>();
-                }
-            }
         }
 
         /**
@@ -86,6 +72,21 @@ namespace DragonBones
          */
         override protected Armature _generateArmature(BuildArmaturePackage dataPackage)
         {
+            if (Application.isPlaying)
+            {
+                if (_gameObject == null)
+                {
+                    _gameObject = new GameObject("DragonBones Object", typeof(ClockHandler));
+                    _gameObject.isStatic = true;
+                    _gameObject.hideFlags = HideFlags.HideInHierarchy;
+                }
+
+                if (_eventManager == null)
+                {
+                    _eventManager = _gameObject.AddComponent<UnityArmatureComponent>();
+                }
+            }
+
             var armature = BaseObject.BorrowObject<Armature>();
             var armatureDisplayContainer = _armatureGameObject == null ? new GameObject() : _armatureGameObject;
             var armatureComponent = armatureDisplayContainer.GetComponent<UnityArmatureComponent>();

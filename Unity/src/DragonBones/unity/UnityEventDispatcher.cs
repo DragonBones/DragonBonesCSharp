@@ -46,7 +46,7 @@ namespace DragonBones
                 var delegates = _listeners[type].GetInvocationList();
                 for (int i = 0, l = delegates.Length; i < l; ++i)
                 {
-                    if (listener == (object)delegates[i])
+                    if (listener == delegates[i] as ListenerDelegate<T>)
                     {
                         return;
                     }
@@ -70,7 +70,7 @@ namespace DragonBones
             var delegates = _listeners[type].GetInvocationList();
             for (int i = 0, l = delegates.Length; i < l; ++i)
             {
-                if (listener == (object)delegates[i])
+                if (listener == delegates[i] as ListenerDelegate<T>)
                 {
                     _listeners[type] -= listener;
                     break;
