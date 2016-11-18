@@ -259,14 +259,7 @@ namespace DragonBones
                             // Identity transform.
                             if (this._meshData.skinned)
                             {
-                                if (this._armature._flipY)
-                                {
-                                    _helpVector3.x = 0.0f;
-                                }
-                                else
-                                {
-                                    _helpVector3.x = 180.0f;
-                                }
+                                _renderDisplay.transform.localPosition = new Vector3(0.0f, 0.0f, _renderDisplay.transform.localPosition.z);
 
                                 if (this._armature._flipX)
                                 {
@@ -277,10 +270,18 @@ namespace DragonBones
                                     _helpVector3.y = 0.0f;
                                 }
 
-                                _helpVector3.z = 0.0f;
+                                if (this._armature._flipY)
+                                {
+                                    _helpVector3.x = 180.0f;
+                                }
+                                else
+                                {
+                                    _helpVector3.x = 0.0f;
+                                }
 
-                                _renderDisplay.transform.localPosition = new Vector3(0.0f, 0.0f, _renderDisplay.transform.localPosition.z);
+                                _helpVector3.z = 0.0f;
                                 _renderDisplay.transform.localEulerAngles = _helpVector3;
+
                                 _renderDisplay.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
                             }
                         }
