@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
 using System.Reflection;
+using UnityEditor.SceneManagement;
 
 namespace DragonBones
 {
@@ -29,6 +30,8 @@ namespace DragonBones
             EditorUtility.FocusProjectWindow();
             Selection.activeObject = gameObject;
             EditorGUIUtility.PingObject(Selection.activeObject);
+            Undo.RegisterCreatedObjectUndo(gameObject, "Create Armature Object");
+            EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
         }
 
         private int _sortingLayerIndex = -1;
@@ -41,9 +44,10 @@ namespace DragonBones
         private List<string> _animationNames = null;
         private UnityArmatureComponent _armatureComponent = null;
 
-        void Awake()
+        void OnEnable()
         {
             _armatureComponent = this.target as UnityArmatureComponent;
+            _dragonBoneJSON = _armatureComponent == null ? null : _armatureComponent.dragonBonesJSON;
 
             // 
             _nowTime = System.DateTime.Now.Ticks;
@@ -93,44 +97,57 @@ namespace DragonBones
 
             _dragonBoneJSON = EditorGUILayout.ObjectField("DragonBones Data", _dragonBoneJSON, typeof(TextAsset), false) as TextAsset;
 
-            if (
-                _armatureComponent.dragonBonesJSON != _dragonBoneJSON && 
-                GUILayout.Button(_armatureComponent.armature == null ? "Create" : "Change")
-            )
+            bool created = false;
+            if (_dragonBoneJSON != null)
             {
-                if (_dragonBoneJSON != null)
+                if (_armatureComponent.armature == null)
                 {
-                    var textureAtlasJSON = new List<string>();
-                    _getTextureAtlasConfigs(textureAtlasJSON, AssetDatabase.GetAssetPath(_dragonBoneJSON.GetInstanceID()));
+                    if (GUILayout.Button("Create"))
+                        created = true;
+                }
+                else if (_armatureComponent.dragonBonesJSON != _dragonBoneJSON)
+                {
+                    if (GUILayout.Button("Change"))
+                        created = true;
+                }
+            }
 
-                    var dragonBonesData = _armatureComponent.LoadData(_dragonBoneJSON, textureAtlasJSON);
-                    if (dragonBonesData != null)
-                    {
-                        _armatureComponent.dragonBonesJSON = _dragonBoneJSON;
-                        _armatureComponent.textureAtlasJSON = textureAtlasJSON;
+            if (created)
+            {
+                var textureAtlasJSON = new List<string>();
+                _getTextureAtlasConfigs(textureAtlasJSON, AssetDatabase.GetAssetPath(_dragonBoneJSON.GetInstanceID()));
 
-                        _clearGameObjectChildren(_armatureComponent.gameObject);
-                        _changeArmature(dragonBonesData.armatureNames[0], dragonBonesData.name);
-                        _update();
-                    }
-                    else
-                    {
-                        _dragonBoneJSON = _armatureComponent.dragonBonesJSON;
+                var dragonBonesData = _armatureComponent.LoadData(_dragonBoneJSON, textureAtlasJSON);
+                if (dragonBonesData != null)
+                {
+                    Undo.RecordObject(_armatureComponent, "Set Armature DragonBones");
+                    _armatureComponent.dragonBonesJSON = _dragonBoneJSON;
+                    _armatureComponent.textureAtlasJSON = textureAtlasJSON;
 
-                        EditorUtility.DisplayDialog("Error", "Could not load dragonBones data.", "OK", null);
-                    }
+                    _clearGameObjectChildren(_armatureComponent.gameObject);
+                    _changeArmature(dragonBonesData.armatureNames[0], dragonBonesData.name);
+                    _update();
+                    EditorUtility.SetDirty(_armatureComponent);
                 }
                 else
                 {
-                    _armatureComponent.dragonBonesJSON = null;
+                    _dragonBoneJSON = _armatureComponent.dragonBonesJSON;
 
-                    if (_armatureComponent.armature != null)
-                    {
-                        _armatureComponent.Dispose(false);
-                    }
-
-                    _clearGameObjectChildren(_armatureComponent.gameObject);
+                    EditorUtility.DisplayDialog("Error", "Could not load dragonBones data.", "OK", null);
                 }
+            }
+            else if (_dragonBoneJSON == null && _armatureComponent.dragonBonesJSON != null)
+            {
+                Undo.RecordObject(_armatureComponent, "Set Armature DragonBones");
+                _armatureComponent.dragonBonesJSON = null;
+
+                if (_armatureComponent.armature != null)
+                {
+                    _armatureComponent.Dispose(false);
+                }
+
+                _clearGameObjectChildren(_armatureComponent.gameObject);
+                EditorUtility.SetDirty(_armatureComponent);
             }
 
             GUILayout.EndHorizontal();
