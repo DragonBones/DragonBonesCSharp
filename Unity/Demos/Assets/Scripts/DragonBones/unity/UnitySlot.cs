@@ -261,20 +261,20 @@ namespace DragonBones
                             {
                                 if (this._armature._flipY)
                                 {
-                                    _helpVector3.x = 180.0f;
+                                    _helpVector3.x = 0.0f;
                                 }
                                 else
                                 {
-                                    _helpVector3.x = 0.0f;
+                                    _helpVector3.x = 180.0f;
                                 }
 
                                 if (this._armature._flipX)
                                 {
-                                    _helpVector3.y = 0.0f;
+                                    _helpVector3.y = 180.0f;
                                 }
                                 else
                                 {
-                                    _helpVector3.y = 180.0f;
+                                    _helpVector3.y = 0.0f;
                                 }
 
                                 _helpVector3.z = 0.0f;
