@@ -42,13 +42,17 @@ namespace DragonBones
             if (DragonBones.IsAvailableString(armatureName))
             {
                 UnityFactory.factory.BuildArmatureComponent(armatureName, null, null, this.gameObject);
-                sortingLayerName = sortingLayerName;
-                sortingOrder = sortingOrder;
             }
 
-            if (_armature != null && DragonBones.IsAvailableString(animationName))
+            if (_armature != null)
             {
-                _armature.animation.Play(animationName);
+                sortingLayerName = sortingLayerName;
+                sortingOrder = sortingOrder;
+
+                if (DragonBones.IsAvailableString(animationName))
+                {
+                    _armature.animation.Play(animationName);
+                }
             }
         }
 
@@ -145,7 +149,7 @@ namespace DragonBones
             {
                 if (_sortingLayerName == value)
                 {
-                    return;
+                    //return;
                 }
 
                 _sortingLayerName = value;
@@ -166,7 +170,7 @@ namespace DragonBones
             {
                 if (_sortingOrder == value)
                 {
-                    return;
+                    //return;
                 }
 
                 _sortingOrder = value;

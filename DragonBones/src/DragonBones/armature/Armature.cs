@@ -877,7 +877,7 @@ namespace DragonBones
                     }
                 }
 
-                InvalidUpdate();
+                InvalidUpdate(null, true);
             }
         }
 
@@ -904,7 +904,7 @@ namespace DragonBones
                     }
                 }
 
-                InvalidUpdate();
+                InvalidUpdate(null, true);
             }
         }
     }

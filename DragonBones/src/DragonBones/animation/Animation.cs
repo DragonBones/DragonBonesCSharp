@@ -170,7 +170,6 @@ namespace DragonBones
                 case AnimationFadeOutMode.All:
                     foreach (var animationState in _animationStates)
                     {
-                        animationState.FadeOut(fadeOutTime, pauseFadeOut);
                         if (fadeOutTime == 0.0f)
                         {
                             animationState.ReturnToPool();
