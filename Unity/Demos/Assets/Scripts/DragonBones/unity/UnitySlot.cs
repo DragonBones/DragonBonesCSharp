@@ -94,7 +94,7 @@ namespace DragonBones
             var armatureComponent = container.GetComponent<UnityArmatureComponent>();
             _renderDisplay.transform.parent = container.transform;
             
-            _helpVector3.Set(0.0f, 0.0f, -this._zOrder * (armatureComponent.zSpace + 0.000001f));
+            _helpVector3.Set(0.0f, 0.0f, -this._zOrder * (armatureComponent.zSpace + 0.001f));
             _renderDisplay.transform.localPosition = _helpVector3;
         }
 
@@ -130,7 +130,7 @@ namespace DragonBones
         {
             var container = this._armature._display as GameObject;
             var armatureComponent = container.GetComponent<UnityArmatureComponent>();
-            _helpVector3.Set(_renderDisplay.transform.localPosition.x, _renderDisplay.transform.localPosition.y, -this._zOrder * (armatureComponent.zSpace + 0.000001f));
+            _helpVector3.Set(_renderDisplay.transform.localPosition.x, _renderDisplay.transform.localPosition.y, -this._zOrder * (armatureComponent.zSpace + 0.001f));
             _renderDisplay.transform.localPosition = _helpVector3;
         }
 
@@ -259,8 +259,28 @@ namespace DragonBones
                             // Identity transform.
                             if (this._meshData.skinned)
                             {
+                                if (this._armature._flipY)
+                                {
+                                    _helpVector3.x = 180.0f;
+                                }
+                                else
+                                {
+                                    _helpVector3.x = 0.0f;
+                                }
+
+                                if (this._armature._flipX)
+                                {
+                                    _helpVector3.y = 0.0f;
+                                }
+                                else
+                                {
+                                    _helpVector3.y = 180.0f;
+                                }
+
+                                _helpVector3.z = 0.0f;
+
                                 _renderDisplay.transform.localPosition = new Vector3(0.0f, 0.0f, _renderDisplay.transform.localPosition.z);
-                                _renderDisplay.transform.localEulerAngles = new Vector3();
+                                _renderDisplay.transform.localEulerAngles = _helpVector3;
                                 _renderDisplay.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
                             }
                         }
