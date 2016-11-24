@@ -61,6 +61,15 @@ namespace DragonBones
          */
         void OnDestroy()
         {
+            if (_armature != null)
+            {
+                var armature = _armature;
+                _armature = null;
+                armature.Dispose();
+            }
+
+            _armature = null;
+            _disposeGameObject = true;
         }
 
         /**
@@ -68,18 +77,17 @@ namespace DragonBones
          */
         override public void _onClear()
         {
-            _armature = null;
-
-            if (_disposeGameObject)
+            if (_armature != null)
             {
+                if (_disposeGameObject)
+                {
 #if UNITY_EDITOR
-                Object.DestroyImmediate(this.gameObject);
+                    Object.DestroyImmediate(this.gameObject);
 #else
-                Object.Destroy(this.gameObject);
+                    Object.Destroy(this.gameObject);
 #endif
+                }
             }
-
-            _disposeGameObject = true;
         }
 
         /**
@@ -112,7 +120,6 @@ namespace DragonBones
             if (_armature != null)
             {
                 _armature.Dispose();
-                _armature = null;
             }
         }
 

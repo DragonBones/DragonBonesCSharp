@@ -228,10 +228,16 @@ namespace DragonBones
                         var textureAtlasWidth = textureAtlasTexture.mainTexture.width;
                         var textureAtlasHeight = textureAtlasTexture.mainTexture.height;
 
-                        if (_mesh == null)
+                        if (_mesh != null)
                         {
-                            _mesh = new Mesh();
+#if UNITY_EDITOR
+                            //Object.DestroyImmediate(_mesh);
+#else
+                            Object.Destroy(_mesh);
+#endif
                         }
+
+                        _mesh = new Mesh();
 
                         this._updatePivot(rawDisplayData, currentDisplayData, currentTextureData);
 
@@ -457,7 +463,7 @@ namespace DragonBones
             }
 
             transform.localPosition = _helpVector3;
-            
+
             if (scaleY >= 0.0f || this._childArmature != null)
             {
                 _helpVector3.x = 0.0f;
@@ -481,6 +487,12 @@ namespace DragonBones
             if (flipX != flipY && this._childArmature != null)
             {
                 _helpVector3.z = -_helpVector3.z;
+            }
+
+            var skewD = this.global.skewX - this.global.skewY;
+            if (skewD > DragonBones.PI_H || skewD < -DragonBones.PI_H)
+            {
+                //_helpVector3.x += 180;
             }
 
             transform.localEulerAngles = _helpVector3;
