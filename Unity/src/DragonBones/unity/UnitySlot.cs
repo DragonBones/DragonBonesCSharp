@@ -15,6 +15,7 @@ namespace DragonBones
         //private static Color _helpColor = new Color();
         private static readonly Vector2[] _helpVector2s = { new Vector2(), new Vector2(), new Vector2(), new Vector2() };
 
+        private bool _skewed;
         private GameObject _renderDisplay;
         private Mesh _mesh;
         private Vector2[] _uvs;
@@ -45,6 +46,7 @@ namespace DragonBones
 #endif
             }
 
+            _skewed = false;
             _renderDisplay = null;
             _mesh = null;
             _uvs = null;
@@ -499,8 +501,11 @@ namespace DragonBones
             if (_mesh != null)
             {
                 var dSkew = this.global.skewX - this.global.skewY;
-                if (dSkew > 0.001f || dSkew < -0.001f)
+                var skewed = dSkew > 0.001f || dSkew < -0.001f;
+                if (_skewed || skewed)
                 {
+                    _skewed = skewed;
+
                     var isPositive = this.global.scaleX >= 0.0f;
                     var cos = Mathf.Cos(dSkew);
                     var sin = Mathf.Sin(dSkew);
