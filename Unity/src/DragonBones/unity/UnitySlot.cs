@@ -14,7 +14,6 @@ namespace DragonBones
         private static Vector3 _helpVector3 = new Vector3();
         //private static Color _helpColor = new Color();
         private static readonly Vector2[] _helpVector2s = { new Vector2(), new Vector2(), new Vector2(), new Vector2() };
-        private static readonly Vector3[] _helpVector3s = { new Vector3(), new Vector3(), new Vector3(), new Vector3() };
 
         private GameObject _renderDisplay;
         private Mesh _mesh;
@@ -93,7 +92,7 @@ namespace DragonBones
             var container = this._armature._display as GameObject;
             var armatureComponent = container.GetComponent<UnityArmatureComponent>();
             _renderDisplay.transform.parent = container.transform;
-            
+
             _helpVector3.Set(0.0f, 0.0f, -this._zOrder * (armatureComponent.zSpace + 0.001f));
             _renderDisplay.transform.localPosition = _helpVector3;
         }
@@ -160,7 +159,7 @@ namespace DragonBones
                     break;
             }
         }
-        
+
         /**
          * @private
          */
@@ -188,9 +187,9 @@ namespace DragonBones
                     for (int i = 0, l = mesh.vertices.Length; i < l; ++i)
                     {
                         colors.Add(new Color(
-                            this._colorTransform.redMultiplier, 
-                            this._colorTransform.greenMultiplier, 
-                            this._colorTransform.blueMultiplier, 
+                            this._colorTransform.redMultiplier,
+                            this._colorTransform.greenMultiplier,
+                            this._colorTransform.blueMultiplier,
                             this._colorTransform.alphaMultiplier
                         ));
                     }
@@ -265,8 +264,6 @@ namespace DragonBones
                             // Identity transform.
                             if (this._meshData.skinned)
                             {
-                                _renderDisplay.transform.localPosition = new Vector3(0.0f, 0.0f, _renderDisplay.transform.localPosition.z);
-
                                 if (this._armature._flipX)
                                 {
                                     _helpVector3.y = 180.0f;
@@ -286,14 +283,20 @@ namespace DragonBones
                                 }
 
                                 _helpVector3.z = 0.0f;
-                                _renderDisplay.transform.localEulerAngles = _helpVector3;
 
+                                _renderDisplay.transform.localPosition = new Vector3(0.0f, 0.0f, _renderDisplay.transform.localPosition.z);
+                                _renderDisplay.transform.localEulerAngles = _helpVector3;
                                 _renderDisplay.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
                             }
                         }
                         else // Normal texture.
                         {
                             this._pivotY -= currentTextureData.region.height * this._armature.armatureData.scale;
+
+                            if (_vertices == null || _vertices.Length != 4)
+                            {
+                                _vertices = new Vector3[4];
+                            }
 
                             for (int i = 0, l = 4; i < l; ++i)
                             {
@@ -324,12 +327,12 @@ namespace DragonBones
 
                                 _helpVector2s[i].x = (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasWidth;
                                 _helpVector2s[i].y = 1.0f - (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasHeight;
-                                _helpVector3s[i].x = u * currentTextureData.region.width * 0.01f;
-                                _helpVector3s[i].y = (1.0f - v) * currentTextureData.region.height * 0.01f;
-                                _helpVector3s[i].z = 0.0f * 0.01f;
+                                _vertices[i].x = (u * currentTextureData.region.width) * 0.01f - this._pivotX;
+                                _vertices[i].y = (1.0f - v) * currentTextureData.region.height * 0.01f + this._pivotY;
+                                _vertices[i].z = 0.0f * 0.01f;
                             }
 
-                            _mesh.vertices = _helpVector3s; // Must set vertices before uvs.
+                            _mesh.vertices = _vertices; // Must set vertices before uvs.
                             _mesh.uv = _helpVector2s;
                             _mesh.triangles = TRIANGLES;
                         }
@@ -354,7 +357,7 @@ namespace DragonBones
 
             this._pivotX = 0.0f;
             this._pivotY = 0.0f;
-            
+
             _renderDisplay.SetActive(false);
 
             _helpVector3.x = this.origin.x;
@@ -394,7 +397,7 @@ namespace DragonBones
                         var bone = this._meshBones[boneIndices[iB]];
                         var matrix = bone.globalTransformMatrix;
                         var weight = weights[iB];
-                        
+
                         var xL = 0.0f;
                         var yL = 0.0f;
 
@@ -414,7 +417,7 @@ namespace DragonBones
 
                         iF += 2;
                     }
-                    
+
                     _vertices[iH].x = xG;
                     _vertices[iH].y = -yG;
                 }
@@ -447,9 +450,9 @@ namespace DragonBones
             var scaleX = flipX ? -this.global.scaleX : this.global.scaleX;
             var scaleY = flipY ? -this.global.scaleY : this.global.scaleY;
             var transform = _renderDisplay.transform;
-            
-            _helpVector3.x = this.globalTransformMatrix.tx - (this.globalTransformMatrix.a * this._pivotX + this.globalTransformMatrix.c * this._pivotY);
-            _helpVector3.y = -(this.globalTransformMatrix.ty - (this.globalTransformMatrix.b * this._pivotX + this.globalTransformMatrix.d * this._pivotY));
+
+            _helpVector3.x = this.globalTransformMatrix.tx;
+            _helpVector3.y = -this.globalTransformMatrix.ty;
             _helpVector3.z = transform.localPosition.z;
 
             if (flipX)
@@ -481,7 +484,8 @@ namespace DragonBones
             {
                 _helpVector3.y = 180.0f;
             }
-
+            _helpVector3.x = 0.0f;
+            _helpVector3.y = 0.0f;
             _helpVector3.z = -this.global.skewY * DragonBones.RADIAN_TO_ANGLE;
 
             if (flipX != flipY && this._childArmature != null)
@@ -489,13 +493,39 @@ namespace DragonBones
                 _helpVector3.z = -_helpVector3.z;
             }
 
-            var skewD = this.global.skewX - this.global.skewY;
-            if (skewD > DragonBones.PI_H || skewD < -DragonBones.PI_H)
-            {
-                //_helpVector3.x += 180;
-            }
-
             transform.localEulerAngles = _helpVector3;
+
+            // Modify skewX. // TODO child armature.
+            if (_mesh != null)
+            {
+                var dSkew = this.global.skewX - this.global.skewY;
+                if (dSkew > 0.001f || dSkew < -0.001f)
+                {
+                    var isPositive = this.global.scaleX >= 0.0f;
+                    var cos = Mathf.Cos(dSkew);
+                    var sin = Mathf.Sin(dSkew);
+
+                    var vertices = _mesh.vertices;
+                    for (int i = 0, l = _vertices.Length; i < l; ++i)
+                    {
+                        var x = _vertices[i].x;
+                        var y = _vertices[i].y;
+
+                        if (isPositive)
+                        {
+                            vertices[i].x = x + y * sin;
+                        }
+                        else
+                        {
+                            vertices[i].x = -x + y * sin;
+                        }
+
+                        vertices[i].y = y * cos;
+                    }
+
+                    _mesh.vertices = vertices;
+                }
+            }
 
             _helpVector3.x = scaleX >= 0.0f ? scaleX : -scaleX;
             _helpVector3.y = scaleY >= 0.0f ? scaleY : -scaleY;
