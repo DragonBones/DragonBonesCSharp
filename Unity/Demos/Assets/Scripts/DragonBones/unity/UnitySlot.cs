@@ -497,7 +497,7 @@ namespace DragonBones
             transform.localEulerAngles = _helpVector3;
 
             // Modify skewX. // TODO child armature.
-            /*if ((this._display == this._rawDisplay || this._display == this._meshDisplay) && _mesh != null)
+            if ((this._display == this._rawDisplay || this._display == this._meshDisplay) && _mesh != null)
             {
                 var dSkew = this.global.skewX - this.global.skewY;
                 var skewed = dSkew > 0.001f || dSkew < -0.001f;
@@ -529,7 +529,7 @@ namespace DragonBones
 
                     _mesh.vertices = vertices;
                 }
-            }*/
+            }
 
             _helpVector3.x = scaleX >= 0.0f ? scaleX : -scaleX;
             _helpVector3.y = scaleY >= 0.0f ? scaleY : -scaleY;
