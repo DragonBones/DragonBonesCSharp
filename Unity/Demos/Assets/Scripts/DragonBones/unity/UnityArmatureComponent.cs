@@ -39,7 +39,7 @@ namespace DragonBones
         {
             LoadData(dragonBonesJSON, textureAtlasJSON);
 
-            if (DragonBones.IsAvailableString(armatureName))
+            if (!string.IsNullOrEmpty(armatureName))
             {
                 UnityFactory.factory.BuildArmatureComponent(armatureName, null, null, this.gameObject);
             }
@@ -49,7 +49,7 @@ namespace DragonBones
                 sortingLayerName = sortingLayerName;
                 sortingOrder = sortingOrder;
 
-                if (DragonBones.IsAvailableString(animationName))
+                if (!string.IsNullOrEmpty(animationName))
                 {
                     _armature.animation.Play(animationName);
                 }

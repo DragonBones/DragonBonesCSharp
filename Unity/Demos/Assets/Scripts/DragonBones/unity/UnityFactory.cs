@@ -246,7 +246,7 @@ namespace DragonBones
                 return null;
             }
 
-            if (DragonBones.IsAvailableString(name))
+            if (!string.IsNullOrEmpty(name))
             {
                 var existedData = this.GetDragonBonesData(name);
                 if (existedData != null)

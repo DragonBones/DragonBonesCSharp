@@ -136,14 +136,6 @@ namespace DragonBones
         /**
          * @private
          */
-        public static bool IsAvailableString(string str)
-        {
-            return str != null && str.Length > 0;
-        }
-
-        /**
-         * @private
-         */
         public static void ResizeList<T>(List<T> list, int count, T value)
         {
             if (list.Count == count)
