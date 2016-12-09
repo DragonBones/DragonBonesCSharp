@@ -559,7 +559,7 @@ namespace DragonBones
          */
         public void InvalidUpdate(string boneName = null, bool updateSlotDisplay = false)
         {
-            if (DragonBones.IsAvailableString(boneName))
+            if (!string.IsNullOrEmpty(boneName))
             {
                 var bone = GetBone(boneName);
                 if (bone != null)
@@ -711,7 +711,7 @@ namespace DragonBones
             if (value != null)
             {
                 value._setArmature(this);
-                value._setParent(DragonBones.IsAvailableString(parentName) ? GetBone(parentName) : null);
+                value._setParent(!string.IsNullOrEmpty(parentName) ? GetBone(parentName) : null);
             }
             else
             {

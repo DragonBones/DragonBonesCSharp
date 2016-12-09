@@ -107,7 +107,7 @@ namespace DragonBones
          */
         protected bool _fillBuildArmaturePackage(string dragonBonesName, string armatureName, string skinName, BuildArmaturePackage dataPackage)
         {
-            var isAvailableName = DragonBones.IsAvailableString(dragonBonesName);
+            var isAvailableName = !string.IsNullOrEmpty(dragonBonesName);
             if (isAvailableName)
             {
                 if (_dragonBonesDataMap.ContainsKey(dragonBonesName))
@@ -380,8 +380,8 @@ namespace DragonBones
         {
             if (data != null)
             {
-                name = DragonBones.IsAvailableString(name) ? name : data.name;
-                if (DragonBones.IsAvailableString(name))
+                name = !string.IsNullOrEmpty(name) ? name : data.name;
+                if (!string.IsNullOrEmpty(name))
                 {
                     if (!_dragonBonesDataMap.ContainsKey(name))
                     {
@@ -458,8 +458,8 @@ namespace DragonBones
         {
             if (data != null)
             {
-                name = DragonBones.IsAvailableString(name) ? name : data.name;
-                if (DragonBones.IsAvailableString(name))
+                name = !string.IsNullOrEmpty(name) ? name : data.name;
+                if (!string.IsNullOrEmpty(name))
                 {
                     var textureAtlasList = _textureAtlasDataMap.ContainsKey(name) ? _textureAtlasDataMap[name] : (_textureAtlasDataMap[name] = new List<TextureAtlasData>());
                     if (!textureAtlasList.Contains(data))

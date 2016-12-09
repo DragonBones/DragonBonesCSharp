@@ -369,7 +369,7 @@ namespace DragonBones
          */
         public SkinData GetSkin(string name)
         {
-            return DragonBones.IsAvailableString(name) ? (skins.ContainsKey(name) ? skins[name] : null) : _defaultSkin;
+            return !string.IsNullOrEmpty(name) ? (skins.ContainsKey(name) ? skins[name] : null) : _defaultSkin;
         }
 
         /**
@@ -381,7 +381,7 @@ namespace DragonBones
          */
         public AnimationData GetAnimation(string name)
         {
-            return DragonBones.IsAvailableString(name) ? (animations.ContainsKey(name) ? animations[name] : null) : _defaultAnimation;
+            return !string.IsNullOrEmpty(name) ? (animations.ContainsKey(name) ? animations[name] : null) : _defaultAnimation;
         }
 
         /**

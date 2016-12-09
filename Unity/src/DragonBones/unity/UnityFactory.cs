@@ -88,9 +88,8 @@ namespace DragonBones
             }
 
             var armature = BaseObject.BorrowObject<Armature>();
-            var armatureDisplayContainer = _armatureGameObject == null ? new GameObject() : _armatureGameObject;
+            var armatureDisplayContainer = _armatureGameObject == null ? new GameObject(dataPackage.armature.name) : _armatureGameObject;
             var armatureComponent = armatureDisplayContainer.GetComponent<UnityArmatureComponent>();
-            armatureDisplayContainer.name = dataPackage.armature.name;
 
             if (armatureComponent == null)
             {
@@ -246,7 +245,7 @@ namespace DragonBones
                 return null;
             }
 
-            if (DragonBones.IsAvailableString(name))
+            if (!string.IsNullOrEmpty(name))
             {
                 var existedData = this.GetDragonBonesData(name);
                 if (existedData != null)

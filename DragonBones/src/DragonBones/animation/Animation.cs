@@ -143,7 +143,7 @@ namespace DragonBones
         /**
          * @private
          */
-        protected void _fadeOut(float fadeOutTime, float layer, string group, AnimationFadeOutMode fadeOutMode, bool pauseFadeOut)
+        protected void _fadeOut(float fadeOutTime, int layer, string group, AnimationFadeOutMode fadeOutMode, bool pauseFadeOut)
         {
             switch (fadeOutMode)
             {
@@ -354,7 +354,7 @@ namespace DragonBones
          */
         public void Stop(string animationName = null)
         {
-            if (DragonBones.IsAvailableString(animationName))
+            if (!string.IsNullOrEmpty(animationName))
             {
                 var animationState = GetState(animationName);
                 if (animationState != null)
@@ -380,7 +380,7 @@ namespace DragonBones
         public AnimationState Play(string animationName = null, int playTimes = -1)
         {
             var animationState = (AnimationState)null;
-            if (DragonBones.IsAvailableString(animationName))
+            if (!string.IsNullOrEmpty(animationName))
             {
                 animationState = FadeIn(animationName, 0.0f, playTimes, 0, null, AnimationFadeOutMode.All);
             }

@@ -155,7 +155,7 @@ namespace DragonBones
                     _armatureComponent.dragonBonesJSON = dragonBoneJSON;
                     _armatureComponent.textureAtlasJSON = textureAtlasJSONs;
 
-                    _clearGameObjectChildren(_armatureComponent.gameObject);
+                    //_clearGameObjectChildren(_armatureComponent.gameObject);
 
                     var armatureName = dragonBonesData.armatureNames[0];
                     _changeArmatureData(_armatureComponent, armatureName, dragonBonesData.name);
@@ -184,7 +184,7 @@ namespace DragonBones
                     _armatureComponent.Dispose(false);
                 }
 
-                _clearGameObjectChildren(_armatureComponent.gameObject);
+                //_clearGameObjectChildren(_armatureComponent.gameObject);
 
                 EditorUtility.SetDirty(_armatureComponent);
 

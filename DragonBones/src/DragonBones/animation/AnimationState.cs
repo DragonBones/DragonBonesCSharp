@@ -324,7 +324,7 @@ namespace DragonBones
             if (
                 displayControl &&
                 (
-                    !DragonBones.IsAvailableString(slot.displayController) ||
+                    string.IsNullOrEmpty(slot.displayController) ||
                     slot.displayController == _name ||
                     slot.displayController == _group
                 )
