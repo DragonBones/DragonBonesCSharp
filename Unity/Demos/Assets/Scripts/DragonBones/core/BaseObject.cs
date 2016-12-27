@@ -22,7 +22,7 @@ namespace DragonBones
                 }
                 else
                 {
-                    DragonBones.Warn("");
+                    DragonBones.Assert(false, DragonBones.ARGUMENT_ERROR);
                 }
             }
         }

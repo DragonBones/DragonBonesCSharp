@@ -12,7 +12,6 @@ namespace DragonBones
     {
         private static readonly int[] TRIANGLES = { 0, 1, 2, 0, 2, 3 };
         private static Vector3 _helpVector3 = new Vector3();
-        //private static Color _helpColor = new Color();
         private static readonly Vector2[] _helpVector2s = { new Vector2(), new Vector2(), new Vector2(), new Vector2() };
 
         private bool _skewed;
@@ -78,11 +77,6 @@ namespace DragonBones
          */
         override protected void _onUpdateDisplay()
         {
-            if (this._rawDisplay == null)
-            {
-                this._rawDisplay = new GameObject();
-            }
-
             _renderDisplay = (this._display != null ? this._display : this._rawDisplay) as GameObject;
         }
 
@@ -91,7 +85,7 @@ namespace DragonBones
          */
         override protected void _addDisplay()
         {
-            var container = this._armature._display as GameObject;
+            var container = this._armature.display as GameObject;
             var armatureComponent = container.GetComponent<UnityArmatureComponent>();
             _renderDisplay.transform.parent = container.transform;
 
@@ -104,7 +98,7 @@ namespace DragonBones
          */
         override protected void _replaceDisplay(object value)
         {
-            var container = this._armature._display as GameObject;
+            var container = this._armature.display as GameObject;
             var prevDisplay = value as GameObject;
             prevDisplay.hideFlags = HideFlags.HideInHierarchy;
             prevDisplay.transform.parent = null;
@@ -129,7 +123,7 @@ namespace DragonBones
          */
         override protected void _updateZOrder()
         {
-            var container = this._armature._display as GameObject;
+            var container = this._armature.display as GameObject;
             var armatureComponent = container.GetComponent<UnityArmatureComponent>();
             _helpVector3.Set(_renderDisplay.transform.localPosition.x, _renderDisplay.transform.localPosition.y, -this._zOrder * (armatureComponent.zSpace + 0.001f));
             _renderDisplay.transform.localPosition = _helpVector3;
@@ -179,7 +173,7 @@ namespace DragonBones
                 renderer.color = _helpColor;
             }*/
 
-            var meshFilter = _renderDisplay.GetComponent<MeshFilter>();
+            /*var meshFilter = _renderDisplay.GetComponent<MeshFilter>();
             if (meshFilter != null)
             {
                 var mesh = meshFilter.sharedMesh;
@@ -198,172 +192,138 @@ namespace DragonBones
 
                     mesh.SetColors(colors);
                 }
-            }
+            }*/
         }
-
-        /**
-         * @private
-         */
-        override protected void _updateFilters() { }
 
         /**
          * @private
          */
         override protected void _updateFrame()
         {
+            var currentTextureData = this._textureData as UnityTextureData;
+
             var renderer = _renderDisplay.GetComponent<MeshRenderer>();
             var meshFilter = _renderDisplay.GetComponent<MeshFilter>();
 
-            if (this._display != null && this._displayIndex >= 0)
+            if (this._display != null && this._displayIndex >= 0 && currentTextureData != null)
             {
-                var rawDisplayData = this._displayIndex < this._displayDataSet.displays.Count ? this._displayDataSet.displays[this._displayIndex] : null;
-                var replacedDisplayData = this._displayIndex < this._replacedDisplayDataSet.Count ? this._replacedDisplayDataSet[this._displayIndex] : null;
-                var currentDisplayData = replacedDisplayData != null ? replacedDisplayData : rawDisplayData;
-                var currentTextureData = currentDisplayData.texture as UnityTextureData;
-                if (currentTextureData != null)
+                var currentTextureAtlasData = currentTextureData.parent as UnityTextureAtlasData;
+
+                // Update replaced texture atlas.
+                if (this._armature.replacedTexture != null && this._displayData != null && currentTextureAtlasData == this._displayData.texture.parent)
                 {
-                    var textureAtlasData = currentTextureData.parent as UnityTextureAtlasData;
-                    var textureAtlasTexture = textureAtlasData.texture;
-                    if (textureAtlasTexture != null)
+                    currentTextureAtlasData = this._armature._replaceTextureAtlasData as UnityTextureAtlasData;
+                    if (currentTextureAtlasData == null)
                     {
-                        var textureAtlasWidth = textureAtlasTexture.mainTexture.width;
-                        var textureAtlasHeight = textureAtlasTexture.mainTexture.height;
-
-                        if (_mesh != null)
-                        {
-#if UNITY_EDITOR
-                            //Object.DestroyImmediate(_mesh);
-#else
-                            Object.Destroy(_mesh);
-#endif
-                        }
-
-                        _mesh = new Mesh();
-
-                        this._updatePivot(rawDisplayData, currentDisplayData, currentTextureData);
-
-                        if (this._meshData != null && this._display == this._meshDisplay) // Mesh.
-                        {
-                            _uvs = new Vector2[this._meshData.uvs.Count / 2];
-                            _vertices = new Vector3[this._meshData.vertices.Count / 2];
-
-                            for (int i = 0, l = this._meshData.uvs.Count; i < l; i += 2)
-                            {
-                                var iN = i / 2;
-                                var u = this._meshData.uvs[i];
-                                var v = this._meshData.uvs[i + 1];
-                                _uvs[iN] = new Vector2(
-                                    (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasWidth,
-                                    1.0f - (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasHeight
-                                );
-                                _vertices[iN] = new Vector3(this._meshData.vertices[i], -this._meshData.vertices[i + 1], 0.0f);
-                            }
-
-                            _mesh.vertices = _vertices; // Must set vertices before uvs.
-                            _mesh.uv = _uvs;
-                            _mesh.triangles = this._meshData.vertexIndices.ToArray();
-
-                            // Identity transform.
-                            if (this._meshData.skinned)
-                            {
-                                if (this._armature._flipX)
-                                {
-                                    _helpVector3.y = 180.0f;
-                                }
-                                else
-                                {
-                                    _helpVector3.y = 0.0f;
-                                }
-
-                                if (this._armature._flipY)
-                                {
-                                    _helpVector3.x = 180.0f;
-                                }
-                                else
-                                {
-                                    _helpVector3.x = 0.0f;
-                                }
-
-                                _helpVector3.z = 0.0f;
-
-                                _renderDisplay.transform.localPosition = new Vector3(0.0f, 0.0f, _renderDisplay.transform.localPosition.z);
-                                _renderDisplay.transform.localEulerAngles = _helpVector3;
-                                _renderDisplay.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
-                            }
-                        }
-                        else // Normal texture.
-                        {
-                            this._pivotY -= currentTextureData.region.height * this._armature.armatureData.scale;
-
-                            if (_vertices == null || _vertices.Length != 4)
-                            {
-                                _vertices = new Vector3[4];
-                            }
-
-                            for (int i = 0, l = 4; i < l; ++i)
-                            {
-                                var u = 0.0f;
-                                var v = 0.0f;
-
-                                switch (i)
-                                {
-                                    case 0:
-                                        break;
-
-                                    case 1:
-                                        u = 1.0f;
-                                        break;
-
-                                    case 2:
-                                        u = 1.0f;
-                                        v = 1.0f;
-                                        break;
-
-                                    case 3:
-                                        v = 1.0f;
-                                        break;
-
-                                    default:
-                                        break;
-                                }
-
-                                _helpVector2s[i].x = (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasWidth;
-                                _helpVector2s[i].y = 1.0f - (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasHeight;
-                                _vertices[i].x = (u * currentTextureData.region.width) * 0.01f - this._pivotX;
-                                _vertices[i].y = (1.0f - v) * currentTextureData.region.height * 0.01f + this._pivotY;
-                                _vertices[i].z = 0.0f * 0.01f;
-                            }
-
-                            _mesh.vertices = _vertices; // Must set vertices before uvs.
-                            _mesh.uv = _helpVector2s;
-                            _mesh.triangles = TRIANGLES;
-                        }
-
-                        meshFilter.sharedMesh = _mesh;
-
-                        if (this._armature._replacedTexture != null)
-                        {
-                            renderer.sharedMaterial = this._armature._replacedTexture as Material;
-                        }
-                        else
-                        {
-                            renderer.sharedMaterial = textureAtlasData.texture;
-                        }
-
-                        this._updateVisible();
-
-                        return;
+                        currentTextureAtlasData = BaseObject.BorrowObject<UnityTextureAtlasData>();
+                        currentTextureAtlasData.CopyFrom(this._textureData.parent);
+                        currentTextureAtlasData.texture = this._armature.replacedTexture as Material;
+                        this._armature._replaceTextureAtlasData = currentTextureAtlasData;
                     }
+
+                    currentTextureData = currentTextureAtlasData.GetTexture(currentTextureData.name) as UnityTextureData;
+                }
+
+                var currentTextureAtlas = currentTextureAtlasData.texture;
+                if (currentTextureAtlas != null)
+                {
+                    var textureAtlasWidth = currentTextureAtlasData.width > 0.0f ? currentTextureAtlasData.width : currentTextureAtlas.mainTexture.width;
+                    var textureAtlasHeight = currentTextureAtlasData.height > 0.0f ? currentTextureAtlasData.height : currentTextureAtlas.mainTexture.height;
+
+                    if (_mesh != null)
+                    {
+#if UNITY_EDITOR
+                        //Object.DestroyImmediate(_mesh);
+#else
+                        Object.Destroy(_mesh);
+#endif
+                    }
+
+                    _mesh = new Mesh();
+
+                    if (this._meshData != null && this._display == this._meshDisplay) // Mesh.
+                    {
+                        _uvs = new Vector2[this._meshData.uvs.Count / 2];
+                        _vertices = new Vector3[this._meshData.vertices.Count / 2];
+
+                        for (int i = 0, l = this._meshData.uvs.Count; i < l; i += 2)
+                        {
+                            var iN = i / 2;
+                            var u = this._meshData.uvs[i];
+                            var v = this._meshData.uvs[i + 1];
+                            _uvs[iN] = new Vector2(
+                                (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasWidth,
+                                1.0f - (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasHeight
+                            );
+                            _vertices[iN] = new Vector3(this._meshData.vertices[i], -this._meshData.vertices[i + 1], 0.0f);
+                        }
+
+                        _mesh.vertices = _vertices; // Must set vertices before uvs.
+                        _mesh.uv = _uvs;
+                        _mesh.triangles = this._meshData.vertexIndices.ToArray();
+                    }
+                    else // Normal texture.
+                    {
+                        var pivotY = this._pivotY - currentTextureData.region.height * this._armature.armatureData.scale;
+
+                        if (_vertices == null || _vertices.Length != 4)
+                        {
+                            _vertices = new Vector3[4];
+                        }
+
+                        for (int i = 0, l = 4; i < l; ++i)
+                        {
+                            var u = 0.0f;
+                            var v = 0.0f;
+
+                            switch (i)
+                            {
+                                case 0:
+                                    break;
+
+                                case 1:
+                                    u = 1.0f;
+                                    break;
+
+                                case 2:
+                                    u = 1.0f;
+                                    v = 1.0f;
+                                    break;
+
+                                case 3:
+                                    v = 1.0f;
+                                    break;
+
+                                default:
+                                    break;
+                            }
+
+                            _helpVector2s[i].x = (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasWidth;
+                            _helpVector2s[i].y = 1.0f - (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasHeight;
+                            _vertices[i].x = (u * currentTextureData.region.width) * 0.01f - this._pivotX;
+                            _vertices[i].y = (1.0f - v) * currentTextureData.region.height * 0.01f + pivotY;
+                            _vertices[i].z = 0.0f * 0.01f;
+                        }
+
+                        _mesh.vertices = _vertices; // Must set vertices before uvs.
+                        _mesh.uv = _helpVector2s;
+                        _mesh.triangles = TRIANGLES;
+                    }
+
+                    meshFilter.sharedMesh = _mesh;
+                    renderer.sharedMaterial = currentTextureAtlas;
+
+                    this._updateVisible();
+
+                    return;
                 }
             }
 
-            this._pivotX = 0.0f;
-            this._pivotY = 0.0f;
-
             _renderDisplay.SetActive(false);
-
-            _helpVector3.x = this.origin.x;
-            _helpVector3.y = this.origin.y;
+            //meshFilter.sharedMesh = null;
+            //renderer.sharedMaterial = null;
+            _helpVector3.x = 0.0f;
+            _helpVector3.y = 0.0f;
             _helpVector3.z = _renderDisplay.transform.localPosition.z;
 
             _renderDisplay.transform.localPosition = _helpVector3;
@@ -445,97 +405,126 @@ namespace DragonBones
         /**
          * @private
          */
-        override protected void _updateTransform()
+        override protected void _updateTransform(bool isSkinnedMesh)
         {
-            var flipX = this._armature._flipX;
-            var flipY = this._armature._flipY;
-            var scaleX = flipX ? -this.global.scaleX : this.global.scaleX;
-            var scaleY = flipY ? -this.global.scaleY : this.global.scaleY;
-            var transform = _renderDisplay.transform;
-
-            _helpVector3.x = this.globalTransformMatrix.tx;
-            _helpVector3.y = -this.globalTransformMatrix.ty;
-            _helpVector3.z = transform.localPosition.z;
-
-            if (flipX)
+            if (isSkinnedMesh) // Identity transform.
             {
-                _helpVector3.x = -_helpVector3.x;
-            }
-
-            if (flipY)
-            {
-                _helpVector3.y = -_helpVector3.y;
-            }
-
-            transform.localPosition = _helpVector3;
-
-            if (scaleY >= 0.0f || this._childArmature != null)
-            {
-                _helpVector3.x = 0.0f;
-            }
-            else
-            {
-                _helpVector3.x = 180.0f;
-            }
-
-            if (scaleX >= 0.0f || this._childArmature != null)
-            {
-                _helpVector3.y = 0.0f;
-            }
-            else
-            {
-                _helpVector3.y = 180.0f;
-            }
-
-            _helpVector3.z = -this.global.skewY * DragonBones.RADIAN_TO_ANGLE;
-
-            if (flipX != flipY && this._childArmature != null)
-            {
-                _helpVector3.z = -_helpVector3.z;
-            }
-
-            transform.localEulerAngles = _helpVector3;
-
-            // Modify skewX. // TODO child armature.
-            if ((this._display == this._rawDisplay || this._display == this._meshDisplay) && _mesh != null)
-            {
-                var dSkew = this.global.skewX - this.global.skewY;
-                var skewed = dSkew > 0.001f || dSkew < -0.001f;
-                if (_skewed || skewed)
+                if (this._armature._flipX)
                 {
-                    _skewed = skewed;
-
-                    var isPositive = this.global.scaleX >= 0.0f;
-                    var cos = Mathf.Cos(dSkew);
-                    var sin = Mathf.Sin(dSkew);
-
-                    var vertices = _mesh.vertices;
-                    for (int i = 0, l = _vertices.Length; i < l; ++i)
-                    {
-                        var x = _vertices[i].x;
-                        var y = _vertices[i].y;
-
-                        if (isPositive)
-                        {
-                            vertices[i].x = x + y * sin;
-                        }
-                        else
-                        {
-                            vertices[i].x = -x + y * sin;
-                        }
-
-                        vertices[i].y = y * cos;
-                    }
-
-                    _mesh.vertices = vertices;
+                    _helpVector3.y = 180.0f;
                 }
+                else
+                {
+                    _helpVector3.y = 0.0f;
+                }
+
+                if (this._armature._flipY)
+                {
+                    _helpVector3.x = 180.0f;
+                }
+                else
+                {
+                    _helpVector3.x = 0.0f;
+                }
+
+                _helpVector3.z = 0.0f;
+
+                _renderDisplay.transform.localPosition = new Vector3(0.0f, 0.0f, _renderDisplay.transform.localPosition.z);
+                _renderDisplay.transform.localEulerAngles = _helpVector3;
+                _renderDisplay.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
             }
+            else
+            {
+                var flipX = this._armature._flipX;
+                var flipY = this._armature._flipY;
+                var scaleX = flipX ? -this.global.scaleX : this.global.scaleX;
+                var scaleY = flipY ? -this.global.scaleY : this.global.scaleY;
+                var transform = _renderDisplay.transform;
 
-            _helpVector3.x = scaleX >= 0.0f ? scaleX : -scaleX;
-            _helpVector3.y = scaleY >= 0.0f ? scaleY : -scaleY;
-            _helpVector3.z = 1.0f;
+                _helpVector3.x = this.globalTransformMatrix.tx;
+                _helpVector3.y = -this.globalTransformMatrix.ty;
+                _helpVector3.z = transform.localPosition.z;
 
-            transform.localScale = _helpVector3;
+                if (flipX)
+                {
+                    _helpVector3.x = -_helpVector3.x;
+                }
+
+                if (flipY)
+                {
+                    _helpVector3.y = -_helpVector3.y;
+                }
+
+                transform.localPosition = _helpVector3;
+
+                if (scaleY >= 0.0f || this._childArmature != null)
+                {
+                    _helpVector3.x = 0.0f;
+                }
+                else
+                {
+                    _helpVector3.x = 180.0f;
+                }
+
+                if (scaleX >= 0.0f || this._childArmature != null)
+                {
+                    _helpVector3.y = 0.0f;
+                }
+                else
+                {
+                    _helpVector3.y = 180.0f;
+                }
+
+                _helpVector3.z = -this.global.skewY * DragonBones.RADIAN_TO_ANGLE;
+
+                if (flipX != flipY && this._childArmature != null)
+                {
+                    _helpVector3.z = -_helpVector3.z;
+                }
+
+                transform.localEulerAngles = _helpVector3;
+
+                // Modify skewX. // TODO child armature.
+                if ((this._display == this._rawDisplay || this._display == this._meshDisplay) && _mesh != null)
+                {
+                    var dSkew = this.global.skewX - this.global.skewY;
+                    var skewed = dSkew > 0.001f || dSkew < -0.001f;
+                    if (_skewed || skewed)
+                    {
+                        _skewed = skewed;
+
+                        var isPositive = this.global.scaleX >= 0.0f;
+                        var cos = Mathf.Cos(dSkew);
+                        var sin = Mathf.Sin(dSkew);
+
+                        var vertices = _mesh.vertices;
+                        for (int i = 0, l = _vertices.Length; i < l; ++i)
+                        {
+                            var x = _vertices[i].x;
+                            var y = _vertices[i].y;
+
+                            if (isPositive)
+                            {
+                                vertices[i].x = x + y * sin;
+                            }
+                            else
+                            {
+                                vertices[i].x = -x + y * sin;
+                            }
+
+                            vertices[i].y = y * cos;
+                        }
+
+                        _mesh.vertices = vertices;
+                    }
+                }
+
+                _helpVector3.x = scaleX >= 0.0f ? scaleX : -scaleX;
+                _helpVector3.y = scaleY >= 0.0f ? scaleY : -scaleY;
+                _helpVector3.z = 1.0f;
+
+                transform.localScale = _helpVector3;
+            }
         }
     }
 }

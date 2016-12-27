@@ -38,10 +38,7 @@ namespace DragonBones
             alphaOffset = redOffset = greenOffset = blueOffset = 0;
         }
     }
-
-    /**
-     * @private
-     */
+    
     public class Point
     {
         public float x = 0.0f;
@@ -62,10 +59,7 @@ namespace DragonBones
             x = y = 0.0f;
         }
     }
-
-    /**
-     * @private
-     */
+    
     public class Rectangle
     {
         public float x;
@@ -228,8 +222,16 @@ namespace DragonBones
 
             skewX = (float)Math.Atan(-matrix.c / matrix.d);
             skewY = (float)Math.Atan(matrix.b / matrix.a);
-            if (float.IsNaN(skewX)) skewX = 0.0f;
-            if (float.IsNaN(skewY)) skewY = 0.0f;
+
+            if (float.IsNaN(skewX))
+            {
+                skewX = 0.0f;
+            }
+
+            if (float.IsNaN(skewY))
+            {
+                skewY = 0.0f;
+            }
 
             scaleY = (float)((skewX > -DragonBones.PI_Q && skewX < DragonBones.PI_Q) ? matrix.d / Math.Cos(skewX) : -matrix.c / Math.Sin(skewX));
             scaleX = (float)((skewY > -DragonBones.PI_Q && skewY < DragonBones.PI_Q) ? matrix.a / Math.Cos(skewY) : matrix.b / Math.Sin(skewY));
@@ -257,12 +259,40 @@ namespace DragonBones
          */
         public Transform ToMatrix(Matrix matrix)
         {
-            matrix.a = scaleX * (float)Math.Cos(skewY);
-            matrix.b = scaleX * (float)Math.Sin(skewY);
-            matrix.c = -scaleY * (float)Math.Sin(skewX);
-            matrix.d = scaleY * (float)Math.Cos(skewX);
-            matrix.tx = x;
-            matrix.ty = y;
+            if (skewX != 0.0f || skewY != 0.0f)
+            {
+                matrix.a = (float)Math.Cos(skewY);
+                matrix.b = (float)Math.Sin(skewY);
+
+                if (skewX == skewY)
+                {
+                    matrix.c = -matrix.b;
+                    matrix.d = matrix.a;
+                }
+                else
+                {
+                    matrix.c = -(float)Math.Sin(skewX);
+                    matrix.d = (float)Math.Cos(skewX);
+                }
+
+                if (scaleX != 1.0f || scaleY != 1.0f)
+                {
+                    matrix.a *= scaleX;
+                    matrix.b *= scaleX;
+                    matrix.c *= scaleY;
+                    matrix.d *= scaleY;
+                }
+            }
+            else
+            {
+                matrix.a = scaleX;
+                matrix.b = 0.0f;
+                matrix.c = 0.0f;
+                matrix.d = scaleY;
+            }
+
+            matrix.tx = this.x;
+            matrix.ty = this.y;
 
             return this;
         }
@@ -317,7 +347,7 @@ namespace DragonBones
          * @param value 需要复制的矩阵。
          * @version DragonBones 3.0
          */
-        public void CopyFrom(Matrix value)
+        public Matrix CopyFrom(Matrix value)
         {
             a = value.a;
             b = value.b;
@@ -325,6 +355,8 @@ namespace DragonBones
             d = value.d;
             tx = value.tx;
             ty = value.ty;
+
+            return this;
         }
 
         /**
@@ -332,11 +364,13 @@ namespace DragonBones
          * 转换为恒等矩阵。
          * @version DragonBones 3.0
          */
-        public void Identity()
+        public Matrix Identity()
         {
             a = d = 1.0f;
             b = c = 0.0f;
             tx = ty = 0.0f;
+
+            return this;
         }
 
         /**
@@ -345,27 +379,39 @@ namespace DragonBones
          * @param value 需要相乘的矩阵。
          * @version DragonBones 3.0
          */
-        public void Concat(Matrix value)
+        public Matrix Concat(Matrix value)
         {
-            var aA = a;
-            var bA = b;
-            var cA = c;
-            var dA = d;
-            var txA = tx;
-            var tyA = ty;
-            var aB = value.a;
-            var bB = value.b;
-            var cB = value.c;
-            var dB = value.d;
-            var txB = value.tx;
-            var tyB = value.ty;
+            var aA = a * value.a;
+            var bA = 0.0f;
+            var cA = 0.0f;
+            var dA = d * value.d;
+            var txA = tx * value.a + value.tx;
+            var tyA = ty * value.d + value.ty;
 
-            a = aA * aB + bA * cB;
-            b = aA * bB + bA * dB;
-            c = cA * aB + dA * cB;
-            d = cA * bB + dA * dB;
-            tx = aB * txA + cB * tyA + txB;
-            ty = dB * tyA + bB * txA + tyB;
+            if (b != 0.0f || c != 0.0f)
+            {
+                aA += b * value.c;
+                dA += c * value.b;
+                bA += b * value.d;
+                cA += c * value.a;
+            }
+
+            if (value.b != 0.0f || value.c != 0.0f)
+            {
+                bA += a * value.b;
+                cA += d * value.c;
+                txA += ty * value.c;
+                tyA += tx * value.b;
+            }
+
+            a = aA;
+            b = bA;
+            c = cA;
+            d = dA;
+            tx = txA;
+            ty = tyA;
+
+            return this;
         }
 
         /**
@@ -373,7 +419,7 @@ namespace DragonBones
          * 转换为逆矩阵。
          * @version DragonBones 3.0
          */
-        public void Invert()
+        public Matrix Invert()
         {
             var aA = a;
             var bA = b;
@@ -381,14 +427,44 @@ namespace DragonBones
             var dA = d;
             var txA = tx;
             var tyA = ty;
-            var n = aA * dA - bA * cA;
 
-            a = dA / n;
-            b = -bA / n;
-            c = -cA / n;
-            d = aA / n;
-            tx = (cA * tyA - dA * txA) / n;
-            ty = -(aA * tyA - bA * txA) / n;
+            if (bA == 0.0f && cA == 0.0f)
+            {
+                b = c = 0.0f;
+                if (aA == 0.0f || dA == 0.0f)
+                {
+                    a = b = tx = ty = 0.0f;
+                }
+                else
+                {
+                    aA = a = 1.0f / aA;
+                    dA = d = 1.0f / dA;
+                    tx = -aA * txA;
+                    ty = -dA * tyA;
+                }
+
+                return this;
+            }
+
+            var determinant = aA * dA - bA * cA;
+            if (determinant == 0.0f)
+            {
+                a = d = 1.0f;
+                b = c = 0.0f;
+                tx = ty = 0.0f;
+
+                return this;
+            }
+
+            determinant = 1.0f / determinant;
+            var k = a = dA * determinant;
+            bA = b = -bA * determinant;
+            cA = c = -cA * determinant;
+            dA = d = aA * determinant;
+            tx = -(k * txA + cA * tyA);
+            ty = -(bA * txA + dA * tyA);
+
+            return this;
         }
         /**
          * @language zh_CN

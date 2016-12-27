@@ -34,7 +34,7 @@ namespace DragonBones
         public static readonly UnityFactory factory = new UnityFactory();
 
         public string defaultShaderName = "Sprites/Default";
-        
+
         private string _textureAtlasPath = null;
         private GameObject _armatureGameObject = null;
         private readonly Dictionary<string, DragonBonesData> _pathDragonBonesDataMap = new Dictionary<string, DragonBonesData>();
@@ -72,7 +72,7 @@ namespace DragonBones
          */
         override protected Armature _generateArmature(BuildArmaturePackage dataPackage)
         {
-            if (Application.isPlaying)
+            if (Application.isPlaying) //
             {
                 if (_gameObject == null)
                 {
@@ -88,24 +88,19 @@ namespace DragonBones
             }
 
             var armature = BaseObject.BorrowObject<Armature>();
-            var armatureDisplayContainer = _armatureGameObject == null ? new GameObject(dataPackage.armature.name) : _armatureGameObject;
-            var armatureComponent = armatureDisplayContainer.GetComponent<UnityArmatureComponent>();
-
+            var armatureDisplay = _armatureGameObject == null ? new GameObject(dataPackage.armature.name) : _armatureGameObject;
+            var armatureComponent = armatureDisplay.GetComponent<UnityArmatureComponent>();
             if (armatureComponent == null)
             {
-                armatureComponent = armatureDisplayContainer.AddComponent<UnityArmatureComponent>();
+                armatureComponent = armatureDisplay.AddComponent<UnityArmatureComponent>();
             }
 
             armatureComponent._armature = armature;
 
-            armature._armatureData = dataPackage.armature;
-            armature._skinData = dataPackage.skin;
-            armature._animation = BaseObject.BorrowObject<Animation>();
-            armature._display = armatureDisplayContainer;
-            armature._eventDispatcher = armatureComponent;
-            armature._eventManager = _eventManager;
-            armature._animation._armature = armature;
-            armature.animation.animations = dataPackage.armature.animations;
+            armature._init(
+                dataPackage.armature, dataPackage.skin,
+                armatureDisplay, armatureComponent, _eventManager
+            );
 
             _armatureGameObject = null;
 
@@ -115,15 +110,14 @@ namespace DragonBones
         /**
          * @private
          */
-        override protected Slot _generateSlot(BuildArmaturePackage dataPackage, SlotDisplayDataSet slotDisplayDataSet, Armature armature)
+        override protected Slot _generateSlot(BuildArmaturePackage dataPackage, SkinSlotData skinSlotData, Armature armature)
         {
+            var slotData = skinSlotData.slot;
             var slot = BaseObject.BorrowObject<UnitySlot>();
-            var slotData = slotDisplayDataSet.slot;
-            var displayList = new List<object>();
-            var armatureDisplay = armature.display as GameObject;
-            var transform = armatureDisplay.transform.Find(slotData.name);
-            var gameObject = transform == null ? null : transform.gameObject;
 
+            var armatureDisplay = armature.display as GameObject;
+            var transform = armatureDisplay.transform.Find(skinSlotData.slot.name);
+            var gameObject = transform == null ? null : transform.gameObject;
             if (gameObject == null)
             {
                 gameObject = new GameObject(slotData.name);
@@ -131,11 +125,14 @@ namespace DragonBones
                 gameObject.AddComponent<MeshFilter>();
             }
 
-            slot.name = slotData.name;
-            slot._rawDisplay = gameObject;
-            slot._meshDisplay = slot._rawDisplay;
-            
-            foreach (var displayData in slotDisplayDataSet.displays)
+            slot._init(
+                skinSlotData,
+                gameObject,
+                gameObject
+            );
+
+            var displayList = new List<object>();
+            foreach (var displayData in skinSlotData.displays)
             {
                 switch (displayData.type)
                 {
@@ -145,7 +142,7 @@ namespace DragonBones
                             displayData.texture = this._getTextureData(dataPackage.dataName, displayData.name);
                         }
 
-                        displayList.Add(slot._rawDisplay);
+                        displayList.Add(slot.rawDisplay);
                         break;
 
                     case DisplayType.Mesh:
@@ -154,11 +151,11 @@ namespace DragonBones
                             displayData.texture = this._getTextureData(dataPackage.dataName, displayData.name);
                         }
 
-                        displayList.Add(slot._meshDisplay);
+                        displayList.Add(slot.meshDisplay);
                         break;
 
                     case DisplayType.Armature:
-                        var childDisplayName = slotData.name + " (" + displayData.name + ")";
+                        var childDisplayName = slotData.name + " (" + displayData.name + ")"; //
                         var childTransform = armatureDisplay.transform.Find(childDisplayName);
                         var childArmature = childTransform == null ?
                             this.BuildArmature(displayData.name, dataPackage.dataName) :
@@ -166,10 +163,7 @@ namespace DragonBones
 
                         if (childArmature != null)
                         {
-                            if (childArmature._clock != null)
-                            {
-                                childArmature._clock.Remove(childArmature);
-                            }
+                            childArmature.clock = null;
 
                             if (!slot.inheritAnimation)
                             {
@@ -256,7 +250,7 @@ namespace DragonBones
 
             return this.ParseDragonBonesData((Dictionary<string, object>)MiniJSON.Json.Deserialize(dragonBonesJSON.text), name, 0.01f); // Unity default Scale Factor.
         }
-        
+
         public UnityTextureAtlasData LoadTextureAtlasData(string path, string name = null, float scale = 0.0f)
         {
             var index = path.LastIndexOf("Resources");
@@ -314,7 +308,7 @@ namespace DragonBones
             {
                 textureAtlasData.imagePath = textureAtlasData.imagePath.Substring(0, index);
             }
-            
+
             var textureAtlas = Resources.Load<Texture2D>(textureAtlasData.imagePath);
             var shader = Shader.Find(defaultShaderName);
             var material = new Material(shader);
@@ -422,9 +416,10 @@ namespace DragonBones
             var armature = this.BuildArmature(armatureName, dragonBonesName, skinName);
             if (armature != null)
             {
+                clock.Add(armature);
+
                 var armatureDisplay = armature.display as GameObject;
                 var armatureComponent = armatureDisplay.GetComponent<UnityArmatureComponent>();
-                clock.Add(armature);
 
                 return armatureComponent;
             }

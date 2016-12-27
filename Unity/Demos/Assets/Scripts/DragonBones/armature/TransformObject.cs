@@ -11,13 +11,6 @@ namespace DragonBones
     {
         /**
          * @language zh_CN
-         * 可以用于存储临时数据。
-         * @version DragonBones 3.0
-         */
-        public object userData;
-
-        /**
-         * @language zh_CN
          * 对象的名称。
          * @version DragonBones 3.0
          */
@@ -33,14 +26,6 @@ namespace DragonBones
 
         /**
          * @language zh_CN
-         * 相对于骨架或父骨骼坐标系的绑定变换。
-         * @see dragonBones.Transform
-         * @version DragonBones 3.0
-         */
-        public readonly Transform origin = new Transform();
-
-        /**
-         * @language zh_CN
          * 相对于骨架或父骨骼坐标系的偏移变换。
          * @see dragonBones.Transform
          * @version DragonBones 3.0
@@ -53,6 +38,21 @@ namespace DragonBones
          * @version DragonBones 3.0
          */
         public readonly Matrix globalTransformMatrix = new Matrix();
+
+        /**
+         * @language zh_CN
+         * 相对于骨架或父骨骼坐标系的绑定变换。
+         * @see dragonBones.Transform
+         * @version DragonBones 3.0
+         */
+        public Transform origin;
+
+        /**
+         * @language zh_CN
+         * 可以用于存储临时数据。
+         * @version DragonBones 3.0
+         */
+        public object userData;
 
         /**
          * @private
@@ -72,16 +72,16 @@ namespace DragonBones
         }
 
         /**
-         * @inheritDoc
+         * @private
          */
         protected override void _onClear()
         {
-            userData = null;
             name = null;
             global.Identity();
-            origin.Identity();
             offset.Identity();
             globalTransformMatrix.Identity();
+            origin = null;
+            userData = null;
 
             _armature = null;
             _parent = null;

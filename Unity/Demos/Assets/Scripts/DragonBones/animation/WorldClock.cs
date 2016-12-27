@@ -27,8 +27,8 @@ namespace DragonBones
          */
         public float timeScale = 1.0f;
 
-        private WorldClock _clock = null;
         private readonly List<IAnimateble> _animatebles = new List<IAnimateble>();
+        private WorldClock _clock = null;
 
         /**
          * @language zh_CN
@@ -39,27 +39,6 @@ namespace DragonBones
          */
         public WorldClock()
         {
-        }
-
-        /**
-         * @private
-         */
-        public void _onAdd(WorldClock value)
-        {
-            if (_clock != null)
-            {
-                _clock.Remove(this);
-            }
-
-            _clock = value;
-        }
-
-        /**
-         * @private
-         */
-        public void _onRemove()
-        {
-            _clock = null;
         }
 
         /**
@@ -154,8 +133,8 @@ namespace DragonBones
         {
             if (value != null && !_animatebles.Contains(value))
             {
-                value._onAdd(this);
                 _animatebles.Add(value);
+                value.clock = this;
             }
         }
 
@@ -170,8 +149,8 @@ namespace DragonBones
             var index = this._animatebles.IndexOf(value);
             if (index >= 0)
             {
-                value._onRemove();
                 _animatebles[index] = null;
+                value.clock = null;
             }
         }
 
@@ -185,11 +164,39 @@ namespace DragonBones
             for (int i = 0, l = this._animatebles.Count; i < l; ++i)
             {
                 var animateble = _animatebles[i];
+                _animatebles[i] = null;
                 if (animateble != null)
                 {
-                    animateble._onRemove();
+                    animateble.clock = null;
                 }
-                _animatebles[i] = null;
+            }
+        }
+
+        /**
+         * @private
+         */
+        public WorldClock clock
+        {
+            get { return _clock; }
+            set
+            {
+                if (_clock == value)
+                {
+                    return;
+                }
+
+                var prevClock = _clock;
+                _clock = value;
+
+                if (prevClock != null)
+                {
+                    prevClock.Remove(this);
+                }
+
+                if (_clock != null)
+                {
+                    _clock.Add(this);
+                }
             }
         }
     }

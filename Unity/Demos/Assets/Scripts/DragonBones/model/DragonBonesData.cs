@@ -34,6 +34,10 @@ namespace DragonBones
          * @version DragonBones 3.0
          */
         public readonly Dictionary<string, ArmatureData> armatures = new Dictionary<string, ArmatureData>();
+        /**
+         * @private
+         */
+        public readonly List<float> cachedFrames = new List<float>();
 
         private readonly List<string> _armatureNames = new List<string>();
 
@@ -45,7 +49,7 @@ namespace DragonBones
         }
 
         /**
-         * @inheritDoc
+         * @private
          */
         protected override void _onClear()
         {
@@ -58,6 +62,7 @@ namespace DragonBones
             frameRate = 0;
             name = null;
             armatures.Clear();
+            cachedFrames.Clear();
 
             _armatureNames.Clear();
         }
@@ -87,7 +92,7 @@ namespace DragonBones
             }
             else
             {
-                DragonBones.Warn("");
+                DragonBones.Assert(false, DragonBones.ARGUMENT_ERROR);
             }
         }
 

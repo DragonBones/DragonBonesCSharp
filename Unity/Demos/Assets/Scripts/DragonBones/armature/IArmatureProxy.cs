@@ -4,16 +4,22 @@ namespace DragonBones
 {
     /**
      * @language zh_CN
-     * 骨架显示容器和事件的接口。
-     * @see dragonBones.Armature#display
-     * @version DragonBones 4.5
+     * 骨架代理接口。
+     * @version DragonBones 5.0
      */
-    public interface IArmatureDisplay
+    public interface IArmatureProxy : IEventDispatcher<EventObject>
     {
         /**
          * @private
          */
         void _onClear();
+
+        /**
+         * @language zh_CN
+         * 释放代理和骨架。
+         * @version DragonBones 4.5
+         */
+        void Dispose(bool disposeProxy);
 
         /**
          * @language zh_CN
@@ -38,5 +44,14 @@ namespace DragonBones
         {
             get;
         }
+    }
+    /**
+     * @language zh_CN
+     * 骨架显示容器接口。
+     * @see dragonBones.Armature#display
+     * @version DragonBones 4.5
+     */
+    public interface IArmatureDisplay : IArmatureProxy
+    {
     }
 }

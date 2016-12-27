@@ -9,9 +9,9 @@ namespace DragonBones
     public class ActionData : BaseObject
     {
         public ActionType type;
+        public readonly ArrayList data = new ArrayList();
         public BoneData bone;
         public SlotData slot;
-        public readonly ArrayList data = new ArrayList();
 
         public ActionData()
         {
@@ -20,9 +20,9 @@ namespace DragonBones
         protected override void _onClear()
         {
             type = ActionType.Play;
+            data.Clear();
             bone = null;
             slot = null;
-            data.Clear();
         }
     }
 
@@ -34,7 +34,9 @@ namespace DragonBones
 
         public EventType type;
         public string name;
-        //public any data; // TODO
+        public readonly List<int> ints = new List<int>();
+        public readonly List<float> floats = new List<float>();
+        public readonly List<string> strings = new List<string>();
         public BoneData bone;
         public SlotData slot;
 
@@ -46,7 +48,9 @@ namespace DragonBones
         {
             type = EventType.Frame;
             name = null;
-            //data = null;
+            ints.Clear();
+            floats.Clear();
+            strings.Clear();
             bone = null;
             slot = null;
         }
@@ -65,14 +69,11 @@ namespace DragonBones
         public FrameData()
         {
         }
-
-        /**
-         * @inheritDoc
-         */
+        
         protected override void _onClear()
         {
-            position = 0;
-            duration = 0;
+            position = 0.0f;
+            duration = 0.0f;
             prev = null;
             next = null;
         }
@@ -146,10 +147,7 @@ namespace DragonBones
         public TweenFrameData()
         {
         }
-
-        /**
-         * @inheritDoc
-         */
+        
         protected override void _onClear()
         {
             base._onClear();
@@ -170,10 +168,7 @@ namespace DragonBones
         public AnimationFrameData()
         {
         }
-
-        /**
-         * @inheritDoc
-         */
+        
         protected override void _onClear()
         {
             base._onClear();
@@ -203,10 +198,7 @@ namespace DragonBones
         public ZOrderFrameData()
         {
         }
-
-        /**
-         * @inheritDoc
-         */
+        
         protected override void _onClear()
         {
             base._onClear();
@@ -227,10 +219,7 @@ namespace DragonBones
         public BoneFrameData()
         {
         }
-
-        /**
-         * @inheritDoc
-         */
+        
         protected override void _onClear()
         {
             base._onClear();
@@ -258,10 +247,7 @@ namespace DragonBones
         public SlotFrameData()
         {
         }
-
-        /**
-         * @inheritDoc
-         */
+        
         protected override void _onClear()
         {
             base._onClear();
@@ -276,23 +262,17 @@ namespace DragonBones
      */
     public class ExtensionFrameData : TweenFrameData<ExtensionFrameData>
     {
-        public ExtensionType type;
         public readonly List<float> tweens = new List<float>();
-        public readonly List<float> keys = new List<float>();
 
         public ExtensionFrameData()
         {
         }
-        /**
-         * @inheritDoc
-         */
+
         protected override void _onClear()
         {
             base._onClear();
-
-            type = ExtensionType.FFD;
+            
             tweens.Clear();
-            keys.Clear();
         }
     }
 }

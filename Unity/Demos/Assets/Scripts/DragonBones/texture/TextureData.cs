@@ -20,6 +20,16 @@ namespace DragonBones
         public float scale;
 
         /**
+         * @private
+         */
+        public float width;
+
+        /**
+         * @private
+         */
+        public float height;
+
+        /**
          * @language zh_CN
          * 贴图集名称。
          * @version DragonBones 3.0
@@ -46,17 +56,19 @@ namespace DragonBones
         }
 
         /**
-         * @inheritDoc
+         * @private
          */
         protected override void _onClear()
         {
-            foreach (var pair in textures)
+            foreach (var texture in textures.Values)
             {
-                pair.Value.ReturnToPool();
+                texture.ReturnToPool();
             }
 
             autoSearch = false;
             scale = 1.0f;
+            width = 0.0f;
+            height = 0.0f;
             name = null;
             imagePath = null;
             textures.Clear();
@@ -79,7 +91,7 @@ namespace DragonBones
             }
             else
             {
-                DragonBones.Warn("");
+                DragonBones.Assert(false, DragonBones.ARGUMENT_ERROR);
             }
         }
 
@@ -89,6 +101,33 @@ namespace DragonBones
         public TextureData GetTexture(string name)
         {
             return textures.ContainsKey(name) ? textures[name] : null;
+        }
+
+        /**
+         * @private
+         */
+        public void CopyFrom(TextureAtlasData value)
+        {
+            autoSearch = value.autoSearch;
+            scale = value.scale;
+            width = value.width;
+            height = value.height;
+            name = value.name;
+            imagePath = value.imagePath;
+
+            foreach (var texture in textures.Values)
+            {
+                texture.ReturnToPool();
+            }
+
+            textures.Clear();
+
+            foreach (var pair in value.textures)
+            {
+                var texture = GenerateTextureData();
+                texture.CopyFrom(pair.Value);
+                textures[pair.Key] = texture;
+            }
         }
     }
 
@@ -104,24 +143,44 @@ namespace DragonBones
 
         public bool rotated;
         public string name;
+        public readonly Rectangle region = new Rectangle();
         public Rectangle frame;
         public TextureAtlasData parent;
-        public readonly Rectangle region = new Rectangle();
 
         public TextureData()
         {
         }
-
-        /**
-         * @inheritDoc
-         */
+        
         protected override void _onClear()
         {
             rotated = false;
             name = null;
+            region.Clear();
             frame = null;
             parent = null;
-            region.Clear();
+        }
+
+        public void CopyFrom(TextureData value)
+        {
+            rotated = value.rotated;
+            name = value.name;
+
+            if (frame == null && value.frame == null)
+            {
+                frame = GenerateRectangle();
+            }
+            else if (frame != null && value.frame == null)
+            {
+                frame = null;
+            }
+
+            if (frame != null && value.frame != null)
+            {
+                frame.CopyFrom(value.frame);
+            }
+
+            parent = value.parent;
+            region.CopyFrom(value.region);
         }
     }
 }

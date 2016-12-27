@@ -88,11 +88,14 @@ namespace DragonBones
         public string name;
 
         /**
-         * @language zh_CN
-         * 扩展的数据。
-         * @version DragonBones 4.5
+         * @private
          */
-        // public object data; // TODO
+        public AnimationFrameData frame;
+
+        /**
+         * @private
+         */
+        public EventData data;
 
         /**
          * @language zh_CN
@@ -123,11 +126,6 @@ namespace DragonBones
         public AnimationState animationState;
 
         /**
-         * @private
-         */
-        public AnimationFrameData frame;
-
-        /**
          * @language zh_CN
          * 用户数据。
          * @version DragonBones 4.5
@@ -148,13 +146,43 @@ namespace DragonBones
         {
             type = null;
             name = null;
-            // data = null;
+            frame = null;
+            data = null;
             armature = null;
             bone = null;
             slot = null;
             animationState = null;
-            frame = null;
             userData = null;
+        }
+
+        /**
+         * @language zh_CN
+         * 获取事件自定义整数。
+         * @version DragonBones 5.0
+         */
+        public int getInt(int index = 0)
+        {
+            return data != null && index >= 0 && index < data.ints.Count ? data.ints[index] : 0;
+        }
+
+        /**
+         * @language zh_CN
+         * 获取事件自定义浮点数。
+         * @version DragonBones 5.0
+         */
+        public float getFloat(int index = 0)
+        {
+            return data != null && index >= 0 && index < data.floats.Count ? data.floats[index] : 0.0f;
+        }
+
+        /**
+         * @language zh_CN
+         * 获取事件自定义字符串。
+         * @version DragonBones 5.0
+         */
+        public string getString(int index = 0)
+        {
+            return data != null && index >= 0 && index < data.strings.Count ? data.strings[index] : null;
         }
     }
 }

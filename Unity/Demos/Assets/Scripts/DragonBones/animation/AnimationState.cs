@@ -3,13 +3,15 @@ using System.Collections.Generic;
 
 namespace DragonBones
 {
+    /**
+     * @language zh_CN
+     * 动画状态，播放动画时产生，可以对单个动画的播放进行更细致的控制和调节。
+     * @see dragonBones.Animation
+     * @see dragonBones.AnimationData
+     * @version DragonBones 3.0
+     */
     public class AnimationState : BaseObject
     {
-        /**
-         * @private
-         */
-        public static bool stateActionEnabled = true;
-
         /**
          * @language zh_CN
          * 是否对插槽的颜色，显示序列索引，深度排序，行为等拥有控制的权限。
@@ -69,7 +71,16 @@ namespace DragonBones
         /**
          * @private
          */
+        internal int _playheadState;
+
+        /**
+         * @private
+         */
         internal int _fadeState;
+        /**
+         * @private
+         */
+        internal int _subFadeState;
 
         /**
          * @private
@@ -89,36 +100,6 @@ namespace DragonBones
         /**
          * @private
          */
-        internal float _weightResult;
-
-        /**
-         * @private
-         */
-        internal float _fadeProgress;
-
-        /**
-         * @private
-         */
-        internal string _group;
-
-        /**
-         * @private
-         */
-        internal AnimationTimelineState _timeline;
-
-        /**
-         * @private
-         */
-        private bool _isPlaying;
-
-        /**
-         * @private
-         */
-        private bool _isPausePlayhead;
-
-        /**
-         * @private
-         */
         private float _fadeTime;
 
         /**
@@ -129,22 +110,22 @@ namespace DragonBones
         /**
          * @private
          */
+        internal float _fadeProgress;
+
+        /**
+         * @private
+         */
+        internal float _weightResult;
+
+        /**
+         * @private
+         */
         private string _name;
 
         /**
          * @private
          */
-        private Armature _armature;
-
-        /**
-         * @private
-         */
-        private AnimationData _animationData;
-
-        /**
-         * @private
-         */
-        private ZOrderTimelineState _zOrderTimeline;
+        private string _group;
 
         /**
          * @private
@@ -169,12 +150,32 @@ namespace DragonBones
         /**
          * @private
          */
+        private AnimationData _animationData;
+
+        /**
+         * @private
+         */
+        private Armature _armature;
+
+        /**
+         * @private
+         */
+        internal AnimationTimelineState _timeline;
+
+        /**
+         * @private
+         */
+        private ZOrderTimelineState _zOrderTimeline;
+
+        /**
+         * @private
+         */
         public AnimationState()
         {
         }
 
         /**
-         * @inheritDoc
+         * @private
          */
         override protected void _onClear()
         {
@@ -212,27 +213,26 @@ namespace DragonBones
             autoFadeOutTime = -1.0f;
             fadeTotalTime = 0.0f;
 
-            _fadeState = 0;
+            _playheadState = 0;
+            _fadeState = -1;
+            _subFadeState = -1;
             _layer = 0;
             _position = 0.0f;
             _duration = 0.0f;
-            _weightResult = 0.0f;
-            _fadeProgress = 0.0f;
-            _group = null;
-            _timeline = null;
-
-            _isPlaying = true;
-            _isPausePlayhead = false;
             _fadeTime = 0.0f;
             _time = 0.0f;
+            _fadeProgress = 0.0f;
+            _weightResult = 0.0f;
             _name = null;
-            _armature = null;
-            _animationData = null;
-            _zOrderTimeline = null;
+            _group = null;
             _boneMask.Clear();
             _boneTimelines.Clear();
             _slotTimelines.Clear();
             _ffdTimelines.Clear();
+            _animationData = null;
+            _armature = null;
+            _timeline = null;
+            _zOrderTimeline = null;
         }
 
         /**
@@ -240,77 +240,368 @@ namespace DragonBones
          */
         private void _advanceFadeTime(float passedTime)
         {
+            var isFadeOut = _fadeState > 0;
+
+            if (_subFadeState < 0) // Fade start event.
+            {
+                _subFadeState = 0;
+
+                var eventType = isFadeOut? EventObject.FADE_OUT: EventObject.FADE_IN;
+                if (_armature.eventDispatcher.HasEventListener(eventType))
+                {
+                    var eventObject = BaseObject.BorrowObject<EventObject>();
+                    eventObject.animationState = this;
+                    _armature._bufferEvent(eventObject, eventType);
+                }
+            }
+
             if (passedTime < 0.0f)
             {
                 passedTime = -passedTime;
             }
 
             _fadeTime += passedTime;
-
-            var fadeProgress = 0.0f;
+            
             if (_fadeTime >= fadeTotalTime) // Fade complete.
             {
-                fadeProgress = _fadeState > 0 ? 0.0f : 1.0f;
+                _subFadeState = 1;
+                _fadeProgress = isFadeOut ? 0.0f : 1.0f;
             }
             else if (_fadeTime > 0.0f) // Fading.
             {
-                fadeProgress = _fadeState > 0 ? (1 - _fadeTime / fadeTotalTime) : (_fadeTime / fadeTotalTime);
+                _fadeProgress = isFadeOut ? (1.0f - _fadeTime / fadeTotalTime) : (_fadeTime / fadeTotalTime);
             }
             else // Before fade.
             {
-                fadeProgress = _fadeState > 0 ? 1.0f : 0.0f;
+                _fadeProgress = isFadeOut ? 1.0f : 0.0f;
             }
 
-            if (_fadeProgress != fadeProgress)
+            if (_subFadeState > 0) // Fade complete event.
             {
-                _fadeProgress = fadeProgress;
-
-                var eventDispatcher = _armature._eventDispatcher;
-
-                if (_fadeTime <= passedTime)
+                if (!isFadeOut)
                 {
-                    if (_fadeState > 0)
+                    _playheadState |= 1; // x1
+                    _fadeState = 0;
+                }
+
+                var eventType = isFadeOut ? EventObject.FADE_OUT_COMPLETE : EventObject.FADE_IN_COMPLETE;
+                if (_armature.eventDispatcher.HasEventListener(eventType))
+                {
+                    var eventObject = BaseObject.BorrowObject<EventObject>();
+                    eventObject.animationState = this;
+                    _armature._bufferEvent(eventObject, eventType);
+                }
+            }
+        }
+
+        /**
+         * @private
+         */
+        internal void _init(Armature armature, AnimationData animationData, AnimationConfig animationConfig)
+        {
+            _armature = armature;
+            _animationData = animationData;
+            _name = !string.IsNullOrEmpty(animationConfig.name) ? animationConfig.name : animationConfig.animationName;
+
+            actionEnabled = animationConfig.actionEnabled;
+            additiveBlending = animationConfig.additiveBlending;
+            displayControl = animationConfig.displayControl;
+            playTimes = (uint)animationConfig.playTimes;
+            timeScale = animationConfig.timeScale;
+            fadeTotalTime = animationConfig.fadeInTime;
+            autoFadeOutTime = animationConfig.autoFadeOutTime;
+            weight = animationConfig.weight;
+            
+            if (animationConfig.pauseFadeIn)
+            {
+                _playheadState = 2; // 10
+            }
+            else
+            {
+                _playheadState = 3; // 11
+            }
+
+            _fadeState = -1;
+            _subFadeState = -1;
+            _layer = animationConfig.layer;
+            _time = animationConfig.position;
+            _group = animationConfig.group;
+
+            if (animationConfig.duration < 0.0f)
+            {
+                _position = 0.0f;
+                _duration = _animationData.duration;
+            }
+            else
+            {
+                _position = animationConfig.position;
+                _duration = animationConfig.duration;
+            }
+
+            if (fadeTotalTime <= 0.0f)
+            {
+                _fadeProgress = 0.999999f;
+            }
+
+            if (animationConfig.boneMask.Count > 0)
+            {
+                DragonBones.ResizeList(_boneMask, animationConfig.boneMask.Count, null);
+                for (int i = 0, l = _boneMask.Count; i < l; ++i)
+                {
+                    _boneMask[i] = animationConfig.boneMask[i];
+                }
+            }
+
+            _timeline = BaseObject.BorrowObject<AnimationTimelineState>();
+            _timeline._init(_armature, this, _animationData);
+
+            if (_animationData.zOrderTimeline != null)
+            {
+                _zOrderTimeline = BaseObject.BorrowObject<ZOrderTimelineState>();
+                _zOrderTimeline._init(_armature, this, _animationData.zOrderTimeline);
+            }
+
+            _updateTimelineStates();
+        }
+
+        /**
+         * @private
+         */
+        internal void _updateTimelineStates()
+        {
+            var boneTimelineStates = new Dictionary<string, BoneTimelineState>();
+            var slotTimelineStates = new Dictionary<string, SlotTimelineState>();
+            var ffdTimelineStates = new Dictionary<string, FFDTimelineState>();
+
+            foreach (var boneTimelineState in _boneTimelines) // Creat bone timelines map.
+            {
+                boneTimelineStates[boneTimelineState.bone.name] = boneTimelineState;
+            }
+
+            foreach (var bone in _armature.GetBones())
+            {
+                var boneTimelineName = bone.name;
+                if (ContainsBoneMask(boneTimelineName))
+                {
+                    var boneTimelineData = _animationData.GetBoneTimeline(boneTimelineName);
+                    if (boneTimelineData != null)
                     {
-                        if (eventDispatcher.HasEventListener(EventObject.FADE_OUT))
+                        if (boneTimelineStates.ContainsKey(boneTimelineName)) // Remove bone timeline from map.
                         {
-                            var evt = BaseObject.BorrowObject<EventObject>();
-                            evt.animationState = this;
-                            _armature._bufferEvent(evt, EventObject.FADE_OUT);
+                            boneTimelineStates.Remove(boneTimelineName);
+                        }
+                        else // Create new bone timeline.
+                        {
+                            var boneTimelineState = BaseObject.BorrowObject<BoneTimelineState>();
+                            boneTimelineState.bone = bone;
+                            boneTimelineState._init(_armature, this, boneTimelineData);
+                            _boneTimelines.Add(boneTimelineState);
+                        }
+                    }
+                }
+            }
+
+            foreach (var boneTimelineState in boneTimelineStates.Values) // Remove bone timelines.
+            {
+                boneTimelineState.bone.InvalidUpdate(); //
+                _boneTimelines.Remove(boneTimelineState);
+                boneTimelineState.ReturnToPool();
+            }
+
+            foreach (var slotTimelineState in _slotTimelines) // Create slot timelines map.
+            {
+                slotTimelineStates[slotTimelineState.slot.name] = slotTimelineState;
+            }
+
+            foreach (var ffdTimelineState in _ffdTimelines) // Create ffd timelines map.
+            {
+                var display = ffdTimelineState._timelineData.display;
+                var meshName = display.inheritAnimation ? display.mesh.name : display.name;
+                ffdTimelineStates[meshName] = ffdTimelineState;
+            }
+
+            foreach (var slot in _armature.GetSlots())
+            {
+                var slotTimelineName = slot.name;
+                var parentTimelineName = slot.parent.name;
+                var resetFFDVertices = false;
+
+                if (ContainsBoneMask(parentTimelineName))
+                {
+                    var slotTimelineData = _animationData.GetSlotTimeline(slotTimelineName);
+                    if (slotTimelineData != null)
+                    {
+                        if (slotTimelineStates.ContainsKey(slotTimelineName)) // Remove slot timeline from map.
+                        {
+                            slotTimelineStates.Remove(slotTimelineName);
+                        }
+                        else // Create new slot timeline.
+                        {
+                            var slotTimelineState = BaseObject.BorrowObject<SlotTimelineState>();
+                            slotTimelineState.slot = slot;
+                            slotTimelineState._init(_armature, this, slotTimelineData);
+                            _slotTimelines.Add(slotTimelineState);
+                        }
+                    }
+                    
+                    var ffdTimelineDatas = this._animationData.GetFFDTimeline(_armature._skinData.name, slotTimelineName);
+                    if (ffdTimelineDatas != null)
+                    {
+                        foreach (var pair in ffdTimelineDatas)
+                        {
+                            if (ffdTimelineStates.ContainsKey(pair.Key)) // Remove ffd timeline from map.
+                            {
+                                ffdTimelineStates.Remove(pair.Key);
+                            }
+                            else // Create new ffd timeline.
+                            {
+                                var ffdTimelineState = BaseObject.BorrowObject<FFDTimelineState>();
+                                ffdTimelineState.slot = slot;
+                                ffdTimelineState._init(_armature, this, pair.Value);
+                                _ffdTimelines.Add(ffdTimelineState);
+                            }
                         }
                     }
                     else
                     {
-                        if (eventDispatcher.HasEventListener(EventObject.FADE_IN))
+                        resetFFDVertices = true;
+                    }
+                }
+                else
+                {
+                    resetFFDVertices = true;
+                }
+
+                if (resetFFDVertices)
+                {
+                    for (int i = 0, l = slot._ffdVertices.Count; i < l; ++i)
+                    {
+                        slot._ffdVertices[i] = 0.0f;
+                    }
+
+                    slot._meshDirty = true;
+                }
+            }
+
+            foreach (var slotTimelineState in slotTimelineStates.Values) // Remove slot timelines.
+            {
+                _slotTimelines.Remove(slotTimelineState);
+                slotTimelineState.ReturnToPool();
+            }
+
+            foreach (var ffdTimelineState in ffdTimelineStates.Values)// Remove ffd timelines.
+            {
+                _ffdTimelines.Remove(ffdTimelineState);
+                ffdTimelineState.ReturnToPool();
+            }
+        }
+
+        /**
+         * @private
+         */
+        internal void _advanceTime(float passedTime, float cacheFrameRate)
+        {
+            // Update fade time.
+            if (_fadeState != 0 || _subFadeState != 0)
+            {
+                _advanceFadeTime(passedTime);
+            }
+
+            // Update time.
+            passedTime *= timeScale;
+            if (passedTime != 0.0f && _playheadState == 3) // 11
+            {
+                _time += passedTime;
+            }
+
+            // weight.
+            _weightResult = weight * _fadeProgress;
+
+            if (_weightResult != 0.0f)
+            {
+                var isUpdatesTimeline = true;
+                var isUpdatesBoneTimeline = true;
+                var time = _time;
+
+                // Cache time internval.
+                var isCacheEnabled = this._fadeState == 0 && cacheFrameRate > 0.0f;
+                if (isCacheEnabled)
+                {
+                    time = cacheFrameRate * 2.0f;
+                    time = (float)Math.Floor(_time * time) / time;
+                }
+
+                // Update main timeline.                
+                _timeline.Update(time, -1.0f);
+
+                var normalizedTime = _timeline._currentTime;
+
+                // Update zOrder timeline.
+                if (_zOrderTimeline != null)
+                {
+                    _zOrderTimeline.Update(time, normalizedTime);
+                }
+
+                // Update cache.
+                if (isCacheEnabled)
+                {
+                    var cacheFrameIndex = (int)Math.Floor(_timeline._currentTime * cacheFrameRate); // uint
+                    if (_armature._cacheFrameIndex == cacheFrameIndex) // Same cache.
+                    {
+                        isUpdatesTimeline = false;
+                        isUpdatesBoneTimeline = false;
+                    }
+                    else
+                    {
+                        _armature._cacheFrameIndex = cacheFrameIndex;
+
+                        if (_animationData.cachedFrames[cacheFrameIndex]) // Cached.
                         {
-                            var evt = BaseObject.BorrowObject<EventObject>();
-                            evt.animationState = this;
-                            _armature._bufferEvent(evt, EventObject.FADE_IN);
+                            isUpdatesBoneTimeline = false;
+                        }
+                        else // Cache.
+                        {
+                            _animationData.cachedFrames[cacheFrameIndex] = true;
                         }
                     }
                 }
 
-                if (_fadeTime >= fadeTotalTime)
+                // Update timelines.
+                if (isUpdatesTimeline)
                 {
-                    if (_fadeState > 0)
+                    if (isUpdatesBoneTimeline)
                     {
-                        if (eventDispatcher.HasEventListener(EventObject.FADE_OUT_COMPLETE))
+                        for (int i = 0, l = _boneTimelines.Count; i < l; ++i)
                         {
-                            var evt = BaseObject.BorrowObject<EventObject>();
-                            evt.animationState = this;
-                            _armature._bufferEvent(evt, EventObject.FADE_OUT_COMPLETE);
+                            _boneTimelines[i].Update(time, normalizedTime);
                         }
                     }
-                    else
-                    {
-                        _isPausePlayhead = false;
-                        _fadeState = 0;
 
-                        if (eventDispatcher.HasEventListener(EventObject.FADE_IN_COMPLETE))
-                        {
-                            var evt = BaseObject.BorrowObject<EventObject>();
-                            evt.animationState = this;
-                            _armature._bufferEvent(evt, EventObject.FADE_IN_COMPLETE);
-                        }
+                    for (int i = 0, l = _slotTimelines.Count; i < l; ++i)
+                    {
+                        _slotTimelines[i].Update(time, normalizedTime);
+                    }
+
+                    for (int i = 0, l = _ffdTimelines.Count; i < l; ++i)
+                    {
+                        _ffdTimelines[i].Update(time, normalizedTime);
+                    }
+                }
+            }
+
+            if (_fadeState == 0)
+            {
+                if (_subFadeState > 0)
+                {
+                    _subFadeState = 0;
+                }
+
+                // Auto fade out.
+                if (autoFadeOutTime >= 0.0f)
+                {
+                    if (_timeline._playState > 0)
+                    {
+                        FadeOut(autoFadeOutTime);
                     }
                 }
             }
@@ -337,322 +628,13 @@ namespace DragonBones
         }
 
         /**
-         * @private
-         */
-        internal void _fadeIn(
-            Armature armature, AnimationData clip, string animationName,
-            uint playTimes, float position, float duration, float time, float timeScale, float fadeInTime,
-            bool pausePlayhead
-        )
-        {
-            _armature = armature;
-            _animationData = clip;
-            _name = animationName;
-
-            actionEnabled = stateActionEnabled;
-            this.playTimes = playTimes;
-            this.timeScale = timeScale;
-            fadeTotalTime = fadeInTime;
-
-            _fadeState = -1;
-            _position = position;
-            _duration = duration;
-            _time = time;
-            _isPausePlayhead = pausePlayhead;
-            if (fadeTotalTime <= 0.0f)
-            {
-                _fadeProgress = 0.999999f;
-            }
-
-            _timeline = BaseObject.BorrowObject<AnimationTimelineState>();
-            _timeline.FadeIn(_armature, this, _animationData, _time);
-
-            if (_animationData.zOrderTimeline != null)
-            {
-                _zOrderTimeline = BaseObject.BorrowObject<ZOrderTimelineState>();
-                _zOrderTimeline.FadeIn(_armature, this, _animationData.zOrderTimeline, _time);
-            }
-
-            _updateTimelineStates();
-        }
-
-        /**
-         * @private
-         */
-        internal void _updateTimelineStates()
-        {
-            var time = _time;
-            if (!_animationData.hasAsynchronyTimeline)
-            {
-                time = _timeline._currentTime;
-            }
-
-            var boneTimelineStates = new Dictionary<string, BoneTimelineState>();
-            var slotTimelineStates = new Dictionary<string, SlotTimelineState>();
-
-            foreach (var boneTimelineState in _boneTimelines) // Creat bone timelines map.
-            {
-                boneTimelineStates.Add(boneTimelineState.bone.name, boneTimelineState);
-            }
-
-            foreach (var bone in _armature.GetBones())
-            {
-                var boneTimelineName = bone.name;
-                var boneTimelineData = _animationData.GetBoneTimeline(boneTimelineName);
-
-                if (boneTimelineData != null && ContainsBoneMask(boneTimelineName))
-                {
-                    var boneTimelineState = boneTimelineStates.ContainsKey(boneTimelineName) ? boneTimelineStates[boneTimelineName] : null;
-                    if (boneTimelineState != null) // Remove bone timeline from map.
-                    {
-                        boneTimelineStates.Remove(boneTimelineName);
-                    }
-                    else // Create new bone timeline.
-                    {
-                        boneTimelineState = BaseObject.BorrowObject<BoneTimelineState>();
-                        boneTimelineState.bone = bone;
-                        boneTimelineState.FadeIn(_armature, this, boneTimelineData, time);
-                        _boneTimelines.Add(boneTimelineState);
-                    }
-                }
-            }
-
-            foreach (var boneTimelineState in boneTimelineStates.Values) // Remove bone timelines.
-            {
-                boneTimelineState.bone.InvalidUpdate(); //
-                _boneTimelines.Remove(boneTimelineState);
-                boneTimelineState.ReturnToPool();
-            }
-
-            foreach (var slotTimelineState in _slotTimelines) // Create slot timelines map.
-            {
-                slotTimelineStates[slotTimelineState.slot.name] = slotTimelineState;
-            }
-
-            foreach (var slot in _armature.GetSlots())
-            {
-                var slotTimelineName = slot.name;
-                var parentTimelineName = slot.parent.name;
-                var slotTimelineData = _animationData.GetSlotTimeline(slotTimelineName);
-
-                if (slotTimelineData != null && ContainsBoneMask(parentTimelineName) && _fadeState <= 0)
-                {
-                    var slotTimelineState = slotTimelineStates.ContainsKey(slotTimelineName) ? slotTimelineStates[slotTimelineName] : null;
-                    if (slotTimelineState != null) // Remove slot timeline from map.
-                    {
-                        slotTimelineStates.Remove(slotTimelineName);
-                    }
-                    else // Create new slot timeline.
-                    {
-                        slotTimelineState = BaseObject.BorrowObject<SlotTimelineState>();
-                        slotTimelineState.slot = slot;
-                        slotTimelineState.FadeIn(_armature, this, slotTimelineData, time);
-                        _slotTimelines.Add(slotTimelineState);
-                    }
-                }
-            }
-
-            foreach (var slotTimelineState in slotTimelineStates.Values) // Remove slot timelines.
-            {
-                _slotTimelines.Remove(slotTimelineState);
-                slotTimelineState.ReturnToPool();
-            }
-
-            _updateFFDTimelineStates();
-        }
-
-        /**
-         * @private
-         */
-        internal void _updateFFDTimelineStates()
-        {
-            var time = _time;
-            if (!_animationData.hasAsynchronyTimeline)
-            {
-                time = _timeline._currentTime;
-            }
-
-            var ffdTimelineStates = new Dictionary<string, FFDTimelineState>();
-
-            foreach (var ffdTimelineState in _ffdTimelines) // Create ffd timelines map.
-            {
-                ffdTimelineStates[ffdTimelineState.slot.name] = ffdTimelineState;
-            }
-
-            foreach (var slot in _armature.GetSlots())
-            {
-                var slotTimelineName = slot.name;
-                var parentTimelineName = slot.parent.name;
-
-                if (slot._meshData != null)
-                {
-                    var displayIndex = slot.displayIndex;
-                    var rawMeshData = displayIndex < slot._displayDataSet.displays.Count ? slot._displayDataSet.displays[displayIndex].mesh : null;
-
-                    if (slot._meshData == rawMeshData)
-                    {
-                        var ffdTimelineData = _animationData.GetFFDTimeline(_armature._skinData.name, slotTimelineName, displayIndex);
-                        if (ffdTimelineData != null && ContainsBoneMask(parentTimelineName)) // && !_isFadeOut
-                        {
-                            var ffdTimelineState = ffdTimelineStates.ContainsKey(slotTimelineName) ? ffdTimelineStates[slotTimelineName] : null;
-                            if (ffdTimelineState != null && ffdTimelineState._timeline == ffdTimelineData) // Remove ffd timeline from map.
-                            {
-                                ffdTimelineStates.Remove(slotTimelineName);
-                            }
-                            else // Create new ffd timeline.
-                            {
-                                ffdTimelineState = BaseObject.BorrowObject<FFDTimelineState>();
-                                ffdTimelineState.slot = slot;
-                                ffdTimelineState.FadeIn(_armature, this, ffdTimelineData, time);
-                                _ffdTimelines.Add(ffdTimelineState);
-                            }
-                        }
-                        else
-                        {
-                            for (int i = 0, l = slot._ffdVertices.Count; i < l; ++i) // Clear slot ffd.
-                            {
-                                slot._ffdVertices[i] = 0.0f;
-                            }
-
-                            slot._ffdDirty = true;
-                        }
-                    }
-                }
-            }
-
-            foreach (var ffdTimelineState in ffdTimelineStates.Values)// Remove ffd timelines.
-            {
-                //ffdTimelineState.slot._ffdDirty = true;
-                _ffdTimelines.Remove(ffdTimelineState);
-                ffdTimelineState.ReturnToPool();
-            }
-        }
-
-        /**
-         * @private
-         */
-        internal void _advanceTime(float passedTime, float weightLeft, int index)
-        {
-            // Update fade time. (Still need to be update even if the passedTime is zero)
-            if (_fadeState != 0)
-            {
-                _advanceFadeTime(passedTime);
-            }
-
-            // Update time.
-            passedTime *= timeScale;
-            if (passedTime != 0.0f && _isPlaying && !_isPausePlayhead)
-            {
-                _time += passedTime;
-            }
-
-            // Blend weight.
-            _weightResult = weight * _fadeProgress * weightLeft;
-
-            if (_weightResult > 0.0f)
-            {
-                var isCacheEnabled = _fadeProgress >= 1.0f && index == 0 && _armature.cacheFrameRate > 0;
-                var cacheTimeToFrameScale = _animationData.cacheTimeToFrameScale;
-                var isUpdatesTimeline = true;
-                var isUpdatesBoneTimeline = true;
-                var time = cacheTimeToFrameScale * 2.0f;
-                time = isCacheEnabled ? ((float)Math.Floor(_time * time) / time) : _time; // Cache time internval.
-
-                // Update main timeline.                
-                _timeline.Update(time);
-                if (!_animationData.hasAsynchronyTimeline)
-                {
-                    time = _timeline._currentTime;
-                }
-
-                if (_zOrderTimeline != null)
-                {
-                    _zOrderTimeline.Update(time);
-                }
-
-                if (isCacheEnabled)
-                {
-                    var cacheFrameIndex = (int)Math.Floor(_timeline._currentTime * cacheTimeToFrameScale); // int
-                    if (_armature._cacheFrameIndex == cacheFrameIndex) // Same cache.
-                    {
-                        isUpdatesTimeline = false;
-                        isUpdatesBoneTimeline = false;
-                    }
-                    else
-                    {
-                        _armature._cacheFrameIndex = cacheFrameIndex;
-
-                        if (_armature._animation._animationStateDirty) // Update _cacheFrames.
-                        {
-                            _armature._animation._animationStateDirty = false;
-
-                            for (int i = 0, l = _boneTimelines.Count; i < l; ++i)
-                            {
-                                var boneTimelineState = _boneTimelines[i];
-                                boneTimelineState.bone._cacheFrames = (boneTimelineState._timeline).cachedFrames;
-                            }
-
-                            for (int i = 0, l = _slotTimelines.Count; i < l; ++i)
-                            {
-                                var slotTimelineState = _slotTimelines[i];
-                                slotTimelineState.slot._cacheFrames = (slotTimelineState._timeline).cachedFrames;
-                            }
-                        }
-
-                        if (_animationData.cachedFrames[cacheFrameIndex]) // Cached.
-                        {
-                            isUpdatesBoneTimeline = false;
-                        }
-                        else // Cache.
-                        {
-                            _animationData.cachedFrames[cacheFrameIndex] = true;
-                        }
-                    }
-                }
-                else
-                {
-                    _armature._cacheFrameIndex = -1;
-                }
-
-                if (isUpdatesTimeline)
-                {
-                    if (isUpdatesBoneTimeline)
-                    {
-                        for (int i = 0, l = _boneTimelines.Count; i < l; ++i)
-                        {
-                            var boneTimelineState = _boneTimelines[i];
-                            boneTimelineState.Update(time);
-                        }
-                    }
-
-                    for (int i = 0, l = _slotTimelines.Count; i < l; ++i)
-                    {
-                        var slotTimelineState = _slotTimelines[i];
-                        slotTimelineState.Update(time);
-                    }
-
-                    for (int i = 0, l = _ffdTimelines.Count; i < l; ++i)
-                    {
-                        var ffdTimelineState = _ffdTimelines[i];
-                        ffdTimelineState.Update(time);
-                    }
-                }
-            }
-
-            if (autoFadeOutTime >= 0.0f && _fadeProgress >= 1.0f && _timeline._isCompleted)
-            {
-                FadeOut(autoFadeOutTime);
-            }
-        }
-
-        /**
          * @language zh_CN
          * 继续播放。
          * @version DragonBones 3.0
          */
         public void Play()
         {
-            _isPlaying = true;
+            _playheadState = 3; // 11
         }
 
         /**
@@ -662,7 +644,7 @@ namespace DragonBones
          */
         public void Stop()
         {
-            _isPlaying = false;
+            _playheadState &= 1; // 0x
         }
 
         /**
@@ -679,7 +661,10 @@ namespace DragonBones
                 fadeOutTime = 0.0f;
             }
 
-            _isPausePlayhead = pausePlayhead;
+            if (pausePlayhead)
+            {
+                _playheadState &= 2; // x0
+            }
 
             if (_fadeState > 0)
             {
@@ -692,6 +677,7 @@ namespace DragonBones
             else
             {
                 _fadeState = 1;
+                _subFadeState = -1;
 
                 if (fadeOutTime <= 0.0f || _fadeProgress <= 0.0f)
                 {
@@ -709,7 +695,7 @@ namespace DragonBones
                 }
             }
 
-            displayControl = false;
+            displayControl = false; //
             fadeTotalTime = _fadeProgress > 0.000001f ? fadeOutTime / _fadeProgress : 0.0f;
             _fadeTime = fadeTotalTime * (1.0f - _fadeProgress);
         }
@@ -722,7 +708,7 @@ namespace DragonBones
          */
         public bool ContainsBoneMask(string name)
         {
-            return _boneMask.Count < 1 || _boneMask.Contains(name);
+            return _boneMask.Count == 0 || _boneMask.Contains(name);
         }
 
         /**
@@ -740,10 +726,7 @@ namespace DragonBones
                 return;
             }
 
-            if (
-                !_boneMask.Contains(name) &&
-                _animationData.GetBoneTimeline(name) != null
-                ) // Add mixing
+            if (!_boneMask.Contains(name)) // Add mixing
             {
                 _boneMask.Add(name);
             }
@@ -752,14 +735,9 @@ namespace DragonBones
             {
                 foreach (var bone in _armature.GetBones())
                 {
-                    var boneName = bone.name;
-                    if (
-                        !_boneMask.Contains(boneName) &&
-                        _animationData.GetBoneTimeline(boneName) != null &&
-                        currentBone.Contains(bone)
-                        ) // Add recursive mixing.
+                    if (!_boneMask.Contains(bone.name) && currentBone.Contains(bone)) // Add recursive mixing.
                     {
-                        _boneMask.Add(boneName);
+                        _boneMask.Add(bone.name);
                     }
                 }
             }
@@ -786,15 +764,25 @@ namespace DragonBones
                 var currentBone = _armature.GetBone(name);
                 if (currentBone != null)
                 {
-                    foreach (var bone in _armature.GetBones())
+                    var bones = _armature.GetBones();
+                    if (_boneMask.Count > 0)
                     {
-                        var boneName = bone.name;
-                        if (
-                            _boneMask.Contains(boneName) &&
-                            currentBone.Contains(bone)
-                            ) // Remove recursive mixing.
+                        foreach (var bone in bones)
                         {
-                            _boneMask.Remove(boneName);
+                            if (_boneMask.Contains(bone.name) && currentBone.Contains(bone)) // Remove recursive mixing.
+                            {
+                                _boneMask.Remove(bone.name);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        foreach (var bone in bones)
+                        {
+                            if (!currentBone.Contains(bone)) // Add unrecursive mixing.
+                            {
+                                _boneMask.Add(bone.name);
+                            }
                         }
                     }
                 }
@@ -865,7 +853,7 @@ namespace DragonBones
          */
         public bool isCompleted
         {
-            get { return _timeline._isCompleted; }
+            get { return _timeline._playState > 0; }
         }
 
         /**
@@ -875,7 +863,7 @@ namespace DragonBones
          */
         public bool isPlaying
         {
-            get { return _isPlaying && !_timeline._isCompleted; }
+            get { return (_playheadState & 2) != 0 && _timeline._playState <= 0; } // 1x
         }
 
         /**
@@ -913,7 +901,7 @@ namespace DragonBones
                     value = 0.0f;
                 }
 
-                var currentPlayTimes = _timeline._currentPlayTimes - (_timeline._isCompleted ? 1 : 0);
+                var currentPlayTimes = _timeline._currentPlayTimes - (_timeline._playState > 0 ? 1 : 0);
                 value = (value % _duration) + currentPlayTimes * _duration;
                 if (_time == value)
                 {
@@ -925,22 +913,22 @@ namespace DragonBones
 
                 if (_zOrderTimeline != null)
                 {
-                    _zOrderTimeline._isCompleted = false;
+                    _zOrderTimeline._playState = -1;
                 }
 
                 foreach (var boneTimelineState in _boneTimelines)
                 {
-                    boneTimelineState._isCompleted = false;
+                    boneTimelineState._playState = -1;
                 }
 
                 foreach (var slotTimelineState in _slotTimelines)
                 {
-                    slotTimelineState._isCompleted = false;
+                    slotTimelineState._playState = -1;
                 }
 
                 foreach (var ffdTimelineState in _ffdTimelines)
                 {
-                    ffdTimelineState._isCompleted = false;
+                    ffdTimelineState._playState = -1;
                 }
             }
         }
