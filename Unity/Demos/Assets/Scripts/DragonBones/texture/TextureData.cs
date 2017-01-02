@@ -11,50 +11,42 @@ namespace DragonBones
          * @version DragonBones 4.5
          */
         public bool autoSearch;
-
         /**
          * @language zh_CN
          * 贴图集缩放系数。
          * @version DragonBones 3.0
          */
         public float scale;
-
         /**
          * @private
          */
         public float width;
-
         /**
          * @private
          */
         public float height;
-
         /**
          * @language zh_CN
          * 贴图集名称。
          * @version DragonBones 3.0
          */
         public string name;
-
         /**
          * @language zh_CN
          * 贴图集图片路径。
          * @version DragonBones 3.0
          */
         public string imagePath;
-
         /**
          * @private
          */
         public readonly Dictionary<string, TextureData> textures = new Dictionary<string, TextureData>();
-
         /**
          * @private
          */
         public TextureAtlasData()
         {
         }
-
         /**
          * @private
          */
@@ -73,12 +65,10 @@ namespace DragonBones
             imagePath = null;
             textures.Clear();
         }
-
         /**
          * @private
          */
         public abstract TextureData GenerateTextureData();
-
         /**
          * @private
          */
@@ -94,7 +84,6 @@ namespace DragonBones
                 DragonBones.Assert(false, DragonBones.ARGUMENT_ERROR);
             }
         }
-
         /**
          * @private
          */
@@ -102,7 +91,6 @@ namespace DragonBones
         {
             return textures.ContainsKey(name) ? textures[name] : null;
         }
-
         /**
          * @private
          */
@@ -130,7 +118,6 @@ namespace DragonBones
             }
         }
     }
-
     /**
      * @private
      */

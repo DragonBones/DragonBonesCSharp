@@ -19,7 +19,6 @@ namespace DragonBones
         private Mesh _mesh;
         private Vector2[] _uvs;
         private Vector3[] _vertices;
-
         /**
          * @language zh_CN
          * 创建一个空的插槽。
@@ -28,7 +27,6 @@ namespace DragonBones
         public UnitySlot()
         {
         }
-
         /**
          * @inheritDoc
          */
@@ -51,14 +49,12 @@ namespace DragonBones
             _uvs = null;
             _vertices = null;
         }
-
         /**
          * @private
          */
         override protected void _initDisplay(object value)
         {
         }
-
         /**
          * @private
          */
@@ -71,34 +67,31 @@ namespace DragonBones
             Object.Destroy(gameObject);
 #endif
         }
-
         /**
          * @private
          */
         override protected void _onUpdateDisplay()
         {
-            _renderDisplay = (this._display != null ? this._display : this._rawDisplay) as GameObject;
+            _renderDisplay = (_display != null ? _display : _rawDisplay) as GameObject;
         }
-
         /**
          * @private
          */
         override protected void _addDisplay()
         {
-            var container = this._armature.display as GameObject;
+            var container = _armature.display as GameObject;
             var armatureComponent = container.GetComponent<UnityArmatureComponent>();
             _renderDisplay.transform.parent = container.transform;
 
-            _helpVector3.Set(0.0f, 0.0f, -this._zOrder * (armatureComponent.zSpace + 0.001f));
+            _helpVector3.Set(0.0f, 0.0f, -_zOrder * (armatureComponent.zSpace + 0.001f));
             _renderDisplay.transform.localPosition = _helpVector3;
         }
-
         /**
          * @private
          */
         override protected void _replaceDisplay(object value)
         {
-            var container = this._armature.display as GameObject;
+            var container = _armature.display as GameObject;
             var prevDisplay = value as GameObject;
             prevDisplay.hideFlags = HideFlags.HideInHierarchy;
             prevDisplay.transform.parent = null;
@@ -109,7 +102,6 @@ namespace DragonBones
             _renderDisplay.transform.localPosition = prevDisplay.transform.localPosition;
             _renderDisplay.SetActive(true);
         }
-
         /**
          * @private
          */
@@ -117,33 +109,30 @@ namespace DragonBones
         {
             _renderDisplay.transform.parent = null;
         }
-
         /**
          * @private
          */
         override protected void _updateZOrder()
         {
-            var container = this._armature.display as GameObject;
+            var container = _armature.display as GameObject;
             var armatureComponent = container.GetComponent<UnityArmatureComponent>();
-            _helpVector3.Set(_renderDisplay.transform.localPosition.x, _renderDisplay.transform.localPosition.y, -this._zOrder * (armatureComponent.zSpace + 0.001f));
+            _helpVector3.Set(_renderDisplay.transform.localPosition.x, _renderDisplay.transform.localPosition.y, -_zOrder * (armatureComponent.zSpace + 0.001f));
             _renderDisplay.transform.localPosition = _helpVector3;
         }
-
         /**
          * @private
          */
         override internal void _updateVisible()
         {
-            _renderDisplay.SetActive(this._parent.visible);
+            _renderDisplay.SetActive(_parent.visible);
         }
-
         /**
          * @private
          */
         override protected void _updateBlendMode()
         {
             // TODO
-            switch (this._blendMode)
+            switch (_blendMode)
             {
                 case BlendMode.Normal:
                     break;
@@ -155,7 +144,6 @@ namespace DragonBones
                     break;
             }
         }
-
         /**
          * @private
          */
@@ -165,10 +153,10 @@ namespace DragonBones
             /*var renderer = _renderDisplay.GetComponent<SpriteRenderer>();
             if (renderer != null)
             {
-                _helpColor.r = this._colorTransform.redMultiplier;
-                _helpColor.g = this._colorTransform.greenMultiplier;
-                _helpColor.b = this._colorTransform.blueMultiplier;
-                _helpColor.a = this._colorTransform.alphaMultiplier;
+                _helpColor.r = _colorTransform.redMultiplier;
+                _helpColor.g = _colorTransform.greenMultiplier;
+                _helpColor.b = _colorTransform.blueMultiplier;
+                _helpColor.a = _colorTransform.alphaMultiplier;
 
                 renderer.color = _helpColor;
             }*/
@@ -183,10 +171,10 @@ namespace DragonBones
                     for (int i = 0, l = mesh.vertices.Length; i < l; ++i)
                     {
                         colors.Add(new Color(
-                            this._colorTransform.redMultiplier,
-                            this._colorTransform.greenMultiplier,
-                            this._colorTransform.blueMultiplier,
-                            this._colorTransform.alphaMultiplier
+                            _colorTransform.redMultiplier,
+                            _colorTransform.greenMultiplier,
+                            _colorTransform.blueMultiplier,
+                            _colorTransform.alphaMultiplier
                         ));
                     }
 
@@ -194,31 +182,31 @@ namespace DragonBones
                 }
             }*/
         }
-
         /**
          * @private
          */
         override protected void _updateFrame()
         {
-            var currentTextureData = this._textureData as UnityTextureData;
+            var isMeshDisplay = _meshData != null && _display == _meshDisplay;
+            var currentTextureData = _textureData as UnityTextureData;
 
             var renderer = _renderDisplay.GetComponent<MeshRenderer>();
             var meshFilter = _renderDisplay.GetComponent<MeshFilter>();
 
-            if (this._display != null && this._displayIndex >= 0 && currentTextureData != null)
+            if (_display != null && _displayIndex >= 0 && currentTextureData != null)
             {
                 var currentTextureAtlasData = currentTextureData.parent as UnityTextureAtlasData;
 
                 // Update replaced texture atlas.
-                if (this._armature.replacedTexture != null && this._displayData != null && currentTextureAtlasData == this._displayData.texture.parent)
+                if (_armature.replacedTexture != null && _displayData != null && currentTextureAtlasData == _displayData.texture.parent)
                 {
-                    currentTextureAtlasData = this._armature._replaceTextureAtlasData as UnityTextureAtlasData;
+                    currentTextureAtlasData = _armature._replaceTextureAtlasData as UnityTextureAtlasData;
                     if (currentTextureAtlasData == null)
                     {
                         currentTextureAtlasData = BaseObject.BorrowObject<UnityTextureAtlasData>();
-                        currentTextureAtlasData.CopyFrom(this._textureData.parent);
-                        currentTextureAtlasData.texture = this._armature.replacedTexture as Material;
-                        this._armature._replaceTextureAtlasData = currentTextureAtlasData;
+                        currentTextureAtlasData.CopyFrom(_textureData.parent);
+                        currentTextureAtlasData.texture = _armature.replacedTexture as Material;
+                        _armature._replaceTextureAtlasData = currentTextureAtlasData;
                     }
 
                     currentTextureData = currentTextureAtlasData.GetTexture(currentTextureData.name) as UnityTextureData;
@@ -241,30 +229,30 @@ namespace DragonBones
 
                     _mesh = new Mesh();
 
-                    if (this._meshData != null && this._display == this._meshDisplay) // Mesh.
+                    if (isMeshDisplay) // Mesh.
                     {
-                        _uvs = new Vector2[this._meshData.uvs.Count / 2];
-                        _vertices = new Vector3[this._meshData.vertices.Count / 2];
+                        _uvs = new Vector2[_meshData.uvs.Count / 2];
+                        _vertices = new Vector3[_meshData.vertices.Count / 2];
 
-                        for (int i = 0, l = this._meshData.uvs.Count; i < l; i += 2)
+                        for (int i = 0, l = _meshData.uvs.Count; i < l; i += 2)
                         {
                             var iN = i / 2;
-                            var u = this._meshData.uvs[i];
-                            var v = this._meshData.uvs[i + 1];
+                            var u = _meshData.uvs[i];
+                            var v = _meshData.uvs[i + 1];
                             _uvs[iN] = new Vector2(
                                 (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasWidth,
                                 1.0f - (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasHeight
                             );
-                            _vertices[iN] = new Vector3(this._meshData.vertices[i], -this._meshData.vertices[i + 1], 0.0f);
+                            _vertices[iN] = new Vector3(_meshData.vertices[i], -_meshData.vertices[i + 1], 0.0f);
                         }
 
                         _mesh.vertices = _vertices; // Must set vertices before uvs.
                         _mesh.uv = _uvs;
-                        _mesh.triangles = this._meshData.vertexIndices.ToArray();
+                        _mesh.triangles = _meshData.vertexIndices.ToArray();
                     }
                     else // Normal texture.
                     {
-                        var pivotY = this._pivotY - currentTextureData.region.height * this._armature.armatureData.scale;
+                        var pivotY = _pivotY - currentTextureData.region.height * _armature.armatureData.scale;
 
                         if (_vertices == null || _vertices.Length != 4)
                         {
@@ -300,7 +288,7 @@ namespace DragonBones
 
                             _helpVector2s[i].x = (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasWidth;
                             _helpVector2s[i].y = 1.0f - (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasHeight;
-                            _vertices[i].x = (u * currentTextureData.region.width) * 0.01f - this._pivotX;
+                            _vertices[i].x = (u * currentTextureData.region.width) * 0.01f - _pivotX;
                             _vertices[i].y = (1.0f - v) * currentTextureData.region.height * 0.01f + pivotY;
                             _vertices[i].z = 0.0f * 0.01f;
                         }
@@ -313,22 +301,21 @@ namespace DragonBones
                     meshFilter.sharedMesh = _mesh;
                     renderer.sharedMaterial = currentTextureAtlas;
 
-                    this._updateVisible();
+                    _updateVisible();
 
                     return;
                 }
             }
 
             _renderDisplay.SetActive(false);
-            //meshFilter.sharedMesh = null;
-            //renderer.sharedMaterial = null;
+            meshFilter.sharedMesh = null;
+            renderer.sharedMaterial = null;
             _helpVector3.x = 0.0f;
             _helpVector3.y = 0.0f;
             _helpVector3.z = _renderDisplay.transform.localPosition.z;
 
             _renderDisplay.transform.localPosition = _helpVector3;
         }
-
         /**
          * @private
          */
@@ -339,24 +326,24 @@ namespace DragonBones
                 return;
             }
 
-            var hasFFD = this._ffdVertices.Count > 0;
+            var hasFFD = _ffdVertices.Count > 0;
 
-            if (this._meshData.skinned)
+            if (_meshData.skinned)
             {
-                for (int i = 0, iF = 0, l = this._meshData.vertices.Count; i < l; i += 2)
+                for (int i = 0, iF = 0, l = _meshData.vertices.Count; i < l; i += 2)
                 {
                     int iH = i / 2;
 
-                    var boneIndices = this._meshData.boneIndices[iH];
-                    var boneVertices = this._meshData.boneVertices[iH];
-                    var weights = this._meshData.weights[iH];
+                    var boneIndices = _meshData.boneIndices[iH];
+                    var boneVertices = _meshData.boneVertices[iH];
+                    var weights = _meshData.weights[iH];
 
                     var xG = 0.0f;
                     var yG = 0.0f;
 
                     for (int iB = 0, lB = boneIndices.Length; iB < lB; ++iB)
                     {
-                        var bone = this._meshBones[boneIndices[iB]];
+                        var bone = _meshBones[boneIndices[iB]];
                         var matrix = bone.globalTransformMatrix;
                         var weight = weights[iB];
 
@@ -365,8 +352,8 @@ namespace DragonBones
 
                         if (hasFFD)
                         {
-                            xL = boneVertices[iB * 2] + this._ffdVertices[iF];
-                            yL = boneVertices[iB * 2 + 1] + this._ffdVertices[iF + 1];
+                            xL = boneVertices[iB * 2] + _ffdVertices[iF];
+                            yL = boneVertices[iB * 2 + 1] + _ffdVertices[iF + 1];
                         }
                         else
                         {
@@ -388,12 +375,12 @@ namespace DragonBones
             }
             else if (hasFFD)
             {
-                var vertices = this._meshData.vertices;
-                for (int i = 0, l = this._meshData.vertices.Count; i < l; i += 2)
+                var vertices = _meshData.vertices;
+                for (int i = 0, l = _meshData.vertices.Count; i < l; i += 2)
                 {
                     int iH = i / 2;
-                    var xG = vertices[i] + this._ffdVertices[i];
-                    var yG = vertices[i + 1] + this._ffdVertices[i + 1];
+                    var xG = vertices[i] + _ffdVertices[i];
+                    var yG = vertices[i + 1] + _ffdVertices[i + 1];
                     _vertices[iH].x = xG;
                     _vertices[iH].y = -yG;
                 }
@@ -401,7 +388,6 @@ namespace DragonBones
                 _mesh.vertices = _vertices;
             }
         }
-
         /**
          * @private
          */
@@ -409,7 +395,7 @@ namespace DragonBones
         {
             if (isSkinnedMesh) // Identity transform.
             {
-                if (this._armature._flipX)
+                if (_armature._flipX)
                 {
                     _helpVector3.y = 180.0f;
                 }
@@ -418,7 +404,7 @@ namespace DragonBones
                     _helpVector3.y = 0.0f;
                 }
 
-                if (this._armature._flipY)
+                if (_armature._flipY)
                 {
                     _helpVector3.x = 180.0f;
                 }
@@ -435,14 +421,14 @@ namespace DragonBones
             }
             else
             {
-                var flipX = this._armature._flipX;
-                var flipY = this._armature._flipY;
-                var scaleX = flipX ? -this.global.scaleX : this.global.scaleX;
-                var scaleY = flipY ? -this.global.scaleY : this.global.scaleY;
+                var flipX = _armature._flipX;
+                var flipY = _armature._flipY;
+                var scaleX = flipX ? -global.scaleX : global.scaleX;
+                var scaleY = flipY ? -global.scaleY : global.scaleY;
                 var transform = _renderDisplay.transform;
 
-                _helpVector3.x = this.globalTransformMatrix.tx;
-                _helpVector3.y = -this.globalTransformMatrix.ty;
+                _helpVector3.x = globalTransformMatrix.tx;
+                _helpVector3.y = -globalTransformMatrix.ty;
                 _helpVector3.z = transform.localPosition.z;
 
                 if (flipX)
@@ -457,7 +443,7 @@ namespace DragonBones
 
                 transform.localPosition = _helpVector3;
 
-                if (scaleY >= 0.0f || this._childArmature != null)
+                if (scaleY >= 0.0f || _childArmature != null)
                 {
                     _helpVector3.x = 0.0f;
                 }
@@ -466,7 +452,7 @@ namespace DragonBones
                     _helpVector3.x = 180.0f;
                 }
 
-                if (scaleX >= 0.0f || this._childArmature != null)
+                if (scaleX >= 0.0f || _childArmature != null)
                 {
                     _helpVector3.y = 0.0f;
                 }
@@ -475,9 +461,9 @@ namespace DragonBones
                     _helpVector3.y = 180.0f;
                 }
 
-                _helpVector3.z = -this.global.skewY * DragonBones.RADIAN_TO_ANGLE;
+                _helpVector3.z = -global.skewY * DragonBones.RADIAN_TO_ANGLE;
 
-                if (flipX != flipY && this._childArmature != null)
+                if (flipX != flipY && _childArmature != null)
                 {
                     _helpVector3.z = -_helpVector3.z;
                 }
@@ -485,15 +471,15 @@ namespace DragonBones
                 transform.localEulerAngles = _helpVector3;
 
                 // Modify skewX. // TODO child armature.
-                if ((this._display == this._rawDisplay || this._display == this._meshDisplay) && _mesh != null)
+                if ((_display == _rawDisplay || _display == _meshDisplay) && _mesh != null)
                 {
-                    var dSkew = this.global.skewX - this.global.skewY;
+                    var dSkew = global.skewX - global.skewY;
                     var skewed = dSkew > 0.001f || dSkew < -0.001f;
                     if (_skewed || skewed)
                     {
                         _skewed = skewed;
 
-                        var isPositive = this.global.scaleX >= 0.0f;
+                        var isPositive = global.scaleX >= 0.0f;
                         var cos = Mathf.Cos(dSkew);
                         var sin = Mathf.Sin(dSkew);
 

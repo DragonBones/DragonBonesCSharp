@@ -236,22 +236,8 @@ namespace DragonBones
             switch (value.ToLower())
             {
                 case "play":
-                    return ActionType.Play;
-
-                case "stop":
-                    return ActionType.Stop;
-
                 case "gotoandplay":
-                    return ActionType.GotoAndPlay;
-
-                case "gotoandstop":
-                    return ActionType.GotoAndStop;
-
-                case "fadein":
-                    return ActionType.FadeIn;
-
-                case "fadeout":
-                    return ActionType.FadeOut;
+                    return ActionType.Play;
 
                 default:
                     return ActionType.None;

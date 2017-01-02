@@ -16,55 +16,46 @@ namespace DragonBones
          * @version DragonBones 3.0
          */
         public uint frameCount;
-
         /**
          * @language zh_CN
-         * 循环播放的次数。 [0: 无限循环播放, [1~N]: 循环播放 N 次]
+         * 播放次数。 [0: 无限循环播放, [1~N]: 循环播放 N 次]
          * @version DragonBones 3.0
          */
         public uint playTimes;
-
         /**
          * @language zh_CN
-         * 持续的时间。 (以秒为单位)
+         * 持续时间。 (以秒为单位)
          * @version DragonBones 3.0
          */
         public float duration;
-
         /**
          * @language zh_CN
-         * 淡入混合的时间。 (以秒为单位)
+         * 淡入时间。 (以秒为单位)
          * @version DragonBones 3.0
          */
         public float fadeInTime;
-
         /**
          * @private
          */
         public float cacheFrameRate;
-
         /**
          * @language zh_CN
          * 数据名称。
          * @version DragonBones 3.0
          */
         public string name;
-
         /**
          * @private
          */
         public readonly Dictionary<string, BoneTimelineData> boneTimelines = new Dictionary<string, BoneTimelineData>();
-
         /**
          * @private
          */
         public readonly Dictionary<string, SlotTimelineData> slotTimelines = new Dictionary<string, SlotTimelineData>();
-
         /**
          * @private
          */
         public readonly Dictionary<string, Dictionary<string, Dictionary<string, FFDTimelineData>>> ffdTimelines = new Dictionary<string, Dictionary<string, Dictionary<string, FFDTimelineData>>>(); // skin slot mesh
-
         /**
          * @private
          */
@@ -73,27 +64,23 @@ namespace DragonBones
          * @private
          */
         public readonly Dictionary<string, List<int>> boneCachedFrameIndices = new Dictionary<string, List<int>>();
-
         /**
          * @private
          */
         public readonly Dictionary<string, List<int>> slotCachedFrameIndices = new Dictionary<string, List<int>>();
-
         /**
          * @private
          */
         public ZOrderTimelineData zOrderTimeline;
-
         /**
          * @private
          */
         public AnimationData()
         {
         }
-
         /**
-         * @inheritDoc
-         */
+		 * @private
+		 */
         protected override void _onClear()
         {
             base._onClear();
@@ -133,34 +120,32 @@ namespace DragonBones
             slotCachedFrameIndices.Clear();
             zOrderTimeline = null;
         }
-
         /**
          * @private
          */
-        public void CacheFrames(float cacheFrameRate)
+        public void CacheFrames(float frameRate)
         {
-            if (cacheFrameRate > 0.0f)
+            if (frameRate > 0.0f)
             {
                 return;
             }
 
-            cacheFrameRate = Math.Max((float)Math.Ceiling(cacheFrameRate * scale), 1.0f);
+            cacheFrameRate = Math.Max((float)Math.Ceiling(frameRate * scale), 1.0f);
             var cacheFrameCount = (int)Math.Ceiling(cacheFrameRate * duration) + 1;
             
             DragonBones.ResizeList(cachedFrames, 0, false);
             DragonBones.ResizeList(cachedFrames, cacheFrameCount, false);
 
-            foreach (var i in boneTimelines.Keys)
+            foreach (var k in boneTimelines.Keys)
             {
-                boneCachedFrameIndices[i] = new List<int>(cacheFrameCount);
+                boneCachedFrameIndices[k] = new List<int>(cacheFrameCount);
             }
 
-            foreach (var i in slotTimelines.Keys)
+            foreach (var k in slotTimelines.Keys)
             {
-                slotCachedFrameIndices[i] = new List<int>(cacheFrameCount);
+                slotCachedFrameIndices[k] = new List<int>(cacheFrameCount);
             }
         }
-
         /**
          * @private
          */
@@ -175,7 +160,6 @@ namespace DragonBones
                 DragonBones.Assert(false, DragonBones.ARGUMENT_ERROR);
             }
         }
-
         /**
          * @private
          */
@@ -190,7 +174,6 @@ namespace DragonBones
                 DragonBones.Assert(false, DragonBones.ARGUMENT_ERROR);
             }
         }
-
         /**
          * @private
          */
@@ -220,7 +203,6 @@ namespace DragonBones
                 DragonBones.Assert(false, DragonBones.ARGUMENT_ERROR);
             }
         }
-
         /**
          * @private
          */
@@ -228,7 +210,6 @@ namespace DragonBones
         {
             return boneTimelines.ContainsKey(name) ? boneTimelines[name] : null;
         }
-
         /**
          * @private
          */
@@ -236,7 +217,6 @@ namespace DragonBones
         {
             return slotTimelines.ContainsKey(name) ? slotTimelines[name] : null;
         }
-
         /**
          * @private
          */

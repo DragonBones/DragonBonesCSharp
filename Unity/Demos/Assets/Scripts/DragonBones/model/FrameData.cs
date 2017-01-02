@@ -1,61 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Collections;
 
 namespace DragonBones
 {
-    /**
-     * @private
-     */
-    public class ActionData : BaseObject
-    {
-        public ActionType type;
-        public readonly ArrayList data = new ArrayList();
-        public BoneData bone;
-        public SlotData slot;
-
-        public ActionData()
-        {
-        }
-
-        protected override void _onClear()
-        {
-            type = ActionType.Play;
-            data.Clear();
-            bone = null;
-            slot = null;
-        }
-    }
-
-    /**
-     * @private
-     */
-    public class EventData : BaseObject
-    {
-
-        public EventType type;
-        public string name;
-        public readonly List<int> ints = new List<int>();
-        public readonly List<float> floats = new List<float>();
-        public readonly List<string> strings = new List<string>();
-        public BoneData bone;
-        public SlotData slot;
-
-        public EventData()
-        {
-        }
-
-        protected override void _onClear()
-        {
-            type = EventType.Frame;
-            name = null;
-            ints.Clear();
-            floats.Clear();
-            strings.Clear();
-            bone = null;
-            slot = null;
-        }
-    }
-
     /**
      * @private
      */

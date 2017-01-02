@@ -4,8 +4,7 @@ using System.Collections.Generic;
 namespace DragonBones
 {
     /**
-     * @language zh_CN
-     * 动画状态，播放动画时产生，可以对单个动画的播放进行更细致的控制和调节。
+     * 动画状态，播放动画时产生，可以对每个播放的动画进行更细致的控制和调节。
      * @see dragonBones.Animation
      * @see dragonBones.AnimationData
      * @version DragonBones 3.0
@@ -14,27 +13,26 @@ namespace DragonBones
     {
         /**
          * @language zh_CN
-         * 是否对插槽的颜色，显示序列索引，深度排序，行为等拥有控制的权限。
+         * 是否对插槽的显示对象有控制权。
          * @see dragonBones.Slot#displayController
          * @version DragonBones 3.0
          */
         public bool displayControl;
-
         /**
          * @language zh_CN
-         * 是否以叠加的方式混合动画。
+         * 是否以增加的方式混合。
          * @version DragonBones 3.0
          */
         public bool additiveBlending;
-
-        /**
-         * @private
-         */
-        public bool actionEnabled;
-
         /**
          * @language zh_CN
-         * 需要播放的次数。 [0: 无限循环播放, [1~N]: 循环播放 N 次]
+         * 是否能触发行为。
+         * @version DragonBones 5.0
+         */
+        public bool actionEnabled;
+        /**
+         * @language zh_CN
+         * 播放次数。 [0: 无限循环播放, [1~N]: 循环播放 N 次]
          * @version DragonBones 3.0
          */
         public uint playTimes;
@@ -42,37 +40,30 @@ namespace DragonBones
         /**
          * @language zh_CN
          * 播放速度。 [(-N~0): 倒转播放, 0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
-         * @default 1
          * @version DragonBones 3.0
          */
         public float timeScale;
-
         /**
          * @language zh_CN
-         * 进行动画混合时的权重。
-         * @default 1
+         * 混合权重。
          * @version DragonBones 3.0
          */
         public float weight;
-
         /**
          * @language zh_CN
-         * 自动淡出时需要的时间，当设置一个大于等于 0 的值，动画状态将会在播放完成后自动淡出。 (以秒为单位)
-         * @default -1
+         * 自动淡出时间。 [-1: 不自动淡出, [0~N]: 淡出时间] (以秒为单位)
+         * 当设置一个大于等于 0 的值，动画状态将会在播放完成后自动淡出。
          * @version DragonBones 3.0
          */
         public float autoFadeOutTime;
-
         /**
          * @private
          */
         public float fadeTotalTime;
-
         /**
          * @private
          */
         internal int _playheadState;
-
         /**
          * @private
          */
@@ -81,117 +72,98 @@ namespace DragonBones
          * @private
          */
         internal int _subFadeState;
-
         /**
          * @private
          */
         internal int _layer;
-
         /**
          * @private
          */
         internal float _position;
-
         /**
          * @private
          */
         internal float _duration;
-
         /**
          * @private
          */
         private float _fadeTime;
-
         /**
          * @private
          */
         private float _time;
-
         /**
          * @private
          */
         internal float _fadeProgress;
-
         /**
          * @private
          */
         internal float _weightResult;
-
         /**
          * @private
          */
         private string _name;
-
         /**
          * @private
          */
         private string _group;
-
         /**
          * @private
          */
         private readonly List<string> _boneMask = new List<string>();
-
         /**
          * @private
          */
         private readonly List<BoneTimelineState> _boneTimelines = new List<BoneTimelineState>();
-
         /**
          * @private
          */
         private readonly List<SlotTimelineState> _slotTimelines = new List<SlotTimelineState>();
-
         /**
          * @private
          */
         private readonly List<FFDTimelineState> _ffdTimelines = new List<FFDTimelineState>();
-
         /**
          * @private
          */
         private AnimationData _animationData;
-
         /**
          * @private
          */
         private Armature _armature;
-
         /**
          * @private
          */
         internal AnimationTimelineState _timeline;
-
         /**
          * @private
          */
         private ZOrderTimelineState _zOrderTimeline;
-
         /**
          * @private
          */
         public AnimationState()
         {
         }
-
         /**
          * @private
          */
         override protected void _onClear()
         {
-            foreach (var boneTimelineState in _boneTimelines)
+            for (int i = 0, l = _boneTimelines.Count; i < l; ++i)
             {
-                boneTimelineState.ReturnToPool();
+                _boneTimelines[i].ReturnToPool();
             }
 
-            foreach (var slotTimelineState in _slotTimelines)
+            for (int i = 0, l = _slotTimelines.Count; i < l; ++i)
             {
-                slotTimelineState.ReturnToPool();
+                _slotTimelines[i].ReturnToPool();
             }
 
-            foreach (var ffdTimelineState in _ffdTimelines)
+            for (int i = 0, l = _ffdTimelines.Count; i < l; ++i)
             {
-                ffdTimelineState.ReturnToPool();
+                _ffdTimelines[i].ReturnToPool();
             }
 
             if (_timeline != null)
@@ -234,10 +206,7 @@ namespace DragonBones
             _timeline = null;
             _zOrderTimeline = null;
         }
-
-        /**
-         * @private
-         */
+        
         private void _advanceFadeTime(float passedTime)
         {
             var isFadeOut = _fadeState > 0;
@@ -293,7 +262,6 @@ namespace DragonBones
                 }
             }
         }
-
         /**
          * @private
          */
@@ -363,7 +331,6 @@ namespace DragonBones
 
             _updateTimelineStates();
         }
-
         /**
          * @private
          */
@@ -373,13 +340,16 @@ namespace DragonBones
             var slotTimelineStates = new Dictionary<string, SlotTimelineState>();
             var ffdTimelineStates = new Dictionary<string, FFDTimelineState>();
 
-            foreach (var boneTimelineState in _boneTimelines) // Creat bone timelines map.
+            for (int i = 0, l = _boneTimelines.Count; i < l; ++i) // Creat bone timelines map.
             {
+                var boneTimelineState = _boneTimelines[i];
                 boneTimelineStates[boneTimelineState.bone.name] = boneTimelineState;
             }
 
-            foreach (var bone in _armature.GetBones())
+            var bones = _armature.GetBones();
+            for (int i = 0, l = bones.Count; i < l; ++i)
             {
+                var bone = bones[i];
                 var boneTimelineName = bone.name;
                 if (ContainsBoneMask(boneTimelineName))
                 {
@@ -408,20 +378,24 @@ namespace DragonBones
                 boneTimelineState.ReturnToPool();
             }
 
-            foreach (var slotTimelineState in _slotTimelines) // Create slot timelines map.
+            for (int i = 0, l = _slotTimelines.Count; i < l; ++i) // Creat slot timelines map.
             {
+                var slotTimelineState = _slotTimelines[i];
                 slotTimelineStates[slotTimelineState.slot.name] = slotTimelineState;
             }
 
-            foreach (var ffdTimelineState in _ffdTimelines) // Create ffd timelines map.
+            for (int i = 0, l = _ffdTimelines.Count; i < l; ++i) // Creat ffd timelines map.
             {
+                var ffdTimelineState = _ffdTimelines[i];
                 var display = ffdTimelineState._timelineData.display;
                 var meshName = display.inheritAnimation ? display.mesh.name : display.name;
                 ffdTimelineStates[meshName] = ffdTimelineState;
             }
 
-            foreach (var slot in _armature.GetSlots())
+            var slots = _armature.GetSlots();
+            for (int i = 0, l = slots.Count; i < l; ++i)
             {
+                var slot = slots[i];
                 var slotTimelineName = slot.name;
                 var parentTimelineName = slot.parent.name;
                 var resetFFDVertices = false;
@@ -444,7 +418,7 @@ namespace DragonBones
                         }
                     }
                     
-                    var ffdTimelineDatas = this._animationData.GetFFDTimeline(_armature._skinData.name, slotTimelineName);
+                    var ffdTimelineDatas = _animationData.GetFFDTimeline(_armature._skinData.name, slotTimelineName);
                     if (ffdTimelineDatas != null)
                     {
                         foreach (var pair in ffdTimelineDatas)
@@ -474,9 +448,9 @@ namespace DragonBones
 
                 if (resetFFDVertices)
                 {
-                    for (int i = 0, l = slot._ffdVertices.Count; i < l; ++i)
+                    for (int iA = 0, lA = slot._ffdVertices.Count; iA < lA; ++iA)
                     {
-                        slot._ffdVertices[i] = 0.0f;
+                        slot._ffdVertices[iA] = 0.0f;
                     }
 
                     slot._meshDirty = true;
@@ -495,7 +469,6 @@ namespace DragonBones
                 ffdTimelineState.ReturnToPool();
             }
         }
-
         /**
          * @private
          */
@@ -508,7 +481,11 @@ namespace DragonBones
             }
 
             // Update time.
-            passedTime *= timeScale;
+            if (timeScale != 1.0f)
+            {
+                passedTime *= timeScale;
+            }
+
             if (passedTime != 0.0f && _playheadState == 3) // 11
             {
                 _time += passedTime;
@@ -524,7 +501,7 @@ namespace DragonBones
                 var time = _time;
 
                 // Cache time internval.
-                var isCacheEnabled = this._fadeState == 0 && cacheFrameRate > 0.0f;
+                var isCacheEnabled = _fadeState == 0 && cacheFrameRate > 0.0f;
                 if (isCacheEnabled)
                 {
                     time = cacheFrameRate * 2.0f;
@@ -546,14 +523,14 @@ namespace DragonBones
                 if (isCacheEnabled)
                 {
                     var cacheFrameIndex = (int)Math.Floor(_timeline._currentTime * cacheFrameRate); // uint
-                    if (_armature._cacheFrameIndex == cacheFrameIndex) // Same cache.
+                    if (_armature.animation._cacheFrameIndex == cacheFrameIndex) // Same cache.
                     {
                         isUpdatesTimeline = false;
                         isUpdatesBoneTimeline = false;
                     }
                     else
                     {
-                        _armature._cacheFrameIndex = cacheFrameIndex;
+                        _armature.animation._cacheFrameIndex = cacheFrameIndex;
 
                         if (_animationData.cachedFrames[cacheFrameIndex]) // Cached.
                         {
@@ -606,7 +583,6 @@ namespace DragonBones
                 }
             }
         }
-
         /**
          * @private
          */
@@ -626,7 +602,6 @@ namespace DragonBones
 
             return true;
         }
-
         /**
          * @language zh_CN
          * 继续播放。
@@ -636,7 +611,6 @@ namespace DragonBones
         {
             _playheadState = 3; // 11
         }
-
         /**
          * @language zh_CN
          * 暂停播放。
@@ -651,7 +625,7 @@ namespace DragonBones
          * @language zh_CN
          * 淡出动画。
          * @param fadeOutTime 淡出时间。 (以秒为单位)
-         * @param pausePlayhead 淡出时是否暂停动画。 [true: 暂停, false: 不暂停]
+         * @param pausePlayhead 淡出时是否暂停动画。
          * @version DragonBones 3.0
          */
         public void FadeOut(float fadeOutTime, bool pausePlayhead = true)
@@ -689,9 +663,14 @@ namespace DragonBones
                     boneTimelineState.FadeOut();
                 }
 
-                foreach (var slotTimelineState in _slotTimelines)
+                for (int i = 0, l = _slotTimelines.Count; i < l; ++i)
                 {
-                    slotTimelineState.FadeOut();
+                    _slotTimelines[i].FadeOut();
+                }
+
+                for (int i = 0, l = _ffdTimelines.Count; i < l; ++i)
+                {
+                    _ffdTimelines[i].FadeOut();
                 }
             }
 
@@ -699,10 +678,9 @@ namespace DragonBones
             fadeTotalTime = _fadeProgress > 0.000001f ? fadeOutTime / _fadeProgress : 0.0f;
             _fadeTime = fadeTotalTime * (1.0f - _fadeProgress);
         }
-
         /**
          * @language zh_CN
-         * 是否包含指定的骨骼遮罩。
+         * 是否包含骨骼遮罩。
          * @param name 指定的骨骼名称。
          * @version DragonBones 3.0
          */
@@ -710,10 +688,9 @@ namespace DragonBones
         {
             return _boneMask.Count == 0 || _boneMask.Contains(name);
         }
-
         /**
          * @language zh_CN
-         * 添加指定的骨骼遮罩。
+         * 添加骨骼遮罩。
          * @param boneName 指定的骨骼名称。
          * @param recursive 是否为该骨骼的子骨骼添加遮罩。
          * @version DragonBones 3.0
@@ -733,8 +710,10 @@ namespace DragonBones
 
             if (recursive)
             {
-                foreach (var bone in _armature.GetBones())
+                var bones = _armature.GetBones();
+                for (int i = 0, l = bones.Count; i < l; ++i)
                 {
+                    var bone = bones[i];
                     if (!_boneMask.Contains(bone.name) && currentBone.Contains(bone)) // Add recursive mixing.
                     {
                         _boneMask.Add(bone.name);
@@ -744,10 +723,9 @@ namespace DragonBones
 
             _updateTimelineStates();
         }
-
         /**
          * @language zh_CN
-         * 删除指定的骨骼遮罩。
+         * 删除骨骼遮罩。
          * @param boneName 指定的骨骼名称。
          * @param recursive 是否删除该骨骼的子骨骼遮罩。
          * @version DragonBones 3.0
@@ -767,8 +745,9 @@ namespace DragonBones
                     var bones = _armature.GetBones();
                     if (_boneMask.Count > 0)
                     {
-                        foreach (var bone in bones)
+                        for (int i = 0, l = bones.Count; i < l; ++i)
                         {
+                            var bone = bones[i];
                             if (_boneMask.Contains(bone.name) && currentBone.Contains(bone)) // Remove recursive mixing.
                             {
                                 _boneMask.Remove(bone.name);
@@ -777,8 +756,9 @@ namespace DragonBones
                     }
                     else
                     {
-                        foreach (var bone in bones)
+                        for (int i = 0, l = bones.Count; i < l; ++i)
                         {
+                            var bone = bones[i];
                             if (!currentBone.Contains(bone)) // Add unrecursive mixing.
                             {
                                 _boneMask.Add(bone.name);
@@ -790,7 +770,6 @@ namespace DragonBones
 
             _updateTimelineStates();
         }
-
         /**
          * @language zh_CN
          * 删除所有骨骼遮罩。
@@ -799,31 +778,27 @@ namespace DragonBones
         public void RemoveAllBoneMask()
         {
             _boneMask.Clear();
+
             _updateTimelineStates();
         }
-
         /**
          * @language zh_CN
-         * 动画图层。
-         * @see dragonBones.Animation#fadeIn()
+         * 混合图层。
          * @version DragonBones 3.0
          */
         public int layer
         {
             get { return _layer; }
         }
-
         /**
          * @language zh_CN
-         * 动画组。
-         * @see dragonBones.Animation#fadeIn()
+         * 混合组。
          * @version DragonBones 3.0
          */
         public string group
         {
             get { return _group; }
         }
-
         /**
          * @language zh_CN
          * 动画名称。
@@ -834,7 +809,6 @@ namespace DragonBones
         {
             get { return _name; }
         }
-
         /**
          * @language zh_CN
          * 动画数据。
@@ -845,7 +819,6 @@ namespace DragonBones
         {
             get { return _animationData; }
         }
-
         /**
          * @language zh_CN
          * 是否播放完毕。
@@ -855,7 +828,6 @@ namespace DragonBones
         {
             get { return _timeline._playState > 0; }
         }
-
         /**
          * @language zh_CN
          * 是否正在播放。
@@ -865,30 +837,27 @@ namespace DragonBones
         {
             get { return (_playheadState & 2) != 0 && _timeline._playState <= 0; } // 1x
         }
-
         /**
          * @language zh_CN
-         * 当前动画的播放次数。
+         * 当前播放次数。
          * @version DragonBones 3.0
          */
         public uint currentPlayTimes
         {
             get { return _timeline._currentPlayTimes; }
         }
-
         /**
          * @language zh_CN
-         * 当前动画的总时间。 (以秒为单位)
+         * 动画的总时间。 (以秒为单位)
          * @version DragonBones 3.0
          */
         public float totalTime
         {
             get { return _duration; }
         }
-
         /**
          * @language zh_CN
-         * 当前动画的播放时间。 (以秒为单位)
+         * 动画当前播放的时间。 (以秒为单位)
          * @version DragonBones 3.0
          */
         public float currentTime

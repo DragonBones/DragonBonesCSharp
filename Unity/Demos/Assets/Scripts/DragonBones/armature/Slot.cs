@@ -20,23 +20,13 @@ namespace DragonBones
          * @private
          */
         protected static readonly Point _helpPoint = new Point();
-
         /**
          * @private
          */
         protected static readonly Matrix _helpMatrix = new Matrix();
-
         /**
          * @language zh_CN
-         * 子骨架是否继承父骨架的动画。 [true: 继承, false: 不继承]
-         * @default true
-         * @version DragonBones 4.5
-         */
-        public bool inheritAnimation;
-
-        /**
-         * @language zh_CN
-         * 显示对象受到控制的对象，应设置为动画状态的名称或组名称，设置为 null 则表示受所有的动画状态控制。
+         * 显示对象受到控制的动画状态或混合组名称，设置为 null 则表示受所有的动画状态控制。
          * @default null
          * @see dragonBones.AnimationState#displayControl
          * @see dragonBones.AnimationState#name
@@ -44,169 +34,136 @@ namespace DragonBones
          * @version DragonBones 4.5
          */
         public string displayController;
-
         /**
          * @private
          */
         protected bool _displayDirty;
-
         /**
          * @private
          */
         protected bool _zOrderDirty;
-
         /**
          * @private
          */
         protected bool _blendModeDirty;
-
         /**
          * @private
          */
         internal bool _colorDirty;
-
         /**
          * @private
          */
         protected bool _originalDirty;
-
         /**
          * @private
          */
         protected bool _transformDirty;
-
         /**
          * @private
          */
         internal bool _meshDirty;
-
         /**
          * @private
          */
         internal int _updateState;
-
         /**
          * @private
          */
         protected BlendMode _blendMode;
-
         /**
          * @private
          */
         protected int _displayIndex;
-
         /**
          * @private
          */
         protected int _cachedFrameIndex;
-
         /**
          * @private
          */
         internal int _zOrder;
-
         /**
          * @private
          */
         protected float _pivotX;
-
         /**
          * @private
          */
         protected float _pivotY;
-
         /**
          * @private
          */
         protected readonly Matrix _localMatrix = new Matrix();
-
         /**
          * @private
          */
         internal readonly ColorTransform _colorTransform = new ColorTransform();
-
         /**
          * @private
          */
         internal readonly List<float> _ffdVertices = new List<float>();
-
         /**
          * @private
          */
         protected readonly List<object> _displayList = new List<object>();
-
         /**
          * @private
          */
         internal readonly List<DisplayData> _replacedDisplayDatas = new List<DisplayData>();
-
         /**
          * @private
          */
         protected readonly List<Bone> _meshBones = new List<Bone>();
-
         /**
          * @private
          */
         protected SkinSlotData _skinSlotData;
-
         /**
          * @private
          */
         protected DisplayData _displayData;
-
         /**
          * @private
          */
         protected DisplayData _replacedDisplayData;
-
         /**
          * @private
          */
         protected TextureData _textureData;
-
         /**
          * @private
          */
         internal MeshData _meshData;
-
         /**
          * @private
          */
         protected BoundingBoxData _boundingBoxData;
-
         /**
          * @private
          */
         protected object _rawDisplay;
-
         /**
          * @private
          */
         protected object _meshDisplay;
-
         /**
          * @private
          */
         protected object _display;
-
         /**
          * @private
          */
-        internal Armature _childArmature;
-
+        protected Armature _childArmature;
         /**
          * @private
          */
         internal List<int> _cachedFrameIndices;
-
         /**
          * @private
          */
         public Slot()
         {
         }
-
         /**
          * @private
          */
@@ -215,9 +172,9 @@ namespace DragonBones
             base._onClear();
 
             var disposeDisplayList = new List<object>();
-
-            foreach (var eachDisplay in _displayList)
+            for (int i = 0, l = _displayList.Count; i < l; ++i)
             {
+                var eachDisplay = _displayList[i];
                 if (
                     eachDisplay != _rawDisplay && eachDisplay != _meshDisplay &&
                     !disposeDisplayList.Contains(eachDisplay)
@@ -227,11 +184,12 @@ namespace DragonBones
                 }
             }
 
-            foreach (var eachDisplay in disposeDisplayList)
+            for (int i = 0, l = disposeDisplayList.Count; i < l; ++i)
             {
+                var eachDisplay = disposeDisplayList[i];
                 if (eachDisplay is Armature)
                 {
-                    ((Armature)eachDisplay).Dispose();
+                    (eachDisplay as Armature).Dispose();
                 }
                 else
                 {
@@ -248,8 +206,7 @@ namespace DragonBones
             {
                 _disposeDisplay(_rawDisplay);
             }
-
-            inheritAnimation = true;
+            
             displayController = null;
 
             _displayDirty = false;
@@ -284,72 +241,58 @@ namespace DragonBones
             _childArmature = null;
             _cachedFrameIndices = null;
         }
-
         /**
          * @private
          */
         protected abstract void _initDisplay(object value);
-
         /**
          * @private
          */
         protected abstract void _disposeDisplay(object value);
-
         /**
          * @private
          */
         protected abstract void _onUpdateDisplay();
-
         /**
          * @private
          */
         protected abstract void _addDisplay();
-
         /**
          * @private
          */
         protected abstract void _replaceDisplay(object value);
-
         /**
          * @private
          */
         protected abstract void _removeDisplay();
-
         /**
          * @private
          */
         protected abstract void _updateZOrder();
-
         /**
-         * @private Bone
+         * @private
          */
         internal abstract void _updateVisible();
-
         /**
          * @private
          */
         protected abstract void _updateBlendMode();
-
         /**
          * @private
          */
         protected abstract void _updateColor();
-
         /**
          * @private
          */
         protected abstract void _updateFrame();
-
         /**
          * @private
          */
         protected abstract void _updateMesh();
-
         /**
          * @private
          */
         protected abstract void _updateTransform(bool isSkinnedMesh);
-
         /**
          * @private
          */
@@ -365,7 +308,6 @@ namespace DragonBones
 
             return false;
         }
-
         /**
          * @private
          */
@@ -528,11 +470,11 @@ namespace DragonBones
                 _originalDirty = true;
                 if (_displayData != null)
                 {
-                    this.origin = _displayData.transform;
+                    origin = _displayData.transform;
                 }
                 else if (_replacedDisplayData != null)
                 {
-                    this.origin = _replacedDisplayData.transform;
+                    origin = _replacedDisplayData.transform;
                 }
             }
 
@@ -606,8 +548,9 @@ namespace DragonBones
             {
                 if (prevChildArmature != null)
                 {
+                    prevChildArmature.clock = null;
                     prevChildArmature._parent = null; // Update child armature parent.
-                    if (inheritAnimation)
+                    if (prevChildArmature.inheritAnimation)
                     {
                         prevChildArmature.animation.Reset();
                     }
@@ -615,17 +558,18 @@ namespace DragonBones
 
                 if (_childArmature != null)
                 {
+                    _childArmature.clock = _armature.clock;
                     _childArmature._parent = this; // Update child armature parent.
 
                     // Update child armature flip.
-                    _childArmature.flipX = this._armature.flipX;
-                    _childArmature.flipY = this._armature.flipY;
+                    _childArmature.flipX = _armature.flipX;
+                    _childArmature.flipY = _armature.flipY;
 
-                    if (inheritAnimation)
+                    if (_childArmature.inheritAnimation)
                     {
                         if (_childArmature.cacheFrameRate == 0) // Set child armature frameRate.
                         {
-                            var cacheFrameRate = this._armature.cacheFrameRate;
+                            var cacheFrameRate = _armature.cacheFrameRate;
                             if (cacheFrameRate != 0)
                             {
                                 _childArmature.cacheFrameRate = cacheFrameRate;
@@ -649,33 +593,30 @@ namespace DragonBones
                 }
             }
         }
-
         /**
          * @private
          */
         protected void _updateLocalTransformMatrix()
         {
-            if (this.origin !=null)
+            if (origin !=null)
             {
-                this.global.CopyFrom(this.origin).Add(this.offset).ToMatrix(_localMatrix);
+                global.CopyFrom(origin).Add(offset).ToMatrix(_localMatrix);
             }
             else
             {
-                this.global.CopyFrom(this.offset).ToMatrix(_localMatrix);
+                global.CopyFrom(offset).ToMatrix(_localMatrix);
             }
 
         }
-
         /**
          * @private
          */
         protected void _updateGlobalTransformMatrix()
         {
-            this.globalTransformMatrix.CopyFrom(_localMatrix);
-            this.globalTransformMatrix.Concat(this._parent.globalTransformMatrix);
-            this.global.FromMatrix(this.globalTransformMatrix);
+            globalTransformMatrix.CopyFrom(_localMatrix);
+            globalTransformMatrix.Concat(_parent.globalTransformMatrix);
+            global.FromMatrix(globalTransformMatrix);
         }
-
         /**
          * @private
          */
@@ -697,30 +638,32 @@ namespace DragonBones
             _colorTransform.CopyFrom(slotData.color);
             _rawDisplay = rawDisplay;
             _meshDisplay = meshDisplay;
-        }
 
+            _blendModeDirty = true;
+            _colorDirty = true;
+        }
         /**
          * @private
          */
         internal override void _setArmature(Armature value)
         {
-            if (this._armature == value)
+            if (_armature == value)
             {
                 return;
             }
 
-            if (this._armature != null)
+            if (_armature != null)
             {
-                this._armature._removeSlotFromSlotList(this);
+                _armature._removeSlotFromSlotList(this);
             }
 
-            this._armature = value;
+            _armature = value;
 
             _onUpdateDisplay();
 
-            if (this._armature != null)
+            if (_armature != null)
             {
-                this._armature._addSlotToSlotList(this);
+                _armature._addSlotToSlotList(this);
                 _addDisplay();
             }
             else
@@ -728,7 +671,6 @@ namespace DragonBones
                 _removeDisplay();
             }
         }
-
         /**
          * @private
          */
@@ -805,7 +747,7 @@ namespace DragonBones
                     _transformDirty = true;
                     _cachedFrameIndex = cachedFrameIndex;
                 }
-                else if (_transformDirty || this._parent._transformDirty != BoneTransformDirty.None) // Dirty.
+                else if (_transformDirty || _parent._transformDirty != BoneTransformDirty.None) // Dirty.
                 {
                     _transformDirty = true;
                     _cachedFrameIndex = -1;
@@ -821,7 +763,7 @@ namespace DragonBones
                     _cachedFrameIndex = -1;
                 }
             }
-            else if (_transformDirty || this._parent._transformDirty != BoneTransformDirty.None) // Dirty.
+            else if (_transformDirty || _parent._transformDirty != BoneTransformDirty.None) // Dirty.
             {
                 cacheFrameIndex = -1;
                 _transformDirty = true;
@@ -838,12 +780,12 @@ namespace DragonBones
 
                     if (cacheFrameIndex >= 0)
                     {
-                        _cachedFrameIndex = _cachedFrameIndices[cacheFrameIndex] = this._armature._armatureData.SetCacheFrame(this.globalTransformMatrix, this.global);
+                        _cachedFrameIndex = _cachedFrameIndices[cacheFrameIndex] = _armature._armatureData.SetCacheFrame(globalTransformMatrix, global);
                     }
                 }
                 else
                 {
-                    this._armature._armatureData.GetCacheFrame(this.globalTransformMatrix, this.global, _cachedFrameIndex);
+                    _armature._armatureData.GetCacheFrame(globalTransformMatrix, global, _cachedFrameIndex);
                 }
 
                 _updateTransform(false);
@@ -861,7 +803,6 @@ namespace DragonBones
                 _updateGlobalTransformMatrix();
             }
         }
-
         /**
          * @private
          */
@@ -902,11 +843,13 @@ namespace DragonBones
                 _displayDirty = _display != null;
             }
 
-            _updateDisplayData();
+            if (_displayDirty)
+            {
+                _updateDisplayData();
+            }
 
             return _displayDirty;
         }
-
         /**
          * @private
          */
@@ -919,11 +862,11 @@ namespace DragonBones
 
             _displayIndex = value;
             _displayDirty = true;
+
             _updateDisplayData();
 
-            return _displayDirty;
+            return true;
         }
-
         /**
          * @private
          */
@@ -937,9 +880,8 @@ namespace DragonBones
             _zOrder = value;
             _zOrderDirty = true;
 
-            return _zOrderDirty;
+            return true;
         }
-
         /**
          * @private
          */
@@ -950,7 +892,6 @@ namespace DragonBones
 
             return true;
         }
-
         /**
          * @language zh_CN
          * 判断指定的点是否在插槽的自定义包围盒内。
@@ -968,13 +909,12 @@ namespace DragonBones
 
             _updateTransformAndMatrix();
 
-            _helpMatrix.CopyFrom(this.globalTransformMatrix);
+            _helpMatrix.CopyFrom(globalTransformMatrix);
             _helpMatrix.Invert();
             _helpMatrix.TransformPoint(x, y, _helpPoint);
 
             return _boundingBoxData.ContainsPoint(_helpPoint.x, _helpPoint.y);
         }
-
         /**
          * @language zh_CN
          * 判断指定的线段与插槽的自定义包围盒是否相交。
@@ -1004,7 +944,7 @@ namespace DragonBones
 
             _updateTransformAndMatrix();
 
-            _helpMatrix.CopyFrom(this.globalTransformMatrix);
+            _helpMatrix.CopyFrom(globalTransformMatrix);
             _helpMatrix.Invert();
             _helpMatrix.TransformPoint(xA, yA, _helpPoint);
             xA = _helpPoint.x;
@@ -1020,7 +960,7 @@ namespace DragonBones
                 {
                     if (intersectionPointA != null)
                     {
-                        this.globalTransformMatrix.TransformPoint(intersectionPointA.x, intersectionPointA.y, intersectionPointA);
+                        globalTransformMatrix.TransformPoint(intersectionPointA.x, intersectionPointA.y, intersectionPointA);
                         if (intersectionPointB != null)
                         {
                             intersectionPointB.x = intersectionPointA.x;
@@ -1029,35 +969,34 @@ namespace DragonBones
                     }
                     else if (intersectionPointB != null)
                     {
-                        this.globalTransformMatrix.TransformPoint(intersectionPointB.x, intersectionPointB.y, intersectionPointB);
+                        globalTransformMatrix.TransformPoint(intersectionPointB.x, intersectionPointB.y, intersectionPointB);
                     }
                 }
                 else
                 {
                     if (intersectionPointA != null)
                     {
-                        this.globalTransformMatrix.TransformPoint(intersectionPointA.x, intersectionPointA.y, intersectionPointA);
+                        globalTransformMatrix.TransformPoint(intersectionPointA.x, intersectionPointA.y, intersectionPointA);
                     }
 
                     if (intersectionPointB != null)
                     {
-                        this.globalTransformMatrix.TransformPoint(intersectionPointB.x, intersectionPointB.y, intersectionPointB);
+                        globalTransformMatrix.TransformPoint(intersectionPointB.x, intersectionPointB.y, intersectionPointB);
                     }
                 }
 
                 if (normalRadians != null)
                 {
-                    this.globalTransformMatrix.TransformPoint((float)Math.Cos(normalRadians.x), (float)Math.Sin(normalRadians.x), _helpPoint, true);
+                    globalTransformMatrix.TransformPoint((float)Math.Cos(normalRadians.x), (float)Math.Sin(normalRadians.x), _helpPoint, true);
                     normalRadians.x = (float)Math.Atan2(_helpPoint.y, _helpPoint.x);
 
-                    this.globalTransformMatrix.TransformPoint((float)Math.Cos(normalRadians.y), (float)Math.Sin(normalRadians.y), _helpPoint, true);
+                    globalTransformMatrix.TransformPoint((float)Math.Cos(normalRadians.y), (float)Math.Sin(normalRadians.y), _helpPoint, true);
                     normalRadians.y = (float)Math.Atan2(_helpPoint.y, _helpPoint.x);
                 }
             }
 
             return intersectionCount;
         }
-
         /**
          * @language zh_CN
          * 在下一帧更新显示对象的状态。
@@ -1067,7 +1006,6 @@ namespace DragonBones
         {
             _displayDirty = true;
         }
-
         /**
          * @private
          */
@@ -1078,7 +1016,6 @@ namespace DragonBones
                 return _skinSlotData;
             }
         }
-
         /**
          * @private
          */
@@ -1089,7 +1026,6 @@ namespace DragonBones
                 return _boundingBoxData;
             }
         }
-
         /**
          * @private
          */
@@ -1097,7 +1033,6 @@ namespace DragonBones
         {
             get { return _rawDisplay; }
         }
-
         /**
          * @private
          */
@@ -1105,7 +1040,6 @@ namespace DragonBones
         {
             get { return _meshDisplay; }
         }
-
         /**
          * @language zh_CN
          * 此时显示的显示对象在显示列表中的索引。
@@ -1123,7 +1057,6 @@ namespace DragonBones
                 }
             }
         }
-
         /**
          * @language zh_CN
          * 包含显示对象或子骨架的显示列表。
@@ -1144,8 +1077,9 @@ namespace DragonBones
                 }
 
                 // Release replaced render displays.
-                foreach (var eachDisplay in backupDisplayList)
+                for (int i = 0, l = backupDisplayList.Length; i < l; ++i)
                 {
+                    var eachDisplay = backupDisplayList[i];
                     if (
                         eachDisplay != null && eachDisplay != _rawDisplay && eachDisplay != _meshDisplay &&
                         !_displayList.Contains(eachDisplay) &&
@@ -1156,8 +1090,9 @@ namespace DragonBones
                     }
                 }
 
-                foreach (var eachDisplay in disposeDisplayList)
+                for (int i = 0, l = disposeDisplayList.Count; i < l; ++i)
                 {
+                    var eachDisplay = disposeDisplayList[i];
                     if (eachDisplay is Armature)
                     {
                         (eachDisplay as Armature).Dispose();
@@ -1169,7 +1104,6 @@ namespace DragonBones
                 }
             }
         }
-
         /**
          * @language zh_CN
          * 此时显示的显示对象。
@@ -1208,7 +1142,6 @@ namespace DragonBones
                 }
             }
         }
-
         /**
          * @language zh_CN
          * 此时显示的子骨架。
@@ -1224,11 +1157,6 @@ namespace DragonBones
                 if (_childArmature == value)
                 {
                     return;
-                }
-
-                if (value != null)
-                {
-                    value.clock = null;
                 }
 
                 display = value;

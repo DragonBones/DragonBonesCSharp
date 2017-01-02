@@ -3,15 +3,16 @@ using UnityEngine;
 
 namespace DragonBones
 {
+    /**
+     * @inheritDoc
+     */
     public class UnityArmatureComponent : UnityEventDispatcher<EventObject>, IArmatureProxy
     {
         private bool _disposeProxy = true;
-
         /**
          * @private
          */
         internal Armature _armature = null;
-
         /**
          * @private
          */
@@ -22,14 +23,16 @@ namespace DragonBones
                 if (_disposeProxy)
                 {
 #if UNITY_EDITOR
-                    Object.DestroyImmediate(this.gameObject);
+                    Object.DestroyImmediate(gameObject);
 #else
-                    Object.Destroy(this.gameObject);
+                    Object.Destroy(gameObject);
 #endif
                 }
             }
         }
-
+        /**
+         * @inheritDoc
+         */
         public void Dispose(bool disposeProxy = true)
         {
             _disposeProxy = disposeProxy;
@@ -39,7 +42,6 @@ namespace DragonBones
                 _armature.Dispose();
             }
         }
-
         /**
          * @language zh_CN
          * 获取骨架。
@@ -51,7 +53,6 @@ namespace DragonBones
         {
             get { return _armature; }
         }
-
         /**
          * @language zh_CN
          * 获取动画控制器。
@@ -64,23 +65,18 @@ namespace DragonBones
             get { return _armature != null ? _armature.animation : null; }
         }
         
-
-
         /**
          * @private
          */
         public TextAsset dragonBonesJSON = null;
-
         /**
          * @private
          */
         public List<string> textureAtlasJSON = null;
-
         /**
          * @private
          */
         public string armatureName = null;
-
         /**
          * @private
          */
@@ -157,7 +153,6 @@ namespace DragonBones
                 }
             }
         }
-
         /**
          * @private
          */
@@ -167,7 +162,7 @@ namespace DragonBones
 
             if (!string.IsNullOrEmpty(armatureName))
             {
-                UnityFactory.factory.BuildArmatureComponent(armatureName, null, null, this.gameObject);
+                UnityFactory.factory.BuildArmatureComponent(armatureName, null, null, gameObject);
             }
 
             if (_armature != null)
@@ -181,7 +176,6 @@ namespace DragonBones
                 }
             }
         }
-
         /**
          * @private
          */
@@ -197,7 +191,6 @@ namespace DragonBones
             _disposeProxy = true;
             _armature = null;
         }
-
         /**
          * @private
          */

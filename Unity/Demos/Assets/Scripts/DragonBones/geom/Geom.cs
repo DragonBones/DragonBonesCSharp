@@ -291,8 +291,8 @@ namespace DragonBones
                 matrix.d = scaleY;
             }
 
-            matrix.tx = this.x;
-            matrix.ty = this.y;
+            matrix.tx = x;
+            matrix.ty = y;
 
             return this;
         }

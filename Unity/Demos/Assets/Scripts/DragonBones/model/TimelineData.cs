@@ -8,24 +8,20 @@ namespace DragonBones
     public abstract class TimelineData<T> : BaseObject where T : FrameData<T>
     {
         public float scale;
-
         /**
          * @private
          */
         public float offset;
-
         /**
          * @private
          */
         public readonly List<T> frames = new List<T>();
-
         /**
          * @private
          */
         public TimelineData()
         {
         }
-
         /**
          * @private
          */
@@ -47,14 +43,12 @@ namespace DragonBones
             frames.Clear();
         }
     }
-
     /**
      * @private
      */
     public class ZOrderTimelineData : TimelineData<ZOrderFrameData>
     {
     }
-
     /**
      * @private
      */
@@ -75,7 +69,6 @@ namespace DragonBones
             originTransform.Identity();
         }
     }
-
     /**
      * @private
      */
@@ -94,7 +87,6 @@ namespace DragonBones
             slot = null;
         }
     }
-
     /**
      * @private
      */

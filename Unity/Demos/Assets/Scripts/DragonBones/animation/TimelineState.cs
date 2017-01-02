@@ -14,18 +14,19 @@ namespace DragonBones
 
         protected void _onCrossFrame(AnimationFrameData frame)
         {
-            if (this._animationState.actionEnabled)
+            if (_animationState.actionEnabled)
             {
-                foreach (var action in frame.actions)
+                var actions = frame.actions;
+                for (int i = 0, l = actions.Count; i < l; ++i)
                 {
-                    this._armature._bufferAction(action);
+                    _armature._bufferAction(actions[i]);
                 }
             }
 
-            var eventDispatcher = this._armature.eventDispatcher;
+            var eventDispatcher = _armature.eventDispatcher;
             foreach (var eventData in frame.events)
             {
-                var eventType = "";
+                string eventType = null;
                 switch (eventData.type)
                 {
                     case EventType.Frame:
@@ -42,41 +43,41 @@ namespace DragonBones
                     var eventObject = BaseObject.BorrowObject<EventObject>();
                     eventObject.name = eventData.name;
                     eventObject.frame = frame;
-                    eventObject.data = eventData;
-                    eventObject.animationState = this._animationState;
+                    eventObject.data = eventData.data;
+                    eventObject.animationState = _animationState;
 
                     if (eventData.bone != null)
                     {
-                        eventObject.bone = this._armature.GetBone(eventData.bone.name);
+                        eventObject.bone = _armature.GetBone(eventData.bone.name);
                     }
 
                     if (eventData.slot != null)
                     {
-                        eventObject.slot = this._armature.GetSlot(eventData.slot.name);
+                        eventObject.slot = _armature.GetSlot(eventData.slot.name);
                     }
 
-                    this._armature._bufferEvent(eventObject, eventType);
+                    _armature._bufferEvent(eventObject, eventType);
                 }
             }
         }
 
         override public void Update(float passedTime, float normalizedTime)
         {
-            var prevState = this._playState;
-            var prevTime = this._currentTime;
-            var prevPlayTimes = this._currentPlayTimes;
+            var prevState = _playState;
+            var prevTime = _currentTime;
+            var prevPlayTimes = _currentPlayTimes;
 
-            if (this._playState <= 0 && this._setCurrentTime(passedTime, normalizedTime))
+            if (_playState <= 0 && _setCurrentTime(passedTime, normalizedTime))
             {
-                var eventDispatcher = this._armature.eventDispatcher;
+                var eventDispatcher = _armature.eventDispatcher;
 
-                if (prevState < 0 && this._playState != prevState)
+                if (prevState < 0 && _playState != prevState)
                 {
                     if (eventDispatcher.HasEventListener(EventObject.START))
                     {
                         var eventObject = BaseObject.BorrowObject<EventObject>();
-                        eventObject.animationState = this._animationState;
-                        this._armature._bufferEvent(eventObject, EventObject.START);
+                        eventObject.animationState = _animationState;
+                        _armature._bufferEvent(eventObject, EventObject.START);
                     }
                 }
 
@@ -85,20 +86,20 @@ namespace DragonBones
                     return;
                 }
 
-                if (this._keyFrameCount > 1)
+                if (_keyFrameCount > 1)
                 {
-                    var currentFrameIndex = (int)(this._currentTime * this._frameRate); // uint
-                    var currentFrame = this._timelineData.frames[currentFrameIndex];
-                    if (this._currentFrame != currentFrame)
+                    var currentFrameIndex = (int)(_currentTime * _frameRate); // uint
+                    var currentFrame = _timelineData.frames[currentFrameIndex];
+                    if (_currentFrame != currentFrame)
                     {
-                        var isReverse = this._currentPlayTimes == prevPlayTimes && prevTime > this._currentTime;
-                        var crossedFrame = this._currentFrame;
-                        this._currentFrame = currentFrame;
+                        var isReverse = _currentPlayTimes == prevPlayTimes && prevTime > _currentTime;
+                        var crossedFrame = _currentFrame;
+                        _currentFrame = currentFrame;
 
                         if (crossedFrame == null)
                         {
-                            var prevFrameIndex = (int)(prevTime * this._frameRate);
-                            crossedFrame = this._timelineData.frames[prevFrameIndex];
+                            var prevFrameIndex = (int)(prevTime * _frameRate);
+                            crossedFrame = _timelineData.frames[prevFrameIndex];
 
                             if (isReverse)
                             {
@@ -107,15 +108,14 @@ namespace DragonBones
                             {
                                 if (
                                     prevTime <= crossedFrame.position ||
-                                    prevPlayTimes != this._currentPlayTimes
+                                    prevPlayTimes != _currentPlayTimes
                                 )
                                 {
                                     crossedFrame = crossedFrame.prev;
                                 }
                             }
                         }
-
-                        // TODO 1 2 3 key frame loop, first key frame after loop complete.
+                        
                         if (isReverse)
                         {
                             while (crossedFrame != currentFrame)
@@ -133,27 +133,27 @@ namespace DragonBones
                             }
                         }
                     }
-                    else if (this._keyFrameCount > 0 && this._currentFrame == null)
+                    else if (_keyFrameCount > 0 && _currentFrame == null)
                     {
-                        this._currentFrame = _timelineData.frames[0];
-                        _onCrossFrame(this._currentFrame);
+                        _currentFrame = _timelineData.frames[0];
+                        _onCrossFrame(_currentFrame);
                     }
                 }
 
-                if (this._currentPlayTimes != prevPlayTimes)
+                if (_currentPlayTimes != prevPlayTimes)
                 {
                     if (eventDispatcher.HasEventListener(EventObject.LOOP_COMPLETE))
                     {
                         var eventObject = BaseObject.BorrowObject<EventObject>();
-                        eventObject.animationState = this._animationState;
-                        this._armature._bufferEvent(eventObject, EventObject.LOOP_COMPLETE);
+                        eventObject.animationState = _animationState;
+                        _armature._bufferEvent(eventObject, EventObject.LOOP_COMPLETE);
                     }
 
                     if (_playState > 0 && eventDispatcher.HasEventListener(EventObject.COMPLETE))
                     {
                         var eventObject = BaseObject.BorrowObject<EventObject>();
-                        eventObject.animationState = this._animationState;
-                        this._armature._bufferEvent(eventObject, EventObject.COMPLETE);
+                        eventObject.animationState = _animationState;
+                        _armature._bufferEvent(eventObject, EventObject.COMPLETE);
                     }
                 }
             }
@@ -161,11 +161,10 @@ namespace DragonBones
 
         public void setCurrentTime(float value)
         {
-            this._setCurrentTime(value, -1.0f);
-            this._currentFrame = null;
+            _setCurrentTime(value, -1.0f);
+            _currentFrame = null;
         }
     }
-
     /**
      * @private
      */
@@ -179,10 +178,9 @@ namespace DragonBones
         {
             base._onArriveAtFrame();
 
-            this._armature._sortZOrder(this._currentFrame.zOrder);
+            _armature._sortZOrder(_currentFrame.zOrder);
         }
     }
-
     /**
      * @private
      */
@@ -225,10 +223,10 @@ namespace DragonBones
             _tweenRotate = TweenType.Once;
             _tweenScale = TweenType.Once;
 
-            if (this._keyFrameCount > 1 && (this._tweenEasing != DragonBones.NO_TWEEN || this._curve != null))
+            if (_keyFrameCount > 1 && (_tweenEasing != DragonBones.NO_TWEEN || _curve != null))
             {
-                var currentTransform = this._currentFrame.transform;
-                var nextFrame = this._currentFrame.next;
+                var currentTransform = _currentFrame.transform;
+                var nextFrame = _currentFrame.next;
                 var nextTransform = nextFrame.transform;
 
                 // Transform.
@@ -240,7 +238,7 @@ namespace DragonBones
                 }
 
                 // Rotate.
-                var tweenRotate = this._currentFrame.tweenRotate;
+                var tweenRotate = _currentFrame.tweenRotate;
                 if (tweenRotate != DragonBones.NO_TWEEN)
                 {
                     if (tweenRotate != 0.0f)
@@ -302,7 +300,7 @@ namespace DragonBones
             base._onUpdateFrame();
 
             var tweenProgress = 0.0f;
-            var currentTransform = this._currentFrame.transform;
+            var currentTransform = _currentFrame.transform;
 
             if (_tweenTransform != TweenType.None)
             {
@@ -316,7 +314,7 @@ namespace DragonBones
                     tweenProgress = _tweenProgress;
                 }
 
-                if (this._animationState.additiveBlending) // Additive blending.
+                if (_animationState.additiveBlending) // Additive blending.
                 {
                     _transform.x = currentTransform.x + _durationTransform.x * tweenProgress;
                     _transform.y = currentTransform.y + _durationTransform.y * tweenProgress;
@@ -340,7 +338,7 @@ namespace DragonBones
                     tweenProgress = _tweenProgress;
                 }
 
-                if (this._animationState.additiveBlending) // Additive blending.
+                if (_animationState.additiveBlending) // Additive blending.
                 {
                     _transform.skewX = currentTransform.skewX + _durationTransform.skewX * tweenProgress;
                     _transform.skewY = currentTransform.skewY + _durationTransform.skewY * tweenProgress;
@@ -364,7 +362,7 @@ namespace DragonBones
                     tweenProgress = _tweenProgress;
                 }
 
-                if (this._animationState.additiveBlending) // Additive blending.
+                if (_animationState.additiveBlending) // Additive blending.
                 {
                     _transform.scaleX = currentTransform.scaleX + _durationTransform.scaleX * tweenProgress;
                     _transform.scaleY = currentTransform.scaleY + _durationTransform.scaleY * tweenProgress;
@@ -383,7 +381,7 @@ namespace DragonBones
         {
             base._init(armature, animationState, timelineData);
 
-            _originalTransform = this._timelineData.originTransform;
+            _originalTransform = _timelineData.originTransform;
             _boneTransform = bone._animationPose;
         }
 
@@ -396,8 +394,8 @@ namespace DragonBones
         override public void Update(float passedTime, float normalizedTime)
         {
             // Blend animation state.
-            var animationLayer = this._animationState._layer;
-            var weight = this._animationState._weightResult;
+            var animationLayer = _animationState._layer;
+            var weight = _animationState._weightResult;
 
             if (bone._updateState <= 0)
             {
@@ -452,14 +450,13 @@ namespace DragonBones
 
             if (bone._updateState > 0)
             {
-                if (this._animationState._fadeState != 0 || this._animationState._subFadeState != 0)
+                if (_animationState._fadeState != 0 || _animationState._subFadeState != 0)
                 {
                     bone.InvalidUpdate();
                 }
             }
         }
     }
-
     /**
      * @private
      */
@@ -494,16 +491,16 @@ namespace DragonBones
         {
             base._onArriveAtFrame();
 
-            if (this._animationState._isDisabled(slot))
+            if (_animationState._isDisabled(slot))
             {
-                this._tweenEasing = DragonBones.NO_TWEEN;
-                this._curve = null;
+                _tweenEasing = DragonBones.NO_TWEEN;
+                _curve = null;
                 _tweenColor = TweenType.None;
                 return;
             }
 
             var displayIndex = _currentFrame.displayIndex;
-            if (this._playState >= 0 && slot.displayIndex != displayIndex)
+            if (_playState >= 0 && slot.displayIndex != displayIndex)
             {
                 slot._setDisplayIndex(displayIndex);
             }
@@ -514,9 +511,9 @@ namespace DragonBones
 
                 var currentColor = _currentFrame.color;
 
-                if (this._tweenEasing != DragonBones.NO_TWEEN || this._curve != null)
+                if (_tweenEasing != DragonBones.NO_TWEEN || _curve != null)
                 {
-                    var nextFrame = this._currentFrame.next;
+                    var nextFrame = _currentFrame.next;
                     var nextColor = nextFrame.color;
                     if (currentColor != nextColor)
                     {
@@ -564,8 +561,8 @@ namespace DragonBones
             }
             else
             {
-                this._tweenEasing = DragonBones.NO_TWEEN;
-                this._curve = null;
+                _tweenEasing = DragonBones.NO_TWEEN;
+                _curve = null;
                 _tweenColor = TweenType.None;
             }
         }
@@ -616,19 +613,14 @@ namespace DragonBones
 
         override public void Update(float passedTime, float normalizedTime)
         {
-            if (slot.parent._blendLayer < this._animationState._layer)
-            {
-                return;
-            }
-
             base.Update(passedTime, normalizedTime);
 
             // Fade animation.
             if (_tweenColor != TweenType.None || _colorDirty)
             {
-                if (this._animationState._fadeState != 0 || this._animationState._subFadeState != 0)
+                if (_animationState._fadeState != 0 || _animationState._subFadeState != 0)
                 {
-                    var fadeProgress = (float)Math.Pow(this._animationState._fadeProgress, 4.0f);
+                    var fadeProgress = (float)Math.Pow(_animationState._fadeProgress, 4.0f);
 
                     _slotColor.alphaMultiplier += (_color.alphaMultiplier - _slotColor.alphaMultiplier) * fadeProgress;
                     _slotColor.redMultiplier += (_color.redMultiplier - _slotColor.redMultiplier) * fadeProgress;
@@ -659,7 +651,6 @@ namespace DragonBones
             }
         }
     }
-
     /**
      * @private
      */
@@ -692,10 +683,10 @@ namespace DragonBones
 
         override protected void _onArriveAtFrame()
         {
-            if (slot.displayIndex >= 0 && this._animationState._isDisabled(slot))
+            if (slot.displayIndex >= 0 && _animationState._isDisabled(slot))
             {
-                this._tweenEasing = DragonBones.NO_TWEEN;
-                this._curve = null;
+                _tweenEasing = DragonBones.NO_TWEEN;
+                _curve = null;
                 _tweenFFD = TweenType.None;
                 return;
             }
@@ -704,7 +695,7 @@ namespace DragonBones
 
             _tweenFFD = TweenType.None;
 
-            if (this._tweenEasing != DragonBones.NO_TWEEN || this._curve != null)
+            if (_tweenEasing != DragonBones.NO_TWEEN || _curve != null)
             {
                 var currentFFDVertices = _currentFrame.tweens;
                 var nextFFDVertices = _currentFrame.next.tweens;
@@ -763,7 +754,7 @@ namespace DragonBones
             base._init(armature, animationState, timelineData);
 
             _slotFFDVertices = slot._ffdVertices;
-            DragonBones.ResizeList(_ffdVertices, this._timelineData.frames[0].tweens.Count, 0.0f);
+            DragonBones.ResizeList(_ffdVertices, _timelineData.frames[0].tweens.Count, 0.0f);
             DragonBones.ResizeList(_durationFFDVertices, _ffdVertices.Count, 0.0f);
 
             for (int i = 0, l = _ffdVertices.Count; i < l; ++i)
@@ -784,7 +775,7 @@ namespace DragonBones
 
         override public void Update(float passedTime, float normalizedTime)
         {
-            if (slot.parent._blendLayer < this._animationState._layer)
+            if (slot.parent._blendLayer < _animationState._layer)
             {
                 return;
             }
@@ -799,9 +790,9 @@ namespace DragonBones
             // Fade animation.
             if (_tweenFFD != TweenType.None || _ffdDirty)
             {
-                if (this._animationState._fadeState != 0 || this._animationState._subFadeState != 0)
+                if (_animationState._fadeState != 0 || _animationState._subFadeState != 0)
                 {
-                    var fadeProgress = (float)Math.Pow(this._animationState._fadeProgress, 4.0f);
+                    var fadeProgress = (float)Math.Pow(_animationState._fadeProgress, 4.0f);
 
                     for (int i = 0, l = _ffdVertices.Count; i < l; ++i)
                     {

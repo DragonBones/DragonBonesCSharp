@@ -12,7 +12,6 @@ namespace DragonBones
         Self = 1,
         All = 2
     }
-
     /**
      * @language zh_CN
      * 骨骼，一个骨架中可以包含多个骨骼，骨骼以树状结构组成骨架。
@@ -26,47 +25,40 @@ namespace DragonBones
     {
         /**
          * @language zh_CN
-         * 是否继承父骨骼的平移。 [true: 继承, false: 不继承]
+         * 是否继承父骨骼的平移。
          * @version DragonBones 3.0
          */
         public bool inheritTranslation;
-
         /**
          * @language zh_CN
-         * 是否继承父骨骼的旋转。 [true: 继承, false: 不继承]
+         * 是否继承父骨骼的旋转。
          * @version DragonBones 3.0
          */
         public bool inheritRotation;
-
         /**
          * @language zh_CN
-         * 是否继承父骨骼的缩放。 [true: 继承, false: 不继承]
+         * 是否继承父骨骼的缩放。
          * @version DragonBones 4.5
          */
         public bool inheritScale;
-
         /**
          * @private
          */
         public bool ikBendPositive;
-
         /**
          * @language zh_CN
          * 骨骼长度。
          * @version DragonBones 4.5
          */
         public float length;
-
         /**
          * @private
          */
         public float ikWeight;
-
         /**
          * @private
          */
         internal BoneTransformDirty _transformDirty;
-        
         private bool _visible;
         private int _cachedFrameIndex;
         private uint _ikChain;
@@ -99,14 +91,12 @@ namespace DragonBones
          * @private
          */
         internal List<int> _cachedFrameIndices;
-
         /**
          * @private
          */
         public Bone()
         {
         }
-
         /**
          * @private
          */
@@ -137,65 +127,64 @@ namespace DragonBones
             _ik = null;
             _cachedFrameIndices = null;
         }
-
         /**
          * @private
          */
         private void _updateGlobalTransformMatrix()
         {
-            this.global.x = this.origin.x + this.offset.x + _animationPose.x;
-            this.global.y = this.origin.y + this.offset.y + _animationPose.y;
-            this.global.skewX = this.origin.skewX + this.offset.skewX + _animationPose.skewX;
-            this.global.skewY = this.origin.skewY + this.offset.skewY + _animationPose.skewY;
-            this.global.scaleX = this.origin.scaleX * this.offset.scaleX * _animationPose.scaleX;
-            this.global.scaleY = this.origin.scaleY * this.offset.scaleY * _animationPose.scaleY;
+            global.x = origin.x + offset.x + _animationPose.x;
+            global.y = origin.y + offset.y + _animationPose.y;
+            global.skewX = origin.skewX + offset.skewX + _animationPose.skewX;
+            global.skewY = origin.skewY + offset.skewY + _animationPose.skewY;
+            global.scaleX = origin.scaleX * offset.scaleX * _animationPose.scaleX;
+            global.scaleY = origin.scaleY * offset.scaleY * _animationPose.scaleY;
 
-            if (this._parent != null)
+            if (_parent != null)
             {
-                var parentRotation = this._parent.global.skewY; // Only inherit skew y.
-                var parentMatrix = this._parent.globalTransformMatrix;
+                var parentRotation = _parent.global.skewY; // Only inherit skew y.
+                var parentMatrix = _parent.globalTransformMatrix;
 
                 if (inheritScale)
                 {
                     if (!inheritRotation)
                     {
-                        this.global.skewX -= parentRotation;
-                        this.global.skewY -= parentRotation;
+                        global.skewX -= parentRotation;
+                        global.skewY -= parentRotation;
                     }
 
-                    this.global.ToMatrix(this.globalTransformMatrix);
-                    this.globalTransformMatrix.Concat(parentMatrix);
+                    global.ToMatrix(globalTransformMatrix);
+                    globalTransformMatrix.Concat(parentMatrix);
 
-                    if (!this.inheritTranslation)
+                    if (!inheritTranslation)
                     {
-                        this.globalTransformMatrix.tx = this.global.x;
-                        this.globalTransformMatrix.ty = this.global.y;
+                        globalTransformMatrix.tx = global.x;
+                        globalTransformMatrix.ty = global.y;
                     }
 
-                    this.global.FromMatrix(this.globalTransformMatrix);
+                    global.FromMatrix(globalTransformMatrix);
                 }
                 else
                 {
                     if (inheritTranslation)
                     {
-                        var x = this.global.x;
-                        var y = this.global.y;
-                        this.global.x = parentMatrix.a * x + parentMatrix.c * y + parentMatrix.tx;
-                        this.global.y = parentMatrix.d * y + parentMatrix.b * x + parentMatrix.ty;
+                        var x = global.x;
+                        var y = global.y;
+                        global.x = parentMatrix.a * x + parentMatrix.c * y + parentMatrix.tx;
+                        global.y = parentMatrix.d * y + parentMatrix.b * x + parentMatrix.ty;
                     }
 
                     if (inheritRotation)
                     {
-                        this.global.skewX += parentRotation;
-                        this.global.skewY += parentRotation;
+                        global.skewX += parentRotation;
+                        global.skewY += parentRotation;
                     }
 
-                    this.global.ToMatrix(this.globalTransformMatrix);
+                    global.ToMatrix(globalTransformMatrix);
                 }
             }
             else
             {
-                this.global.ToMatrix(this.globalTransformMatrix);
+                global.ToMatrix(globalTransformMatrix);
             }
 
             if (_ik != null && _ikChainIndex == _ikChain && ikWeight > 0.0f)
@@ -210,45 +199,43 @@ namespace DragonBones
                 }
             }
         }
-
         /**
          * @private
          */
         private void _computeIKA()
         {
             var ikGlobal = _ik.global;
-            var x = this.globalTransformMatrix.a * length;
-            var y = this.globalTransformMatrix.b * length;
+            var x = globalTransformMatrix.a * length;
+            var y = globalTransformMatrix.b * length;
 
             var ikRadian =
                 (float)(
-                    Math.Atan2(ikGlobal.y - this.global.y, ikGlobal.x - this.global.x) +
-                    this.offset.skewY -
-                    this.global.skewY * 2.0f +
+                    Math.Atan2(ikGlobal.y - global.y, ikGlobal.x - global.x) +
+                    offset.skewY -
+                    global.skewY * 2.0f +
                     Math.Atan2(y, x)
                 ) * ikWeight; // Support offset.
 
-            this.global.skewX += ikRadian;
-            this.global.skewY += ikRadian;
-            this.global.ToMatrix(this.globalTransformMatrix);
+            global.skewX += ikRadian;
+            global.skewY += ikRadian;
+            global.ToMatrix(globalTransformMatrix);
         }
-
         /**
          * @private
          */
         private void _computeIKB()
         {
-            var parentGlobal = this._parent.global;
+            var parentGlobal = _parent.global;
             var ikGlobal = _ik.global;
 
-            var x = this.globalTransformMatrix.a * length;
-            var y = this.globalTransformMatrix.b * length;
+            var x = globalTransformMatrix.a * length;
+            var y = globalTransformMatrix.b * length;
 
             var lLL = x * x + y * y;
             var lL = (float)Math.Sqrt(lLL);
 
-            var dX = this.global.x - parentGlobal.x;
-            var dY = this.global.y - parentGlobal.y;
+            var dX = global.x - parentGlobal.x;
+            var dY = global.y - parentGlobal.y;
             var lPP = dX * dX + dY * dY;
             var lP = (float)Math.Sqrt(lPP);
 
@@ -260,7 +247,7 @@ namespace DragonBones
             var ikRadianA = 0.0f;
             if (lL + lP <= lT || lT + lL <= lP || lT + lP <= lL)
             {
-                ikRadianA = (float)Math.Atan2(ikGlobal.y - parentGlobal.y, ikGlobal.x - parentGlobal.x) + this._parent.offset.skewY; // Support offset.
+                ikRadianA = (float)Math.Atan2(ikGlobal.y - parentGlobal.y, ikGlobal.x - parentGlobal.x) + _parent.offset.skewY; // Support offset.
                 if (lL + lP <= lT)
                 {
                 }
@@ -280,16 +267,16 @@ namespace DragonBones
 
                 if (ikBendPositive)
                 {
-                    this.global.x = hX - rX;
-                    this.global.y = hY - rY;
+                    global.x = hX - rX;
+                    global.y = hY - rY;
                 }
                 else
                 {
-                    this.global.x = hX + rX;
-                    this.global.y = hY + rY;
+                    global.x = hX + rX;
+                    global.y = hY + rY;
                 }
 
-                ikRadianA = (float)Math.Atan2(this.global.y - parentGlobal.y, this.global.x - parentGlobal.x) + this._parent.offset.skewY; // Support offset.
+                ikRadianA = (float)Math.Atan2(global.y - parentGlobal.y, global.x - parentGlobal.x) + _parent.offset.skewY; // Support offset.
             }
 
             ikRadianA = (ikRadianA - parentGlobal.skewY) * ikWeight;
@@ -297,24 +284,23 @@ namespace DragonBones
             parentGlobal.skewX += ikRadianA;
             parentGlobal.skewY += ikRadianA;
 
-            parentGlobal.ToMatrix(this._parent.globalTransformMatrix);
-            this._parent._transformDirty = BoneTransformDirty.Self;
+            parentGlobal.ToMatrix(_parent.globalTransformMatrix);
+            _parent._transformDirty = BoneTransformDirty.Self;
 
-            this.global.x = parentGlobal.x + (float)Math.Cos(parentGlobal.skewY) * lP;
-            this.global.y = parentGlobal.y + (float)Math.Sin(parentGlobal.skewY) * lP;
+            global.x = parentGlobal.x + (float)Math.Cos(parentGlobal.skewY) * lP;
+            global.y = parentGlobal.y + (float)Math.Sin(parentGlobal.skewY) * lP;
 
             var ikRadianB =
                 (float)(
-                    Math.Atan2(ikGlobal.y - this.global.y, ikGlobal.x - this.global.x) + this.offset.skewY -
-                    this.global.skewY * 2 + Math.Atan2(y, x)
-                ) * this.ikWeight; // Support offset.
+                    Math.Atan2(ikGlobal.y - global.y, ikGlobal.x - global.x) + offset.skewY -
+                    global.skewY * 2 + Math.Atan2(y, x)
+                ) * ikWeight; // Support offset.
 
-            this.global.skewX += ikRadianB;
-            this.global.skewY += ikRadianB;
+            global.skewX += ikRadianB;
+            global.skewY += ikRadianB;
 
-            this.global.ToMatrix(this.globalTransformMatrix);
+            global.ToMatrix(globalTransformMatrix);
         }
-
         /**
          * @private
          */
@@ -330,16 +316,15 @@ namespace DragonBones
             inheritRotation = _boneData.inheritRotation;
             inheritScale = _boneData.inheritScale;
             length = _boneData.length;
-            this.name = _boneData.name;
-            this.origin =_boneData.transform;
+            name = _boneData.name;
+            origin =_boneData.transform;
         }
-
         /**
          * @private
          */
         internal override void _setArmature(Armature value)
         {
-            if (this._armature == value)
+            if (_armature == value)
             {
                 return;
             }
@@ -349,18 +334,18 @@ namespace DragonBones
             List<Slot> oldSlots = null;
             List<Bone> oldBones = null;
 
-            if (this._armature != null)
+            if (_armature != null)
             {
                 oldSlots = GetSlots();
                 oldBones = GetBones();
-                this._armature._removeBoneFromBoneList(this);
+                _armature._removeBoneFromBoneList(this);
             }
 
-            this._armature = value;
+            _armature = value;
 
-            if (this._armature != null)
+            if (_armature != null)
             {
-                this._armature._addBoneToBoneList(this);
+                _armature._addBoneToBoneList(this);
             }
 
             if (oldSlots != null)
@@ -369,7 +354,7 @@ namespace DragonBones
                 {
                     if (slot.parent == this)
                     {
-                        slot._setArmature(this._armature);
+                        slot._setArmature(_armature);
                     }
                 }
             }
@@ -380,12 +365,11 @@ namespace DragonBones
                 {
                     if (bone.parent == this)
                     {
-                        bone._setArmature(this._armature);
+                        bone._setArmature(_armature);
                     }
                 }
             }
         }
-
         /**
          * @private
          */
@@ -395,7 +379,7 @@ namespace DragonBones
             {
                 if (chain == chainIndex)
                 {
-                    var chainEnd = this._parent;
+                    var chainEnd = _parent;
                     if (chain > 0 && chainEnd != null)
                     {
                         chain = 1;
@@ -441,12 +425,11 @@ namespace DragonBones
             _ikChain = chain;
             _ikChainIndex = chainIndex;
 
-            if (this._armature != null)
+            if (_armature != null)
             {
-                this._armature._bonesDirty = true;
+                _armature._bonesDirty = true;
             }
         }
-
         /**
          * @private
          */
@@ -509,12 +492,12 @@ namespace DragonBones
 
                         if (cacheFrameIndex >= 0)
                         {
-                            _cachedFrameIndex = _cachedFrameIndices[cacheFrameIndex] = _armature._armatureData.SetCacheFrame(this.globalTransformMatrix, this.global);
+                            _cachedFrameIndex = _cachedFrameIndices[cacheFrameIndex] = _armature._armatureData.SetCacheFrame(globalTransformMatrix, global);
                         }
                     }
                     else
                     {
-                        _armature._armatureData.GetCacheFrame(this.globalTransformMatrix, this.global, _cachedFrameIndex);
+                        _armature._armatureData.GetCacheFrame(globalTransformMatrix, global, _cachedFrameIndex);
                     }
 
                     _updateState = 0;
@@ -525,7 +508,6 @@ namespace DragonBones
                 }
             }
         }
-
         /**
          * @language zh_CN
          * 下一帧更新变换。 (当骨骼没有动画状态或动画状态播放完成时，骨骼将不在更新)
@@ -538,8 +520,8 @@ namespace DragonBones
 
         /**
          * @language zh_CN
-         * 是否包含某个指定的骨骼或插槽。
-         * @returns [true: 包含，false: 不包含]
+         * 是否包含骨骼或插槽。
+         * @returns
          * @see dragonBones.TransformObject
          * @version DragonBones 3.0
          */
@@ -563,7 +545,6 @@ namespace DragonBones
 
             return false;
         }
-
         /**
          * @language zh_CN
          * 所有的子骨骼。
@@ -573,7 +554,7 @@ namespace DragonBones
         {
             _bones.Clear();
 
-            var bones = this._armature.GetBones();
+            var bones = _armature.GetBones();
             foreach (var bone in bones)
             {
                 if (bone.parent == this)
@@ -584,7 +565,6 @@ namespace DragonBones
 
             return _bones;
         }
-
         /**
          * @language zh_CN
          * 所有的插槽。
@@ -595,7 +575,7 @@ namespace DragonBones
         {
             _slots.Clear();
 
-            var slots = this._armature.GetSlots();
+            var slots = _armature.GetSlots();
             foreach (var slot in slots)
             {
                 if (slot.parent == this)
@@ -606,10 +586,9 @@ namespace DragonBones
 
             return _slots;
         }
-
         /**
          * @language zh_CN
-         * 控制此骨骼所有插槽的显示。
+         * 控制此骨骼所有插槽的可见。
          * @default true
          * @see dragonBones.Slot
          * @version DragonBones 3.0
@@ -626,7 +605,7 @@ namespace DragonBones
                 }
 
                 _visible = value;
-                var slots = this._armature.GetSlots();
+                var slots = _armature.GetSlots();
                 foreach (var slot in slots)
                 {
                     if (slot._parent == this)

@@ -2,8 +2,14 @@ using System.Collections.Generic;
 
 namespace DragonBones
 {
+    /**
+     * @language zh_CN
+     * 基础对象。
+     * @version DragonBones 4.5
+     */
     abstract public class BaseObject
     {
+        private static uint _hashCode = 0;
         private static uint _defaultMaxCount = 5000;
         private static readonly Dictionary<System.Type, uint> _maxCountMap = new Dictionary<System.Type, uint>();
         private static readonly Dictionary<System.Type, List<BaseObject>> _poolsMap = new Dictionary<System.Type, List<BaseObject>>();
@@ -26,7 +32,6 @@ namespace DragonBones
                 }
             }
         }
-
         /**
          * @language zh_CN
          * 设置每种对象池的最大缓存数量。
@@ -44,7 +49,7 @@ namespace DragonBones
                     var pool = _poolsMap[classType];
                     if (pool.Count > maxCount)
                     {
-                        //pool.Count = maxCount;
+                        DragonBones.ResizeList(pool, (int)maxCount, null);
                     }
                 }
             }
@@ -63,16 +68,15 @@ namespace DragonBones
                     var pool = _poolsMap[pair.Key];
                     if (pool.Count > maxCount)
                     {
-                        //pool.Count = maxCount;
+                        DragonBones.ResizeList(pool, (int)maxCount, null);
                     }
                 }
             }
         }
-
         /**
          * @language zh_CN
          * 清除对象池缓存的对象。
-         * @param objectConstructor 对象类型。 (不设置则清除所有缓存)
+         * @param classType 对象类型。 (不设置则清除所有缓存)
          * @version DragonBones 4.5
          */
         public static void ClearPool(System.Type classType)
@@ -100,7 +104,6 @@ namespace DragonBones
                 }
             }
         }
-
         /**
          * @language zh_CN
          * 从对象池中创建指定对象。
@@ -125,16 +128,20 @@ namespace DragonBones
                 return obj;
             }
         }
+        /**
+         * @language zh_CN
+         * 对象的唯一标识。
+         * @version DragonBones 4.5
+         */
+        public uint hashCode = _hashCode++;
 
         protected BaseObject()
         {
         }
-
         /**
          * @private
          */
         abstract protected void _onClear();
-
         /**
          * @language zh_CN
          * 清除数据并返还对象池。

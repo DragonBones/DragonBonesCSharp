@@ -15,104 +15,94 @@ namespace DragonBones
         {
             return a.zOrder > b.zOrder ? 1 : -1;
         }
-
         /**
          * @language zh_CN
          * 动画帧率。
          * @version DragonBones 3.0
          */
         public uint frameRate;
-
         /**
-         * @language zh_CN
-         * 骨架类型。
-         * @see dragonBones.ArmatureType
-         * @version DragonBones 3.0
-         */
+		 * @private
+		 */
         public ArmatureType type;
-
         /**
          * @private
          */
         public uint cacheFrameRate;
-
         /**
          * @private
          */
         public float scale;
-
         /**
          * @language zh_CN
          * 数据名称。
          * @version DragonBones 3.0
          */
         public string name;
-
         /**
          * @private
          */
         public readonly Rectangle aabb = new Rectangle();
-
-        /**
-         * @private
-         */
-        public readonly List<ActionData> actions = new List<ActionData>();
-
         /**
          * @language zh_CN
-         * 所有的骨骼数据。
+         * 所有骨骼数据。
          * @see dragonBones.BoneData
          * @version DragonBones 3.0
          */
         public readonly Dictionary<string, BoneData> bones = new Dictionary<string, BoneData>();
-
         /**
          * @language zh_CN
-         * 所有的插槽数据。
+         * 所有插槽数据。
          * @see dragonBones.SlotData
          * @version DragonBones 3.0
          */
         public readonly Dictionary<string, SlotData> slots = new Dictionary<string, SlotData>();
-
         /**
          * @language zh_CN
-         * 所有的皮肤数据。
+         * 所有皮肤数据。
          * @see dragonBones.SkinData
          * @version DragonBones 3.0
          */
         public readonly Dictionary<string, SkinData> skins = new Dictionary<string, SkinData>();
-
         /**
          * @language zh_CN
-         * 所有的动画数据。
+         * 所有动画数据。
          * @see dragonBones.AnimationData
          * @version DragonBones 3.0
          */
         public readonly Dictionary<string, AnimationData> animations = new Dictionary<string, AnimationData>();
-
         /**
          * @private
          */
+        public readonly List<ActionData> actions = new List<ActionData>();
+        /**
+         * @language zh_CN
+         * 所属的龙骨数据。
+         * @see dragonBones.DragonBonesData
+         * @version DragonBones 4.5
+         */
         public DragonBonesData parent;
+        /**
+         * @private
+         */
+        public CustomData userData;
 
         private bool _boneDirty;
         private bool _slotDirty;
-        private SkinData _defaultSkin;
-        private AnimationData _defaultAnimation;
         private readonly List<string> _animationNames = new List<string>();
         private readonly List<BoneData> _sortedBones = new List<BoneData>();
         private readonly List<SlotData> _sortedSlots = new List<SlotData>();
         private readonly Dictionary<string, List<BoneData>> _bonesChildren = new Dictionary<string, List<BoneData>>();
-
+        private SkinData _defaultSkin;
+        private AnimationData _defaultAnimation;
         /**
          * @private
          */
         public ArmatureData()
         {
         }
-
         /**
-         * @inheritDoc
+         * @private
          */
         protected override void _onClear()
         {
@@ -141,17 +131,22 @@ namespace DragonBones
                 action.ReturnToPool();
             }
 
+            if (userData != null)
+            {
+                userData.ReturnToPool();
+            }
+
             frameRate = 0;
-            type = ArmatureType.Armature;
+            type = ArmatureType.None;
             cacheFrameRate = 0;
             scale = 1.0f;
             name = null;
             aabb.Clear();
-            actions.Clear();
             bones.Clear();
             slots.Clear();
             skins.Clear();
             animations.Clear();
+            actions.Clear();
             parent = null;
 
             _boneDirty = false;
@@ -218,25 +213,23 @@ namespace DragonBones
         {
             _sortedSlots.Sort(ArmatureData._onSortSlots);
         }
-
         /**
          * @private
          */
-        public void CacheFrames(uint value)
+        public void CacheFrames(uint frameRate)
         {
-            if (cacheFrameRate == value)
+            if (cacheFrameRate > 0)
             {
                 return;
             }
 
-            cacheFrameRate = value;
+            cacheFrameRate = frameRate;
             
             foreach (var animation in animations.Values)
             {
                 animation.CacheFrames(cacheFrameRate);
             }
         }
-
         /**
          * @private
          */
@@ -277,7 +270,6 @@ namespace DragonBones
             transform.scaleX = dataArray[arrayOffset + 8];
             transform.scaleY = dataArray[arrayOffset + 9];
         }
-
         /**
          * @private
          */
@@ -312,6 +304,7 @@ namespace DragonBones
 
                 bones[value.name] = value;
                 _sortedBones.Add(value);
+
                 _boneDirty = true;
             }
             else
@@ -319,7 +312,6 @@ namespace DragonBones
                 DragonBones.Assert(false, DragonBones.ARGUMENT_ERROR);
             }
         }
-
         /**
          * @private
          */
@@ -329,6 +321,7 @@ namespace DragonBones
             {
                 slots[value.name] = value;
                 _sortedSlots.Add(value);
+
                 _slotDirty = true;
             }
             else
@@ -336,7 +329,6 @@ namespace DragonBones
                 DragonBones.Assert(false, DragonBones.ARGUMENT_ERROR);
             }
         }
-
         /**
          * @private
          */
@@ -345,6 +337,7 @@ namespace DragonBones
             if (value != null && value.name != null && !skins.ContainsKey(value.name))
             {
                 skins[value.name] = value;
+
                 if (_defaultSkin == null)
                 {
                     _defaultSkin = value;
@@ -355,7 +348,6 @@ namespace DragonBones
                 DragonBones.Assert(false, DragonBones.ARGUMENT_ERROR);
             }
         }
-
         /**
          * @private
          */
@@ -365,6 +357,7 @@ namespace DragonBones
             {
                 animations[value.name] = value;
                 _animationNames.Add(value.name);
+
                 if (_defaultAnimation == null)
                 {
                     _defaultAnimation = value;
@@ -375,7 +368,6 @@ namespace DragonBones
                 DragonBones.Assert(false, DragonBones.ARGUMENT_ERROR);
             }
         }
-
         /**
          * @language zh_CN
          * 获取指定名称的骨骼数据。
@@ -387,7 +379,6 @@ namespace DragonBones
         {
             return bones.ContainsKey(name) ? bones[name] : null;
         }
-
         /**
          * @language zh_CN
          * 获取指定名称的插槽数据。
@@ -399,7 +390,6 @@ namespace DragonBones
         {
             return slots.ContainsKey(name) ? slots[name] : null;
         }
-
         /**
          * @language zh_CN
          * 获取指定名称的皮肤数据。
@@ -411,7 +401,6 @@ namespace DragonBones
         {
             return !string.IsNullOrEmpty(name) ? (skins.ContainsKey(name) ? skins[name] : null) : _defaultSkin;
         }
-
         /**
          * @language zh_CN
          * 获取指定名称的动画数据。
@@ -423,7 +412,6 @@ namespace DragonBones
         {
             return !string.IsNullOrEmpty(name) ? (animations.ContainsKey(name) ? animations[name] : null) : _defaultAnimation;
         }
-
         /**
          * @private
          */
@@ -440,7 +428,6 @@ namespace DragonBones
                 return _sortedBones;
             }
         }
-
         /**
          * @private
          */
@@ -457,10 +444,9 @@ namespace DragonBones
                 return _sortedSlots;
             }
         }
-
         /**
          * @language zh_CN
-         * 所有的动画数据名称。
+         * 所有动画数据名称。
          * @see #armatures
          * @version DragonBones 3.0
          */
@@ -468,7 +454,6 @@ namespace DragonBones
         {
             get { return _animationNames; }
         }
-
         /**
          * @language zh_CN
          * 获取默认的皮肤数据。
@@ -479,7 +464,6 @@ namespace DragonBones
         {
             get { return _defaultSkin; }
         }
-
         /**
          * @language zh_CN
          * 获取默认的动画数据。
@@ -491,7 +475,6 @@ namespace DragonBones
             get { return _defaultAnimation; }
         }
     }
-
     /**
      * @language zh_CN
      * 骨骼数据。
@@ -504,78 +487,74 @@ namespace DragonBones
          * @private
          */
         public bool inheritTranslation;
-
         /**
          * @private
          */
         public bool inheritRotation;
-
         /**
          * @private
          */
         public bool inheritScale;
-
         /**
          * @private
          */
         public bool bendPositive;
-
         /**
          * @private
          */
         public uint chain;
-
         /**
          * @private
          */
         public int chainIndex;
-
         /**
          * @private
          */
         public float weight;
-
         /**
          * @private
          */
         public float length;
-
         /**
          * @language zh_CN
          * 数据名称。
          * @version DragonBones 3.0
          */
         public string name;
-
         /**
          * @private
          */
         public readonly Transform transform = new Transform();
-
         /**
          * @language zh_CN
          * 所属的父骨骼数据。
          * @version DragonBones 3.0
          */
         public BoneData parent;
-
         /**
          * @private
          */
         public BoneData ik;
-
+        /**
+         * @private
+         */
+        public CustomData userData;
         /**
          * @private
          */
         public BoneData()
         {
         }
-
         /**
          * @private
          */
         protected override void _onClear()
         {
+            if (userData != null)
+            {
+                userData.ReturnToPool();
+            }
+
             inheritTranslation = false;
             inheritRotation = false;
             inheritScale = false;
@@ -588,9 +567,9 @@ namespace DragonBones
             transform.Identity();
             parent = null;
             ik = null;
+            userData = null;
         }
     }
-
     /**
      * @language zh_CN
      * 插槽数据。
@@ -603,7 +582,6 @@ namespace DragonBones
          * @private
          */
         public static readonly ColorTransform DEFAULT_COLOR = new ColorTransform();
-
         /**
          * @private
          */
@@ -611,34 +589,28 @@ namespace DragonBones
         {
             return new ColorTransform();
         }
-
         /**
          * @private
          */
         public int displayIndex;
-
         /**
          * @private
          */
         public int zOrder;
-
         /**
          * @private
          */
         public BlendMode blendMode;
-
         /**
          * @language zh_CN
          * 数据名称。
          * @version DragonBones 3.0
          */
         public string name;
-
         /**
          * @private
          */
         public readonly List<ActionData> actions = new List<ActionData>();
-
         /**
          * @language zh_CN
          * 所属的父骨骼数据。
@@ -646,27 +618,33 @@ namespace DragonBones
          * @version DragonBones 3.0
          */
         public BoneData parent;
-
         /**
          * @private
          */
         public ColorTransform color;
-
+        /**
+         * @private
+         */
+        public CustomData userData;
         /**
          * @private
          */
         public SlotData()
         {
         }
-
         /**
          * @private
          */
         protected override void _onClear()
         {
-            foreach (var action in actions)
+            for (int i = 0, l = actions.Count; i < l; ++i)
             {
-                action.ReturnToPool();
+                actions[i].ReturnToPool();
+            }
+
+            if (userData != null)
+            {
+                userData.ReturnToPool();
             }
 
             displayIndex = 0;
@@ -676,38 +654,21 @@ namespace DragonBones
             actions.Clear();
             parent = null;
             color = null;
+            userData = null;
         }
     }
-
     /**
-     * @language zh_CN
-     * 皮肤数据。
-     * @version DragonBones 3.0
+     * @private
      */
     public class SkinData : BaseObject
     {
-        /**
-         * @language zh_CN
-         * 数据名称。
-         * @version DragonBones 3.0
-         */
         public string name;
-
-        /**
-         * @private
-         */
         public readonly Dictionary<string, SkinSlotData> slots = new Dictionary<string, SkinSlotData>();
 
-        /**
-         * @private
-         */
         public SkinData()
         {
         }
 
-        /**
-         * @private
-         */
         protected override void _onClear()
         {
             foreach (var pair in slots)
@@ -718,10 +679,7 @@ namespace DragonBones
             name = null;
             slots.Clear();
         }
-
-        /**
-         * @private
-         */
+        
         public void AddSlot(SkinSlotData value)
         {
             if (value != null && value.slot != null && !slots.ContainsKey(value.slot.name))
@@ -734,15 +692,11 @@ namespace DragonBones
             }
         }
 
-        /**
-         * @private
-         */
         public SkinSlotData GetSlot(string name)
         {
             return slots[name];
         }
     }
-
     /**
      * @private
      */
@@ -758,9 +712,9 @@ namespace DragonBones
 
         protected override void _onClear()
         {
-            foreach (var display in displays)
+            for (int i = 0, l = displays.Count; i < l; ++i)
             {
-                display.ReturnToPool();
+                displays[i].ReturnToPool();
             }
 
             foreach (var mesh in meshs.Values)
@@ -775,8 +729,9 @@ namespace DragonBones
 
         public DisplayData GetDisplay(string name)
         {
-            foreach (var display in displays)
+            for (int i = 0, l = displays.Count; i < l; ++i)
             {
+                var display = displays[i];
                 if (display.name == name)
                 {
                     return display;
@@ -800,10 +755,9 @@ namespace DragonBones
 
         public MeshData GetMesh(string name)
         {
-            return this.meshs[name];
+            return meshs[name];
         }
     }
-
     /**
      * @private
      */
@@ -846,7 +800,6 @@ namespace DragonBones
             boundingBox = null;
         }
     }
-
     /**
      * @private
      */
@@ -886,7 +839,6 @@ namespace DragonBones
             inverseBindPose.Clear();
         }
     }
-
     /**
      * Cohen–Sutherland algorithm https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_algorithm
      * ----------------------
@@ -906,7 +858,9 @@ namespace DragonBones
         Bottom = 8  // 1000
     }
     /**
-     * @private
+     * @language zh_CN
+     * 包围盒数据。
+     * @version DragonBones 5.0
      */
     public class BoundingBoxData : BaseObject
     {
@@ -937,7 +891,9 @@ namespace DragonBones
 
             return code;
         }
-
+        /**
+         * @private
+         */
         public static int SegmentIntersectsRectangle(
             float xA, float yA, float xB, float yB,
             float xMin, float yMin, float xMax, float yMax,
@@ -1110,7 +1066,9 @@ namespace DragonBones
 
             return intersectionCount;
         }
-
+        /**
+         * @private
+         */
         public static int SegmentIntersectsEllipse(
             float xA, float yA, float xB, float yB,
             float xC, float yC, float widthH, float heightH,
@@ -1231,7 +1189,9 @@ namespace DragonBones
 
             return intersectionCount;
         }
-
+        /**
+         * @private
+         */
         public static int SegmentIntersectsPolygon(
             float xA, float yA, float xB, float yB,
             List<float> vertices,
@@ -1402,22 +1362,36 @@ namespace DragonBones
 
             return intersectionCount;
         }
-
+        /**
+         * @language zh_CN
+         * 包围盒类型。
+         * @see dragonBones.BoundingBoxType
+         * @version DragonBones 5.0
+         */
         public BoundingBoxType type;
+        /**
+         * @language zh_CN
+         * 包围盒颜色。
+         * @version DragonBones 5.0
+         */
         public uint color;
+
         public float x;
         public float y;
         public float width;
         public float height;
+        /**
+         * @language zh_CN
+         * 自定义多边形顶点。
+         * @version DragonBones 5.0
+         */
         public readonly List<float> vertices = new List<float>();
-
         /**
          * @private
          */
         public BoundingBoxData()
         {
         }
-
         /**
          * @private
          */
@@ -1431,7 +1405,11 @@ namespace DragonBones
             height = 0.0f;
             vertices.Clear();
         }
-
+        /**
+         * @language zh_CN
+         * 是否包含点。
+         * @version DragonBones 5.0
+         */
         public bool ContainsPoint(float pX, float pY)
         {
             var isInSide = false;
@@ -1481,7 +1459,11 @@ namespace DragonBones
 
             return isInSide;
         }
-
+        /**
+         * @language zh_CN
+         * 是否与线段相交。
+         * @version DragonBones 5.0
+         */
         public int IntersectsSegment(
             float xA, float yA, float xB, float yB,
             Point intersectionPointA = null,

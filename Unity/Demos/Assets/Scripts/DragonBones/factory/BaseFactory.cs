@@ -13,7 +13,6 @@ namespace DragonBones
         public ArmatureData armature = null;
         public SkinData skin = null;
     }
-
     /**
      * @language zh_CN
      * 创建骨架的基础工厂。 (通常只需要一个全局工厂实例)
@@ -26,32 +25,27 @@ namespace DragonBones
     public abstract class BaseFactory
     {
         protected static readonly ObjectDataParser _defaultDataParser = new ObjectDataParser();
-
         /**
          * @language zh_CN
-         * 是否开启共享搜索。 [true: 开启, false: 不开启]
+         * 是否开启共享搜索。
          * 如果开启，创建一个骨架时，可以从多个龙骨数据中寻找骨架数据，或贴图集数据中寻找贴图数据。 (通常在有共享导出的数据时开启)
          * @see dragonBones.DragonBonesData#autoSearch
          * @see dragonBones.TextureAtlasData#autoSearch
          * @version DragonBones 4.5
          */
         public bool autoSearch = false;
-
         /**
          * @private
          */
         protected DataParser _dataParser = null;
-
         /**
          * @private
          */
         protected readonly Dictionary<string, DragonBonesData> _dragonBonesDataMap = new Dictionary<string, DragonBonesData>();
-
         /**
          * @private
          */
         protected readonly Dictionary<string, List<TextureAtlasData>> _textureAtlasDataMap = new Dictionary<string, List<TextureAtlasData>>();
-
         /** 
          * @private 
          */
@@ -64,7 +58,6 @@ namespace DragonBones
                 _dataParser = _defaultDataParser;
             }
         }
-
         /** 
          * @private 
          */
@@ -72,8 +65,10 @@ namespace DragonBones
         {
             if (_textureAtlasDataMap.ContainsKey(textureAtlasName))
             {
-                foreach (var textureAtlasData in _textureAtlasDataMap[textureAtlasName])
+                var textureAtlasDataList = _textureAtlasDataMap[textureAtlasName];
+                for (int i = 0, l = textureAtlasDataList.Count; i < l; ++i)
                 {
+                    var textureAtlasData = textureAtlasDataList[i];
                     var textureData = textureAtlasData.GetTexture(textureName);
                     if (textureData != null)
                     {
@@ -86,8 +81,9 @@ namespace DragonBones
             {
                 foreach (var textureAtlasDataList in _textureAtlasDataMap.Values)
                 {
-                    foreach (var textureAtlasData in textureAtlasDataList)
+                    for (int i = 0, l = textureAtlasDataList.Count; i < l; ++i)
                     {
+                        var textureAtlasData = textureAtlasDataList[i];
                         if (textureAtlasData.autoSearch)
                         {
                             var textureData = textureAtlasData.GetTexture(textureName);
@@ -102,7 +98,6 @@ namespace DragonBones
 
             return null;
         }
-
         /**
          * @private
          */
@@ -121,7 +116,7 @@ namespace DragonBones
                 }
             }
 
-            if (armatureData == null && (!isAvailableName || this.autoSearch)) // Will be search all data, if do not give a data name or the autoSearch is true.
+            if (armatureData == null && (!isAvailableName || autoSearch)) // Will be search all data, if do not give a data name or the autoSearch is true.
             {
                 foreach (var pair in _dragonBonesDataMap)
                 {
@@ -155,14 +150,15 @@ namespace DragonBones
 
             return false;
         }
-
         /**
          * @private
          */
         protected void _buildBones(BuildArmaturePackage dataPackage, Armature armature)
         {
-            foreach (var boneData in dataPackage.armature.sortedBones)
+            var bones = dataPackage.armature.sortedBones;
+            for (int i = 0, l = bones.Count; i < l; ++i)
             {
+                var boneData = bones[i];
                 var bone = BaseObject.BorrowObject<Bone>();
                 bone._init(boneData);
 
@@ -183,7 +179,6 @@ namespace DragonBones
                 }
             }
         }
-
         /**
          * @private
          */
@@ -206,8 +201,10 @@ namespace DragonBones
                 }
             }
 
-            foreach (var slotData in dataPackage.armature.sortedSlots)
+            var slots = dataPackage.armature.sortedSlots;
+            for (int i = 0, l = slots.Count; i < l; ++i)
             {
+                var slotData = slots[i];
                 if (!skinSlotDatas.ContainsKey(slotData.name))
                 {
                     continue;
@@ -222,7 +219,6 @@ namespace DragonBones
                 }
             }
         }
-
         /**
          * @private
          */
@@ -250,7 +246,7 @@ namespace DragonBones
 
                 if (displayData.type == DisplayType.Armature)
                 {
-                    var childArmature = BuildArmature(displayData.name, dataPackage.dataName);
+                    var childArmature = BuildArmature(displayData.path, dataPackage.dataName);
                     displayList[displayIndex] = childArmature;
                 }
                 else
@@ -278,22 +274,18 @@ namespace DragonBones
                 slot.InvalidUpdate();
             }
         }
-
         /** 
          * @private 
          */
         protected abstract TextureAtlasData _generateTextureAtlasData(TextureAtlasData textureAtlasData, object textureAtlas);
-
         /** 
          * @private 
          */
         protected abstract Armature _generateArmature(BuildArmaturePackage dataPackage);
-
         /** 
          * @private 
          */
-        protected abstract Slot _generateSlot(BuildArmaturePackage dataPackage, SkinSlotData slotDisplayDataSet, Armature armature);
-
+        protected abstract Slot _generateSlot(BuildArmaturePackage dataPackage, SkinSlotData skinSlotData, Armature armature);
         /**
          * @language zh_CN
          * 解析并添加龙骨数据。
@@ -313,7 +305,6 @@ namespace DragonBones
 
             return dragonBonesData;
         }
-
         /**
          * @language zh_CN
          * 解析并添加贴图集数据。
@@ -338,7 +329,6 @@ namespace DragonBones
 
             return textureAtlasData;
         }
-
         /**
          * @language zh_CN
          * 获取指定名称的龙骨数据。
@@ -354,7 +344,6 @@ namespace DragonBones
         {
             return _dragonBonesDataMap.ContainsKey(name) ? _dragonBonesDataMap[name] : null;
         }
-
         /**
          * @language zh_CN
          * 添加龙骨数据。
@@ -392,12 +381,11 @@ namespace DragonBones
                 DragonBones.Assert(false, DragonBones.ARGUMENT_ERROR);
             }
         }
-
         /**
          * @language zh_CN
          * 移除龙骨数据。
          * @param name 数据名称。
-         * @param disposeData 是否释放数据。 [false: 不释放, true: 释放]
+         * @param disposeData 是否释放数据。
          * @see #parseDragonBonesData()
          * @see #getDragonBonesData()
          * @see #addDragonBonesData()
@@ -416,7 +404,6 @@ namespace DragonBones
                 _dragonBonesDataMap.Remove(name);
             }
         }
-
         /**
          * @language zh_CN
          * 获取指定名称的贴图集数据列表。
@@ -432,7 +419,6 @@ namespace DragonBones
         {
             return _textureAtlasDataMap.ContainsKey(textureAtlasName) ? _textureAtlasDataMap[textureAtlasName] : null;
         }
-
         /**
          * @language zh_CN
          * 添加贴图集数据。
@@ -467,7 +453,6 @@ namespace DragonBones
                 DragonBones.Assert(false, DragonBones.ARGUMENT_ERROR);
             }
         }
-
         /**
          * @language zh_CN
          * 移除贴图集数据。
@@ -494,7 +479,6 @@ namespace DragonBones
                 _textureAtlasDataMap.Remove(name);
             }
         }
-
         /**
          * @language zh_CN
          * 清除所有的数据。
@@ -522,7 +506,6 @@ namespace DragonBones
             _dragonBonesDataMap.Clear();
             _textureAtlasDataMap.Clear();
         }
-
         /**
          * @language zh_CN
          * 创建一个指定名称的骨架。
@@ -552,7 +535,6 @@ namespace DragonBones
 
             return null;
         }
-
         /**
          * @language zh_CN
          * 将指定骨架的动画替换成其他骨架的动画。 (通常这些骨架应该具有相同的骨架结构)
@@ -596,21 +578,23 @@ namespace DragonBones
 
                 if (dataPackage.skin != null)
                 {
-                    foreach (var toSlot in toArmature.GetSlots())
+                    var slots = toArmature.GetSlots();
+                    for (int i = 0, l = slots.Count; i < l; ++i)
                     {
+                        var toSlot = slots[i];
                         var toSlotDisplayList = toSlot.displayList;
-                        for (int i = 0, l = toSlotDisplayList.Count; i < l; ++i)
+                        for (int iA = 0, lA = toSlotDisplayList.Count; iA < lA; ++iA)
                         {
-                            var toDisplayObject = toSlotDisplayList[i];
+                            var toDisplayObject = toSlotDisplayList[iA];
                             if (toDisplayObject is Armature)
                             {
                                 var displays = dataPackage.skin.GetSlot(toSlot.name).displays;
-                                if (i < displays.Count)
+                                if (iA < displays.Count)
                                 {
-                                    var fromDisplayData = displays[i];
+                                    var fromDisplayData = displays[iA];
                                     if (fromDisplayData.type == DisplayType.Armature)
                                     {
-                                        CopyAnimationsToArmature((Armature)toDisplayObject, fromDisplayData.name, fromSkinName, fromDragonBonesDataName, ifRemoveOriginalAnimationList);
+                                        CopyAnimationsToArmature((Armature)toDisplayObject, fromDisplayData.path, fromSkinName, fromDragonBonesDataName, ifRemoveOriginalAnimationList);
                                     }
                                 }
                             }
@@ -623,10 +607,9 @@ namespace DragonBones
 
             return false;
         }
-
         /**
          * @language zh_CN
-         * 将指定插槽的显示对象替换为指定资源创造出的显示对象。
+         * 用指定资源替换插槽的显示对象。
          * @param dragonBonesName 指定的龙骨数据名称。
          * @param armatureName 指定的骨架名称。
          * @param slotName 指定的插槽名称。
@@ -654,10 +637,9 @@ namespace DragonBones
                 }
             }
         }
-
         /**
          * @language zh_CN
-         * 将指定插槽的显示对象列表替换为指定资源创造出的显示对象列表。
+         * 用指定资源列表替换插槽的显示对象列表。
          * @param dragonBonesName 指定的 DragonBonesData 名称。
          * @param armatureName 指定的骨架名称。
          * @param slotName 指定的插槽名称。
@@ -669,18 +651,17 @@ namespace DragonBones
             var dataPackage = new BuildArmaturePackage();
             if (_fillBuildArmaturePackage(dataPackage, dragonBonesName, armatureName, null, null))
             {
-                var slotDisplayDataSet = dataPackage.skin.GetSlot(slotName);
-                if (slotDisplayDataSet != null)
+                var skinSlotData = dataPackage.skin.GetSlot(slotName);
+                if (skinSlotData != null)
                 {
-                    int displayIndex = 0;
-                    foreach (var displayData in slotDisplayDataSet.displays)
+                    for (int i = 0, l = skinSlotData.displays.Count; i < l; ++i)
                     {
-                        _replaceSlotDisplay(dataPackage, displayData, slot, displayIndex++);
+                        var displayData = skinSlotData.displays[i];
+                        _replaceSlotDisplay(dataPackage, displayData, slot, i);
                     }
                 }
             }
         }
-
         /**
          * @private
          */
@@ -688,7 +669,6 @@ namespace DragonBones
         {
             return _dragonBonesDataMap;
         }
-
         /**
          * @private
          */

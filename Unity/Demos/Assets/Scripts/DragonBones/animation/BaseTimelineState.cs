@@ -175,7 +175,7 @@ namespace DragonBones
         {
             if (_playState <= 0 && _setCurrentTime(passedTime, normalizedTime))
             {
-                var currentFrameIndex = _keyFrameCount > 1 ? (int)(_currentTime * _frameRate) : 0;
+                var currentFrameIndex = _keyFrameCount > 1 ? (int)(_currentTime * _frameRate) : 0; // uint
                 var currentFrame = _timelineData.frames[currentFrameIndex];
 
                 if (_currentFrame != currentFrame)
@@ -281,14 +281,14 @@ namespace DragonBones
             if (
                 _keyFrameCount > 1 &&
                 (
-                    this._currentFrame.next != this._timelineData.frames[0] ||
-                    this._animationState.playTimes == 0 ||
-                    this._animationState.currentPlayTimes < this._animationState.playTimes - 1
+                    _currentFrame.next != _timelineData.frames[0] ||
+                    _animationState.playTimes == 0 ||
+                    _animationState.currentPlayTimes < _animationState.playTimes - 1
                 )
             )
             {
-                _tweenEasing = this._currentFrame.tweenEasing;
-                _curve = this._currentFrame.curve;
+                _tweenEasing = _currentFrame.tweenEasing;
+                _curve = _currentFrame.curve;
             }
             else
             {
@@ -301,7 +301,7 @@ namespace DragonBones
         {
             if (_tweenEasing != DragonBones.NO_TWEEN)
             {
-                _tweenProgress = (this._currentTime - this._currentFrame.position + this._position) / this._currentFrame.duration;
+                _tweenProgress = (_currentTime - _currentFrame.position + _position) / _currentFrame.duration;
                 if (_tweenEasing != 0.0f)
                 {
                     _tweenProgress = _getEasingValue(_tweenProgress, _tweenEasing);
@@ -309,7 +309,7 @@ namespace DragonBones
             }
             else if (_curve != null)
             {
-                _tweenProgress = (this._currentTime - this._currentFrame.position + this._position) / this._currentFrame.duration;
+                _tweenProgress = (_currentTime - _currentFrame.position + _position) / _currentFrame.duration;
                 _tweenProgress = _getCurveEasingValue(_tweenProgress, _curve);
             }
             else

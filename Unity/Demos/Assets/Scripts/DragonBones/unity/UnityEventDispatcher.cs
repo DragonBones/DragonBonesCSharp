@@ -9,14 +9,12 @@ namespace DragonBones
     public class UnityEventDispatcher<T> : MonoBehaviour, IEventDispatcher<T>
     {
         private readonly Dictionary<string, ListenerDelegate<T>> _listeners = new Dictionary<string, ListenerDelegate<T>>();
-
         /**
          * @private
          */
         public UnityEventDispatcher()
         {
         }
-
         /**
          * @inheritDoc
          */
@@ -31,7 +29,6 @@ namespace DragonBones
                 _listeners[type](type, eventObject);
             }
         }
-
         /**
          * @inheritDoc
          */
@@ -39,7 +36,6 @@ namespace DragonBones
         {
             return _listeners.ContainsKey(type);
         }
-
         /**
          * @inheritDoc
          */
@@ -63,7 +59,6 @@ namespace DragonBones
                 _listeners.Add(type, listener);
             }
         }
-
         /**
          * @inheritDoc
          */

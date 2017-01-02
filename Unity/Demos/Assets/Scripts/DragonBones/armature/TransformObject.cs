@@ -12,18 +12,25 @@ namespace DragonBones
         /**
          * @language zh_CN
          * 对象的名称。
+         * @readOnly
          * @version DragonBones 3.0
          */
         public string name;
-
+        /**
+         * @language zh_CN
+         * 相对于骨架坐标系的矩阵。
+         * @readOnly
+         * @version DragonBones 3.0
+         */
+        public readonly Matrix globalTransformMatrix = new Matrix();
         /**
          * @language zh_CN
          * 相对于骨架坐标系的变换。
+         * @readOnly
          * @see dragonBones.Transform
          * @version DragonBones 3.0
          */
         public readonly Transform global = new Transform();
-
         /**
          * @language zh_CN
          * 相对于骨架或父骨骼坐标系的偏移变换。
@@ -31,46 +38,34 @@ namespace DragonBones
          * @version DragonBones 3.0
          */
         public readonly Transform offset = new Transform();
-
-        /**
-         * @language zh_CN
-         * 相对于骨架坐标系的矩阵。
-         * @version DragonBones 3.0
-         */
-        public readonly Matrix globalTransformMatrix = new Matrix();
-
         /**
          * @language zh_CN
          * 相对于骨架或父骨骼坐标系的绑定变换。
+         * @readOnly
          * @see dragonBones.Transform
          * @version DragonBones 3.0
          */
         public Transform origin;
-
         /**
          * @language zh_CN
          * 可以用于存储临时数据。
          * @version DragonBones 3.0
          */
         public object userData;
-
         /**
          * @private
          */
         internal Armature _armature;
-
         /**
          * @private
          */
         internal Bone _parent;
-
         /**
          * @private
          */
         public TransformObject()
         {
         }
-
         /**
          * @private
          */
@@ -86,7 +81,6 @@ namespace DragonBones
             _armature = null;
             _parent = null;
         }
-
         /**
          * @private
          */
@@ -94,7 +88,6 @@ namespace DragonBones
         {
             _armature = value;
         }
-
         /**
          * @private
          */
@@ -102,7 +95,6 @@ namespace DragonBones
         {
             _parent = value;
         }
-
         /**
          * @language zh_CN
          * 所属的骨架。
@@ -113,7 +105,6 @@ namespace DragonBones
         {
             get { return _armature; }
         }
-
         /**
          * @language zh_CN
          * 所属的父骨骼。

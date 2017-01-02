@@ -11,17 +11,13 @@ namespace DragonBones
      */
     public class Animation : BaseObject
     {
-        /**
-         * @private
-         */
-        protected static int _sortAnimationState(AnimationState a, AnimationState b)
+        private static int _sortAnimationState(AnimationState a, AnimationState b)
         {
             return a.layer > b.layer ? -1 : 1;
         }
-
         /**
          * @language zh_CN
-         * 动画的播放速度。 [(-N~0): 倒转播放, 0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
+         * 动画播放速度。 [(-N~0): 倒转播放, 0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
          * @default 1
          * @version DragonBones 3.0
          */
@@ -33,33 +29,35 @@ namespace DragonBones
          * @private
          */
         internal bool _timelineStateDirty;
+        /**
+         * @private
+         */
+        internal int _cacheFrameIndex;
         private readonly List<string> _animationNames = new List<string>();
         private readonly Dictionary<string, AnimationData> _animations = new Dictionary<string, AnimationData>();
         private readonly List<AnimationState> _animationStates = new List<AnimationState>();
         private Armature _armature;
         private AnimationState _lastAnimationState;
         private AnimationConfig _animationConfig;
-
         /**
          * @private
          */
         public Animation()
         {
         }
-
         /**
-         * @inheritDoc
+         * @private
          */
         override protected void _onClear()
         {
-            if (_animationConfig != null)
-            {
-                _animationConfig.ReturnToPool();
-            }
-
             foreach (var animationState in _animationStates)
             {
                 animationState.ReturnToPool();
+            }
+
+            if (_animationConfig != null)
+            {
+                _animationConfig.ReturnToPool();
             }
 
             timeScale = 1.0f;
@@ -67,6 +65,7 @@ namespace DragonBones
             _isPlaying = false;
             _animationStateDirty = false;
             _timelineStateDirty = false;
+            _cacheFrameIndex = -1;
             _animationNames.Clear();
             _animations.Clear();
             _animationStates.Clear();
@@ -75,16 +74,16 @@ namespace DragonBones
             _animationConfig = null;
         }
 
-        /**
-         * @private
-         */
-        protected void _fadeOut(AnimationConfig animationConfig)
+        private void _fadeOut(AnimationConfig animationConfig)
         {
+            int i = 0, l = _animationStates.Count;
+            AnimationState animationState = null;
             switch (animationConfig.fadeOutMode)
             {
                 case AnimationFadeOutMode.SameLayer:
-                    foreach (var animationState in _animationStates)
+                    for (; i < l; ++i)
                     {
+                        animationState = _animationStates[i];
                         if (animationState.layer == animationConfig.layer)
                         {
                             animationState.FadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut);
@@ -93,8 +92,9 @@ namespace DragonBones
                     break;
 
                 case AnimationFadeOutMode.SameGroup:
-                    foreach (var animationState in _animationStates)
+                    for (; i < l; ++i)
                     {
+                        animationState = _animationStates[i];
                         if (animationState.group == animationConfig.group)
                         {
                             animationState.FadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut);
@@ -103,9 +103,12 @@ namespace DragonBones
                     break;
 
                 case AnimationFadeOutMode.SameLayerAndGroup:
-                    foreach (var animationState in _animationStates)
+                    for (; i < l; ++i)
                     {
-                        if (animationState.layer == animationConfig.layer && animationState.group == animationConfig.group)
+                        animationState = _animationStates[i];
+                        if (animationState.layer == animationConfig.layer && 
+                            animationState.group == animationConfig.group
+                        )
                         {
                             animationState.FadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut);
                         }
@@ -113,8 +116,9 @@ namespace DragonBones
                     break;
 
                 case AnimationFadeOutMode.All:
-                    foreach (var animationState in _animationStates)
+                    for (; i < l; ++i)
                     {
+                        animationState = _animationStates[i];
                         animationState.FadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut);
                     }
                     break;
@@ -137,7 +141,6 @@ namespace DragonBones
             _armature = armature;
             _animationConfig = BaseObject.BorrowObject<AnimationConfig>();
         }
-
         /**
          * @private
          */
@@ -151,6 +154,16 @@ namespace DragonBones
             if (passedTime < 0.0f)
             {
                 passedTime = -passedTime;
+            }
+
+            if (_armature.inheritAnimation && _armature._parent != null) // Inherit parent animation timeScale.
+            {
+                passedTime *= _armature._parent._armature.animation.timeScale;
+            }
+
+            if (timeScale != 1.0f)
+            {
+                passedTime *= timeScale;
             }
 
             var animationStateCount = _animationStates.Count;
@@ -224,7 +237,7 @@ namespace DragonBones
                             animationState._updateTimelineStates();
                         }
 
-                        animationState._advanceTime(passedTime, -1.0f);
+                        animationState._advanceTime(passedTime, 0.0f);
                     }
 
                     if (i == animationStateCount - 1 && r > 0) // Modify animation states size.
@@ -238,36 +251,36 @@ namespace DragonBones
                     }
                 }
 
-                _armature._cacheFrameIndex = -1;
+                _cacheFrameIndex = -1;
             }
             else
             {
-                _armature._cacheFrameIndex = -1;
+                _cacheFrameIndex = -1;
             }
 
             _timelineStateDirty = false;
         }
-
         /**
          * @language zh_CN
-         * 清除所有正在播放的动画状态。
+         * 清除所有动画状态。
+         * @see dragonBones.AnimationState
          * @version DragonBones 4.5
          */
         public void Reset()
         {
-            foreach (var animationState in _animationStates)
+            for (int i = 0, l = _animationStates.Count; i < l; ++i)
             {
-                animationState.ReturnToPool();
+                _animationStates[i].ReturnToPool();
             }
 
             _isPlaying = false;
             _animationStateDirty = false;
             _timelineStateDirty = false;
+            _cacheFrameIndex = -1;
             _animationConfig.Clear();
             _animationStates.Clear();
             _lastAnimationState = null;
         }
-
         /**
          * @language zh_CN
          * 暂停播放动画。
@@ -291,7 +304,14 @@ namespace DragonBones
             }
         }
         /**
-         * @private
+         * @language zh_CN
+         * @beta
+         * 通过动画配置来播放动画。
+         * @param animationConfig 动画配置。
+         * @returns 对应的动画状态。
+         * @see dragonBones.AnimationConfig
+         * @see dragonBones.AnimationState
+         * @version DragonBones 5.0
          */
         public AnimationState PlayConfig(AnimationConfig animationConfig)
         {
@@ -316,12 +336,13 @@ namespace DragonBones
             }
 
             _isPlaying = true;
+
             if (animationConfig.playTimes < 0)
             {
                 animationConfig.playTimes = (int)animationData.playTimes;
             }
 
-            if (float.IsNaN(animationConfig.fadeInTime) || animationConfig.fadeInTime < 0.0f)
+            if (animationConfig.fadeInTime < 0.0f || float.IsNaN(animationConfig.fadeInTime))
             {
                 if (_lastAnimationState != null)
                 {
@@ -333,14 +354,53 @@ namespace DragonBones
                 }
             }
 
-            if (float.IsNaN(animationConfig.fadeOutTime) || animationConfig.fadeOutTime < 0.0f)
+            if (animationConfig.fadeOutTime < 0.0f || float.IsNaN(animationConfig.fadeOutTime))
             {
                 animationConfig.fadeOutTime = animationConfig.fadeInTime;
             }
 
-            if (animationConfig.timeScale <= -100.0f)
+            if (animationConfig.timeScale <= -100.0f || float.IsNaN(animationConfig.timeScale)) //
             {
                 animationConfig.timeScale = 1.0f / animationData.scale;
+            }
+
+            if (animationData.duration > 0.0f)
+            {
+                if (float.IsNaN(animationConfig.position))
+                {
+                    animationConfig.position = 0.0f;
+                }
+                else if (animationConfig.position < 0.0f)
+                {
+                    animationConfig.position %= animationData.duration;
+                    animationConfig.position = animationData.duration - animationConfig.position;
+                }
+                else if (animationConfig.position == animationData.duration)
+                {
+                    animationConfig.position -= 0.001f;
+                }
+                else if (animationConfig.position > animationData.duration)
+                {
+                    animationConfig.position %= animationData.duration;
+                }
+
+                if (animationConfig.position + animationConfig.duration > animationData.duration)
+                {
+                    animationConfig.duration = animationData.duration - animationConfig.position;
+                }
+            }
+            else
+            {
+                animationConfig.position = 0.0f;
+                animationConfig.duration = -1.0f;
+            }
+
+            var isStop = animationConfig.duration == 0.0f;
+            if (isStop)
+            {
+                animationConfig.playTimes = 1;
+                animationConfig.duration = -1.0f;
+                animationConfig.fadeInTime = 0.0f;
             }
 
             _fadeOut(animationConfig);
@@ -349,7 +409,7 @@ namespace DragonBones
             _lastAnimationState._init(_armature, animationData, animationConfig);
             _animationStates.Add(_lastAnimationState);
             _animationStateDirty = true;
-            _armature._cacheFrameIndex = -1;
+            _cacheFrameIndex = -1;
 
             if (_animationStates.Count > 1)
             {
@@ -357,40 +417,42 @@ namespace DragonBones
             }
 
             // Child armature play same name animation.
-            foreach (var slot in _armature.GetSlots())
+            var slots = _armature.GetSlots();
+            for (int i = 0, l = slots.Count; i < l; ++i)
             {
-                if (slot.inheritAnimation)
+                var childArmature = slots[i].childArmature;
+                if (
+                    childArmature != null && childArmature.inheritAnimation &&
+                    childArmature.animation.HasAnimation(animationName) &&
+                    childArmature.animation.GetState(animationName) == null
+                )
                 {
-                    var childArmature = slot.childArmature;
-                    if (
-                        childArmature != null &&
-                        childArmature.animation.HasAnimation(animationName) &&
-                        childArmature.animation.GetState(animationName) == null
-                    )
-                    {
-                        childArmature.animation.FadeIn(animationName);
-                    }
+                    childArmature.animation.FadeIn(animationName); //
                 }
             }
 
-            if (animationConfig.fadeInTime <= 0.0f)
+            if (animationConfig.fadeInTime <= 0.0f) // Blend animation state, update armature.
             {
-                _armature.AdvanceTime(0.0f); // Blend animation state, update armature.
+                _armature.AdvanceTime(0.0f);
+            }
+
+            if (isStop)
+            {
+                _lastAnimationState.Stop();
             }
 
             return _lastAnimationState;
         }
-
         /**
          * @language zh_CN
-         * 淡入播放指定名称的动画。
-         * @param animationName 动画数据的名称。
-         * @param playTimes 循环播放的次数。 [-1: 使用数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @param fadeInTime 淡入的时间。 [-1: 使用数据默认值, [0~N]: N 秒淡入完毕] (以秒为单位)
-         * @param layer 混合的图层，图层高会优先获取混合权重。
-         * @param group 混合的组，用于给动画状态编组，方便混合淡出控制。
-         * @param fadeOutMode 淡出的模式。
-         * @returns 返回控制这个动画数据的动画状态。
+         * 淡入播放动画。
+         * @param animationName 动画数据名称。
+         * @param playTimes 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
+         * @param fadeInTime 淡入时间。 [-1: 使用动画数据默认值, [0~N]: 淡入时间] (以秒为单位)
+         * @param layer 混合图层，图层高会优先获取混合权重。
+         * @param group 混合组，用于动画状态编组，方便控制淡出。
+         * @param fadeOutMode 淡出模式。
+         * @returns 对应的动画状态。
          * @see dragonBones.AnimationFadeOutMode
          * @see dragonBones.AnimationState
          * @version DragonBones 4.5
@@ -412,13 +474,12 @@ namespace DragonBones
 
             return PlayConfig(_animationConfig);
         }
-
         /**
          * @language zh_CN
          * 播放动画。
-         * @param animationName 动画数据的名称，如果未设置，则播放默认动画，或将暂停状态切换为播放状态，或重新播放上一个正在播放的动画。 
-         * @param playTimes 动画需要播放的次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @returns 返回控制这个动画数据的动画状态。
+         * @param animationName 动画数据名称，如果未设置，则播放默认动画，或将暂停状态切换为播放状态，或重新播放上一个正在播放的动画。 
+         * @param playTimes 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
+         * @returns 对应的动画状态。
          * @see dragonBones.AnimationState
          * @version DragonBones 3.0
          */
@@ -455,14 +516,13 @@ namespace DragonBones
 
             return _lastAnimationState;
         }
-
         /**
          * @language zh_CN
-         * 指定名称的动画从指定时间开始播放。
+         * 从指定时间开始播放动画。
          * @param animationName 动画数据的名称。
-         * @param time 时间。 (以秒为单位)
-         * @param playTimes 动画循环播放的次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @returns 返回控制这个动画数据的动画状态。
+         * @param time 开始时间。 (以秒为单位)
+         * @param playTimes 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
+         * @returns 对应的动画状态。
          * @see dragonBones.AnimationState
          * @version DragonBones 4.5
          */
@@ -476,14 +536,13 @@ namespace DragonBones
 
             return PlayConfig(_animationConfig);
         }
-
         /**
          * @language zh_CN
-         * 指定名称的动画从指定帧开始播放。
+         * 从指定帧开始播放动画。
          * @param animationName 动画数据的名称。
          * @param frame 帧。
-         * @param playTimes 动画循环播放的次数。[-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @returns 返回控制这个动画数据的动画状态。
+         * @param playTimes 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
+         * @returns 对应的动画状态。
          * @see dragonBones.AnimationState
          * @version DragonBones 4.5
          */
@@ -502,14 +561,13 @@ namespace DragonBones
 
             return PlayConfig(_animationConfig);
         }
-
         /**
          * @language zh_CN
-         * 指定名称的动画从指定进度开始播放。
+         * 从指定进度开始播放动画。
          * @param animationName 动画数据的名称。
          * @param progress 进度。 [0~1]
-         * @param playTimes 动画循环播放的次数。[-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @returns 返回控制这个动画数据的动画状态。
+         * @param playTimes 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
+         * @returns 对应的动画状态。
          * @see dragonBones.AnimationState
          * @version DragonBones 4.5
          */
@@ -528,13 +586,12 @@ namespace DragonBones
 
             return PlayConfig(_animationConfig);
         }
-
         /**
          * @language zh_CN
-         * 播放指定名称的动画到指定的时间并停止。
+         * 将动画停止到指定的时间。
          * @param animationName 动画数据的名称。
          * @param time 时间。 (以秒为单位)
-         * @returns 返回控制这个动画数据的动画状态。
+         * @returns 对应的动画状态。
          * @see dragonBones.AnimationState
          * @version DragonBones 4.5
          */
@@ -548,13 +605,12 @@ namespace DragonBones
 
             return animationState;
         }
-
         /**
          * @language zh_CN
-         * 播放指定名称的动画到指定的帧并停止。
+         * 将动画停止到指定的帧。
          * @param animationName 动画数据的名称。
          * @param frame 帧。
-         * @returns 返回控制这个动画数据的动画状态。
+         * @returns 对应的动画状态。
          * @see dragonBones.AnimationState
          * @version DragonBones 4.5
          */
@@ -568,13 +624,12 @@ namespace DragonBones
 
             return animationState;
         }
-
         /**
          * @language zh_CN
-         * 播放指定名称的动画到指定的进度并停止。
+         * 将动画停止到指定的进度。
          * @param animationName 动画数据的名称。
-         * @param progress 进度。 [0~1]
-         * @returns 返回控制这个动画数据的动画状态。
+         * @param progress 进度。 [0 ~ 1]
+         * @returns 对应的动画状态。
          * @see dragonBones.AnimationState
          * @version DragonBones 4.5
          */
@@ -588,18 +643,18 @@ namespace DragonBones
 
             return animationState;
         }
-
         /**
          * @language zh_CN
-         * 获取指定名称的动画状态。
+         * 获取动画状态。
          * @param animationName 动画状态的名称。
          * @see dragonBones.AnimationState
          * @version DragonBones 3.0
          */
         public AnimationState GetState(string animationName)
         {
-            foreach (var animationState in _animationStates)
+            for (int i = 0, l = _animationStates.Count; i < l; ++i)
             {
+                var animationState = _animationStates[i];
                 if (animationState.name == animationName)
                 {
                     return animationState;
@@ -608,10 +663,9 @@ namespace DragonBones
 
             return null;
         }
-
         /**
          * @language zh_CN
-         * 是否包含指定名称的动画数据。
+         * 是否包含动画数据。
          * @param animationName 动画数据的名称。
          * @see dragonBones.AnimationData
          * @version DragonBones 3.0
@@ -620,7 +674,6 @@ namespace DragonBones
         {
             return _animations.ContainsKey(animationName);
         }
-
         /**
          * @language zh_CN
          * 动画是否处于播放状态。
@@ -660,9 +713,9 @@ namespace DragonBones
                         return false;
                     }
 
-                    foreach (var animationState in _animationStates)
+                    for (int i = 0, l = _animationStates.Count; i < l; ++i)
                     {
-                        if (!animationState.isCompleted)
+                        if (!_animationStates[i].isCompleted)
                         {
                             return false;
                         }
@@ -674,7 +727,6 @@ namespace DragonBones
                 return false;
             }
         }
-
         /**
          * @language zh_CN
          * 上一个正在播放的动画状态的名称。
@@ -685,7 +737,6 @@ namespace DragonBones
         {
             get { return _lastAnimationState != null ? _lastAnimationState.name : null; }
         }
-
         /**
          * @language zh_CN
          * 上一个正在播放的动画状态。
@@ -697,13 +748,15 @@ namespace DragonBones
             get { return _lastAnimationState; }
         }
         /**
-         * @private
+         * @language zh_CN
+         * 一个可以快速使用的动画配置实例。
+         * @see dragonBones.AnimationConfig
+         * @version DragonBones 5.0
          */
         public AnimationConfig animationConfig
         {
             get { return _animationConfig; }
         }
-
         /**
          * @language zh_CN
          * 所有动画数据名称。
@@ -714,7 +767,6 @@ namespace DragonBones
         {
             get { return _animationNames; }
         }
-
         /**
          * @language zh_CN
          * 所有的动画数据。
@@ -738,8 +790,8 @@ namespace DragonBones
                 {
                     foreach (var pair in value)
                     {
-                        _animationNames.Add(pair.Key);
                         _animations[pair.Key] = pair.Value;
+                        _animationNames.Add(pair.Key);
                     }
                 }
             }

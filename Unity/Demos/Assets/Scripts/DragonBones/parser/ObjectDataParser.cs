@@ -42,7 +42,6 @@ namespace DragonBones
 
             return defaultValue;
         }
-
         /**
          * @private
          */
@@ -68,7 +67,6 @@ namespace DragonBones
 
             return defaultValue;
         }
-
         /**
          * @private
          */
@@ -93,7 +91,6 @@ namespace DragonBones
 
             return defaultValue;
         }
-
         /**
          * @private
          */
@@ -118,7 +115,6 @@ namespace DragonBones
 
             return defaultValue;
         }
-
         /**
          * @private
          */
@@ -137,7 +133,6 @@ namespace DragonBones
 
             return defaultValue;
         }
-
         /**
          * @private
          */
@@ -164,14 +159,12 @@ namespace DragonBones
 
             return defaultValue;
         }
-
         /**
          * @private
          */
         public ObjectDataParser()
         {
         }
-
         /**
          * @private
          */
@@ -179,7 +172,7 @@ namespace DragonBones
         {
             var armature = BaseObject.BorrowObject<ArmatureData>();
             armature.name = _getString(rawData, NAME, null);
-            armature.frameRate = _getNumber(rawData, FRAME_RATE, this._data.frameRate);
+            armature.frameRate = _getNumber(rawData, FRAME_RATE, _data.frameRate);
             armature.scale = scale;
 
             if (armature.frameRate == 0)
@@ -196,8 +189,8 @@ namespace DragonBones
                 armature.type = (ArmatureType)_getNumber(rawData, TYPE, (int)ArmatureType.Armature);
             }
 
-            this._armature = armature;
-            this._rawBones.Clear();
+            _armature = armature;
+            _rawBones.Clear();
 
             if (rawData.ContainsKey(AABB))
             {
@@ -215,7 +208,7 @@ namespace DragonBones
                 {
                     var bone = _parseBone(rawBone);
                     armature.AddBone(bone, _getString(rawBone, PARENT, null));
-                    this._rawBones.Add(bone);
+                    _rawBones.Add(bone);
                 }
             }
 
@@ -264,17 +257,16 @@ namespace DragonBones
                 _parseActionData(rawData, armature.actions, null, null);
             }
 
-            if (this._isOldData && this._isGlobalTransform) // Support 2.x ~ 3.x data.
+            if (_isOldData && _isGlobalTransform) // Support 2.x ~ 3.x data.
             {
-                this._globalToLocal(armature);
+                _globalToLocal(armature);
             }
 
-            this._armature = null;
-            this._rawBones.Clear();
+            _armature = null;
+            _rawBones.Clear();
 
             return armature;
         }
-
         /**
          * @private
          */
@@ -284,7 +276,7 @@ namespace DragonBones
             bone.inheritTranslation = _getBoolean(rawData, INHERIT_TRANSLATION, true);
             bone.inheritRotation = _getBoolean(rawData, INHERIT_ROTATION, true);
             bone.inheritScale = _getBoolean(rawData, INHERIT_SCALE, true);
-            bone.length = _getNumber(rawData, LENGTH, 0.0f) * this._armature.scale;
+            bone.length = _getNumber(rawData, LENGTH, 0.0f) * _armature.scale;
             bone.name = _getString(rawData, NAME, null);
 
             if (rawData.ContainsKey(TRANSFORM))
@@ -292,26 +284,25 @@ namespace DragonBones
                 _parseTransform(rawData[TRANSFORM] as Dictionary<string, object>, bone.transform);
             }
 
-            if (this._isOldData) // Support 2.x ~ 3.x data.
+            if (_isOldData) // Support 2.x ~ 3.x data.
             {
                 bone.inheritScale = false;
             }
 
             return bone;
         }
-
         /**
          * @private
          */
         protected void _parseIK(Dictionary<string, object> rawData)
         {
-            var bone = this._armature.GetBone(_getString(rawData, rawData.ContainsKey(BONE) ? BONE : NAME, null));
+            var bone = _armature.GetBone(_getString(rawData, rawData.ContainsKey(BONE) ? BONE : NAME, null));
             if (bone != null)
             {
                 bone.bendPositive = _getBoolean(rawData, BEND_POSITIVE, true);
                 bone.chain = _getNumber(rawData, CHAIN, (uint)0);
                 bone.weight = _getNumber(rawData, WEIGHT, 1.0f);
-                bone.ik = this._armature.GetBone(_getString(rawData, TARGET, null));
+                bone.ik = _armature.GetBone(_getString(rawData, TARGET, null));
 
                 if (bone.chain > 0 && bone.parent != null && bone.parent.ik == null)
                 {
@@ -327,7 +318,6 @@ namespace DragonBones
                 }
             }
         }
-
         /**
          * @private
          */
@@ -337,7 +327,7 @@ namespace DragonBones
             slot.displayIndex = _getNumber(rawData, DISPLAY_INDEX, (int)0);
             slot.zOrder = _getNumber(rawData, Z, zOrder); // Support 2.x ~ 3.x data.
             slot.name = _getString(rawData, NAME, null);
-            slot.parent = this._armature.GetBone(_getString(rawData, PARENT, null));
+            slot.parent = _armature.GetBone(_getString(rawData, PARENT, null));
 
             if (rawData.ContainsKey(COLOR) || rawData.ContainsKey(COLOR_TRANSFORM))
             {
@@ -363,7 +353,7 @@ namespace DragonBones
                 _parseActionData(rawData, slot.actions, null, null);
             }
 
-            if (this._isOldData) // Support 2.x ~ 3.x data.
+            if (_isOldData) // Support 2.x ~ 3.x data.
             {
                 if (rawData.ContainsKey(COLOR_TRANSFORM))
                 {
@@ -378,7 +368,6 @@ namespace DragonBones
 
             return slot;
         }
-
         /**
          * @private
          */
@@ -393,49 +382,47 @@ namespace DragonBones
 
             if (rawData.ContainsKey(SLOT))
             {
-                this._skin = skin;
+                _skin = skin;
 
                 var slots = rawData[SLOT] as List<object>;
                 int zOrder = 0;
                 foreach (Dictionary<string, object> slot in slots)
                 {
-                    if (this._isOldData) // Support 2.x ~ 3.x data.
+                    if (_isOldData) // Support 2.x ~ 3.x data.
                     {
-                        this._armature.AddSlot(_parseSlot(slot, zOrder++));
+                        _armature.AddSlot(_parseSlot(slot, zOrder++));
                     }
 
-                    skin.AddSlot(this._parseSkinSlotData(slot));
+                    skin.AddSlot(_parseSkinSlotData(slot));
                 }
 
-                this._skin = null;
+                _skin = null;
             }
 
             return skin;
         }
-
         /**
          * @private
          */
         protected SkinSlotData _parseSkinSlotData(Dictionary<string, object> rawData)
         {
             var skinSlotData = BaseObject.BorrowObject<SkinSlotData>();
-            skinSlotData.slot = this._armature.GetSlot(_getString(rawData, NAME, null));
+            skinSlotData.slot = _armature.GetSlot(_getString(rawData, NAME, null));
 
             if (rawData.ContainsKey(DISPLAY))
             {
-                this._skinSlotData = skinSlotData;
+                _skinSlotData = skinSlotData;
 
                 foreach (Dictionary<string, object> rawDisplay in rawData[DISPLAY] as List<object>)
                 {
                     skinSlotData.displays.Add(_parseDisplay(rawDisplay));
                 }
 
-                this._skinSlotData = null;
+                _skinSlotData = null;
             }
 
             return skinSlotData;
         }
-
         /**
          * @private
          */
@@ -462,12 +449,12 @@ namespace DragonBones
                 display.pivot.x = _getNumber(pivotObject, X, 0.0f);
                 display.pivot.y = _getNumber(pivotObject, Y, 0.0f);
             }
-            else if (this._isOldData) // Support 2.x ~ 3.x data.
+            else if (_isOldData) // Support 2.x ~ 3.x data.
             {
                 var transformObject = rawData[TRANSFORM] as Dictionary<string, object>;
                 display.isRelativePivot = false;
-                display.pivot.x = _getNumber(transformObject, PIVOT_X, 0.0f) * this._armature.scale;
-                display.pivot.y = _getNumber(transformObject, PIVOT_Y, 0.0f) * this._armature.scale;
+                display.pivot.x = _getNumber(transformObject, PIVOT_X, 0.0f) * _armature.scale;
+                display.pivot.y = _getNumber(transformObject, PIVOT_Y, 0.0f) * _armature.scale;
             }
             else
             {
@@ -493,7 +480,7 @@ namespace DragonBones
                     if (string.IsNullOrEmpty(display.share))
                     {
                         display.mesh = _parseMesh(rawData);
-                        this._skinSlotData.AddMesh(display.mesh);
+                        _skinSlotData.AddMesh(display.mesh);
                     }
                     break;
 
@@ -507,7 +494,6 @@ namespace DragonBones
 
             return display;
         }
-
         /**
          * @private
          */
@@ -522,8 +508,8 @@ namespace DragonBones
             var numVertices = (int)(rawVertices.Count / 2); // uint
             var numTriangles = (int)(rawTriangles.Count / 3); // uint
 
-            var inverseBindPose = new List<Matrix>(this._armature.sortedBones.Count);
-            DragonBones.ResizeList(inverseBindPose, this._armature.sortedBones.Count, null);
+            var inverseBindPose = new List<Matrix>(_armature.sortedBones.Count);
+            DragonBones.ResizeList(inverseBindPose, _armature.sortedBones.Count, null);
 
             mesh.skinned = rawData.ContainsKey(WEIGHTS) && (rawData[WEIGHTS] as List<object>).Count > 0;
             mesh.name = _getString(rawData, NAME, null);
@@ -545,8 +531,8 @@ namespace DragonBones
                     mesh.slotPose.b = _getParameter(rawSlotPose, 1, 0.0f);
                     mesh.slotPose.c = _getParameter(rawSlotPose, 2, 0.0f);
                     mesh.slotPose.d = _getParameter(rawSlotPose, 3, 1.0f);
-                    mesh.slotPose.tx = _getParameter(rawSlotPose, 4, 0.0f) * this._armature.scale;
-                    mesh.slotPose.ty = _getParameter(rawSlotPose, 5, 0.0f) * this._armature.scale;
+                    mesh.slotPose.tx = _getParameter(rawSlotPose, 4, 0.0f) * _armature.scale;
+                    mesh.slotPose.ty = _getParameter(rawSlotPose, 5, 0.0f) * _armature.scale;
                 }
 
                 if (rawData.ContainsKey(BONE_POSE))
@@ -560,8 +546,8 @@ namespace DragonBones
                         boneMatrix.b = _getParameter(rawBonePose, i + 2, 0.0f);
                         boneMatrix.c = _getParameter(rawBonePose, i + 3, 0.0f);
                         boneMatrix.d = _getParameter(rawBonePose, i + 4, 1.0f);
-                        boneMatrix.tx = _getParameter(rawBonePose, i + 5, 0.0f) * this._armature.scale;
-                        boneMatrix.ty = _getParameter(rawBonePose, i + 6, 0.0f) * this._armature.scale;
+                        boneMatrix.tx = _getParameter(rawBonePose, i + 5, 0.0f) * _armature.scale;
+                        boneMatrix.ty = _getParameter(rawBonePose, i + 6, 0.0f) * _armature.scale;
                         boneMatrix.Invert();
 
                     }
@@ -573,8 +559,8 @@ namespace DragonBones
                 var iN = i + 1;
                 var vertexIndex = i / 2;
 
-                var x = mesh.vertices[i] = _getParameter(rawVertices, i, 0.0f) * this._armature.scale;
-                var y = mesh.vertices[iN] = _getParameter(rawVertices, iN, 0.0f) * this._armature.scale;
+                var x = mesh.vertices[i] = _getParameter(rawVertices, i, 0.0f) * _armature.scale;
+                var y = mesh.vertices[iN] = _getParameter(rawVertices, iN, 0.0f) * _armature.scale;
                 mesh.uvs[i] = _getParameter(rawUVs, i, 0.0f);
                 mesh.uvs[iN] = _getParameter(rawUVs, iN, 0.0f);
 
@@ -586,15 +572,15 @@ namespace DragonBones
                     var weights = mesh.weights[vertexIndex] = new float[numBones];
                     var boneVertices = mesh.boneVertices[vertexIndex] = new float[numBones * 2];
 
-                    mesh.slotPose.TransformPoint(x, y, this._helpPoint);
-                    x = mesh.vertices[i] = this._helpPoint.x;
-                    y = mesh.vertices[iN] = this._helpPoint.y;
+                    mesh.slotPose.TransformPoint(x, y, _helpPoint);
+                    x = mesh.vertices[i] = _helpPoint.x;
+                    y = mesh.vertices[iN] = _helpPoint.y;
 
                     for (int iB = 0; iB < numBones; ++iB)
                     {
                         var iI = iW + 1 + iB * 2;
                         var rawBoneIndex = Convert.ToInt32(rawWeights[iI]); // uint
-                        var boneData = this._rawBones[rawBoneIndex];
+                        var boneData = _rawBones[rawBoneIndex];
 
                         var boneIndex = mesh.bones.IndexOf(boneData);
                         if (boneIndex < 0)
@@ -606,12 +592,12 @@ namespace DragonBones
                             mesh.inverseBindPose[boneIndex] = inverseBindPose[rawBoneIndex];
                         }
 
-                        mesh.inverseBindPose[boneIndex].TransformPoint(x, y, this._helpPoint);
+                        mesh.inverseBindPose[boneIndex].TransformPoint(x, y, _helpPoint);
 
                         indices[iB] = boneIndex;
                         weights[iB] = _getParameter(rawWeights, iI + 1, 0.0f);
-                        boneVertices[iB * 2] = this._helpPoint.x;
-                        boneVertices[iB * 2 + 1] = this._helpPoint.y;
+                        boneVertices[iB * 2] = _helpPoint.x;
+                        boneVertices[iB * 2 + 1] = _helpPoint.y;
                     }
 
                     iW += numBones * 2 + 1;
@@ -625,7 +611,6 @@ namespace DragonBones
 
             return mesh;
         }
-
         /**
          * @private
          */
@@ -703,7 +688,6 @@ namespace DragonBones
 
             return boundingBox;
         }
-
         /**
          * @private
          */
@@ -712,7 +696,7 @@ namespace DragonBones
             var animation = BaseObject.BorrowObject<AnimationData>();
             animation.frameCount = Math.Max(_getNumber(rawData, DURATION, (uint)1), 1);
             animation.playTimes = _getNumber(rawData, PLAY_TIMES, (uint)1);
-            animation.duration = (float)animation.frameCount / this._armature.frameRate;
+            animation.duration = (float)animation.frameCount / _armature.frameRate;
             animation.fadeInTime = _getNumber(rawData, FADE_IN_TIME, 0.0f);
             animation.name = _getString(rawData, NAME, DEFAULT_NAME);
             if (string.IsNullOrEmpty(animation.name))
@@ -720,7 +704,7 @@ namespace DragonBones
                 animation.name = DEFAULT_NAME;
             }
 
-            this._animation = animation;
+            _animation = animation;
 
             _parseTimeline(rawData, animation, _parseAnimationFrame);
 
@@ -757,10 +741,10 @@ namespace DragonBones
                 }
             }
 
-            if (this._isOldData) // Support 2.x ~ 3.x data.
+            if (_isOldData) // Support 2.x ~ 3.x data.
             {
-                this._isAutoTween = _getBoolean(rawData, AUTO_TWEEN, true);
-                this._animationTweenEasing = _getNumber(rawData, TWEEN_EASING, 0.0f);
+                _isAutoTween = _getBoolean(rawData, AUTO_TWEEN, true);
+                _animationTweenEasing = _getNumber(rawData, TWEEN_EASING, 0.0f);
                 animation.playTimes = _getNumber(rawData, LOOP, (uint)1);
 
                 if (rawData.ContainsKey(TIMELINE))
@@ -779,11 +763,11 @@ namespace DragonBones
             }
             else
             {
-                this._isAutoTween = false;
-                this._animationTweenEasing = 0.0f;
+                _isAutoTween = false;
+                _animationTweenEasing = 0.0f;
             }
 
-            foreach (var pair in this._armature.bones)
+            foreach (var pair in _armature.bones)
             {
                 var bone = pair.Value;
                 if (animation.GetBoneTimeline(bone.name) == null) // Add default bone timeline for cache if do not have one.
@@ -796,7 +780,7 @@ namespace DragonBones
                 }
             }
 
-            foreach (var pair in this._armature.slots)
+            foreach (var pair in _armature.slots)
             {
                 var slot = pair.Value;
                 if (animation.GetSlotTimeline(slot.name) == null) // Add default slot timeline for cache if do not have one.
@@ -820,25 +804,24 @@ namespace DragonBones
                     slotTimeline.frames.Add(slotFrame);
                     animation.AddSlotTimeline(slotTimeline);
 
-                    if (this._isOldData) // Support 2.x ~ 3.x data.
+                    if (_isOldData) // Support 2.x ~ 3.x data.
                     {
                         slotFrame.displayIndex = -1;
                     }
                 }
             }
 
-            this._animation = null;
+            _animation = null;
 
             return animation;
         }
-
         /**
          * @private
          */
         protected BoneTimelineData _parseBoneTimeline(Dictionary<string, object> rawData)
         {
             var timeline = BaseObject.BorrowObject<BoneTimelineData>();
-            timeline.bone = this._armature.GetBone(_getString(rawData, NAME, null));
+            timeline.bone = _armature.GetBone(_getString(rawData, NAME, null));
 
             _parseTimeline(rawData, timeline, _parseBoneFrame);
 
@@ -872,39 +855,37 @@ namespace DragonBones
                 prevFrame = frame;
             }
 
-            if (this._isOldData && (rawData.ContainsKey(PIVOT_X) || rawData.ContainsKey(PIVOT_Y))) // Support 2.x ~ 3.x data.
+            if (_isOldData && (rawData.ContainsKey(PIVOT_X) || rawData.ContainsKey(PIVOT_Y))) // Support 2.x ~ 3.x data.
             {
-                this._timelinePivot.x = _getNumber(rawData, PIVOT_X, 0.0f);
-                this._timelinePivot.y = _getNumber(rawData, PIVOT_Y, 0.0f);
+                _timelinePivot.x = _getNumber(rawData, PIVOT_X, 0.0f);
+                _timelinePivot.y = _getNumber(rawData, PIVOT_Y, 0.0f);
             }
             else
             {
-                this._timelinePivot.Clear();
+                _timelinePivot.Clear();
             }
 
             return timeline;
         }
-
         /**
          * @private
          */
         protected SlotTimelineData _parseSlotTimeline(Dictionary<string, object> rawData)
         {
             var timeline = BaseObject.BorrowObject<SlotTimelineData>();
-            timeline.slot = this._armature.GetSlot(_getString(rawData, NAME, null));
+            timeline.slot = _armature.GetSlot(_getString(rawData, NAME, null));
 
             _parseTimeline(rawData, timeline, _parseSlotFrame);
 
             return timeline;
         }
-
         /**
          * @private
          */
         protected FFDTimelineData _parseFFDTimeline(Dictionary<string, object> rawData)
         {
             var timeline = BaseObject.BorrowObject<FFDTimelineData>();
-            timeline.skin = this._armature.GetSkin(_getString(rawData, SKIN, null));
+            timeline.skin = _armature.GetSkin(_getString(rawData, SKIN, null));
             timeline.slot = timeline.skin.GetSlot(_getString(rawData, SLOT, null)); // NAME;
 
             var meshName = _getString(rawData, NAME, null);
@@ -922,7 +903,6 @@ namespace DragonBones
 
             return timeline;
         }
-
         /**
          * @private
          */
@@ -939,12 +919,11 @@ namespace DragonBones
 
             if (rawData.ContainsKey(EVENTS) || rawData.ContainsKey(EVENT) || rawData.ContainsKey(SOUND))
             {
-                this._parseEventData(rawData, frame.events, null, null);
+                _parseEventData(rawData, frame.events, null, null);
             }
 
             return frame;
         }
-
         /**
          * @private
          */
@@ -959,7 +938,7 @@ namespace DragonBones
                 var rawZOrder = rawData[Z_ORDER] as List<object>;
                 if (rawZOrder.Count > 0)
                 {
-                    var slotCount = this._armature.sortedSlots.Count;
+                    var slotCount = _armature.sortedSlots.Count;
                     var unchanged = new int[slotCount - rawZOrder.Count / 2];
 
                     DragonBones.ResizeList(frame.zOrder, slotCount, -1);
@@ -1001,7 +980,6 @@ namespace DragonBones
 
             return frame;
         }
-
         /**
          * @private
          */
@@ -1018,24 +996,24 @@ namespace DragonBones
                 var transformObject = rawData[TRANSFORM] as Dictionary<string, object>;
                 _parseTransform(transformObject, frame.transform);
 
-                if (this._isOldData) // Support 2.x ~ 3.x data.
+                if (_isOldData) // Support 2.x ~ 3.x data.
                 {
-                    this._helpPoint.x = this._timelinePivot.x + _getNumber(transformObject, PIVOT_X, 0.0f);
-                    this._helpPoint.y = this._timelinePivot.y + _getNumber(transformObject, PIVOT_Y, 0.0f);
-                    frame.transform.ToMatrix(this._helpMatrix);
-                    this._helpMatrix.TransformPoint(this._helpPoint.x, this._helpPoint.y, this._helpPoint, true);
-                    frame.transform.x += this._helpPoint.x;
-                    frame.transform.y += this._helpPoint.y;
+                    _helpPoint.x = _timelinePivot.x + _getNumber(transformObject, PIVOT_X, 0.0f);
+                    _helpPoint.y = _timelinePivot.y + _getNumber(transformObject, PIVOT_Y, 0.0f);
+                    frame.transform.ToMatrix(_helpMatrix);
+                    _helpMatrix.TransformPoint(_helpPoint.x, _helpPoint.y, _helpPoint, true);
+                    frame.transform.x += _helpPoint.x;
+                    frame.transform.y += _helpPoint.y;
                 }
             }
 
-            var bone = (this._timeline as BoneTimelineData).bone;
+            var bone = (_timeline as BoneTimelineData).bone;
             var actions = new List<ActionData>();
             var events = new List<EventData>();
 
             if (rawData.ContainsKey(ACTION) || rawData.ContainsKey(ACTIONS))
             {
-                var slot = this._armature.GetSlot(bone.name);
+                var slot = _armature.GetSlot(bone.name);
                 _parseActionData(rawData, actions, bone, slot);
             }
 
@@ -1046,12 +1024,11 @@ namespace DragonBones
 
             if (actions.Count > 0 || events.Count > 0)
             {
-                this._mergeFrameToAnimationTimeline(frame.position, actions, events); // Merge actions and events to animation timeline.
+                _mergeFrameToAnimationTimeline(frame.position, actions, events); // Merge actions and events to animation timeline.
             }
 
             return frame;
         }
-
         /**
          * @private
          */
@@ -1072,7 +1049,7 @@ namespace DragonBones
                 frame.color = SlotFrameData.DEFAULT_COLOR;
             }
 
-            if (this._isOldData) // Support 2.x ~ 3.x data.
+            if (_isOldData) // Support 2.x ~ 3.x data.
             {
                 if (_getBoolean(rawData, HIDE, false))
                 {
@@ -1081,22 +1058,21 @@ namespace DragonBones
             }
             else if (rawData.ContainsKey(ACTION) || rawData.ContainsKey(ACTIONS))
             {
-                var slot = (this._timeline as SlotTimelineData).slot;
+                var slot = (_timeline as SlotTimelineData).slot;
                 var actions = new List<ActionData>();
                 _parseActionData(rawData, actions, slot.parent, slot);
 
-                this._mergeFrameToAnimationTimeline(frame.position, actions, null); // Merge actions and events to animation timeline.
+                _mergeFrameToAnimationTimeline(frame.position, actions, null); // Merge actions and events to animation timeline.
             }
 
             return frame;
         }
-
         /**
          * @private
          */
         protected ExtensionFrameData _parseFFDFrame(Dictionary<string, object> rawData, uint frameStart, uint frameCount)
         {
-            var ffdTimeline = this._timeline as FFDTimelineData;
+            var ffdTimeline = _timeline as FFDTimelineData;
             var mesh = ffdTimeline.display.mesh;
 
             var frame = BaseObject.BorrowObject<ExtensionFrameData>();
@@ -1116,22 +1092,22 @@ namespace DragonBones
                 }
                 else
                 {
-                    x = _getParameter(rawVertices, i - offset, 0.0f) * this._armature.scale;
-                    y = _getParameter(rawVertices, i + 1 - offset, 0.0f) * this._armature.scale;
+                    x = _getParameter(rawVertices, i - offset, 0.0f) * _armature.scale;
+                    y = _getParameter(rawVertices, i + 1 - offset, 0.0f) * _armature.scale;
                 }
 
                 if (mesh.skinned) // If mesh is skinned, transform point by bone bind pose.
                 {
-                    mesh.slotPose.TransformPoint(x, y, this._helpPoint, true);
-                    x = this._helpPoint.x;
-                    y = this._helpPoint.y;
+                    mesh.slotPose.TransformPoint(x, y, _helpPoint, true);
+                    x = _helpPoint.x;
+                    y = _helpPoint.y;
 
                     var boneIndices = mesh.boneIndices[i / 2];
                     foreach (var boneIndex in boneIndices)
                     {
-                        mesh.inverseBindPose[boneIndex].TransformPoint(x, y, this._helpPoint, true);
-                        frame.tweens.Add(this._helpPoint.x);
-                        frame.tweens.Add(this._helpPoint.y);
+                        mesh.inverseBindPose[boneIndex].TransformPoint(x, y, _helpPoint, true);
+                        frame.tweens.Add(_helpPoint.x);
+                        frame.tweens.Add(_helpPoint.y);
                     }
                 }
                 else
@@ -1143,7 +1119,6 @@ namespace DragonBones
 
             return frame;
         }
-
         /**
          * @private
          */
@@ -1157,16 +1132,16 @@ namespace DragonBones
                 {
                     frame.tweenEasing = _getNumber(rawData, TWEEN_EASING, DragonBones.NO_TWEEN);
                 }
-                else if (this._isOldData) // Support 2.x ~ 3.x data.
+                else if (_isOldData) // Support 2.x ~ 3.x data.
                 {
-                    frame.tweenEasing = this._isAutoTween ? this._animationTweenEasing : DragonBones.NO_TWEEN;
+                    frame.tweenEasing = _isAutoTween ? _animationTweenEasing : DragonBones.NO_TWEEN;
                 }
                 else
                 {
                     frame.tweenEasing = DragonBones.NO_TWEEN;
                 }
 
-                if (this._isOldData && this._animation.scale == 1 && (this._timeline as TimelineData<T>).scale == 1.0f && frame.duration * this._armature.frameRate < 2)
+                if (_isOldData && _animation.scale == 1 && (_timeline as TimelineData<T>).scale == 1.0f && frame.duration * _armature.frameRate < 2)
                 {
                     frame.tweenEasing = DragonBones.NO_TWEEN;
                 }
@@ -1190,16 +1165,14 @@ namespace DragonBones
                 frame.curve = null;
             }
         }
-
         /**
          * @private
          */
         protected void _parseFrame<T>(Dictionary<string, object> rawData, T frame, uint frameStart, uint frameCount) where T : FrameData<T>
         {
-            frame.position = (float)frameStart / this._armature.frameRate;
-            frame.duration = (float)frameCount / this._armature.frameRate;
+            frame.position = (float)frameStart / _armature.frameRate;
+            frame.duration = (float)frameCount / _armature.frameRate;
         }
-
         /**
          * @private
          */
@@ -1208,7 +1181,7 @@ namespace DragonBones
             timeline.scale = _getNumber(rawData, SCALE, 1.0f);
             timeline.offset = _getNumber(rawData, OFFSET, 0.0f);
 
-            this._timeline = timeline;
+            _timeline = timeline;
 
             if (rawData.ContainsKey(FRAME))
             {
@@ -1222,7 +1195,7 @@ namespace DragonBones
                     }
                     else
                     {
-                        DragonBones.ResizeList(timeline.frames, (int)this._animation.frameCount + 1, null);
+                        DragonBones.ResizeList(timeline.frames, (int)_animation.frameCount + 1, null);
 
                         uint frameStart = 0;
                         uint frameCount = 0;
@@ -1243,7 +1216,7 @@ namespace DragonBones
                                     prevFrame.next = frame;
                                     frame.prev = prevFrame;
 
-                                    if (this._isOldData) // Support 2.x ~ 3.x data.
+                                    if (_isOldData) // Support 2.x ~ 3.x data.
                                     {
                                         // TweenFrameData<T> TODO
                                         if (prevFrame is BoneFrameData && _getNumber(frameObject, DISPLAY_INDEX, 0) == -1)
@@ -1259,7 +1232,7 @@ namespace DragonBones
                             timeline.frames[i] = frame;
                         }
 
-                        frame.duration = this._animation.duration - frame.position; // Modify last frame duration.
+                        frame.duration = _animation.duration - frame.position; // Modify last frame duration.
 
                         frame = timeline.frames[0];
 
@@ -1267,7 +1240,7 @@ namespace DragonBones
 
                         frame.prev = prevFrame;
 
-                        if (this._isOldData) // Support 2.x ~ 3.x data.
+                        if (_isOldData) // Support 2.x ~ 3.x data.
                         {
                             // TweenFrameData<T> TODO
                             if (prevFrame is BoneFrameData && _getNumber(rawFrames[0] as Dictionary<string, object>, DISPLAY_INDEX, 0) == -1)
@@ -1279,9 +1252,8 @@ namespace DragonBones
                 }
             }
 
-            this._timeline = null;
+            _timeline = null;
         }
-
         /**
          * @private
          */
@@ -1291,12 +1263,11 @@ namespace DragonBones
             if (actionsObject is string) // Support string action.
             {
                 var actionData = BaseObject.BorrowObject<ActionData>();
-                actionData.type = ActionType.FadeIn;
+                actionData.type = ActionType.Play;
                 actionData.bone = bone;
                 actionData.slot = slot;
-                actionData.data.Add(actionsObject);
-                actionData.data.Add(-1.0f);
-                actionData.data.Add(-1);
+                actionData.animationConfig = BaseObject.BorrowObject<AnimationConfig>();
+                actionData.animationConfig.animationName = actionsObject as string;
                 actions.Add(actionData);
             }
             else if (actionsObject is IList) // Support [{gotoAndPlay: "animationName"}, ...] or [["gotoAndPlay", "animationName", ...], ...]
@@ -1316,45 +1287,22 @@ namespace DragonBones
                         }
                         else
                         {
-                            actionData.type = _getParameter(actionObject as List<object>, 0, ActionType.FadeIn);
+                            actionData.type = _getParameter(actionObject as List<object>, 0, ActionType.Play);
                         }
                     }
                     else
                     {
-                        actionData.type = ActionType.GotoAndPlay;
+                        actionData.type = ActionType.Play;
                     }
 
                     switch (actionData.type)
                     {
                         case ActionType.Play:
-                            actionData.data.Add(animationName);
-                            actionData.data.Add(isArray ? _getParameter(actionObject as List<object>, 2, -1) : -1); // playTimes
+                            actionData.animationConfig = BaseObject.BorrowObject<AnimationConfig>();
+                            actionData.animationConfig.animationName = animationName;
                             break;
 
-                        case ActionType.Stop:
-                            actionData.data.Add(animationName);
-                            break;
-
-                        case ActionType.GotoAndPlay:
-                            actionData.data.Add(animationName);
-                            actionData.data.Add(isArray ? _getParameter(actionObject as List<object>, 2, 0.0f) : 0.0f); // time
-                            actionData.data.Add(isArray ? _getParameter(actionObject as List<object>, 3, -1) : -1); // playTimes
-                            break;
-
-                        case ActionType.GotoAndStop:
-                            actionData.data.Add(animationName);
-                            actionData.data.Add(isArray ? _getParameter(actionObject as List<object>, 2, 0.0f) : 0.0f); // time
-                            break;
-
-                        case ActionType.FadeIn:
-                            actionData.data.Add(animationName);
-                            actionData.data.Add(isArray ? _getParameter(actionObject as List<object>, 2, -1.0f) : -1.0f); // playTimes
-                            actionData.data.Add(isArray ? _getParameter(actionObject as List<object>, 3, -1) : -1); // fadeInTime
-                            break;
-
-                        case ActionType.FadeOut:
-                            actionData.data.Add(animationName);
-                            actionData.data.Add(isArray ? _getParameter(actionObject as List<object>, 2, 0.0f) : 0.0f); // fadeOutTime 
+                        default:
                             break;
                     }
 
@@ -1364,7 +1312,6 @@ namespace DragonBones
                 }
             }
         }
-
         /**
          * @private
          */
@@ -1403,33 +1350,48 @@ namespace DragonBones
 
                     eventData.type = EventType.Frame;
                     eventData.name = _getString(rawEvent, NAME, null);
-                    eventData.bone = this._armature.GetBone(boneName);
-                    eventData.slot = this._armature.GetSlot(slotName);
+                    eventData.bone = _armature.GetBone(boneName);
+                    eventData.slot = _armature.GetSlot(slotName);
 
                     if (rawEvent.ContainsKey(INTS))
                     {
+                        if (eventData.data == null)
+                        {
+                            eventData.data = BaseObject.BorrowObject<CustomData>();
+                        }
+
                         var rawInts = rawEvent[INTS] as List<object>;
                         for (int j = 0, lJ = rawInts.Count; j < lJ; ++j)
                         {
-                            eventData.ints.Add(_getParameter(rawInts, j, (int)0));
+                            eventData.data.ints.Add(_getParameter(rawInts, j, (int)0));
                         }
                     }
 
                     if (rawEvent.ContainsKey(FLOATS))
                     {
+                        if (eventData.data == null)
+                        {
+                            eventData.data = BaseObject.BorrowObject<CustomData>();
+                        }
+
                         var rawFloats = rawEvent[FLOATS] as List<object>;
                         for (int j = 0, lJ = rawFloats.Count; j < lJ; ++j)
                         {
-                            eventData.floats.Add(_getParameter(rawFloats, i, 0.0f));
+                            eventData.data.floats.Add(_getParameter(rawFloats, i, 0.0f));
                         }
                     }
 
                     if (rawEvent.ContainsKey(STRINGS))
                     {
+                        if (eventData.data == null)
+                        {
+                            eventData.data = BaseObject.BorrowObject<CustomData>();
+                        }
+
                         var rawStrings = rawEvent[STRINGS] as List<object>;
                         for (int j = 0, lJ = rawStrings.Count; j < lJ; ++j)
                         {
-                            eventData.strings.Add(_getParameter(rawStrings, i, ""));
+                            eventData.data.strings.Add(_getParameter(rawStrings, i, ""));
                         }
                     }
 
@@ -1437,20 +1399,18 @@ namespace DragonBones
                 }
             }
         }
-
         /**
          * @private
          */
         protected void _parseTransform(Dictionary<string, object> rawData, Transform transform)
         {
-            transform.x = _getNumber(rawData, X, 0.0f) * this._armature.scale;
-            transform.y = _getNumber(rawData, Y, 0.0f) * this._armature.scale;
+            transform.x = _getNumber(rawData, X, 0.0f) * _armature.scale;
+            transform.y = _getNumber(rawData, Y, 0.0f) * _armature.scale;
             transform.skewX = _getNumber(rawData, SKEW_X, 0.0f) * DragonBones.ANGLE_TO_RADIAN;
             transform.skewY = _getNumber(rawData, SKEW_Y, 0.0f) * DragonBones.ANGLE_TO_RADIAN;
             transform.scaleX = _getNumber(rawData, SCALE_X, 1.0f);
             transform.scaleY = _getNumber(rawData, SCALE_Y, 1.0f);
         }
-
         /**
          * @private
          */
@@ -1465,7 +1425,6 @@ namespace DragonBones
             color.greenOffset = _getNumber(rawData, GREEN_OFFSET, (int)0);
             color.blueOffset = _getNumber(rawData, BLUE_OFFSET, (int)0);
         }
-
         /**
          * @inheritDoc
          */
@@ -1475,14 +1434,14 @@ namespace DragonBones
             {
                 var version = _getString(rawData, VERSION, null);
                 var compatibleVersion = _getString(rawData, COMPATIBLE_VERSION, null);
-                this._isOldData = version == DATA_VERSION_2_3 || version == DATA_VERSION_3_0;
-                if (this._isOldData)
+                _isOldData = version == DATA_VERSION_2_3 || version == DATA_VERSION_3_0;
+                if (_isOldData)
                 {
-                    this._isGlobalTransform = _getBoolean(rawData, IS_GLOBAL, true);
+                    _isGlobalTransform = _getBoolean(rawData, IS_GLOBAL, true);
                 }
                 else
                 {
-                    this._isGlobalTransform = false;
+                    _isGlobalTransform = false;
                 }
 
                 if (
@@ -1504,7 +1463,7 @@ namespace DragonBones
 
                     if (rawData.ContainsKey(ARMATURE))
                     {
-                        this._data = data;
+                        _data = data;
 
                         var armatures = rawData[ARMATURE] as List<object>;
                         foreach (Dictionary<string, object> rawArmature in armatures)
@@ -1512,7 +1471,7 @@ namespace DragonBones
                             data.AddArmature(_parseArmature(rawArmature, scale));
                         }
 
-                        this._data = null;
+                        _data = null;
                     }
 
                     return data;
@@ -1529,7 +1488,6 @@ namespace DragonBones
 
             return null;
         }
-
         /**
          * @inheritDoc
          */
