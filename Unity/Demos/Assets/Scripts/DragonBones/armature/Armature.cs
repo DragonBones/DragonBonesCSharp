@@ -348,8 +348,6 @@ namespace DragonBones
                 DragonBones.Assert(false, "The armature has been disposed.");
             }
 
-            var scaledPassedTime = passedTime * _animation.timeScale;
-
             // Bones and slots.
             if (_bonesDirty)
             {
@@ -366,7 +364,7 @@ namespace DragonBones
             var prevCacheFrameIndex = _animation._cacheFrameIndex;
 
             // Update animations.
-            _animation._advanceTime(scaledPassedTime);
+            _animation._advanceTime(passedTime);
 
             var currentCacheFrameIndex = _animation._cacheFrameIndex;
             

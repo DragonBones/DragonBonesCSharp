@@ -3,25 +3,21 @@ using UnityEngine;
 
 namespace DragonBones
 {
+    /**
+     * @inheritDoc
+     */
     public class UnityEventDispatcher<T> : MonoBehaviour, IEventDispatcher<T>
     {
         private readonly Dictionary<string, ListenerDelegate<T>> _listeners = new Dictionary<string, ListenerDelegate<T>>();
-
         /**
          * @private
          */
         public UnityEventDispatcher()
         {
         }
-
         /**
-         * @private
+         * @inheritDoc
          */
-        virtual public void _onClear()
-        {
-            _listeners.Clear();
-        }
-        
         public void DispatchEvent(string type, T eventObject)
         {
             if (!_listeners.ContainsKey(type))
@@ -33,12 +29,16 @@ namespace DragonBones
                 _listeners[type](type, eventObject);
             }
         }
-
+        /**
+         * @inheritDoc
+         */
         public bool HasEventListener(string type)
         {
             return _listeners.ContainsKey(type);
         }
-
+        /**
+         * @inheritDoc
+         */
         public void AddEventListener(string type, ListenerDelegate<T> listener)
         {
             if (_listeners.ContainsKey(type))
@@ -59,7 +59,9 @@ namespace DragonBones
                 _listeners.Add(type, listener);
             }
         }
-
+        /**
+         * @inheritDoc
+         */
         public void RemoveEventListener(string type, ListenerDelegate<T> listener)
         {
             if (!_listeners.ContainsKey(type))

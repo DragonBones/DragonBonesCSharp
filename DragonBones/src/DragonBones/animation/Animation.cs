@@ -4,50 +4,6 @@ namespace DragonBones
 {
     /**
      * @language zh_CN
-     * 动画混合时，使用的淡出方式。
-     * @see dragonBones.Animation#fadeIn()
-     * @version DragonBones 4.5
-     */
-    public enum AnimationFadeOutMode
-    {
-        /**
-         * @language zh_CN
-         * 不淡出动画。
-         * @version DragonBones 4.5
-         */
-        None = 0,
-
-        /**
-        * @language zh_CN
-         * 淡出同层的动画。
-         * @version DragonBones 4.5
-         */
-        SameLayer = 1,
-
-        /**
-         * @language zh_CN
-         * 淡出同组的动画。
-         * @version DragonBones 4.5
-         */
-        SameGroup = 2,
-
-        /**
-         * @language zh_CN
-         * 淡出同层并且同组的动画。
-         * @version DragonBones 4.5
-         */
-        SameLayerAndGroup = 3,
-
-        /**
-         * @language zh_CN
-         * 淡出所有动画。
-         * @version DragonBones 4.5
-         */
-        All = 4
-    }
-
-    /**
-     * @language zh_CN
      * 动画控制器，用来播放动画数据，管理动画状态。
      * @see dragonBones.AnimationData
      * @see dragonBones.AnimationState
@@ -55,71 +11,42 @@ namespace DragonBones
      */
     public class Animation : BaseObject
     {
-        /**
-         * @private
-         */
-        protected static int _sortAnimationState(AnimationState a, AnimationState b)
+        private static int _sortAnimationState(AnimationState a, AnimationState b)
         {
             return a.layer > b.layer ? -1 : 1;
         }
-
         /**
          * @language zh_CN
-         * 动画的播放速度。 [(-N~0): 倒转播放, 0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
+         * 动画播放速度。 [(-N~0): 倒转播放, 0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
          * @default 1
          * @version DragonBones 3.0
          */
         public float timeScale;
 
-        /**
-         * @private
-         */
-        internal bool _animationStateDirty;
-
+        private bool _isPlaying;
+        private bool _animationStateDirty;
         /**
          * @private
          */
         internal bool _timelineStateDirty;
-
         /**
          * @private
          */
-        internal Armature _armature;
-
-        /**
-         * @private
-         */
-        protected bool _isPlaying;
-
-        /**
-         * @private
-         */
-        protected float _time;
-
-        /**
-         * @private
-         */
-        protected AnimationState _lastAnimationState;
-
-        /**
-         * @private
-         */
-        protected readonly Dictionary<string, AnimationData> _animations = new Dictionary<string, AnimationData>();
-
-        /**
-         * @private
-         */
-        protected readonly List<AnimationState> _animationStates = new List<AnimationState>();
-
+        internal int _cacheFrameIndex;
+        private readonly List<string> _animationNames = new List<string>();
+        private readonly Dictionary<string, AnimationData> _animations = new Dictionary<string, AnimationData>();
+        private readonly List<AnimationState> _animationStates = new List<AnimationState>();
+        private Armature _armature;
+        private AnimationState _lastAnimationState;
+        private AnimationConfig _animationConfig;
         /**
          * @private
          */
         public Animation()
         {
         }
-
         /**
-         * @inheritDoc
+         * @private
          */
         override protected void _onClear()
         {
@@ -128,71 +55,71 @@ namespace DragonBones
                 animationState.ReturnToPool();
             }
 
+            if (_animationConfig != null)
+            {
+                _animationConfig.ReturnToPool();
+            }
+
             timeScale = 1.0f;
 
+            _isPlaying = false;
             _animationStateDirty = false;
             _timelineStateDirty = false;
-            _armature = null;
-
-            _isPlaying = false;
-            _time = 0.0f;
-            _lastAnimationState = null;
+            _cacheFrameIndex = -1;
+            _animationNames.Clear();
+            _animations.Clear();
             _animationStates.Clear();
+            _armature = null;
+            _lastAnimationState = null;
+            _animationConfig = null;
         }
 
-        /**
-         * @private
-         */
-        protected void _fadeOut(float fadeOutTime, int layer, string group, AnimationFadeOutMode fadeOutMode, bool pauseFadeOut)
+        private void _fadeOut(AnimationConfig animationConfig)
         {
-            switch (fadeOutMode)
+            int i = 0, l = _animationStates.Count;
+            AnimationState animationState = null;
+            switch (animationConfig.fadeOutMode)
             {
                 case AnimationFadeOutMode.SameLayer:
-                    foreach (var animationState in _animationStates)
+                    for (; i < l; ++i)
                     {
-                        if (animationState.layer == layer)
+                        animationState = _animationStates[i];
+                        if (animationState.layer == animationConfig.layer)
                         {
-                            animationState.FadeOut(fadeOutTime, pauseFadeOut);
+                            animationState.FadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut);
                         }
                     }
                     break;
 
                 case AnimationFadeOutMode.SameGroup:
-                    foreach (var animationState in _animationStates)
+                    for (; i < l; ++i)
                     {
-                        if (animationState.group == group)
+                        animationState = _animationStates[i];
+                        if (animationState.group == animationConfig.group)
                         {
-                            animationState.FadeOut(fadeOutTime, pauseFadeOut);
+                            animationState.FadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut);
+                        }
+                    }
+                    break;
+
+                case AnimationFadeOutMode.SameLayerAndGroup:
+                    for (; i < l; ++i)
+                    {
+                        animationState = _animationStates[i];
+                        if (animationState.layer == animationConfig.layer && 
+                            animationState.group == animationConfig.group
+                        )
+                        {
+                            animationState.FadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut);
                         }
                     }
                     break;
 
                 case AnimationFadeOutMode.All:
-                    foreach (var animationState in _animationStates)
+                    for (; i < l; ++i)
                     {
-                        if (fadeOutTime == 0.0f)
-                        {
-                            animationState.ReturnToPool();
-                        }
-                        else
-                        {
-                            animationState.FadeOut(fadeOutTime, pauseFadeOut);
-                        }
-                    }
-
-                    if (fadeOutTime == 0.0f)
-                    {
-                        _animationStates.Clear();
-                    }
-                    break;
-
-                case AnimationFadeOutMode.SameLayerAndGroup:
-                    foreach (var animationState in _animationStates)
-                    {
-                        if (animationState.layer == layer && animationState.group == group)
-                        {
-                            animationState.FadeOut(fadeOutTime, pauseFadeOut);
-                        }
+                        animationState = _animationStates[i];
+                        animationState.FadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut);
                     }
                     break;
 
@@ -201,18 +128,19 @@ namespace DragonBones
                     break;
             }
         }
-
         /**
          * @private
          */
-        internal void _updateFFDTimelineStates()
+        internal void _init(Armature armature)
         {
-            foreach (var animationState in _animationStates)
+            if (_armature != null)
             {
-                animationState._updateFFDTimelineStates();
+                return;
             }
-        }
 
+            _armature = armature;
+            _animationConfig = BaseObject.BorrowObject<AnimationConfig>();
+        }
         /**
          * @private
          */
@@ -228,11 +156,21 @@ namespace DragonBones
                 passedTime = -passedTime;
             }
 
+            if (_armature.inheritAnimation && _armature._parent != null) // Inherit parent animation timeScale.
+            {
+                passedTime *= _armature._parent._armature.animation.timeScale;
+            }
+
+            if (timeScale != 1.0f)
+            {
+                passedTime *= timeScale;
+            }
+
             var animationStateCount = _animationStates.Count;
             if (animationStateCount == 1)
             {
                 var animationState = _animationStates[0];
-                if (animationState._fadeState > 0 && animationState._fadeProgress <= 0.0f)
+                if (animationState._fadeState > 0 && animationState._subFadeState > 0)
                 {
                     animationState.ReturnToPool();
                     _animationStates.Clear();
@@ -241,21 +179,38 @@ namespace DragonBones
                 }
                 else
                 {
+                    var animationData = animationState.animationData;
+                    var cacheFrameRate = animationData.cacheFrameRate;
+
+                    if (_animationStateDirty && cacheFrameRate > 0.0f) // Update cachedFrameIndices.
+                    {
+                        _animationStateDirty = false;
+
+                        var bones = _armature.GetBones();
+                        for (int i = 0, l = bones.Count; i < l; ++i)
+                        {
+                            var bone = bones[i];
+                            bone._cachedFrameIndices = animationData.GetBoneCachedFrameIndices(bone.name);
+                        }
+
+                        var slots = _armature.GetSlots();
+                        for (int i = 0, l = slots.Count; i < l; ++i)
+                        {
+                            var slot = slots[i];
+                            slot._cachedFrameIndices = animationData.GetSlotCachedFrameIndices(slot.name);
+                        }
+                    }
+
                     if (_timelineStateDirty)
                     {
                         animationState._updateTimelineStates();
                     }
 
-                    animationState._advanceTime(passedTime, 1.0f, 0);
+                    animationState._advanceTime(passedTime, cacheFrameRate);
                 }
             }
             else if (animationStateCount > 1)
             {
-                var prevLayer = _animationStates[0]._layer;
-                var weightLeft = 1.0f;
-                var layerTotalWeight = 0.0f;
-                int animationIndex = 1; // If has multiply animation state, first index is 1.
-
                 for (int i = 0, r = 0; i < animationStateCount; ++i)
                 {
                     var animationState = _animationStates[i];
@@ -267,14 +222,7 @@ namespace DragonBones
 
                         if (_lastAnimationState == animationState) // Update last animation state.
                         {
-                            if (i - r >= 0)
-                            {
-                                _lastAnimationState = _animationStates[i - r];
-                            }
-                            else
-                            {
-                                _lastAnimationState = null;
-                            }
+                            _lastAnimationState = null;
                         }
                     }
                     else
@@ -284,67 +232,55 @@ namespace DragonBones
                             _animationStates[i - r] = animationState;
                         }
 
-                        if (prevLayer != animationState._layer)
-                        { // Update weight left.
-                            prevLayer = animationState._layer;
-
-                            if (layerTotalWeight >= weightLeft)
-                            {
-                                weightLeft = 0.0f;
-                            }
-                            else
-                            {
-                                weightLeft -= layerTotalWeight;
-                            }
-
-                            layerTotalWeight = 0.0f;
-                        }
-
                         if (_timelineStateDirty)
                         {
                             animationState._updateTimelineStates();
                         }
 
-                        animationState._advanceTime(passedTime, weightLeft, animationIndex);
-
-                        if (animationState._weightResult > 0.0f)
-                        { // Update layer total weight.
-                            layerTotalWeight += animationState._weightResult;
-                            animationIndex++;
-                        }
+                        animationState._advanceTime(passedTime, 0.0f);
                     }
 
                     if (i == animationStateCount - 1 && r > 0) // Modify animation states size.
                     {
                         DragonBones.ResizeList(_animationStates, animationStateCount - r, null);
+                        
+                        if (_lastAnimationState == null && _animationStates.Count > 0)
+                        {
+                            _lastAnimationState = _animationStates[_animationStates.Count - 1];
+                        }
                     }
                 }
+
+                _cacheFrameIndex = -1;
             }
             else
             {
-                _armature._cacheFrameIndex = -1;
+                _cacheFrameIndex = -1;
             }
 
             _timelineStateDirty = false;
         }
-
         /**
          * @language zh_CN
-         * 清除所有正在播放的动画状态。
+         * 清除所有动画状态。
+         * @see dragonBones.AnimationState
          * @version DragonBones 4.5
          */
         public void Reset()
         {
-            foreach (var animationState in _animationStates)
+            for (int i = 0, l = _animationStates.Count; i < l; ++i)
             {
-                animationState.ReturnToPool();
+                _animationStates[i].ReturnToPool();
             }
 
             _isPlaying = false;
-            _lastAnimationState = null;
+            _animationStateDirty = false;
+            _timelineStateDirty = false;
+            _cacheFrameIndex = -1;
+            _animationConfig.Clear();
             _animationStates.Clear();
+            _lastAnimationState = null;
         }
-
         /**
          * @language zh_CN
          * 暂停播放动画。
@@ -367,58 +303,156 @@ namespace DragonBones
                 _isPlaying = false;
             }
         }
-
         /**
          * @language zh_CN
-         * 播放动画。
-         * @param animationName 动画数据的名称，如果未设置，则播放默认动画，或将暂停状态切换为播放状态，或重新播放上一个正在播放的动画。 
-         * @param playTimes 动画需要播放的次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @returns 返回控制这个动画数据的动画状态。
+         * @beta
+         * 通过动画配置来播放动画。
+         * @param animationConfig 动画配置。
+         * @returns 对应的动画状态。
+         * @see dragonBones.AnimationConfig
          * @see dragonBones.AnimationState
-         * @version DragonBones 3.0
+         * @version DragonBones 5.0
          */
-        public AnimationState Play(string animationName = null, int playTimes = -1)
+        public AnimationState PlayConfig(AnimationConfig animationConfig)
         {
-            var animationState = (AnimationState)null;
-            if (!string.IsNullOrEmpty(animationName))
+            if (animationConfig == null)
             {
-                animationState = FadeIn(animationName, 0.0f, playTimes, 0, null, AnimationFadeOutMode.All);
+                DragonBones.Assert(false, DragonBones.ARGUMENT_ERROR);
+                return null;
             }
-            else if (_lastAnimationState == null)
+
+            var animationName = !string.IsNullOrEmpty(animationConfig.animationName) ? animationConfig.animationName : animationConfig.name;
+            var animationData = _animations.ContainsKey(animationName) ? _animations[animationName] : null;
+            if (animationData == null)
             {
-                var defaultAnimation = _armature.armatureData.defaultAnimation;
-                if (defaultAnimation != null)
+                DragonBones.Assert(false,
+                    "Non-existent animation.\n" +
+                    "DragonBones name: " + _armature.armatureData.parent.name +
+                    " Armature name: " + _armature.name +
+                    " Animation name: " + animationName
+                );
+
+                return null;
+            }
+
+            _isPlaying = true;
+
+            if (animationConfig.playTimes < 0)
+            {
+                animationConfig.playTimes = (int)animationData.playTimes;
+            }
+
+            if (animationConfig.fadeInTime < 0.0f || float.IsNaN(animationConfig.fadeInTime))
+            {
+                if (_lastAnimationState != null)
                 {
-                    animationState = FadeIn(defaultAnimation.name, 0.0f, playTimes, 0, null, AnimationFadeOutMode.All);
+                    animationConfig.fadeInTime = animationData.fadeInTime;
+                }
+                else
+                {
+                    animationConfig.fadeInTime = 0.0f;
                 }
             }
-            else if (!_isPlaying || (!_lastAnimationState.isPlaying && !_lastAnimationState.isCompleted))
+
+            if (animationConfig.fadeOutTime < 0.0f || float.IsNaN(animationConfig.fadeOutTime))
             {
-                _isPlaying = true;
-                _lastAnimationState.Play();
+                animationConfig.fadeOutTime = animationConfig.fadeInTime;
+            }
+
+            if (animationConfig.timeScale <= -100.0f || float.IsNaN(animationConfig.timeScale)) //
+            {
+                animationConfig.timeScale = 1.0f / animationData.scale;
+            }
+
+            if (animationData.duration > 0.0f)
+            {
+                if (float.IsNaN(animationConfig.position))
+                {
+                    animationConfig.position = 0.0f;
+                }
+                else if (animationConfig.position < 0.0f)
+                {
+                    animationConfig.position %= animationData.duration;
+                    animationConfig.position = animationData.duration - animationConfig.position;
+                }
+                else if (animationConfig.position == animationData.duration)
+                {
+                    animationConfig.position -= 0.001f;
+                }
+                else if (animationConfig.position > animationData.duration)
+                {
+                    animationConfig.position %= animationData.duration;
+                }
+
+                if (animationConfig.position + animationConfig.duration > animationData.duration)
+                {
+                    animationConfig.duration = animationData.duration - animationConfig.position;
+                }
             }
             else
             {
-                animationState = FadeIn(_lastAnimationState.name, 0.0f, playTimes, 0, null, AnimationFadeOutMode.All);
+                animationConfig.position = 0.0f;
+                animationConfig.duration = -1.0f;
             }
 
-            return animationState;
-        }
+            var isStop = animationConfig.duration == 0.0f;
+            if (isStop)
+            {
+                animationConfig.playTimes = 1;
+                animationConfig.duration = -1.0f;
+                animationConfig.fadeInTime = 0.0f;
+            }
 
+            _fadeOut(animationConfig);
+
+            _lastAnimationState = BaseObject.BorrowObject<AnimationState>();
+            _lastAnimationState._init(_armature, animationData, animationConfig);
+            _animationStates.Add(_lastAnimationState);
+            _animationStateDirty = true;
+            _cacheFrameIndex = -1;
+
+            if (_animationStates.Count > 1)
+            {
+                _animationStates.Sort(_sortAnimationState);
+            }
+
+            // Child armature play same name animation.
+            var slots = _armature.GetSlots();
+            for (int i = 0, l = slots.Count; i < l; ++i)
+            {
+                var childArmature = slots[i].childArmature;
+                if (
+                    childArmature != null && childArmature.inheritAnimation &&
+                    childArmature.animation.HasAnimation(animationName) &&
+                    childArmature.animation.GetState(animationName) == null
+                )
+                {
+                    childArmature.animation.FadeIn(animationName); //
+                }
+            }
+
+            if (animationConfig.fadeInTime <= 0.0f) // Blend animation state, update armature.
+            {
+                _armature.AdvanceTime(0.0f);
+            }
+
+            if (isStop)
+            {
+                _lastAnimationState.Stop();
+            }
+
+            return _lastAnimationState;
+        }
         /**
          * @language zh_CN
-         * 淡入播放指定名称的动画。
-         * @param animationName 动画数据的名称。
-         * @param playTimes 循环播放的次数。 [-1: 使用数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @param fadeInTime 淡入的时间。 [-1: 使用数据默认值, [0~N]: N 秒淡入完毕] (以秒为单位)
-         * @param layer 混合的图层，图层高会优先获取混合权重。
-         * @param group 混合的组，用于给动画状态编组，方便混合淡出控制。
-         * @param fadeOutMode 淡出的模式。
-         * @param additiveBlending 以叠加的形式混合。
-         * @param displayControl 是否对显示对象属性可控。
-         * @param pauseFadeOut 暂停需要淡出的动画。
-         * @param pauseFadeIn 暂停需要淡入的动画，直到淡入结束才开始播放。
-         * @returns 返回控制这个动画数据的动画状态。
+         * 淡入播放动画。
+         * @param animationName 动画数据名称。
+         * @param playTimes 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
+         * @param fadeInTime 淡入时间。 [-1: 使用动画数据默认值, [0~N]: 淡入时间] (以秒为单位)
+         * @param layer 混合图层，图层高会优先获取混合权重。
+         * @param group 混合组，用于动画状态编组，方便控制淡出。
+         * @param fadeOutMode 淡出模式。
+         * @returns 对应的动画状态。
          * @see dragonBones.AnimationFadeOutMode
          * @see dragonBones.AnimationState
          * @version DragonBones 4.5
@@ -430,155 +464,134 @@ namespace DragonBones
             bool pauseFadeOut = true, bool pauseFadeIn = true
         )
         {
-            if (!_animations.ContainsKey(animationName))
+            _animationConfig.Clear();
+            _animationConfig.fadeOutMode = fadeOutMode;
+            _animationConfig.playTimes = playTimes;
+            _animationConfig.layer = layer;
+            _animationConfig.fadeInTime = fadeInTime;
+            _animationConfig.animationName = animationName;
+            _animationConfig.group = group;
+
+            return PlayConfig(_animationConfig);
+        }
+        /**
+         * @language zh_CN
+         * 播放动画。
+         * @param animationName 动画数据名称，如果未设置，则播放默认动画，或将暂停状态切换为播放状态，或重新播放上一个正在播放的动画。 
+         * @param playTimes 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
+         * @returns 对应的动画状态。
+         * @see dragonBones.AnimationState
+         * @version DragonBones 3.0
+         */
+        public AnimationState Play(string animationName = null, int playTimes = -1)
+        {
+            _animationConfig.Clear();
+            _animationConfig.playTimes = playTimes;
+            _animationConfig.fadeInTime = 0.0f;
+            _animationConfig.animationName = animationName;
+
+            if (!string.IsNullOrEmpty(animationName))
             {
-                _time = 0;
-                DragonBones.Warn(
-                    "Non-existent animation. " +
-                    " DragonBones: " + _armature.armatureData.parent.name +
-                    " Armature: " + _armature.name +
-                    " Animation: " + animationName
-                );
-                return null;
+                PlayConfig(_animationConfig);
             }
-
-            var animationData = _animations[animationName];
-
-            if (float.IsNaN(_time))
+            else if (_lastAnimationState == null)
             {
-                _time = 0.0f;
-            }
-
-            _isPlaying = true;
-
-            if (fadeInTime < 0.0f || float.IsNaN(fadeInTime))
-            {
-                if (_lastAnimationState != null)
+                var defaultAnimation = _armature.armatureData.defaultAnimation;
+                if (defaultAnimation != null)
                 {
-                    fadeInTime = animationData.fadeInTime;
-                }
-                else
-                {
-                    fadeInTime = 0.0f;
-                }
-            }
-
-            if (playTimes < 0)
-            {
-                playTimes = (int)animationData.playTimes;
-            }
-
-            _fadeOut(fadeInTime, layer, group, fadeOutMode, pauseFadeOut);
-
-            _lastAnimationState = BaseObject.BorrowObject<AnimationState>();
-            _lastAnimationState._layer = layer;
-            _lastAnimationState._group = group;
-            _lastAnimationState.additiveBlending = additiveBlending;
-            _lastAnimationState.displayControl = displayControl;
-            _lastAnimationState._fadeIn(
-                _armature, animationData.animation != null ? animationData.animation : animationData, animationName,
-                (uint)playTimes, animationData.position, animationData.duration, _time, 1 / animationData.scale, fadeInTime,
-                pauseFadeIn
-            );
-            _animationStates.Add(_lastAnimationState);
-            _animationStateDirty = true;
-            _time = 0.0f;
-            _armature._cacheFrameIndex = -1;
-
-            if (_animationStates.Count > 1)
-            {
-                _animationStates.Sort(_sortAnimationState);
-            }
-
-            foreach (var slot in _armature.GetSlots())
-            {
-                if (slot.inheritAnimation)
-                {
-                    var childArmature = slot.childArmature;
-                    if (
-                        childArmature != null &&
-                        childArmature.animation.HasAnimation(animationName) &&
-                        childArmature.animation.GetState(animationName) == null
-                    )
-                    {
-                        childArmature.animation.FadeIn(animationName);
-                    }
+                    _animationConfig.animationName = defaultAnimation.name;
+                    PlayConfig(_animationConfig);
                 }
             }
-
-            if (fadeInTime <= 0.0f)
+            else if (!_isPlaying || (!_lastAnimationState.isPlaying && !_lastAnimationState.isCompleted))
             {
-                _armature.AdvanceTime(0.0f); // Blend animation state, update armature. (pass actions and events) 
+                _isPlaying = true;
+                _lastAnimationState.Play();
+            }
+            else
+            {
+                _animationConfig.animationName = _lastAnimationState.name;
+                PlayConfig(_animationConfig);
             }
 
             return _lastAnimationState;
         }
-
         /**
          * @language zh_CN
-         * 指定名称的动画从指定时间开始播放。
+         * 从指定时间开始播放动画。
          * @param animationName 动画数据的名称。
-         * @param time 时间。 (以秒为单位)
-         * @param playTimes 动画循环播放的次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @returns 返回控制这个动画数据的动画状态。
+         * @param time 开始时间。 (以秒为单位)
+         * @param playTimes 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
+         * @returns 对应的动画状态。
          * @see dragonBones.AnimationState
          * @version DragonBones 4.5
          */
         public AnimationState GotoAndPlayByTime(string animationName, float time = 0.0f, int playTimes = -1)
         {
-            _time = time;
+            _animationConfig.Clear();
+            _animationConfig.playTimes = playTimes;
+            _animationConfig.position = time;
+            _animationConfig.fadeInTime = 0.0f;
+            _animationConfig.animationName = animationName;
 
-            return FadeIn(animationName, 0.0f, playTimes, 0, null, AnimationFadeOutMode.All);
+            return PlayConfig(_animationConfig);
         }
-
         /**
          * @language zh_CN
-         * 指定名称的动画从指定帧开始播放。
+         * 从指定帧开始播放动画。
          * @param animationName 动画数据的名称。
          * @param frame 帧。
-         * @param playTimes 动画循环播放的次数。[-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @returns 返回控制这个动画数据的动画状态。
+         * @param playTimes 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
+         * @returns 对应的动画状态。
          * @see dragonBones.AnimationState
          * @version DragonBones 4.5
          */
         public AnimationState GotoAndPlayByFrame(string animationName, uint frame = 0, int playTimes = -1)
         {
-            var animationData = _animations[animationName];
-            if (animationData != null)
+            _animationConfig.Clear();
+            _animationConfig.playTimes = playTimes;
+            _animationConfig.fadeInTime = 0.0f;
+            _animationConfig.animationName = animationName;
+
+            if (_animations.ContainsKey(animationName))
             {
-                _time = animationData.duration * frame / animationData.frameCount;
+                var animationData = _animations[animationName];
+                _animationConfig.position = animationData.duration * frame / animationData.frameCount;
             }
 
-            return FadeIn(animationName, 0.0f, playTimes, 0, null, AnimationFadeOutMode.All);
+            return PlayConfig(_animationConfig);
         }
-
         /**
          * @language zh_CN
-         * 指定名称的动画从指定进度开始播放。
+         * 从指定进度开始播放动画。
          * @param animationName 动画数据的名称。
          * @param progress 进度。 [0~1]
-         * @param playTimes 动画循环播放的次数。[-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @returns 返回控制这个动画数据的动画状态。
+         * @param playTimes 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
+         * @returns 对应的动画状态。
          * @see dragonBones.AnimationState
          * @version DragonBones 4.5
          */
         public AnimationState GotoAndPlayByProgress(string animationName, float progress = 0.0f, int playTimes = -1)
         {
-            var animationData = _animations[animationName];
-            if (animationData != null)
+            _animationConfig.Clear();
+            _animationConfig.playTimes = playTimes;
+            _animationConfig.fadeInTime = 0.0f;
+            _animationConfig.animationName = animationName;
+
+            if (_animations.ContainsKey(animationName))
             {
-                _time = animationData.duration * (progress > 0.0f ? progress : 0.0f);
+                var animationData = _animations[animationName];
+                _animationConfig.position = animationData.duration * (progress > 0.0f ? progress : 0.0f);
             }
 
-            return FadeIn(animationName, 0.0f, playTimes, 0, null, AnimationFadeOutMode.All);
+            return PlayConfig(_animationConfig);
         }
-
         /**
          * @language zh_CN
-         * 播放指定名称的动画到指定的时间并停止。
+         * 将动画停止到指定的时间。
          * @param animationName 动画数据的名称。
          * @param time 时间。 (以秒为单位)
-         * @returns 返回控制这个动画数据的动画状态。
+         * @returns 对应的动画状态。
          * @see dragonBones.AnimationState
          * @version DragonBones 4.5
          */
@@ -592,13 +605,12 @@ namespace DragonBones
 
             return animationState;
         }
-
         /**
          * @language zh_CN
-         * 播放指定名称的动画到指定的帧并停止。
+         * 将动画停止到指定的帧。
          * @param animationName 动画数据的名称。
          * @param frame 帧。
-         * @returns 返回控制这个动画数据的动画状态。
+         * @returns 对应的动画状态。
          * @see dragonBones.AnimationState
          * @version DragonBones 4.5
          */
@@ -612,13 +624,12 @@ namespace DragonBones
 
             return animationState;
         }
-
         /**
          * @language zh_CN
-         * 播放指定名称的动画到指定的进度并停止。
+         * 将动画停止到指定的进度。
          * @param animationName 动画数据的名称。
-         * @param progress 进度。 [0~1]
-         * @returns 返回控制这个动画数据的动画状态。
+         * @param progress 进度。 [0 ~ 1]
+         * @returns 对应的动画状态。
          * @see dragonBones.AnimationState
          * @version DragonBones 4.5
          */
@@ -632,18 +643,18 @@ namespace DragonBones
 
             return animationState;
         }
-
         /**
          * @language zh_CN
-         * 获取指定名称的动画状态。
+         * 获取动画状态。
          * @param animationName 动画状态的名称。
          * @see dragonBones.AnimationState
          * @version DragonBones 3.0
          */
         public AnimationState GetState(string animationName)
         {
-            foreach (var animationState in _animationStates)
+            for (int i = 0, l = _animationStates.Count; i < l; ++i)
             {
+                var animationState = _animationStates[i];
                 if (animationState.name == animationName)
                 {
                     return animationState;
@@ -652,10 +663,9 @@ namespace DragonBones
 
             return null;
         }
-
         /**
          * @language zh_CN
-         * 是否包含指定名称的动画数据。
+         * 是否包含动画数据。
          * @param animationName 动画数据的名称。
          * @see dragonBones.AnimationData
          * @version DragonBones 3.0
@@ -664,7 +674,6 @@ namespace DragonBones
         {
             return _animations.ContainsKey(animationName);
         }
-
         /**
          * @language zh_CN
          * 动画是否处于播放状态。
@@ -704,9 +713,9 @@ namespace DragonBones
                         return false;
                     }
 
-                    foreach (var animationState in _animationStates)
+                    for (int i = 0, l = _animationStates.Count; i < l; ++i)
                     {
-                        if (animationState.isCompleted)
+                        if (!_animationStates[i].isCompleted)
                         {
                             return false;
                         }
@@ -718,7 +727,6 @@ namespace DragonBones
                 return false;
             }
         }
-
         /**
          * @language zh_CN
          * 上一个正在播放的动画状态的名称。
@@ -729,7 +737,26 @@ namespace DragonBones
         {
             get { return _lastAnimationState != null ? _lastAnimationState.name : null; }
         }
-
+        /**
+         * @language zh_CN
+         * 上一个正在播放的动画状态。
+         * @see dragonBones.AnimationState
+         * @version DragonBones 3.0
+         */
+        public AnimationState lastAnimationState
+        {
+            get { return _lastAnimationState; }
+        }
+        /**
+         * @language zh_CN
+         * 一个可以快速使用的动画配置实例。
+         * @see dragonBones.AnimationConfig
+         * @version DragonBones 5.0
+         */
+        public AnimationConfig animationConfig
+        {
+            get { return _animationConfig; }
+        }
         /**
          * @language zh_CN
          * 所有动画数据名称。
@@ -738,9 +765,8 @@ namespace DragonBones
          */
         public List<string> animationNames
         {
-            get { return _armature._armatureData.animationNames; }
+            get { return _animationNames; }
         }
-
         /**
          * @language zh_CN
          * 所有的动画数据。
@@ -749,7 +775,7 @@ namespace DragonBones
          */
         public Dictionary<string, AnimationData> animations
         {
-            get { return this._animations; }
+            get { return _animations; }
             set
             {
                 if (_animations == value)
@@ -757,13 +783,15 @@ namespace DragonBones
                     return;
                 }
 
+                _animationNames.Clear();
                 _animations.Clear();
 
                 if (value != null)
                 {
                     foreach (var pair in value)
                     {
-                        this._animations[pair.Key] = value[pair.Key];
+                        _animations[pair.Key] = pair.Value;
+                        _animationNames.Add(pair.Key);
                     }
                 }
             }

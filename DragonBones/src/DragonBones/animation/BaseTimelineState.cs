@@ -6,13 +6,12 @@ namespace DragonBones
     /**
      * @private
      */
-    public enum TweenType
+    internal enum TweenType
     {
         None = 0,
         Once = 1,
         Always = 2
     }
-
     /**
      * @private
      */
@@ -20,13 +19,11 @@ namespace DragonBones
         where T : FrameData<T>
         where M : TimelineData<T>
     {
-        internal bool _isCompleted;
+        internal int _playState; // -1 start 0 play 1 complete
         internal uint _currentPlayTimes;
         internal float _currentTime;
-        internal M _timeline;
+        internal M _timelineData;
 
-        protected bool _isReverse;
-        protected bool _hasAsynchronyTimeline;
         protected uint _frameRate;
         protected uint _keyFrameCount;
         protected uint _frameCount;
@@ -42,19 +39,14 @@ namespace DragonBones
         public TimelineState()
         {
         }
-
-        /**
-         * @inheritDoc
-         */
+        
         override protected void _onClear()
         {
-            _isCompleted = false;
+            _playState = -1;
             _currentPlayTimes = 0;
             _currentTime = -1.0f;
-            _timeline = null;
+            _timelineData = null;
 
-            _isReverse = false;
-            _hasAsynchronyTimeline = false;
             _frameRate = 0;
             _keyFrameCount = 0;
             _frameCount = 0;
@@ -68,119 +60,131 @@ namespace DragonBones
             _animationState = null;
         }
 
-        virtual protected void _onUpdateFrame(bool isUpdate) { }
-        virtual protected void _onArriveAtFrame(bool isUpdate) { }
+        virtual protected void _onUpdateFrame() { }
+        virtual protected void _onArriveAtFrame() { }
 
-        protected bool _setCurrentTime(float value)
+        protected bool _setCurrentTime(float passedTime, float normalizedTime)
         {
+            var prevState = _playState;
             uint currentPlayTimes = 0;
+            var currentTime = normalizedTime;
 
-            if (_keyFrameCount == 1 && this != (object)_animationState._timeline)
+            if (_keyFrameCount == 1 && this != _animationState._timeline as object)
             {
-                _isCompleted = true;
+                _playState = _animationState._timeline._playState >= 0 ? 1 : -1;
                 currentPlayTimes = 1;
             }
-            else if (_hasAsynchronyTimeline)
+            else if (normalizedTime < 0.0f || _timeScale != 1.0f || _timeOffset != 0.0f) // Scale and offset.
             {
                 var playTimes = _animationState.playTimes;
                 var totalTime = playTimes * _duration;
 
-                value *= _timeScale;
+                currentTime = passedTime * _timeScale;
                 if (_timeOffset != 0.0f)
                 {
-                    value += _timeOffset * _animationDutation;
+                    currentTime += _timeOffset * _animationDutation;
                 }
 
-                if (playTimes > 0 && (value >= totalTime || value <= -totalTime))
+                if (playTimes > 0 && (currentTime >= totalTime || currentTime <= -totalTime))
                 {
-                    _isCompleted = true;
+                    if (_playState <= 0 && _animationState._playheadState == 3)
+                    {
+                        _playState = 1;
+                    }
+
                     currentPlayTimes = playTimes;
 
-                    if (value < 0.0f)
+                    if (currentTime < 0.0f)
                     {
-                        value = 0.0f;
+                        currentTime = 0.0f;
                     }
                     else
                     {
-                        value = _duration;
+                        currentTime = _duration;
                     }
                 }
                 else
                 {
-                    _isCompleted = false;
-
-                    if (value < 0.0f)
+                    if (_playState != 0 && _animationState._playheadState == 3)
                     {
-                        currentPlayTimes = (uint)(-value / _duration);
-                        value = _duration - (-value % _duration);
+                        _playState = 0;
+                    }
+
+                    if (currentTime < 0.0f)
+                    {
+                        currentTime = -currentTime;
+                        currentPlayTimes = (uint)(currentTime / _duration);
+                        currentTime = _duration - (currentTime % _duration);
                     }
                     else
                     {
-                        currentPlayTimes = (uint)(value / _duration);
-                        value %= _duration;
-                    }
-
-                    if (playTimes > 0 && currentPlayTimes > playTimes)
-                    {
-                        currentPlayTimes = playTimes;
+                        currentPlayTimes = (uint)(currentTime / _duration);
+                        currentTime %= _duration;
                     }
                 }
-
-                value += _position;
             }
             else
             {
-                _isCompleted = _animationState._timeline._isCompleted;
+                _playState = _animationState._timeline._playState;
                 currentPlayTimes = _animationState._timeline._currentPlayTimes;
             }
 
-            if (_currentTime == value)
+            currentTime += _position;
+
+            if (_currentPlayTimes == currentPlayTimes && _currentTime == currentTime)
             {
                 return false;
             }
-
-            _isReverse = _currentTime > value && _currentPlayTimes == currentPlayTimes;
-            _currentTime = value;
+            
+            // Clear frame flag when timeline start or loopComplete.
+            if (
+                (prevState < 0 && _playState != prevState) || 
+                (_playState <= 0 && _currentPlayTimes != currentPlayTimes)
+            )
+            {
+                _currentFrame = null;
+            }
+            
             _currentPlayTimes = currentPlayTimes;
+            _currentTime = currentTime;
 
             return true;
         }
 
-        virtual public void FadeIn(Armature armature, AnimationState animationState, M timelineData, float time)
+        virtual public void _init(Armature armature, AnimationState animationState, M timelineData)
         {
             _armature = armature;
             _animationState = animationState;
-            _timeline = timelineData;
+            _timelineData = timelineData;
 
             var isMainTimeline = this == (object)_animationState._timeline;
 
-            _hasAsynchronyTimeline = isMainTimeline || _animationState.animationData.hasAsynchronyTimeline;
             _frameRate = _armature.armatureData.frameRate;
-            _keyFrameCount = (uint)_timeline.frames.Count;
+            _keyFrameCount = (uint)_timelineData.frames.Count;
             _frameCount = _animationState.animationData.frameCount;
             _position = _animationState._position;
             _duration = _animationState._duration;
             _animationDutation = _animationState.animationData.duration;
-            _timeScale = isMainTimeline ? 1.0f : (1.0f / _timeline.scale);
-            _timeOffset = isMainTimeline ? 0.0f : _timeline.offset;
+            _timeScale = isMainTimeline ? 1.0f : (1.0f / _timelineData.scale);
+            _timeOffset = isMainTimeline ? 0.0f : _timelineData.offset;
         }
 
         virtual public void FadeOut() { }
 
-        virtual public void Update(float time)
+        virtual public void Update(float passedTime, float normalizedTime)
         {
-            if (!_isCompleted && _setCurrentTime(time))
+            if (_playState <= 0 && _setCurrentTime(passedTime, normalizedTime))
             {
-                var currentFrameIndex = _keyFrameCount > 1 ? (int)(_currentTime * _frameRate) : 0;
-                var currentFrame = _timeline.frames[currentFrameIndex];
+                var currentFrameIndex = _keyFrameCount > 1 ? (int)(_currentTime * _frameRate) : 0; // uint
+                var currentFrame = _timelineData.frames[currentFrameIndex];
 
                 if (_currentFrame != currentFrame)
                 {
                     _currentFrame = currentFrame;
-                    _onArriveAtFrame(true);
+                    _onArriveAtFrame();
                 }
 
-                _onUpdateFrame(true);
+                _onUpdateFrame();
             }
         }
     }
@@ -225,7 +229,7 @@ namespace DragonBones
             else if (easing >= -2.0f) // Ease out in.
             {
                 easing *= -1.0f;
-                value = (float)(Math.Acos(1.0f - progress * 2.0f) / Math.PI);
+                value = ((float)Math.Acos(1.0f - progress * 2.0f) / DragonBones.PI);
                 easing -= 1.0f;
             }
             else
@@ -248,9 +252,9 @@ namespace DragonBones
             }
 
             var segmentCount = samples.Length + 1; // + 2 - 1
-            var valueIndex = (uint)(progress * segmentCount); // floor
-            var fromValue = valueIndex == 0 ? 0 : samples[valueIndex - 1];
-            var toValue = (valueIndex == segmentCount - 1) ? 1 : samples[valueIndex];
+            var valueIndex = (int)(progress * segmentCount); // uint
+            var fromValue = valueIndex == 0 ? 0.0f : samples[valueIndex - 1];
+            var toValue = (valueIndex == segmentCount - 1) ? 1.0f : samples[valueIndex];
 
             return fromValue + (toValue - fromValue) * (progress - valueIndex / segmentCount);
         }
@@ -263,9 +267,6 @@ namespace DragonBones
         {
         }
 
-        /**
-         * @inheritDoc
-         */
         override protected void _onClear()
         {
             base._onClear();
@@ -275,27 +276,28 @@ namespace DragonBones
             _curve = null;
         }
 
-        override protected void _onArriveAtFrame(bool isUpdate)
+        override protected void _onArriveAtFrame()
         {
-            _tweenEasing = _currentFrame.tweenEasing;
-            _curve = _currentFrame.curve;
-
             if (
-                _keyFrameCount <= 1 ||
+                _keyFrameCount > 1 &&
                 (
-                    _currentFrame.next == _timeline.frames[0] &&
-                    (_tweenEasing != DragonBones.NO_TWEEN || _curve != null) &&
-                    _animationState.playTimes > 0 &&
-                    _animationState.currentPlayTimes == _animationState.playTimes - 1
+                    _currentFrame.next != _timelineData.frames[0] ||
+                    _animationState.playTimes == 0 ||
+                    _animationState.currentPlayTimes < _animationState.playTimes - 1
                 )
             )
+            {
+                _tweenEasing = _currentFrame.tweenEasing;
+                _curve = _currentFrame.curve;
+            }
+            else
             {
                 _tweenEasing = DragonBones.NO_TWEEN;
                 _curve = null;
             }
         }
 
-        override protected void _onUpdateFrame(bool isUpdate)
+        override protected void _onUpdateFrame()
         {
             if (_tweenEasing != DragonBones.NO_TWEEN)
             {
@@ -314,57 +316,6 @@ namespace DragonBones
             {
                 _tweenProgress = 0.0f;
             }
-        }
-
-        protected TweenType _updateExtensionKeyFrame(ExtensionFrameData current, ExtensionFrameData next, ExtensionFrameData result)
-        {
-            var tweenType = TweenType.None;
-            if (current.type == next.type)
-            {
-                for (int i = 0, l = current.tweens.Count; i < l; ++i)
-                {
-                    var tweenDuration = next.tweens[i] - current.tweens[i];
-                    result.tweens[i] = tweenDuration;
-
-                    if (tweenDuration > 0.0f)
-                    {
-                        tweenType = TweenType.Always;
-                    }
-                }
-            }
-
-            if (tweenType == TweenType.None)
-            {
-                if (result.type != current.type)
-                {
-                    tweenType = TweenType.Once;
-                    result.type = current.type;
-                }
-
-                if (result.tweens.Count != current.tweens.Count)
-                {
-                    tweenType = TweenType.Once;
-                    DragonBones.ResizeList(result.tweens, current.tweens.Count, 0.0f);
-                }
-
-                if (result.keys.Count != current.keys.Count)
-                {
-                    tweenType = TweenType.Once;
-                    DragonBones.ResizeList(result.keys, current.keys.Count, 0);
-                }
-
-                for (int i = 0, l = current.keys.Count; i < l; ++i)
-                {
-                    var key = current.keys[i];
-                    if (result.keys[i] != key)
-                    {
-                        tweenType = TweenType.Once;
-                        result.keys[i] = key;
-                    }
-                }
-            }
-
-            return tweenType;
         }
     }
 }

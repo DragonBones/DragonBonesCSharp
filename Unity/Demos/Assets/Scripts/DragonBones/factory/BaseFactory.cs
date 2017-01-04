@@ -271,7 +271,6 @@ namespace DragonBones
                 }
 
                 slot.displayList = displayList;
-                slot.InvalidUpdate();
             }
         }
         /** 

@@ -262,7 +262,7 @@ namespace DragonBones
 
         void OnEnable()
         {
-            _armatureComponent = this.target as UnityArmatureComponent;
+            _armatureComponent = target as UnityArmatureComponent;
             _dragonBoneJSON = _armatureComponent == null ? null : _armatureComponent.dragonBonesJSON; //
 
             // 
@@ -406,7 +406,7 @@ namespace DragonBones
                         {
                             if (GUILayout.Button("Stop"))
                             {
-                                _armatureComponent.animation.Stop();
+                                _armatureComponent.animation.Play();
                             }
                         }
                         else

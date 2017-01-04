@@ -3,126 +3,45 @@ using UnityEngine;
 
 namespace DragonBones
 {
-    public class UnityArmatureComponent : UnityEventDispatcher<EventObject>
+    /**
+     * @inheritDoc
+     */
+    public class UnityArmatureComponent : UnityEventDispatcher<EventObject>, IArmatureProxy
     {
-        /**
-         * @private
-         */
-        public TextAsset dragonBonesJSON = null;
-
-        /**
-         * @private
-         */
-        public List<string> textureAtlasJSON = null;
-
-        /**
-         * @private
-         */
-        public string armatureName = null;
-
-        /**
-         * @private
-         */
-        public string animationName = null;
-
+        private bool _disposeProxy = true;
         /**
          * @private
          */
         internal Armature _armature = null;
-        
-        private bool _disposeGameObject = true;
-
         /**
          * @private
          */
-        void Awake()
-        {
-            LoadData(dragonBonesJSON, textureAtlasJSON);
-
-            if (!string.IsNullOrEmpty(armatureName))
-            {
-                UnityFactory.factory.BuildArmatureComponent(armatureName, null, null, this.gameObject);
-            }
-
-            if (_armature != null)
-            {
-                sortingLayerName = sortingLayerName;
-                sortingOrder = sortingOrder;
-
-                if (!string.IsNullOrEmpty(animationName))
-                {
-                    _armature.animation.Play(animationName);
-                }
-            }
-        }
-
-        /**
-         * @private
-         */
-        void OnDestroy()
+        public void _onClear()
         {
             if (_armature != null)
             {
-                var armature = _armature;
-                _armature = null;
-                armature.Dispose();
-            }
-
-            _armature = null;
-            _disposeGameObject = true;
-        }
-
-        /**
-         * @private
-         */
-        override public void _onClear()
-        {
-            if (_armature != null)
-            {
-                if (_disposeGameObject)
+                if (_disposeProxy)
                 {
 #if UNITY_EDITOR
-                    Object.DestroyImmediate(this.gameObject);
+                    Object.DestroyImmediate(gameObject);
 #else
-                    Object.Destroy(this.gameObject);
+                    Object.Destroy(gameObject);
 #endif
                 }
             }
         }
-
         /**
-         * @private
+         * @inheritDoc
          */
-        public DragonBonesData LoadData(TextAsset dragonBonesJSON, List<string> textureAtlasJSON)
+        public void Dispose(bool disposeProxy = true)
         {
-            DragonBonesData dragonBonesData = null;
-
-            if (dragonBonesJSON != null)
-            {
-                dragonBonesData = UnityFactory.factory.LoadDragonBonesData(dragonBonesJSON);
-
-                if (dragonBonesData != null && textureAtlasJSON != null)
-                {
-                    foreach (var eachJSON in textureAtlasJSON)
-                    {
-                        UnityFactory.factory.LoadTextureAtlasData(eachJSON);
-                    }
-                }
-            }
-
-            return dragonBonesData;
-        }
-
-        public void Dispose(bool disposeGameObject)
-        {
-            _disposeGameObject = disposeGameObject;
+            _disposeProxy = disposeProxy;
 
             if (_armature != null)
             {
                 _armature.Dispose();
             }
         }
-
         /**
          * @language zh_CN
          * 获取骨架。
@@ -134,7 +53,6 @@ namespace DragonBones
         {
             get { return _armature; }
         }
-
         /**
          * @language zh_CN
          * 获取动画控制器。
@@ -146,6 +64,23 @@ namespace DragonBones
         {
             get { return _armature != null ? _armature.animation : null; }
         }
+        
+        /**
+         * @private
+         */
+        public TextAsset dragonBonesJSON = null;
+        /**
+         * @private
+         */
+        public List<string> textureAtlasJSON = null;
+        /**
+         * @private
+         */
+        public string armatureName = null;
+        /**
+         * @private
+         */
+        public string animationName = null;
 
         [SerializeField]
         protected string _sortingLayerName = "Default";
@@ -217,6 +152,66 @@ namespace DragonBones
                     }
                 }
             }
+        }
+        /**
+         * @private
+         */
+        void Awake()
+        {
+            LoadData(dragonBonesJSON, textureAtlasJSON);
+
+            if (!string.IsNullOrEmpty(armatureName))
+            {
+                UnityFactory.factory.BuildArmatureComponent(armatureName, null, null, gameObject);
+            }
+
+            if (_armature != null)
+            {
+                sortingLayerName = sortingLayerName;
+                sortingOrder = sortingOrder;
+
+                if (!string.IsNullOrEmpty(animationName))
+                {
+                    _armature.animation.Play(animationName);
+                }
+            }
+        }
+        /**
+         * @private
+         */
+        void OnDestroy()
+        {
+            if (_armature != null)
+            {
+                var armature = _armature;
+                _armature = null;
+                armature.Dispose();
+            }
+
+            _disposeProxy = true;
+            _armature = null;
+        }
+        /**
+         * @private
+         */
+        public DragonBonesData LoadData(TextAsset dragonBonesJSON, List<string> textureAtlasJSON)
+        {
+            DragonBonesData dragonBonesData = null;
+
+            if (dragonBonesJSON != null)
+            {
+                dragonBonesData = UnityFactory.factory.LoadDragonBonesData(dragonBonesJSON);
+
+                if (dragonBonesData != null && textureAtlasJSON != null)
+                {
+                    foreach (var eachJSON in textureAtlasJSON)
+                    {
+                        UnityFactory.factory.LoadTextureAtlasData(eachJSON);
+                    }
+                }
+            }
+
+            return dragonBonesData;
         }
     }
 }

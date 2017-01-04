@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DragonBones
 {
@@ -7,36 +8,25 @@ namespace DragonBones
      */
     public class AnimationTimelineState : TimelineState<AnimationFrameData, AnimationData>
     {
-        private bool _isStarted;
-
         public AnimationTimelineState()
         {
         }
 
-        /**
-         * @inheritDoc
-         */
-        override protected void _onClear()
-        {
-            base._onClear();
-
-            _isStarted = false;
-        }
-
         protected void _onCrossFrame(AnimationFrameData frame)
         {
-            if (this._animationState.actionEnabled)
+            if (_animationState.actionEnabled)
             {
-                foreach (var action in frame.actions)
+                var actions = frame.actions;
+                for (int i = 0, l = actions.Count; i < l; ++i)
                 {
-                    _armature._bufferAction(action);
+                    _armature._bufferAction(actions[i]);
                 }
             }
 
-            var eventDispatcher = _armature._eventDispatcher;
+            var eventDispatcher = _armature.eventDispatcher;
             foreach (var eventData in frame.events)
             {
-                var eventType = "";
+                string eventType = null;
                 switch (eventData.type)
                 {
                     case EventType.Frame:
@@ -48,14 +38,13 @@ namespace DragonBones
                         break;
                 }
 
-                if (
-                    eventDispatcher.HasEventListener(eventType) || 
-                    (eventData.type == EventType.Sound && _armature._eventManager.HasEventListener(eventType))
-                )
+                if (eventDispatcher.HasEventListener(eventType) || eventData.type == EventType.Sound)
                 {
                     var eventObject = BaseObject.BorrowObject<EventObject>();
-                    eventObject.animationState = this._animationState;
+                    eventObject.name = eventData.name;
                     eventObject.frame = frame;
+                    eventObject.data = eventData.data;
+                    eventObject.animationState = _animationState;
 
                     if (eventData.bone != null)
                     {
@@ -67,126 +56,115 @@ namespace DragonBones
                         eventObject.slot = _armature.GetSlot(eventData.slot.name);
                     }
 
-                    eventObject.name = eventData.name;
-                    // eventObject.data = eventData.data;
-
                     _armature._bufferEvent(eventObject, eventType);
                 }
             }
         }
 
-        override public void FadeIn(Armature armature, AnimationState animationState, AnimationData timelineData, float time)
+        override public void Update(float passedTime, float normalizedTime)
         {
-            base.FadeIn(armature, animationState, timelineData, time);
-
-            _currentTime = time; // Pass first update. (armature.advanceTime(0))
-        }
-
-        override public void Update(float time)
-        {
+            var prevState = _playState;
             var prevTime = _currentTime;
             var prevPlayTimes = _currentPlayTimes;
 
-            if (!_isCompleted && _setCurrentTime(time))
+            if (_playState <= 0 && _setCurrentTime(passedTime, normalizedTime))
             {
-                var eventDispatcher = _armature._eventDispatcher;
+                var eventDispatcher = _armature.eventDispatcher;
 
-                if (!_isStarted)
+                if (prevState < 0 && _playState != prevState)
                 {
-                    _isStarted = true;
-
                     if (eventDispatcher.HasEventListener(EventObject.START))
                     {
                         var eventObject = BaseObject.BorrowObject<EventObject>();
-                        eventObject.animationState = this._animationState;
+                        eventObject.animationState = _animationState;
                         _armature._bufferEvent(eventObject, EventObject.START);
                     }
                 }
 
-                if (_keyFrameCount > 0)
+                if (prevTime < 0.0f)
                 {
-                    var currentFrameIndex = _keyFrameCount > 1 ? (int)(_currentTime * _frameRate) : 0;
-                    var currentFrame = _timeline.frames[currentFrameIndex];
+                    return;
+                }
+
+                if (_keyFrameCount > 1)
+                {
+                    var currentFrameIndex = (int)(_currentTime * _frameRate); // uint
+                    var currentFrame = _timelineData.frames[currentFrameIndex];
                     if (_currentFrame != currentFrame)
                     {
-                        if (_keyFrameCount > 1)
+                        var isReverse = _currentPlayTimes == prevPlayTimes && prevTime > _currentTime;
+                        var crossedFrame = _currentFrame;
+                        _currentFrame = currentFrame;
+
+                        if (crossedFrame == null)
                         {
-                            var crossedFrame = _currentFrame;
-                            _currentFrame = currentFrame;
+                            var prevFrameIndex = (int)(prevTime * _frameRate);
+                            crossedFrame = _timelineData.frames[prevFrameIndex];
 
-                            if (crossedFrame == null)
+                            if (isReverse)
                             {
-                                var prevFrameIndex = (int)(prevTime * _frameRate);
-                                crossedFrame = _timeline.frames[prevFrameIndex];
-
-                                if (_isReverse)
-                                {
-                                }
-                                else
-                                {
-                                    if (
-                                        prevTime <= crossedFrame.position ||
-                                        prevPlayTimes != _currentPlayTimes
-                                    )
-                                    {
-                                        crossedFrame = crossedFrame.prev;
-                                    }
-                                }
-                            }
-
-                            // TODO 1 2 3 key frame loop, first key frame after loop complete.
-                            if (_isReverse)
-                            {
-                                while (crossedFrame != currentFrame)
-                                {
-                                    _onCrossFrame(crossedFrame);
-                                    crossedFrame = crossedFrame.prev;
-                                }
                             }
                             else
                             {
-                                while (crossedFrame != currentFrame)
+                                if (
+                                    prevTime <= crossedFrame.position ||
+                                    prevPlayTimes != _currentPlayTimes
+                                )
                                 {
-                                    crossedFrame = crossedFrame.next;
-                                    _onCrossFrame(crossedFrame);
+                                    crossedFrame = crossedFrame.prev;
                                 }
+                            }
+                        }
+                        
+                        if (isReverse)
+                        {
+                            while (crossedFrame != currentFrame)
+                            {
+                                _onCrossFrame(crossedFrame);
+                                crossedFrame = crossedFrame.prev;
                             }
                         }
                         else
                         {
-                            _currentFrame = currentFrame;
-                            _onCrossFrame(_currentFrame);
+                            while (crossedFrame != currentFrame)
+                            {
+                                crossedFrame = crossedFrame.next;
+                                _onCrossFrame(crossedFrame);
+                            }
                         }
+                    }
+                    else if (_keyFrameCount > 0 && _currentFrame == null)
+                    {
+                        _currentFrame = _timelineData.frames[0];
+                        _onCrossFrame(_currentFrame);
                     }
                 }
 
-                if (prevPlayTimes != _currentPlayTimes)
+                if (_currentPlayTimes != prevPlayTimes)
                 {
                     if (eventDispatcher.HasEventListener(EventObject.LOOP_COMPLETE))
                     {
                         var eventObject = BaseObject.BorrowObject<EventObject>();
-                        eventObject.animationState = this._animationState;
+                        eventObject.animationState = _animationState;
                         _armature._bufferEvent(eventObject, EventObject.LOOP_COMPLETE);
                     }
 
-                    if (_isCompleted && eventDispatcher.HasEventListener(EventObject.COMPLETE))
+                    if (_playState > 0 && eventDispatcher.HasEventListener(EventObject.COMPLETE))
                     {
                         var eventObject = BaseObject.BorrowObject<EventObject>();
-                        eventObject.animationState = this._animationState;
+                        eventObject.animationState = _animationState;
                         _armature._bufferEvent(eventObject, EventObject.COMPLETE);
                     }
-                    _currentFrame = null;
                 }
             }
         }
 
         public void setCurrentTime(float value)
         {
-            this._setCurrentTime(value);
-            this._currentFrame = null;
+            _setCurrentTime(value, -1.0f);
+            _currentFrame = null;
         }
     }
-
     /**
      * @private
      */
@@ -196,13 +174,13 @@ namespace DragonBones
         {
         }
 
-        override protected void _onArriveAtFrame(bool isUpdate)
+        override protected void _onArriveAtFrame()
         {
-            base._onArriveAtFrame(isUpdate);
-            this._armature._sortZOrder(this._currentFrame.zOrder);
-        }
-}
+            base._onArriveAtFrame();
 
+            _armature._sortZOrder(_currentFrame.zOrder);
+        }
+    }
     /**
      * @private
      */
@@ -213,19 +191,15 @@ namespace DragonBones
         private TweenType _tweenTransform;
         private TweenType _tweenRotate;
         private TweenType _tweenScale;
-        private Transform _boneTransform;
-        private Transform _originTransform;
         private readonly Transform _transform = new Transform();
-        private readonly Transform _currentTransform = new Transform();
         private readonly Transform _durationTransform = new Transform();
+        private Transform _boneTransform;
+        private Transform _originalTransform;
 
         public BoneTimelineState()
         {
         }
-
-        /**
-         * @inheritDoc
-         */
+        
         override protected void _onClear()
         {
             base._onClear();
@@ -235,31 +209,29 @@ namespace DragonBones
             _tweenTransform = TweenType.None;
             _tweenRotate = TweenType.None;
             _tweenScale = TweenType.None;
-            _boneTransform = null;
-            _originTransform = null;
             _transform.Identity();
-            _currentTransform.Identity();
             _durationTransform.Identity();
+            _boneTransform = null;
+            _originalTransform = null;
         }
 
-        override protected void _onArriveAtFrame(bool isUpdate)
+        override protected void _onArriveAtFrame()
         {
-            base._onArriveAtFrame(isUpdate);
-
-            _currentTransform.CopyFrom(this._currentFrame.transform);
+            base._onArriveAtFrame();
 
             _tweenTransform = TweenType.Once;
             _tweenRotate = TweenType.Once;
             _tweenScale = TweenType.Once;
 
-            if (_keyFrameCount > 1 && (this._tweenEasing != DragonBones.NO_TWEEN || this._curve != null))
+            if (_keyFrameCount > 1 && (_tweenEasing != DragonBones.NO_TWEEN || _curve != null))
             {
-                var nextFrame = this._currentFrame.next;
+                var currentTransform = _currentFrame.transform;
+                var nextFrame = _currentFrame.next;
                 var nextTransform = nextFrame.transform;
 
                 // Transform.
-                _durationTransform.x = nextTransform.x - _currentTransform.x;
-                _durationTransform.y = nextTransform.y - _currentTransform.y;
+                _durationTransform.x = nextTransform.x - currentTransform.x;
+                _durationTransform.y = nextTransform.y - currentTransform.y;
                 if (_durationTransform.x != 0.0f || _durationTransform.y != 0.0f)
                 {
                     _tweenTransform = TweenType.Always;
@@ -267,26 +239,22 @@ namespace DragonBones
 
                 // Rotate.
                 var tweenRotate = _currentFrame.tweenRotate;
-                if (!float.IsNaN(tweenRotate))
+                if (tweenRotate != DragonBones.NO_TWEEN)
                 {
                     if (tweenRotate != 0.0f)
                     {
-                        if (tweenRotate > 0.0f ? nextTransform.skewY >= _currentTransform.skewY : nextTransform.skewY <= _currentTransform.skewY)
+                        if (tweenRotate > 0.0f ? nextTransform.skewY >= currentTransform.skewY : nextTransform.skewY <= currentTransform.skewY)
                         {
-                            var rotate = tweenRotate > 0 ? tweenRotate - 1.0f : tweenRotate + 1.0f;
-                            _durationTransform.skewX = nextTransform.skewX - _currentTransform.skewX + DragonBones.PI_D * rotate;
-                            _durationTransform.skewY = nextTransform.skewY - _currentTransform.skewY + DragonBones.PI_D * rotate;
+                            tweenRotate = tweenRotate > 0.0f ? tweenRotate - 1.0f : tweenRotate + 1.0f;
                         }
-                        else
-                        {
-                            _durationTransform.skewX = nextTransform.skewX - _currentTransform.skewX + DragonBones.PI_D * tweenRotate;
-                            _durationTransform.skewY = nextTransform.skewY - _currentTransform.skewY + DragonBones.PI_D * tweenRotate;
-                        }
+
+                        _durationTransform.skewX = nextTransform.skewX - currentTransform.skewX + DragonBones.PI_D * tweenRotate;
+                        _durationTransform.skewY = nextTransform.skewY - currentTransform.skewY + DragonBones.PI_D * tweenRotate;
                     }
                     else
                     {
-                        _durationTransform.skewX = Transform.NormalizeRadian(nextTransform.skewX - _currentTransform.skewX);
-                        _durationTransform.skewY = Transform.NormalizeRadian(nextTransform.skewY - _currentTransform.skewY);
+                        _durationTransform.skewX = Transform.NormalizeRadian(nextTransform.skewX - currentTransform.skewX);
+                        _durationTransform.skewY = Transform.NormalizeRadian(nextTransform.skewY - currentTransform.skewY);
                     }
 
                     if (_durationTransform.skewX != 0.0f || _durationTransform.skewY != 0.0f)
@@ -303,8 +271,8 @@ namespace DragonBones
                 // Scale.
                 if (_currentFrame.tweenScale)
                 {
-                    _durationTransform.scaleX = nextTransform.scaleX - _currentTransform.scaleX;
-                    _durationTransform.scaleY = nextTransform.scaleY - _currentTransform.scaleY;
+                    _durationTransform.scaleX = nextTransform.scaleX - currentTransform.scaleX;
+                    _durationTransform.scaleY = nextTransform.scaleY - currentTransform.scaleY;
                     if (_durationTransform.scaleX != 0.0f || _durationTransform.scaleY != 0.0f)
                     {
                         _tweenScale = TweenType.Always;
@@ -327,95 +295,93 @@ namespace DragonBones
             }
         }
 
-        override protected void _onUpdateFrame(bool isUpdate)
+        override protected void _onUpdateFrame()
         {
-            if (_tweenTransform != TweenType.None || _tweenRotate != TweenType.None || _tweenScale != TweenType.None)
+            base._onUpdateFrame();
+
+            var tweenProgress = 0.0f;
+            var currentTransform = _currentFrame.transform;
+
+            if (_tweenTransform != TweenType.None)
             {
-                base._onUpdateFrame(isUpdate);
-
-                var tweenProgress = 0.0f;
-
-                if (_tweenTransform != TweenType.None)
+                if (_tweenTransform == TweenType.Once)
                 {
-                    if (_tweenTransform == TweenType.Once)
-                    {
-                        _tweenTransform = TweenType.None;
-                        tweenProgress = 0.0f;
-                    }
-                    else
-                    {
-                        tweenProgress = _tweenProgress;
-                    }
-
-                    if (this._animationState.additiveBlending) // Additive blending.
-                    {
-                        _transform.x = _currentTransform.x + _durationTransform.x * tweenProgress;
-                        _transform.y = _currentTransform.y + _durationTransform.y * tweenProgress;
-                    }
-                    else // Normal blending.
-                    {
-                        _transform.x = _originTransform.x + _currentTransform.x + _durationTransform.x * tweenProgress;
-                        _transform.y = _originTransform.y + _currentTransform.y + _durationTransform.y * tweenProgress;
-                    }
+                    _tweenTransform = TweenType.None;
+                    tweenProgress = 0.0f;
+                }
+                else
+                {
+                    tweenProgress = _tweenProgress;
                 }
 
-                if (_tweenRotate != TweenType.None)
+                if (_animationState.additiveBlending) // Additive blending.
                 {
-                    if (_tweenRotate == TweenType.Once)
-                    {
-                        _tweenRotate = TweenType.None;
-                        tweenProgress = 0.0f;
-                    }
-                    else
-                    {
-                        tweenProgress = _tweenProgress;
-                    }
-
-                    if (this._animationState.additiveBlending) // Additive blending.
-                    {
-                        _transform.skewX = _currentTransform.skewX + _durationTransform.skewX * tweenProgress;
-                        _transform.skewY = _currentTransform.skewY + _durationTransform.skewY * tweenProgress;
-                    }
-                    else // Normal blending.
-                    {
-                        _transform.skewX = _originTransform.skewX + _currentTransform.skewX + _durationTransform.skewX * tweenProgress;
-                        _transform.skewY = _originTransform.skewY + _currentTransform.skewY + _durationTransform.skewY * tweenProgress;
-                    }
+                    _transform.x = currentTransform.x + _durationTransform.x * tweenProgress;
+                    _transform.y = currentTransform.y + _durationTransform.y * tweenProgress;
                 }
-
-                if (_tweenScale != TweenType.None)
+                else // Normal blending.
                 {
-                    if (_tweenScale == TweenType.Once)
-                    {
-                        _tweenScale = TweenType.None;
-                        tweenProgress = 0.0f;
-                    }
-                    else
-                    {
-                        tweenProgress = _tweenProgress;
-                    }
-
-                    if (this._animationState.additiveBlending) // Additive blending.
-                    {
-                        _transform.scaleX = _currentTransform.scaleX + _durationTransform.scaleX * tweenProgress;
-                        _transform.scaleY = _currentTransform.scaleY + _durationTransform.scaleY * tweenProgress;
-                    }
-                    else // Normal blending.
-                    {
-                        _transform.scaleX = _originTransform.scaleX * (_currentTransform.scaleX + _durationTransform.scaleX * tweenProgress);
-                        _transform.scaleY = _originTransform.scaleY * (_currentTransform.scaleY + _durationTransform.scaleY * tweenProgress);
-                    }
+                    _transform.x = _originalTransform.x + currentTransform.x + _durationTransform.x * tweenProgress;
+                    _transform.y = _originalTransform.y + currentTransform.y + _durationTransform.y * tweenProgress;
                 }
-
-                bone.InvalidUpdate();
             }
+
+            if (_tweenRotate != TweenType.None)
+            {
+                if (_tweenRotate == TweenType.Once)
+                {
+                    _tweenRotate = TweenType.None;
+                    tweenProgress = 0.0f;
+                }
+                else
+                {
+                    tweenProgress = _tweenProgress;
+                }
+
+                if (_animationState.additiveBlending) // Additive blending.
+                {
+                    _transform.skewX = currentTransform.skewX + _durationTransform.skewX * tweenProgress;
+                    _transform.skewY = currentTransform.skewY + _durationTransform.skewY * tweenProgress;
+                }
+                else // Normal blending.
+                {
+                    _transform.skewX = _originalTransform.skewX + currentTransform.skewX + _durationTransform.skewX * tweenProgress;
+                    _transform.skewY = _originalTransform.skewY + currentTransform.skewY + _durationTransform.skewY * tweenProgress;
+                }
+            }
+
+            if (_tweenScale != TweenType.None)
+            {
+                if (_tweenScale == TweenType.Once)
+                {
+                    _tweenScale = TweenType.None;
+                    tweenProgress = 0.0f;
+                }
+                else
+                {
+                    tweenProgress = _tweenProgress;
+                }
+
+                if (_animationState.additiveBlending) // Additive blending.
+                {
+                    _transform.scaleX = currentTransform.scaleX + _durationTransform.scaleX * tweenProgress;
+                    _transform.scaleY = currentTransform.scaleY + _durationTransform.scaleY * tweenProgress;
+                }
+                else // Normal blending.
+                {
+                    _transform.scaleX = _originalTransform.scaleX * (currentTransform.scaleX + _durationTransform.scaleX * tweenProgress);
+                    _transform.scaleY = _originalTransform.scaleY * (currentTransform.scaleY + _durationTransform.scaleY * tweenProgress);
+                }
+            }
+
+            bone.InvalidUpdate();
         }
 
-        override public void FadeIn(Armature armature, AnimationState animationState, BoneTimelineData timelineData, float time)
+        override public void _init(Armature armature, AnimationState animationState, BoneTimelineData timelineData)
         {
-            base.FadeIn(armature, animationState, timelineData, time);
+            base._init(armature, animationState, timelineData);
 
-            _originTransform = _timeline.originTransform;
+            _originalTransform = _timelineData.originTransform;
             _boneTransform = bone._animationPose;
         }
 
@@ -425,44 +391,72 @@ namespace DragonBones
             _transform.skewY = Transform.NormalizeRadian(_transform.skewY);
         }
 
-        override public void Update(float time)
+        override public void Update(float passedTime, float normalizedTime)
         {
-            base.Update(time);
-
             // Blend animation state.
-            var weight = this._animationState._weightResult;
+            var animationLayer = _animationState._layer;
+            var weight = _animationState._weightResult;
 
-            if (weight > 0.0f)
+            if (bone._updateState <= 0)
             {
-                if (bone._blendIndex == 0)
+                base.Update(passedTime, normalizedTime);
+
+                bone._blendLayer = animationLayer;
+                bone._blendLeftWeight = 1.0f;
+                bone._blendTotalWeight = weight;
+
+                _boneTransform.x = _transform.x * weight;
+                _boneTransform.y = _transform.y * weight;
+                _boneTransform.skewX = _transform.skewX * weight;
+                _boneTransform.skewY = _transform.skewY * weight;
+                _boneTransform.scaleX = (_transform.scaleX - 1) * weight + 1.0f;
+                _boneTransform.scaleY = (_transform.scaleY - 1) * weight + 1.0f;
+
+                bone._updateState = 1;
+            }
+            else if (bone._blendLeftWeight > 0.0f)
+            {
+                if (bone._blendLayer != animationLayer)
                 {
-                    _boneTransform.x = _transform.x * weight;
-                    _boneTransform.y = _transform.y * weight;
-                    _boneTransform.skewX = _transform.skewX * weight;
-                    _boneTransform.skewY = _transform.skewY * weight;
-                    _boneTransform.scaleX = (_transform.scaleX - 1) * weight + 1.0f;
-                    _boneTransform.scaleY = (_transform.scaleY - 1) * weight + 1.0f;
+                    if (bone._blendTotalWeight >= bone._blendLeftWeight)
+                    {
+                        bone._blendLeftWeight = 0.0f;
+                    }
+                    else
+                    {
+                        bone._blendLayer = animationLayer;
+                        bone._blendLeftWeight -= bone._blendTotalWeight;
+                        bone._blendTotalWeight = 0.0f;
+                    }
                 }
-                else
+
+                weight *= bone._blendLeftWeight;
+                if (weight > 0.0f)
                 {
+                    base.Update(passedTime, normalizedTime);
+
+                    bone._blendTotalWeight += weight;
+
                     _boneTransform.x += _transform.x * weight;
                     _boneTransform.y += _transform.y * weight;
                     _boneTransform.skewX += _transform.skewX * weight;
                     _boneTransform.skewY += _transform.skewY * weight;
                     _boneTransform.scaleX += (_transform.scaleX - 1.0f) * weight;
                     _boneTransform.scaleY += (_transform.scaleY - 1.0f) * weight;
-                }
 
-                bone._blendIndex++;
-                
-                if (this._animationState._fadeState != 0)
+                    bone._updateState++;
+                }
+            }
+
+            if (bone._updateState > 0)
+            {
+                if (_animationState._fadeState != 0 || _animationState._subFadeState != 0)
                 {
                     bone.InvalidUpdate();
                 }
             }
         }
     }
-
     /**
      * @private
      */
@@ -472,17 +466,14 @@ namespace DragonBones
 
         private bool _colorDirty;
         private TweenType _tweenColor;
-        private ColorTransform _slotColor;
         private readonly ColorTransform _color = new ColorTransform();
         private readonly ColorTransform _durationColor = new ColorTransform();
+        private ColorTransform _slotColor;
 
         public SlotTimelineState()
         {
         }
-
-        /**
-         * @inheritDoc
-         */
+        
         override protected void _onClear()
         {
             base._onClear();
@@ -491,16 +482,16 @@ namespace DragonBones
 
             _colorDirty = false;
             _tweenColor = TweenType.None;
-            _slotColor = null;
             _color.Identity();
             _durationColor.Identity();
+            _slotColor = null;
         }
 
-        override protected void _onArriveAtFrame(bool isUpdate)
+        override protected void _onArriveAtFrame()
         {
-            base._onArriveAtFrame(isUpdate);
+            base._onArriveAtFrame();
 
-            if (this._animationState._isDisabled(slot))
+            if (_animationState._isDisabled(slot))
             {
                 _tweenEasing = DragonBones.NO_TWEEN;
                 _curve = null;
@@ -508,35 +499,23 @@ namespace DragonBones
                 return;
             }
 
-            if (slot._displayDataSet != null)
+            var displayIndex = _currentFrame.displayIndex;
+            if (_playState >= 0 && slot.displayIndex != displayIndex)
             {
-                var displayIndex = _currentFrame.displayIndex;
-                if (slot.displayIndex >= 0 && displayIndex >= 0)
-                {
-                    if (slot._displayDataSet.displays.Count > 1)
-                    {
-                        slot._setDisplayIndex(displayIndex);
-                    }
-                }
-                else
-                {
-                    slot._setDisplayIndex(displayIndex);
-                }
-
-                slot._updateMeshData(true);
+                slot._setDisplayIndex(displayIndex);
             }
 
-            if (_currentFrame.displayIndex >= 0)
+            if (displayIndex >= 0)
             {
                 _tweenColor = TweenType.None;
 
                 var currentColor = _currentFrame.color;
 
-                if (this._keyFrameCount > 1 && (this._tweenEasing != DragonBones.NO_TWEEN || this._curve != null))
+                if (_tweenEasing != DragonBones.NO_TWEEN || _curve != null)
                 {
-                    var nextFrame = this._currentFrame.next;
+                    var nextFrame = _currentFrame.next;
                     var nextColor = nextFrame.color;
-                    if (currentColor != nextColor && nextFrame.displayIndex >= 0)
+                    if (currentColor != nextColor)
                     {
                         _durationColor.alphaMultiplier = nextColor.alphaMultiplier - currentColor.alphaMultiplier;
                         _durationColor.redMultiplier = nextColor.redMultiplier - currentColor.redMultiplier;
@@ -588,9 +567,9 @@ namespace DragonBones
             }
         }
 
-        override protected void _onUpdateFrame(bool isUpdate)
+        override protected void _onUpdateFrame()
         {
-            base._onUpdateFrame(isUpdate);
+            base._onUpdateFrame();
 
             var tweenProgress = 0.0f;
 
@@ -620,9 +599,9 @@ namespace DragonBones
             }
         }
 
-        override public void FadeIn(Armature armature, AnimationState animationState, SlotTimelineData timelineData, float time)
+        override public void _init(Armature armature, AnimationState animationState, SlotTimelineData timelineData)
         {
-            base.FadeIn(armature, animationState, timelineData, time);
+            base._init(armature, animationState, timelineData);
 
             _slotColor = slot._colorTransform;
         }
@@ -632,50 +611,46 @@ namespace DragonBones
             _tweenColor = TweenType.None;
         }
 
-        override public void Update(float time)
+        override public void Update(float passedTime, float normalizedTime)
         {
-            base.Update(time);
+            base.Update(passedTime, normalizedTime);
 
             // Fade animation.
             if (_tweenColor != TweenType.None || _colorDirty)
             {
-                var weight = this._animationState._weightResult;
-                if (weight > 0.0f)
+                if (_animationState._fadeState != 0 || _animationState._subFadeState != 0)
                 {
-                    if (this._animationState._fadeState != 0)
-                    {
-                        var fadeProgress = this._animationState._fadeProgress;
+                    var fadeProgress = (float)Math.Pow(_animationState._fadeProgress, 4.0f);
 
-                        _slotColor.alphaMultiplier += (_color.alphaMultiplier - _slotColor.alphaMultiplier) * fadeProgress;
-                        _slotColor.redMultiplier += (_color.redMultiplier - _slotColor.redMultiplier) * fadeProgress;
-                        _slotColor.greenMultiplier += (_color.greenMultiplier - _slotColor.greenMultiplier) * fadeProgress;
-                        _slotColor.blueMultiplier += (_color.blueMultiplier - _slotColor.blueMultiplier) * fadeProgress;
-                        _slotColor.alphaOffset += (int)((_color.alphaOffset - _slotColor.alphaOffset) * fadeProgress);
-                        _slotColor.redOffset += (int)((_color.redOffset - _slotColor.redOffset) * fadeProgress);
-                        _slotColor.greenOffset += (int)((_color.greenOffset - _slotColor.greenOffset) * fadeProgress);
-                        _slotColor.blueOffset += (int)((_color.blueOffset - _slotColor.blueOffset) * fadeProgress);
+                    _slotColor.alphaMultiplier += (_color.alphaMultiplier - _slotColor.alphaMultiplier) * fadeProgress;
+                    _slotColor.redMultiplier += (_color.redMultiplier - _slotColor.redMultiplier) * fadeProgress;
+                    _slotColor.greenMultiplier += (_color.greenMultiplier - _slotColor.greenMultiplier) * fadeProgress;
+                    _slotColor.blueMultiplier += (_color.blueMultiplier - _slotColor.blueMultiplier) * fadeProgress;
+                    _slotColor.alphaOffset += (int)((_color.alphaOffset - _slotColor.alphaOffset) * fadeProgress);
+                    _slotColor.redOffset += (int)((_color.redOffset - _slotColor.redOffset) * fadeProgress);
+                    _slotColor.greenOffset += (int)((_color.greenOffset - _slotColor.greenOffset) * fadeProgress);
+                    _slotColor.blueOffset += (int)((_color.blueOffset - _slotColor.blueOffset) * fadeProgress);
 
-                        slot._colorDirty = true;
-                    }
-                    else if (_colorDirty)
-                    {
-                        _colorDirty = false;
-                        _slotColor.alphaMultiplier = _color.alphaMultiplier;
-                        _slotColor.redMultiplier = _color.redMultiplier;
-                        _slotColor.greenMultiplier = _color.greenMultiplier;
-                        _slotColor.blueMultiplier = _color.blueMultiplier;
-                        _slotColor.alphaOffset = _color.alphaOffset;
-                        _slotColor.redOffset = _color.redOffset;
-                        _slotColor.greenOffset = _color.greenOffset;
-                        _slotColor.blueOffset = _color.blueOffset;
+                    slot._colorDirty = true;
+                }
+                else if (_colorDirty)
+                {
+                    _colorDirty = false;
 
-                        slot._colorDirty = true;
-                    }
+                    _slotColor.alphaMultiplier = _color.alphaMultiplier;
+                    _slotColor.redMultiplier = _color.redMultiplier;
+                    _slotColor.greenMultiplier = _color.greenMultiplier;
+                    _slotColor.blueMultiplier = _color.blueMultiplier;
+                    _slotColor.alphaOffset = _color.alphaOffset;
+                    _slotColor.redOffset = _color.redOffset;
+                    _slotColor.greenOffset = _color.greenOffset;
+                    _slotColor.blueOffset = _color.blueOffset;
+
+                    slot._colorDirty = true;
                 }
             }
         }
     }
-
     /**
      * @private
      */
@@ -683,64 +658,72 @@ namespace DragonBones
     {
         public Slot slot;
 
+        private bool _ffdDirty;
         private TweenType _tweenFFD;
-        private List<float> _slotFFDVertices;
-        private ExtensionFrameData _durationFFDFrame;
         private readonly List<float> _ffdVertices = new List<float>();
+        private readonly List<float> _durationFFDVertices = new List<float>();
+        private List<float> _slotFFDVertices;
 
         public FFDTimelineState()
         {
         }
-
-        /**
-         * @inheritDoc
-         */
+        
         override protected void _onClear()
         {
             base._onClear();
 
             slot = null;
 
+            _ffdDirty = false;
             _tweenFFD = TweenType.None;
-            _slotFFDVertices = null;
-
-            if (_durationFFDFrame != null)
-            {
-                _durationFFDFrame.ReturnToPool();
-                _durationFFDFrame = null;
-            }
-
             _ffdVertices.Clear();
+            _durationFFDVertices.Clear();
+            _slotFFDVertices = null;
         }
 
-        override protected void _onArriveAtFrame(bool isUpdate)
+        override protected void _onArriveAtFrame()
         {
-            base._onArriveAtFrame(isUpdate);
+            if (slot.displayIndex >= 0 && _animationState._isDisabled(slot))
+            {
+                _tweenEasing = DragonBones.NO_TWEEN;
+                _curve = null;
+                _tweenFFD = TweenType.None;
+                return;
+            }
+
+            base._onArriveAtFrame();
 
             _tweenFFD = TweenType.None;
 
-            if (this._tweenEasing != DragonBones.NO_TWEEN || this._curve != null)
+            if (_tweenEasing != DragonBones.NO_TWEEN || _curve != null)
             {
-                _tweenFFD = _updateExtensionKeyFrame(_currentFrame, _currentFrame.next, _durationFFDFrame);
+                var currentFFDVertices = _currentFrame.tweens;
+                var nextFFDVertices = _currentFrame.next.tweens;
+                for (int i = 0, l = currentFFDVertices.Count; i < l; ++i)
+                {
+                    var duration = nextFFDVertices[i] - currentFFDVertices[i];
+                    _durationFFDVertices[i] = duration;
+                    if (duration != 0.0f)
+                    {
+                        _tweenFFD = TweenType.Always;
+                    }
+                }
             }
 
             if (_tweenFFD == TweenType.None)
             {
-                var currentFFDVertices = _currentFrame.tweens;
-                for (int i = 0, l = currentFFDVertices.Count; i < l; ++i)
+                _tweenFFD = TweenType.Once;
+
+                for (int i = 0, l = _durationFFDVertices.Count; i < l; ++i)
                 {
-                    if (_slotFFDVertices[i] != currentFFDVertices[i])
-                    {
-                        _tweenFFD = TweenType.Once;
-                        break;
-                    }
+                    _durationFFDVertices[i] = 0.0f;
                 }
             }
         }
 
-        override protected void _onUpdateFrame(bool isUpdate)
+        override protected void _onUpdateFrame()
         {
-            base._onUpdateFrame(isUpdate);
+            base._onUpdateFrame();
 
             var tweenProgress = 0.0f;
 
@@ -757,64 +740,77 @@ namespace DragonBones
                 }
 
                 var currentFFDVertices = _currentFrame.tweens;
-                var nextFFDVertices = _durationFFDFrame.tweens;
                 for (int i = 0, l = currentFFDVertices.Count; i < l; ++i)
                 {
-                    _ffdVertices[i] = currentFFDVertices[i] + nextFFDVertices[i] * tweenProgress;
+                    _ffdVertices[i] = currentFFDVertices[i] + _durationFFDVertices[i] * tweenProgress;
                 }
 
-                slot._ffdDirty = true;
+                _ffdDirty = true;
             }
         }
 
-        override public void FadeIn(Armature armature, AnimationState animationState, FFDTimelineData timelineData, float time)
+        override public void _init(Armature armature, AnimationState animationState, FFDTimelineData timelineData)
         {
-            base.FadeIn(armature, animationState, timelineData, time);
+            base._init(armature, animationState, timelineData);
 
             _slotFFDVertices = slot._ffdVertices;
-            _durationFFDFrame = BaseObject.BorrowObject<ExtensionFrameData>();
-            DragonBones.ResizeList(_durationFFDFrame.tweens, _slotFFDVertices.Count, 0.0f);
-            DragonBones.ResizeList(_ffdVertices, _slotFFDVertices.Count, 0.0f);
-
-            for (int i = 0, l = _durationFFDFrame.tweens.Count; i < l; ++i)
-            {
-                _durationFFDFrame.tweens[i] = 0.0f;
-            }
+            DragonBones.ResizeList(_ffdVertices, _timelineData.frames[0].tweens.Count, 0.0f);
+            DragonBones.ResizeList(_durationFFDVertices, _ffdVertices.Count, 0.0f);
 
             for (int i = 0, l = _ffdVertices.Count; i < l; ++i)
             {
                 _ffdVertices[i] = 0.0f;
             }
+
+            for (int i = 0, l = _durationFFDVertices.Count; i < l; ++i)
+            {
+                _durationFFDVertices[i] = 0.0f;
+            }
         }
 
-        override public void Update(float time)
+        override public void FadeOut()
         {
-            base.Update(time);
+            _tweenFFD = TweenType.None;
+        }
 
-            // Blend animation.
-            var weight = this._animationState._weightResult;
-            if (weight > 0.0f)
+        override public void Update(float passedTime, float normalizedTime)
+        {
+            if (slot.parent._blendLayer < _animationState._layer)
             {
-                if (slot._blendIndex == 0)
-                {
-                    for (int i = 0, l = _ffdVertices.Count; i < l; ++i)
-                    {
-                        _slotFFDVertices[i] = _ffdVertices[i] * weight;
-                    }
-                }
-                else
-                {
-                    for (int i = 0, l = _ffdVertices.Count; i < l; ++i)
-                    {
-                        _slotFFDVertices[i] += _ffdVertices[i] * weight;
-                    }
-                }
+                return;
+            }
 
-                slot._blendIndex++;
-               
-                if (this._animationState._fadeState != 0)
+            base.Update(passedTime, normalizedTime);
+            
+            if (slot._meshData != _timelineData.display.mesh)
+            {
+                return;
+            }
+
+            // Fade animation.
+            if (_tweenFFD != TweenType.None || _ffdDirty)
+            {
+                if (_animationState._fadeState != 0 || _animationState._subFadeState != 0)
                 {
-                    slot._ffdDirty = true;
+                    var fadeProgress = (float)Math.Pow(_animationState._fadeProgress, 4.0f);
+
+                    for (int i = 0, l = _ffdVertices.Count; i < l; ++i)
+                    {
+                        _slotFFDVertices[i] += (_ffdVertices[i] - _slotFFDVertices[i]) * fadeProgress;
+                    }
+
+                    slot._meshDirty = true;
+                }
+                else if (_ffdDirty)
+                {
+                    _ffdDirty = false;
+
+                    for (int i = 0, l = _ffdVertices.Count; i < l; ++i)
+                    {
+                        _slotFFDVertices[i] = _ffdVertices[i];
+                    }
+
+                    slot._meshDirty = true;
                 }
             }
         }

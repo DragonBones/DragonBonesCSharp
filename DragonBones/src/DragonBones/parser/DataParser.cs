@@ -11,7 +11,8 @@ namespace DragonBones
         protected const string DATA_VERSION_2_3 = "2.3";
         protected const string DATA_VERSION_3_0 = "3.0";
         protected const string DATA_VERSION_4_0 = "4.0";
-        protected const string DATA_VERSION = "4.5";
+        protected const string DATA_VERSION_4_5 = "4.5";
+        protected const string DATA_VERSION = "5.0";
 
         protected const string TEXTURE_ATLAS = "TextureAtlas";
         protected const string SUB_TEXTURE = "SubTexture";
@@ -36,6 +37,11 @@ namespace DragonBones
         protected const string Z_ORDER = "zOrder";
         protected const string FFD = "ffd";
         protected const string FRAME = "frame";
+        protected const string ACTIONS = "actions";
+        protected const string EVENTS = "events";
+        protected const string INTS = "ints";
+        protected const string FLOATS = "floats";
+        protected const string STRINGS = "strings";
 
         protected const string PIVOT = "pivot";
         protected const string TRANSFORM = "transform";
@@ -44,18 +50,21 @@ namespace DragonBones
         protected const string FILTER = "filter";
 
         protected const string VERSION = "version";
-        protected const string IS_GLOBAL = "isGlobal";
+        protected const string COMPATIBLE_VERSION = "compatibleVersion";
         protected const string FRAME_RATE = "frameRate";
         protected const string TYPE = "type";
+        protected const string SUB_TYPE = "subType";
         protected const string NAME = "name";
         protected const string PARENT = "parent";
+        protected const string SHARE = "share";
+        protected const string PATH = "path";
         protected const string LENGTH = "length";
-        protected const string DATA = "data";
         protected const string DISPLAY_INDEX = "displayIndex";
         protected const string BLEND_MODE = "blendMode";
         protected const string INHERIT_TRANSLATION = "inheritTranslation";
         protected const string INHERIT_ROTATION = "inheritRotation";
         protected const string INHERIT_SCALE = "inheritScale";
+        protected const string INHERIT_ANIMATION = "inheritAnimation";
         protected const string TARGET = "target";
         protected const string BEND_POSITIVE = "bendPositive";
         protected const string CHAIN = "chain";
@@ -74,7 +83,6 @@ namespace DragonBones
         protected const string EVENT = "event";
         protected const string SOUND = "sound";
         protected const string ACTION = "action";
-        protected const string ACTIONS = "actions";
         protected const string DEFAULT_ACTIONS = "defaultActions";
 
         protected const string X = "x";
@@ -105,12 +113,15 @@ namespace DragonBones
 
         protected const string COLOR_TRANSFORM = "colorTransform";
         protected const string TIMELINE = "timeline";
+        protected const string IS_GLOBAL = "isGlobal";
         protected const string PIVOT_X = "pX";
         protected const string PIVOT_Y = "pY";
         protected const string Z = "z";
         protected const string LOOP = "loop";
         protected const string AUTO_TWEEN = "autoTween";
         protected const string HIDE = "hide";
+
+        protected const string DEFAULT_NAME = "__default";
 
         protected static ArmatureType _getArmatureType(string value)
         {
@@ -126,7 +137,7 @@ namespace DragonBones
                     return ArmatureType.MovieClip;
 
                 default:
-                    return ArmatureType.Armature;
+                    return ArmatureType.None;
             }
         }
 
@@ -143,8 +154,29 @@ namespace DragonBones
                 case "mesh":
                     return DisplayType.Mesh;
 
+                case "boundingbox":
+                    return DisplayType.BoundingBox;
+
                 default:
-                    return DisplayType.Image;
+                    return DisplayType.None;
+            }
+        }
+
+        protected static BoundingBoxType _getBoundingBoxType(string value)
+        {
+            switch (value.ToLower())
+            {
+                case "rectangle":
+                    return BoundingBoxType.Rectangle;
+
+                case "ellipse":
+                    return BoundingBoxType.Ellipse;
+
+                case "polygon":
+                    return BoundingBoxType.Polygon;
+
+                default:
+                    return BoundingBoxType.None;
             }
         }
 
@@ -195,7 +227,7 @@ namespace DragonBones
                     return BlendMode.Subtract;
 
                 default:
-                    return BlendMode.Normal;
+                    return BlendMode.None;
             }
         }
 
@@ -204,35 +236,13 @@ namespace DragonBones
             switch (value.ToLower())
             {
                 case "play":
+                case "gotoandplay":
                     return ActionType.Play;
 
-                case "stop":
-                    return ActionType.Stop;
-
-                case "gotoandplay":
-                    return ActionType.GotoAndPlay;
-
-                case "gotoandstop":
-                    return ActionType.GotoAndStop;
-
-                case "fadein":
-                    return ActionType.FadeIn;
-
-                case "fadeout":
-                    return ActionType.FadeOut;
-
                 default:
-                    return ActionType.FadeIn;
+                    return ActionType.None;
             }
         }
-
-        protected DragonBonesData _data = null;
-        protected ArmatureData _armature = null;
-        protected SkinData _skin = null;
-        protected SlotDisplayDataSet _slotDisplayDataSet = null;
-        protected MeshData _mesh = null;
-        protected AnimationData _animation = null;
-        protected object _timeline = null;
 
         protected bool _isOldData = false; // For 2.x ~ 3.x
         protected bool _isGlobalTransform = false; // For 2.x ~ 3.x
@@ -245,6 +255,13 @@ namespace DragonBones
         protected readonly Transform _helpTransformB = new Transform();
         protected readonly Matrix _helpMatrix = new Matrix();
         protected readonly List<BoneData> _rawBones = new List<BoneData>(); // For skinned mesh
+
+        protected DragonBonesData _data = null;
+        protected ArmatureData _armature = null;
+        protected SkinData _skin = null;
+        protected SkinSlotData _skinSlotData = null;
+        protected AnimationData _animation = null;
+        protected object _timeline = null;
 
         public DataParser() { }
 

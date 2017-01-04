@@ -48,5 +48,8 @@ namespace DragonBones
      */
     public class UnityTextureData : TextureData
     {
+        public UnityTextureData()
+        {
+        }
     }
 }

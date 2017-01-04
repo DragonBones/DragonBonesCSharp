@@ -467,7 +467,9 @@ namespace DragonBones
                     _ffdVertices.Clear();
                 }
 
+                _displayDirty = true;
                 _originalDirty = true;
+
                 if (_displayData != null)
                 {
                     origin = _displayData.transform;
@@ -843,10 +845,7 @@ namespace DragonBones
                 _displayDirty = _display != null;
             }
 
-            if (_displayDirty)
-            {
-                _updateDisplayData();
-            }
+            _updateDisplayData();
 
             return _displayDirty;
         }

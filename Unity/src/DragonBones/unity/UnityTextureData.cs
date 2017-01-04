@@ -15,16 +15,14 @@ namespace DragonBones
          * @version DragonBones 3.0
          */
         public Material texture;
-
         /**
          * @private
          */
         public UnityTextureAtlasData()
         {
         }
-
         /**
-         * @inheritDoc
+         * @private
          */
         override protected void _onClear()
         {
@@ -37,7 +35,6 @@ namespace DragonBones
 
             texture = null;
         }
-
         /**
          * @private
          */
@@ -46,7 +43,6 @@ namespace DragonBones
             return BaseObject.BorrowObject<UnityTextureData>();
         }
     }
-
     /**
      * @private
      */
@@ -54,14 +50,6 @@ namespace DragonBones
     {
         public UnityTextureData()
         {
-        }
-
-        /**
-         * @inheritDoc
-         */
-        override protected void _onClear()
-        {
-            base._onClear();
         }
     }
 }
