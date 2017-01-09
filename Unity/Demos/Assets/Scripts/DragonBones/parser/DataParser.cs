@@ -12,7 +12,16 @@ namespace DragonBones
         protected const string DATA_VERSION_3_0 = "3.0";
         protected const string DATA_VERSION_4_0 = "4.0";
         protected const string DATA_VERSION_4_5 = "4.5";
-        protected const string DATA_VERSION = "5.0";
+        protected const string DATA_VERSION_5_0 = "5.0";
+        protected const string DATA_VERSION = DATA_VERSION_5_0;
+        protected static readonly List<string> DATA_VERSIONS = new List<string>()
+        {
+            DATA_VERSION_5_0,
+            DATA_VERSION_4_5,
+            DATA_VERSION_4_0,
+            DATA_VERSION_3_0,
+            DATA_VERSION_2_3
+        };
 
         protected const string TEXTURE_ATLAS = "TextureAtlas";
         protected const string SUB_TEXTURE = "SubTexture";
@@ -65,6 +74,7 @@ namespace DragonBones
         protected const string INHERIT_ROTATION = "inheritRotation";
         protected const string INHERIT_SCALE = "inheritScale";
         protected const string INHERIT_ANIMATION = "inheritAnimation";
+        protected const string INHERIT_FFD = "inheritFFD";
         protected const string TARGET = "target";
         protected const string BEND_POSITIVE = "bendPositive";
         protected const string CHAIN = "chain";

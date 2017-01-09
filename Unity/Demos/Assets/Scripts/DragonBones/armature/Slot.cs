@@ -9,9 +9,9 @@ namespace DragonBones
      * 一个骨骼上可以包含多个插槽。
      * 一个插槽中可以包含多个显示对象，同一时间只能显示其中的一个显示对象，但可以在动画播放的过程中切换显示对象实现帧动画。
      * 显示对象可以是普通的图片纹理，也可以是子骨架的显示容器，网格显示对象，还可以是自定义的其他显示对象。
-     * @see dragonBones.Armature
-     * @see dragonBones.Bone
-     * @see dragonBones.SlotData
+     * @see DragonBones.Armature
+     * @see DragonBones.Bone
+     * @see DragonBones.SlotData
      * @version DragonBones 3.0
      */
     public abstract class Slot : TransformObject
@@ -28,9 +28,9 @@ namespace DragonBones
          * @language zh_CN
          * 显示对象受到控制的动画状态或混合组名称，设置为 null 则表示受所有的动画状态控制。
          * @default null
-         * @see dragonBones.AnimationState#displayControl
-         * @see dragonBones.AnimationState#name
-         * @see dragonBones.AnimationState#group
+         * @see DragonBones.AnimationState#displayControl
+         * @see DragonBones.AnimationState#name
+         * @see DragonBones.AnimationState#group
          * @version DragonBones 4.5
          */
         public string displayController;
@@ -1144,7 +1144,7 @@ namespace DragonBones
         /**
          * @language zh_CN
          * 此时显示的子骨架。
-         * @see dragonBones.Armature
+         * @see DragonBones.Armature
          * @version DragonBones 3.0
          */
         public Armature childArmature

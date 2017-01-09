@@ -27,14 +27,14 @@ namespace DragonBones
          * @language zh_CN
          * 相对于骨架坐标系的变换。
          * @readOnly
-         * @see dragonBones.Transform
+         * @see DragonBones.Transform
          * @version DragonBones 3.0
          */
         public readonly Transform global = new Transform();
         /**
          * @language zh_CN
          * 相对于骨架或父骨骼坐标系的偏移变换。
-         * @see dragonBones.Transform
+         * @see DragonBones.Transform
          * @version DragonBones 3.0
          */
         public readonly Transform offset = new Transform();
@@ -42,7 +42,7 @@ namespace DragonBones
          * @language zh_CN
          * 相对于骨架或父骨骼坐标系的绑定变换。
          * @readOnly
-         * @see dragonBones.Transform
+         * @see DragonBones.Transform
          * @version DragonBones 3.0
          */
         public Transform origin;
@@ -98,7 +98,7 @@ namespace DragonBones
         /**
          * @language zh_CN
          * 所属的骨架。
-         * @see dragonBones.Armature
+         * @see DragonBones.Armature
          * @version DragonBones 3.0
          */
         public Armature armature
@@ -108,7 +108,7 @@ namespace DragonBones
         /**
          * @language zh_CN
          * 所属的父骨骼。
-         * @see dragonBones.Bone
+         * @see DragonBones.Bone
          * @version DragonBones 3.0
          */
         public Bone parent

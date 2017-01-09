@@ -20,15 +20,13 @@ namespace DragonBones
         private Vector2[] _uvs;
         private Vector3[] _vertices;
         /**
-         * @language zh_CN
-         * 创建一个空的插槽。
-         * @version DragonBones 3.0
+         * @private
          */
         public UnitySlot()
         {
         }
         /**
-         * @inheritDoc
+         * @private
          */
         override protected void _onClear()
         {
@@ -161,7 +159,7 @@ namespace DragonBones
                 renderer.color = _helpColor;
             }*/
 
-            /*var meshFilter = _renderDisplay.GetComponent<MeshFilter>();
+            var meshFilter = _renderDisplay.GetComponent<MeshFilter>();
             if (meshFilter != null)
             {
                 var mesh = meshFilter.sharedMesh;
@@ -180,7 +178,7 @@ namespace DragonBones
 
                     mesh.SetColors(colors);
                 }
-            }*/
+            }
         }
         /**
          * @private

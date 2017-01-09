@@ -5,8 +5,8 @@ namespace DragonBones
 {
     /**
      * 动画状态，播放动画时产生，可以对每个播放的动画进行更细致的控制和调节。
-     * @see dragonBones.Animation
-     * @see dragonBones.AnimationData
+     * @see DragonBones.Animation
+     * @see DragonBones.AnimationData
      * @version DragonBones 3.0
      */
     public class AnimationState : BaseObject
@@ -14,7 +14,7 @@ namespace DragonBones
         /**
          * @language zh_CN
          * 是否对插槽的显示对象有控制权。
-         * @see dragonBones.Slot#displayController
+         * @see DragonBones.Slot#displayController
          * @version DragonBones 3.0
          */
         public bool displayControl;
@@ -802,7 +802,7 @@ namespace DragonBones
         /**
          * @language zh_CN
          * 动画名称。
-         * @see dragonBones.AnimationData#name
+         * @see DragonBones.AnimationData#name
          * @version DragonBones 3.0
          */
         public string name
@@ -812,7 +812,7 @@ namespace DragonBones
         /**
          * @language zh_CN
          * 动画数据。
-         * @see dragonBones.AnimationData
+         * @see DragonBones.AnimationData
          * @version DragonBones 3.0
          */
         public AnimationData animationData

@@ -16,9 +16,9 @@ namespace DragonBones
      * @language zh_CN
      * 骨骼，一个骨架中可以包含多个骨骼，骨骼以树状结构组成骨架。
      * 骨骼在骨骼动画体系中是最重要的逻辑单元之一，负责动画中的平移旋转缩放的实现。
-     * @see dragonBones.BoneData
-     * @see dragonBones.Armature
-     * @see dragonBones.Slot
+     * @see DragonBones.BoneData
+     * @see DragonBones.Armature
+     * @see DragonBones.Slot
      * @version DragonBones 3.0
      */
     public class Bone : TransformObject
@@ -522,7 +522,7 @@ namespace DragonBones
          * @language zh_CN
          * 是否包含骨骼或插槽。
          * @returns
-         * @see dragonBones.TransformObject
+         * @see DragonBones.TransformObject
          * @version DragonBones 3.0
          */
         public bool Contains(TransformObject child)
@@ -568,7 +568,7 @@ namespace DragonBones
         /**
          * @language zh_CN
          * 所有的插槽。
-         * @see dragonBones.Slot
+         * @see DragonBones.Slot
          * @version DragonBones 3.0
          */
         public List<Slot> GetSlots()
@@ -590,7 +590,7 @@ namespace DragonBones
          * @language zh_CN
          * 控制此骨骼所有插槽的可见。
          * @default true
-         * @see dragonBones.Slot
+         * @see DragonBones.Slot
          * @version DragonBones 3.0
          */
         public bool visible

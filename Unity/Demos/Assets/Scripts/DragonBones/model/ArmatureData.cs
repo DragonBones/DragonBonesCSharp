@@ -6,7 +6,7 @@ namespace DragonBones
     /**
      * @language zh_CN
      * 骨架数据。
-     * @see dragonBones.Armature
+     * @see DragonBones.Armature
      * @version DragonBones 3.0
      */
     public class ArmatureData : BaseObject
@@ -46,28 +46,28 @@ namespace DragonBones
         /**
          * @language zh_CN
          * 所有骨骼数据。
-         * @see dragonBones.BoneData
+         * @see DragonBones.BoneData
          * @version DragonBones 3.0
          */
         public readonly Dictionary<string, BoneData> bones = new Dictionary<string, BoneData>();
         /**
          * @language zh_CN
          * 所有插槽数据。
-         * @see dragonBones.SlotData
+         * @see DragonBones.SlotData
          * @version DragonBones 3.0
          */
         public readonly Dictionary<string, SlotData> slots = new Dictionary<string, SlotData>();
         /**
          * @language zh_CN
          * 所有皮肤数据。
-         * @see dragonBones.SkinData
+         * @see DragonBones.SkinData
          * @version DragonBones 3.0
          */
         public readonly Dictionary<string, SkinData> skins = new Dictionary<string, SkinData>();
         /**
          * @language zh_CN
          * 所有动画数据。
-         * @see dragonBones.AnimationData
+         * @see DragonBones.AnimationData
          * @version DragonBones 3.0
          */
         public readonly Dictionary<string, AnimationData> animations = new Dictionary<string, AnimationData>();
@@ -78,7 +78,7 @@ namespace DragonBones
         /**
          * @language zh_CN
          * 所属的龙骨数据。
-         * @see dragonBones.DragonBonesData
+         * @see DragonBones.DragonBonesData
          * @version DragonBones 4.5
          */
         public DragonBonesData parent;
@@ -372,7 +372,7 @@ namespace DragonBones
          * @language zh_CN
          * 获取指定名称的骨骼数据。
          * @param name 骨骼数据名称。
-         * @see dragonBones.BoneData
+         * @see DragonBones.BoneData
          * @version DragonBones 3.0
          */
         public BoneData GetBone(string name)
@@ -383,7 +383,7 @@ namespace DragonBones
          * @language zh_CN
          * 获取指定名称的插槽数据。
          * @param name 插槽数据名称。
-         * @see dragonBones.SlotData
+         * @see DragonBones.SlotData
          * @version DragonBones 3.0
          */
         public SlotData GetSlot(string name)
@@ -394,7 +394,7 @@ namespace DragonBones
          * @language zh_CN
          * 获取指定名称的皮肤数据。
          * @param name 皮肤数据名称。
-         * @see dragonBones.SkinData
+         * @see DragonBones.SkinData
          * @version DragonBones 3.0
          */
         public SkinData GetSkin(string name)
@@ -405,7 +405,7 @@ namespace DragonBones
          * @language zh_CN
          * 获取指定名称的动画数据。
          * @param name 动画数据名称。
-         * @see dragonBones.AnimationData
+         * @see DragonBones.AnimationData
          * @version DragonBones 3.0
          */
         public AnimationData GetAnimation(string name)
@@ -457,7 +457,7 @@ namespace DragonBones
         /**
          * @language zh_CN
          * 获取默认的皮肤数据。
-         * @see dragonBones.SkinData
+         * @see DragonBones.SkinData
          * @version DragonBones 4.5
          */
         public SkinData defaultSkin
@@ -467,7 +467,7 @@ namespace DragonBones
         /**
          * @language zh_CN
          * 获取默认的动画数据。
-         * @see dragonBones.AnimationData
+         * @see DragonBones.AnimationData
          * @version DragonBones 4.5
          */
         public AnimationData defaultAnimation
@@ -478,7 +478,7 @@ namespace DragonBones
     /**
      * @language zh_CN
      * 骨骼数据。
-     * @see dragonBones.Bone
+     * @see DragonBones.Bone
      * @version DragonBones 3.0
      */
     public class BoneData : BaseObject
@@ -573,7 +573,7 @@ namespace DragonBones
     /**
      * @language zh_CN
      * 插槽数据。
-     * @see dragonBones.Slot
+     * @see DragonBones.Slot
      * @version DragonBones 3.0
      */
     public class SlotData : BaseObject
@@ -614,7 +614,7 @@ namespace DragonBones
         /**
          * @language zh_CN
          * 所属的父骨骼数据。
-         * @see dragonBones.BoneData
+         * @see DragonBones.BoneData
          * @version DragonBones 3.0
          */
         public BoneData parent;
@@ -1365,7 +1365,7 @@ namespace DragonBones
         /**
          * @language zh_CN
          * 包围盒类型。
-         * @see dragonBones.BoundingBoxType
+         * @see DragonBones.BoundingBoxType
          * @version DragonBones 5.0
          */
         public BoundingBoxType type;

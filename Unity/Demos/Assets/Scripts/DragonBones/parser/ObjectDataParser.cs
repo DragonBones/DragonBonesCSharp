@@ -479,6 +479,7 @@ namespace DragonBones
                     display.share = _getString(rawData, SHARE, null);
                     if (string.IsNullOrEmpty(display.share))
                     {
+                        display.inheritAnimation = _getBoolean(rawData, INHERIT_FFD, true);
                         display.mesh = _parseMesh(rawData);
                         _skinSlotData.AddMesh(display.mesh);
                     }
@@ -1445,12 +1446,8 @@ namespace DragonBones
                 }
 
                 if (
-                    version == DATA_VERSION ||
-                    version == DATA_VERSION_4_5 ||
-                    version == DATA_VERSION_4_0 ||
-                    version == DATA_VERSION_3_0 ||
-                    version == DATA_VERSION_2_3 ||
-                    compatibleVersion == DATA_VERSION
+                    DATA_VERSIONS.Contains(version) ||
+                    DATA_VERSIONS.Contains(compatibleVersion)
                 )
                 {
                     var data = BaseObject.BorrowObject<DragonBonesData>();
