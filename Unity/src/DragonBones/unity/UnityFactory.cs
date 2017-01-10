@@ -28,11 +28,15 @@ namespace DragonBones
         internal static readonly WorldClock _clock = new WorldClock();
         /**
          * @language zh_CN
-         * 一个可以直接使用的全局工厂实例.
+         * 一个可以直接使用的全局工厂实例。
          * @version DragonBones 4.7
          */
         public static readonly UnityFactory factory = new UnityFactory();
-
+        /**
+         * @language zh_CN
+         * 创建材质时默认使用的 shader。
+         * @version DragonBones 4.7
+         */
         public string defaultShaderName = "Sprites/Default";
 
         private string _textureAtlasPath = null;
@@ -199,6 +203,21 @@ namespace DragonBones
             return slot;
         }
         /**
+         * @private
+         */
+        protected void _refreshTextureAtlas(UnityTextureAtlasData textureAtlasData)
+        {
+            if (textureAtlasData.texture == null)
+            {
+                var textureAtlas = Resources.Load<Texture2D>(textureAtlasData.imagePath);
+                var shader = Shader.Find(defaultShaderName);
+                var material = new Material(shader);
+                material.mainTexture = textureAtlas;
+
+                textureAtlasData.texture = material;
+            }
+        }
+        /**
          * @inheritDoc
          */
         public override void RemoveDragonBonesData(string name, bool disposeData = true)
@@ -261,7 +280,7 @@ namespace DragonBones
          * @param dragonBonesName 龙骨数据名称，如果未设置，将检索所有的龙骨数据，如果多个数据中包含同名的骨架数据，可能无法创建出准确的骨架。
          * @param skinName 皮肤名称，如果未设置，则使用默认皮肤。
          * @returns 骨架的显示容器。
-         * @see dragonBones.UnityArmatureComponent
+         * @see DragonBones.UnityArmatureComponent
          * @version DragonBones 4.5
          */
         public UnityArmatureComponent BuildArmatureComponent(string armatureName, string dragonBonesName = null, string skinName = null, GameObject gameObject = null)
@@ -322,8 +341,20 @@ namespace DragonBones
         {
             get { return _eventManager; }
         }
-        
-        public DragonBonesData LoadDragonBonesData(string path, string name = null)
+        /**
+         * @language zh_CN
+         * 加载、解析并添加龙骨数据。
+         * @param path 龙骨数据在 Resources 中的路径。（其他形式的加载可自行扩展）
+         * @param name 为数据提供一个名称，以便可以通过这个名称获取数据，如果未设置，则使用数据中的名称。
+         * @param scale 为所有骨架设置一个缩放值。
+         * @returns 龙骨数据
+         * @see #ParseDragonBonesData()
+         * @see #GetDragonBonesData()
+         * @see #AddDragonBonesData()
+         * @see #RemoveDragonBonesData()
+         * @see DragonBones.DragonBonesData
+         */
+        public DragonBonesData LoadDragonBonesData(string path, string name = null, float scale = 0.01f)
         {
             var index = path.LastIndexOf("Resources");
             if (index > 0)
@@ -350,8 +381,10 @@ namespace DragonBones
 
             return dragonBonesData;
         }
-
-        public DragonBonesData LoadDragonBonesData(TextAsset dragonBonesJSON, string name = null)
+        /**
+         * @private
+         */
+        public DragonBonesData LoadDragonBonesData(TextAsset dragonBonesJSON, string name = null, float scale = 0.01f)
         {
             if (dragonBonesJSON == null)
             {
@@ -367,9 +400,21 @@ namespace DragonBones
                 }
             }
 
-            return ParseDragonBonesData((Dictionary<string, object>)MiniJSON.Json.Deserialize(dragonBonesJSON.text), name, 0.01f); // Unity default Scale Factor.
+            return ParseDragonBonesData((Dictionary<string, object>)MiniJSON.Json.Deserialize(dragonBonesJSON.text), name, scale); // Unity default Scale Factor.
         }
-
+        /**
+         * @language zh_CN
+         * 加载、解析并添加贴图集数据。
+         * @param path 贴图集数据在 Resources 中的路径。（其他形式的加载可自行扩展）
+         * @param name 为数据指定一个名称，以便可以通过这个名称获取数据，如果未设置，则使用数据中的名称。
+         * @param scale 为贴图集设置一个缩放值。
+         * @returns 贴图集数据
+         * @see #ParseTextureAtlasData()
+         * @see #GetTextureAtlasData()
+         * @see #AddTextureAtlasData()
+         * @see #RemoveTextureAtlasData()
+         * @see DragonBones.UnityTextureAtlasData
+         */
         public UnityTextureAtlasData LoadTextureAtlasData(string path, string name = null, float scale = 0.0f)
         {
             var index = path.LastIndexOf("Resources");
@@ -384,22 +429,29 @@ namespace DragonBones
                 path = path.Substring(0, index);
             }
 
+            UnityTextureAtlasData textureAtlasData = null;
+
             if (_pathTextureAtlasDataMap.ContainsKey(path))
             {
-                return _pathTextureAtlasDataMap[path] as UnityTextureAtlasData;
+                textureAtlasData = _pathTextureAtlasDataMap[path] as UnityTextureAtlasData;
+                _refreshTextureAtlas(textureAtlasData);
             }
-
-            _textureAtlasPath = path;
-
-            var textureAtlasData = LoadTextureAtlasData(Resources.Load<TextAsset>(path), name, scale);
-            if (textureAtlasData != null)
+            else
             {
-                _pathTextureAtlasDataMap[path] = textureAtlasData;
+                _textureAtlasPath = path;
+
+                textureAtlasData = LoadTextureAtlasData(Resources.Load<TextAsset>(path), name, scale);
+                if (textureAtlasData != null)
+                {
+                    _pathTextureAtlasDataMap[path] = textureAtlasData;
+                }
             }
 
             return textureAtlasData;
         }
-
+        /**
+         * @private
+         */
         public UnityTextureAtlasData LoadTextureAtlasData(TextAsset textureAtlasJSON, string name = null, float scale = 0.0f)
         {
             if (textureAtlasJSON == null)
@@ -427,18 +479,19 @@ namespace DragonBones
             {
                 textureAtlasData.imagePath = textureAtlasData.imagePath.Substring(0, index);
             }
-
-            var textureAtlas = Resources.Load<Texture2D>(textureAtlasData.imagePath);
-            var shader = Shader.Find(defaultShaderName);
-            var material = new Material(shader);
-            material.mainTexture = textureAtlas;
-
-            textureAtlasData.texture = material;
+            
+            _refreshTextureAtlas(textureAtlasData);
 
             return textureAtlasData;
         }
         /**
-         * @private
+         * @language zh_CN
+         * 刷新贴图集数据中贴图。
+         * @see #ParseTextureAtlasData()
+         * @see #GetTextureAtlasData()
+         * @see #AddTextureAtlasData()
+         * @see #RemoveTextureAtlasData()
+         * @see DragonBones.UnityTextureAtlasData
          */
         public void RefreshAllTextureAtlas()
         {
@@ -446,15 +499,7 @@ namespace DragonBones
             {
                 foreach (UnityTextureAtlasData textureAtlasData in textureAtlasDatas)
                 {
-                    if (textureAtlasData.texture == null)
-                    {
-                        var textureAtlas = Resources.Load<Texture2D>(textureAtlasData.imagePath);
-                        var shader = Shader.Find(defaultShaderName);
-                        var material = new Material(shader);
-                        material.mainTexture = textureAtlas;
-
-                        textureAtlasData.texture = material;
-                    }
+                    _refreshTextureAtlas(textureAtlasData);
                 }
             }
         }

@@ -16,10 +16,10 @@ namespace DragonBones
     /**
      * @language zh_CN
      * 创建骨架的基础工厂。 (通常只需要一个全局工厂实例)
-     * @see dragonBones.DragonBonesData
-     * @see dragonBones.TextureAtlasData
-     * @see dragonBones.ArmatureData
-     * @see dragonBones.Armature
+     * @see DragonBones.DragonBonesData
+     * @see DragonBones.TextureAtlasData
+     * @see DragonBones.ArmatureData
+     * @see DragonBones.Armature
      * @version DragonBones 3.0
      */
     public abstract class BaseFactory
@@ -29,8 +29,8 @@ namespace DragonBones
          * @language zh_CN
          * 是否开启共享搜索。
          * 如果开启，创建一个骨架时，可以从多个龙骨数据中寻找骨架数据，或贴图集数据中寻找贴图数据。 (通常在有共享导出的数据时开启)
-         * @see dragonBones.DragonBonesData#autoSearch
-         * @see dragonBones.TextureAtlasData#autoSearch
+         * @see DragonBones.DragonBonesData#autoSearch
+         * @see DragonBones.TextureAtlasData#autoSearch
          * @version DragonBones 4.5
          */
         public bool autoSearch = false;
@@ -290,11 +290,12 @@ namespace DragonBones
          * 解析并添加龙骨数据。
          * @param rawData 需要解析的原始数据。 (JSON)
          * @param name 为数据提供一个名称，以便可以通过这个名称获取数据，如果未设置，则使用数据中的名称。
+         * @param scale 为所有骨架设置一个缩放值。
          * @returns DragonBonesData
-         * @see #getDragonBonesData()
-         * @see #addDragonBonesData()
-         * @see #removeDragonBonesData()
-         * @see dragonBones.DragonBonesData
+         * @see #GetDragonBonesData()
+         * @see #AddDragonBonesData()
+         * @see #RemoveDragonBonesData()
+         * @see DragonBones.DragonBonesData
          * @version DragonBones 4.5
          */
         public DragonBonesData ParseDragonBonesData(Dictionary<string, object> rawData, string name = null, float scale = 1.0f)
@@ -312,10 +313,10 @@ namespace DragonBones
          * @param name 为数据指定一个名称，以便可以通过这个名称获取数据，如果未设置，则使用数据中的名称。
          * @param scale 为贴图集设置一个缩放值。
          * @returns 贴图集数据
-         * @see #getTextureAtlasData()
-         * @see #addTextureAtlasData()
-         * @see #removeTextureAtlasData()
-         * @see dragonBones.TextureAtlasData
+         * @see #GetTextureAtlasData()
+         * @see #AddTextureAtlasData()
+         * @see #RemoveTextureAtlasData()
+         * @see DragonBones.TextureAtlasData
          * @version DragonBones 4.5
          */
         public TextureAtlasData ParseTextureAtlasData(Dictionary<string, object> rawData, object textureAtlas, string name = null, float scale = 0.0f)
@@ -333,10 +334,10 @@ namespace DragonBones
          * 获取指定名称的龙骨数据。
          * @param name 数据名称。
          * @returns DragonBonesData
-         * @see #parseDragonBonesData()
-         * @see #addDragonBonesData()
-         * @see #removeDragonBonesData()
-         * @see dragonBones.DragonBonesData
+         * @see #ParseDragonBonesData()
+         * @see #AddDragonBonesData()
+         * @see #RemoveDragonBonesData()
+         * @see DragonBones.DragonBonesData
          * @version DragonBones 3.0
          */
         public DragonBonesData GetDragonBonesData(string name)
@@ -348,10 +349,10 @@ namespace DragonBones
          * 添加龙骨数据。
          * @param data 龙骨数据。
          * @param name 为数据指定一个名称，以便可以通过这个名称获取数据，如果未设置，则使用数据中的名称。
-         * @see #parseDragonBonesData()
-         * @see #getDragonBonesData()
-         * @see #removeDragonBonesData()
-         * @see dragonBones.DragonBonesData
+         * @see #ParseDragonBonesData()
+         * @see #GetDragonBonesData()
+         * @see #RemoveDragonBonesData()
+         * @see DragonBones.DragonBonesData
          * @version DragonBones 3.0
          */
         public void AddDragonBonesData(DragonBonesData data, string name = null)
@@ -385,10 +386,10 @@ namespace DragonBones
          * 移除龙骨数据。
          * @param name 数据名称。
          * @param disposeData 是否释放数据。
-         * @see #parseDragonBonesData()
-         * @see #getDragonBonesData()
-         * @see #addDragonBonesData()
-         * @see dragonBones.DragonBonesData
+         * @see #ParseDragonBonesData()
+         * @see #GetDragonBonesData()
+         * @see #AddDragonBonesData()
+         * @see DragonBones.DragonBonesData
          * @version DragonBones 3.0
          */
         virtual public void RemoveDragonBonesData(string name, bool disposeData = true)
@@ -408,10 +409,10 @@ namespace DragonBones
          * 获取指定名称的贴图集数据列表。
          * @param textureAtlasName 数据名称。
          * @returns 贴图集数据列表。
-         * @see #parseTextureAtlasData()
-         * @see #addTextureAtlasData()
-         * @see #removeTextureAtlasData()
-         * @see dragonBones.textures.TextureAtlasData
+         * @see #ParseTextureAtlasData()
+         * @see #AddTextureAtlasData()
+         * @see #RemoveTextureAtlasData()
+         * @see DragonBones.textures.TextureAtlasData
          * @version DragonBones 3.0
          */
         public List<TextureAtlasData> GetTextureAtlasData(string textureAtlasName)
@@ -423,10 +424,10 @@ namespace DragonBones
          * 添加贴图集数据。
          * @param data 贴图集数据。
          * @param name 为数据指定一个名称，以便可以通过这个名称获取数据，如果未设置，则使用数据中的名称。
-         * @see #parseTextureAtlasData()
-         * @see #getTextureAtlasData()
-         * @see #removeTextureAtlasData()
-         * @see dragonBones.textures.TextureAtlasData
+         * @see #ParseTextureAtlasData()
+         * @see #GetTextureAtlasData()
+         * @see #RemoveTextureAtlasData()
+         * @see DragonBones.textures.TextureAtlasData
          * @version DragonBones 3.0
          */
         public void AddTextureAtlasData(TextureAtlasData data, string name = null)
@@ -457,10 +458,10 @@ namespace DragonBones
          * 移除贴图集数据。
          * @param name 数据名称。
          * @param disposeData 是否释放数据。 [false: 不释放, true: 释放]
-         * @see #parseTextureAtlasData()
-         * @see #getTextureAtlasData()
-         * @see #addTextureAtlasData()
-         * @see dragonBones.textures.TextureAtlasData
+         * @see #ParseTextureAtlasData()
+         * @see #GetTextureAtlasData()
+         * @see #AddTextureAtlasData()
+         * @see DragonBones.textures.TextureAtlasData
          * @version DragonBones 3.0
          */
         virtual public void RemoveTextureAtlasData(string name, bool disposeData = true)
@@ -512,7 +513,7 @@ namespace DragonBones
          * @param dragonBonesName 龙骨数据名称，如果未设置，将检索所有的龙骨数据，当多个龙骨数据中包含同名的骨架数据时，可能无法创建出准确的骨架。
          * @param skinName 皮肤名称，如果未设置，则使用默认皮肤。
          * @returns 骨架
-         * @see dragonBones.Armature
+         * @see DragonBones.Armature
          * @version DragonBones 3.0
          */
         public Armature BuildArmature(string armatureName, string dragonBonesName = null, string skinName = null, string textureAtlasName = null)
@@ -543,7 +544,7 @@ namespace DragonBones
          * @param fromDragonBonesDataName 其他骨架属于的龙骨数据名称，如果未设置，则检索所有的龙骨数据。
          * @param ifRemoveOriginalAnimationList 是否移除原有的动画。 [true: 移除, false: 不移除]
          * @returns 是否替换成功。 [true: 成功, false: 不成功]
-         * @see dragonBones.Armature
+         * @see DragonBones.Armature
          * @version DragonBones 4.5
          */
         public bool CopyAnimationsToArmature(

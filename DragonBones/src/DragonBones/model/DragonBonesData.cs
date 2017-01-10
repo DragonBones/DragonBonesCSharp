@@ -131,7 +131,7 @@ namespace DragonBones
      * @language zh_CN
      * 龙骨数据。
      * 一个龙骨数据包含多个骨架数据。
-     * @see dragonBones.ArmatureData
+     * @see DragonBones.ArmatureData
      * @version DragonBones 3.0
      */
     public class DragonBonesData : BaseObject
@@ -140,7 +140,7 @@ namespace DragonBones
          * @language zh_CN
          * 是否开启共享搜索。
          * @default false
-         * @see dragonBones.ArmatureData
+         * @see DragonBones.ArmatureData
          * @version DragonBones 4.5
          */
         public bool autoSearch;
@@ -159,7 +159,7 @@ namespace DragonBones
         /**
          * @language zh_CN
          * 所有骨架数据。
-         * @see dragonBones.ArmatureData
+         * @see DragonBones.ArmatureData
          * @version DragonBones 3.0
          */
         public readonly Dictionary<string, ArmatureData> armatures = new Dictionary<string, ArmatureData>();
@@ -207,7 +207,7 @@ namespace DragonBones
          * @language zh_CN
          * 获取骨架。
          * @param name 骨架数据骨架名称。
-         * @see dragonBones.ArmatureData
+         * @see DragonBones.ArmatureData
          * @version DragonBones 3.0
          */
         public ArmatureData GetArmature(string name)

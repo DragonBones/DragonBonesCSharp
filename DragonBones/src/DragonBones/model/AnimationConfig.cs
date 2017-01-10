@@ -6,7 +6,7 @@ namespace DragonBones
      * @language zh_CN
      * @beta
      * 动画配置，描述播放一个动画所需要的全部信息。
-     * @see dragonBones.AnimationState
+     * @see DragonBones.AnimationState
      * @version DragonBones 5.0
      */
     public class AnimationConfig : BaseObject
@@ -22,7 +22,7 @@ namespace DragonBones
          * @language zh_CN
          * 淡出模式。
          * @default dragonBones.AnimationFadeOutMode.All
-         * @see dragonBones.AnimationFadeOutMode
+         * @see DragonBones.AnimationFadeOutMode
          * @version DragonBones 5.0
          */
         public AnimationFadeOutMode fadeOutMode;

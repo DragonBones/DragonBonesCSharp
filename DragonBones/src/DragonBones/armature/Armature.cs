@@ -5,11 +5,11 @@ namespace DragonBones
     /**
      * @language zh_CN
      * 骨架，是骨骼动画系统的核心，由显示容器、骨骼、插槽、动画、事件系统构成。
-     * @see dragonBones.ArmatureData
-     * @see dragonBones.Bone
-     * @see dragonBones.Slot
-     * @see dragonBones.Animation
-     * @see dragonBones.IArmatureDisplay
+     * @see DragonBones.ArmatureData
+     * @see DragonBones.Bone
+     * @see DragonBones.Slot
+     * @see DragonBones.Animation
+     * @see DragonBones.IArmatureDisplay
      * @version DragonBones 3.0
      */
     public class Armature : BaseObject, IAnimateble
@@ -337,15 +337,21 @@ namespace DragonBones
          * @language zh_CN
          * 更新骨架和动画。
          * @param passedTime 两帧之间的时间间隔。 (以秒为单位)
-         * @see dragonBones.IAnimateble
-         * @see dragonBones.WorldClock
+         * @see DragonBones.IAnimateble
+         * @see DragonBones.WorldClock
          * @version DragonBones 3.0
          */
         public void AdvanceTime(float passedTime)
         {
-            if (_animation == null)
+            if (_armatureData == null)
             {
                 DragonBones.Assert(false, "The armature has been disposed.");
+                return;
+            }
+            else if (_armatureData.parent == null)
+            {
+                DragonBones.Assert(false, "The armature data has been disposed.");
+                return;
             }
 
             // Bones and slots.
@@ -463,8 +469,8 @@ namespace DragonBones
          * 更新骨骼和插槽。 (当骨骼没有动画状态或动画状态播放完成时，骨骼将不在更新)
          * @param boneName 指定的骨骼名称，如果未设置，将更新所有骨骼。
          * @param updateSlotDisplay 是否更新插槽的显示对象。
-         * @see dragonBones.Bone
-         * @see dragonBones.Slot
+         * @see DragonBones.Bone
+         * @see DragonBones.Slot
          * @version DragonBones 3.0
          */
         public void InvalidUpdate(string boneName = null, bool updateSlotDisplay = false)
@@ -649,7 +655,7 @@ namespace DragonBones
          * 获取骨骼。
          * @param name 骨骼的名称。
          * @returns 骨骼。
-         * @see dragonBones.Bone
+         * @see DragonBones.Bone
          * @version DragonBones 3.0
          */
         public Bone GetBone(string name)
@@ -669,7 +675,7 @@ namespace DragonBones
          * 通过显示对象获取骨骼。
          * @param display 显示对象。
          * @returns 包含这个显示对象的骨骼。
-         * @see dragonBones.Bone
+         * @see DragonBones.Bone
          * @version DragonBones 3.0
          */
         public Bone GetBoneByDisplay(object display)
@@ -683,7 +689,7 @@ namespace DragonBones
          * 获取插槽。
          * @param name 插槽的名称。
          * @returns 插槽。
-         * @see dragonBones.Slot
+         * @see DragonBones.Slot
          * @version DragonBones 3.0
          */
         public Slot GetSlot(string name)
@@ -703,7 +709,7 @@ namespace DragonBones
          * 通过显示对象获取插槽。
          * @param display 显示对象。
          * @returns 包含这个显示对象的插槽。
-         * @see dragonBones.Slot
+         * @see DragonBones.Slot
          * @version DragonBones 3.0
          */
         public Slot GetSlotByDisplay(object display)
@@ -765,7 +771,7 @@ namespace DragonBones
         /**
          * @language zh_CN
          * 获取所有骨骼。
-         * @see dragonBones.Bone
+         * @see DragonBones.Bone
          * @version DragonBones 3.0
          */
         public List<Bone> GetBones()
@@ -775,7 +781,7 @@ namespace DragonBones
         /**
          * @language zh_CN
          * 获取所有插槽。
-         * @see dragonBones.Slot
+         * @see DragonBones.Slot
          * @version DragonBones 3.0
          */
         public List<Slot> GetSlots()
@@ -785,7 +791,7 @@ namespace DragonBones
         /**
          * @language zh_CN
          * 骨架名称。
-         * @see dragonBones.ArmatureData#name
+         * @see DragonBones.ArmatureData#name
          * @version DragonBones 3.0
          */
         public string name
@@ -795,7 +801,7 @@ namespace DragonBones
         /**
          * @language zh_CN
          * 获取骨架数据。
-         * @see dragonBones.ArmatureData
+         * @see DragonBones.ArmatureData
          * @version DragonBones 4.5
          */
         public ArmatureData armatureData
@@ -805,7 +811,7 @@ namespace DragonBones
         /**
          * @language zh_CN
          * 获得动画控制器。
-         * @see dragonBones.Animation
+         * @see DragonBones.Animation
          * @version DragonBones 3.0
          */
         public Animation animation
@@ -833,7 +839,7 @@ namespace DragonBones
         /**
          * @language zh_CN
          * 获取父插槽。 (当此骨架是某个骨架的子骨架时，可以通过此属性向上查找从属关系)
-         * @see dragonBones.Slot
+         * @see DragonBones.Slot
          * @version DragonBones 4.5
          */
         public Slot parent
@@ -847,8 +853,8 @@ namespace DragonBones
          * 通过将动画数据缓存在内存中来提高运行性能，会有一定的内存开销。
          * 帧率不宜设置的过高，通常跟动画的帧率相当且低于程序运行的帧率。
          * 开启动画缓存后，某些功能将会失效，比如 Bone 和 Slot 的 offset 属性等。
-         * @see dragonBones.DragonBonesData#frameRate
-         * @see dragonBones.ArmatureData#frameRate
+         * @see DragonBones.DragonBonesData#frameRate
+         * @see DragonBones.ArmatureData#frameRate
          * @version DragonBones 4.5
          */
         public uint cacheFrameRate

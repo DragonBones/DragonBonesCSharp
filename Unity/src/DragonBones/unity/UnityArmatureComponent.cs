@@ -46,7 +46,7 @@ namespace DragonBones
          * @language zh_CN
          * 获取骨架。
          * @readOnly
-         * @see dragonBones.Armature
+         * @see DragonBones.Armature
          * @version DragonBones 4.5
          */
         public Armature armature
@@ -57,7 +57,7 @@ namespace DragonBones
          * @language zh_CN
          * 获取动画控制器。
          * @readOnly
-         * @see dragonBones.Animation
+         * @see DragonBones.Animation
          * @version DragonBones 4.5
          */
         new public Animation animation
@@ -187,7 +187,7 @@ namespace DragonBones
                 _armature = null;
                 armature.Dispose();
             }
-
+            
             _disposeProxy = true;
             _armature = null;
         }

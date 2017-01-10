@@ -137,7 +137,10 @@ namespace DragonBones
                 }
             }
 
-            _getTextureAtlasConfigs(textureAtlasFiles, filePath, null, "texture");
+            if (suffix != "texture")
+            {
+                _getTextureAtlasConfigs(textureAtlasFiles, filePath, null, "texture");
+            }
         }
 
         private static bool _changeDragonBonesData(UnityArmatureComponent _armatureComponent, TextAsset dragonBoneJSON)

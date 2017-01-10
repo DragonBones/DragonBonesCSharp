@@ -6,8 +6,8 @@ namespace DragonBones
     /**
      * @language zh_CN
      * WorldClock 提供时钟支持，为每个加入到时钟的 IAnimatable 对象更新时间。
-     * @see dragonBones.IAnimatable
-     * @see dragonBones.Armature
+     * @see DragonBones.IAnimatable
+     * @see DragonBones.Armature
      * @version DragonBones 3.0
      */
     public class WorldClock : IAnimateble

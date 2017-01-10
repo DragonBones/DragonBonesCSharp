@@ -5,8 +5,8 @@ namespace DragonBones
     /**
      * @language zh_CN
      * 动画控制器，用来播放动画数据，管理动画状态。
-     * @see dragonBones.AnimationData
-     * @see dragonBones.AnimationState
+     * @see DragonBones.AnimationData
+     * @see DragonBones.AnimationState
      * @version DragonBones 3.0
      */
     public class Animation : BaseObject
@@ -263,7 +263,7 @@ namespace DragonBones
         /**
          * @language zh_CN
          * 清除所有动画状态。
-         * @see dragonBones.AnimationState
+         * @see DragonBones.AnimationState
          * @version DragonBones 4.5
          */
         public void Reset()
@@ -285,7 +285,7 @@ namespace DragonBones
          * @language zh_CN
          * 暂停播放动画。
          * @param animationName 动画状态的名称，如果未设置，则暂停所有动画状态。
-         * @see dragonBones.AnimationState
+         * @see DragonBones.AnimationState
          * @version DragonBones 3.0
          */
         public void Stop(string animationName = null)
@@ -309,8 +309,8 @@ namespace DragonBones
          * 通过动画配置来播放动画。
          * @param animationConfig 动画配置。
          * @returns 对应的动画状态。
-         * @see dragonBones.AnimationConfig
-         * @see dragonBones.AnimationState
+         * @see DragonBones.AnimationConfig
+         * @see DragonBones.AnimationState
          * @version DragonBones 5.0
          */
         public AnimationState PlayConfig(AnimationConfig animationConfig)
@@ -453,8 +453,8 @@ namespace DragonBones
          * @param group 混合组，用于动画状态编组，方便控制淡出。
          * @param fadeOutMode 淡出模式。
          * @returns 对应的动画状态。
-         * @see dragonBones.AnimationFadeOutMode
-         * @see dragonBones.AnimationState
+         * @see DragonBones.AnimationFadeOutMode
+         * @see DragonBones.AnimationState
          * @version DragonBones 4.5
          */
         public AnimationState FadeIn(
@@ -480,7 +480,7 @@ namespace DragonBones
          * @param animationName 动画数据名称，如果未设置，则播放默认动画，或将暂停状态切换为播放状态，或重新播放上一个正在播放的动画。 
          * @param playTimes 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
          * @returns 对应的动画状态。
-         * @see dragonBones.AnimationState
+         * @see DragonBones.AnimationState
          * @version DragonBones 3.0
          */
         public AnimationState Play(string animationName = null, int playTimes = -1)
@@ -523,7 +523,7 @@ namespace DragonBones
          * @param time 开始时间。 (以秒为单位)
          * @param playTimes 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
          * @returns 对应的动画状态。
-         * @see dragonBones.AnimationState
+         * @see DragonBones.AnimationState
          * @version DragonBones 4.5
          */
         public AnimationState GotoAndPlayByTime(string animationName, float time = 0.0f, int playTimes = -1)
@@ -543,7 +543,7 @@ namespace DragonBones
          * @param frame 帧。
          * @param playTimes 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
          * @returns 对应的动画状态。
-         * @see dragonBones.AnimationState
+         * @see DragonBones.AnimationState
          * @version DragonBones 4.5
          */
         public AnimationState GotoAndPlayByFrame(string animationName, uint frame = 0, int playTimes = -1)
@@ -568,7 +568,7 @@ namespace DragonBones
          * @param progress 进度。 [0~1]
          * @param playTimes 播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
          * @returns 对应的动画状态。
-         * @see dragonBones.AnimationState
+         * @see DragonBones.AnimationState
          * @version DragonBones 4.5
          */
         public AnimationState GotoAndPlayByProgress(string animationName, float progress = 0.0f, int playTimes = -1)
@@ -592,7 +592,7 @@ namespace DragonBones
          * @param animationName 动画数据的名称。
          * @param time 时间。 (以秒为单位)
          * @returns 对应的动画状态。
-         * @see dragonBones.AnimationState
+         * @see DragonBones.AnimationState
          * @version DragonBones 4.5
          */
         public AnimationState GotoAndStopByTime(string animationName, float time = 0.0f)
@@ -611,7 +611,7 @@ namespace DragonBones
          * @param animationName 动画数据的名称。
          * @param frame 帧。
          * @returns 对应的动画状态。
-         * @see dragonBones.AnimationState
+         * @see DragonBones.AnimationState
          * @version DragonBones 4.5
          */
         public AnimationState GotoAndStopByFrame(string animationName, uint frame = 0)
@@ -630,7 +630,7 @@ namespace DragonBones
          * @param animationName 动画数据的名称。
          * @param progress 进度。 [0 ~ 1]
          * @returns 对应的动画状态。
-         * @see dragonBones.AnimationState
+         * @see DragonBones.AnimationState
          * @version DragonBones 4.5
          */
         public AnimationState GotoAndStopByProgress(string animationName, float progress = 0.0f)
@@ -647,7 +647,7 @@ namespace DragonBones
          * @language zh_CN
          * 获取动画状态。
          * @param animationName 动画状态的名称。
-         * @see dragonBones.AnimationState
+         * @see DragonBones.AnimationState
          * @version DragonBones 3.0
          */
         public AnimationState GetState(string animationName)
@@ -667,7 +667,7 @@ namespace DragonBones
          * @language zh_CN
          * 是否包含动画数据。
          * @param animationName 动画数据的名称。
-         * @see dragonBones.AnimationData
+         * @see DragonBones.AnimationData
          * @version DragonBones 3.0
          */
         public bool HasAnimation(string animationName)
@@ -699,7 +699,7 @@ namespace DragonBones
         /**
          * @language zh_CN
          * 所有动画状态是否均已播放完毕。
-         * @see dragonBones.AnimationState
+         * @see DragonBones.AnimationState
          * @version DragonBones 3.0
          */
         public bool isCompleted
@@ -740,7 +740,7 @@ namespace DragonBones
         /**
          * @language zh_CN
          * 上一个正在播放的动画状态。
-         * @see dragonBones.AnimationState
+         * @see DragonBones.AnimationState
          * @version DragonBones 3.0
          */
         public AnimationState lastAnimationState
@@ -750,7 +750,7 @@ namespace DragonBones
         /**
          * @language zh_CN
          * 一个可以快速使用的动画配置实例。
-         * @see dragonBones.AnimationConfig
+         * @see DragonBones.AnimationConfig
          * @version DragonBones 5.0
          */
         public AnimationConfig animationConfig
@@ -770,7 +770,7 @@ namespace DragonBones
         /**
          * @language zh_CN
          * 所有的动画数据。
-         * @see dragonBones.AnimationData
+         * @see DragonBones.AnimationData
          * @version DragonBones 4.5
          */
         public Dictionary<string, AnimationData> animations

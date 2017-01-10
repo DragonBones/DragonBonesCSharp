@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace DragonBones
 {
@@ -751,14 +752,10 @@ namespace DragonBones
                 if (rawData.ContainsKey(TIMELINE))
                 {
                     var timelines = rawData[TIMELINE] as List<object>;
-                    foreach (Dictionary<string, object> boneTimelineObject in timelines)
+                    foreach (Dictionary<string, object> timelineObjects in timelines)
                     {
-                        animation.AddBoneTimeline(_parseBoneTimeline(boneTimelineObject));
-                    }
-
-                    foreach (Dictionary<string, object> slotTimelineObject in timelines)
-                    {
-                        animation.AddSlotTimeline(_parseSlotTimeline(slotTimelineObject));
+                        animation.AddBoneTimeline(_parseBoneTimeline(timelineObjects));
+                        animation.AddSlotTimeline(_parseSlotTimeline(timelineObjects));
                     }
                 }
             }
@@ -858,8 +855,8 @@ namespace DragonBones
 
             if (_isOldData && (rawData.ContainsKey(PIVOT_X) || rawData.ContainsKey(PIVOT_Y))) // Support 2.x ~ 3.x data.
             {
-                _timelinePivot.x = _getNumber(rawData, PIVOT_X, 0.0f);
-                _timelinePivot.y = _getNumber(rawData, PIVOT_Y, 0.0f);
+                _timelinePivot.x = _getNumber(rawData, PIVOT_X, 0.0f) * _armature.scale;
+                _timelinePivot.y = _getNumber(rawData, PIVOT_Y, 0.0f) * _armature.scale;
             }
             else
             {
@@ -999,8 +996,8 @@ namespace DragonBones
 
                 if (_isOldData) // Support 2.x ~ 3.x data.
                 {
-                    _helpPoint.x = _timelinePivot.x + _getNumber(transformObject, PIVOT_X, 0.0f);
-                    _helpPoint.y = _timelinePivot.y + _getNumber(transformObject, PIVOT_Y, 0.0f);
+                    _helpPoint.x = _timelinePivot.x + _getNumber(transformObject, PIVOT_X, 0.0f) * _armature.scale;
+                    _helpPoint.y = _timelinePivot.y + _getNumber(transformObject, PIVOT_Y, 0.0f) * _armature.scale;
                     frame.transform.ToMatrix(_helpMatrix);
                     _helpMatrix.TransformPoint(_helpPoint.x, _helpPoint.y, _helpPoint, true);
                     frame.transform.x += _helpPoint.x;

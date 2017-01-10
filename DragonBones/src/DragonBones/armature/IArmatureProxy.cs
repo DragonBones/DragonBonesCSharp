@@ -23,7 +23,7 @@ namespace DragonBones
          * @language zh_CN
          * 获取骨架。
          * @readOnly
-         * @see dragonBones.Armature
+         * @see DragonBones.Armature
          * @version DragonBones 4.5
          */
         Armature armature
@@ -34,7 +34,7 @@ namespace DragonBones
          * @language zh_CN
          * 获取动画控制器。
          * @readOnly
-         * @see dragonBones.Animation
+         * @see DragonBones.Animation
          * @version DragonBones 4.5
          */
         Animation animation
@@ -44,7 +44,7 @@ namespace DragonBones
     }
     /**
      * @deprecated
-     * @see dragonBones.core.IArmatureProxy
+     * @see DragonBones.core.IArmatureProxy
      */
     public interface IArmatureDisplay : IArmatureProxy
     {

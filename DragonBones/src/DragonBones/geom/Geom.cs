@@ -85,7 +85,6 @@ namespace DragonBones
             width = height = 0.0f;
         }
     }
-
     /**
      * @language zh_CN
      * 2D 变换。
@@ -103,56 +102,55 @@ namespace DragonBones
 
             return value;
         }
-
         /**
          * @language zh_CN
          * 水平位移。
          * @version DragonBones 3.0
          */
         public float x = 0.0f;
-
         /**
          * @language zh_CN
          * 垂直位移。
          * @version DragonBones 3.0
          */
         public float y = 0.0f;
-
         /**
          * @language zh_CN
          * 水平倾斜。 (以弧度为单位)
          * @version DragonBones 3.0
          */
         public float skewX = 0.0f;
-
         /**
          * @language zh_CN
          * 垂直倾斜。 (以弧度为单位)
          * @version DragonBones 3.0
          */
         public float skewY = 0.0f;
-
         /**
          * @language zh_CN
          * 水平缩放。
          * @version DragonBones 3.0
          */
         public float scaleX = 1.0f;
-
         /**
          * @language zh_CN
          * 垂直缩放。
          * @version DragonBones 3.0
          */
         public float scaleY = 1.0f;
-
         /**
          * @private
          */
         public Transform()
         {
         }
-
+        /**
+         * @private
+         */
+        override public string ToString()
+        {
+            return "[object DragonBones.Transform] x:" + x + " y:" + y + " skewX:" + skewX + " skewY:" + skewY + " scaleX:" + scaleX + " scaleY:" + scaleY;
+        }
         /**
          * @private
          */
@@ -167,7 +165,6 @@ namespace DragonBones
 
             return this;
         }
-
         /**
          * @private
          */
@@ -178,7 +175,6 @@ namespace DragonBones
 
             return this;
         }
-
         /**
          * @private
          */
@@ -193,7 +189,6 @@ namespace DragonBones
 
             return this;
         }
-
         /**
          * @private
          */
@@ -208,7 +203,6 @@ namespace DragonBones
 
             return this;
         }
-
         /**
          * @private
          */
@@ -250,7 +244,6 @@ namespace DragonBones
 
             return this;
         }
-
         /**
          * @language zh_CN
          * 转换为矩阵。
@@ -296,7 +289,6 @@ namespace DragonBones
 
             return this;
         }
-
         /**
          * @language zh_CN
          * 旋转。 (以弧度为单位)
@@ -314,7 +306,6 @@ namespace DragonBones
             }
         }
     }
-
     /**
      * @language zh_CN
      * 2D 矩阵。
@@ -332,7 +323,6 @@ namespace DragonBones
         public Matrix()
         {
         }
-
         /**
          * @private
          */
@@ -340,7 +330,6 @@ namespace DragonBones
         {
             return "[object DragonBones.Matrix] a:" + a + " b:" + b + " c:" + c + " d:" + d + " tx:" + tx + " ty:" + ty;
         }
-
         /**
          * @language zh_CN
          * 复制矩阵。
@@ -358,7 +347,6 @@ namespace DragonBones
 
             return this;
         }
-
         /**
          * @language zh_CN
          * 转换为恒等矩阵。
@@ -372,7 +360,6 @@ namespace DragonBones
 
             return this;
         }
-
         /**
          * @language zh_CN
          * 将当前矩阵与另一个矩阵相乘。
@@ -413,7 +400,6 @@ namespace DragonBones
 
             return this;
         }
-
         /**
          * @language zh_CN
          * 转换为逆矩阵。
