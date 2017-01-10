@@ -337,7 +337,7 @@ namespace DragonBones
          * 获取全局声音事件管理器。
          * @version DragonBones 4.5
          */
-        public IEventDispatcher<EventObject> soundEventManater
+        public IEventDispatcher<EventObject> soundEventManager
         {
             get { return _eventManager; }
         }

@@ -44,7 +44,7 @@ namespace DragonBones
     }
     /**
      * @deprecated
-     * @see DragonBones.core.IArmatureProxy
+     * @see DragonBones.IArmatureProxy
      */
     public interface IArmatureDisplay : IArmatureProxy
     {

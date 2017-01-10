@@ -409,7 +409,7 @@ namespace DragonBones
                         {
                             if (GUILayout.Button("Stop"))
                             {
-                                _armatureComponent.animation.Play();
+                                _armatureComponent.animation.Stop();
                             }
                         }
                         else
