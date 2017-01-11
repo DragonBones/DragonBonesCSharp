@@ -315,6 +315,7 @@ namespace DragonBones
         {
             var prevDisplayData = _displayData;
             var prevReplaceDisplayData = _replacedDisplayData;
+            var prevTextureData = _textureData;
             var prevMeshData = _meshData;
 
             if (_displayIndex >= 0 && _displayIndex < _skinSlotData.displays.Count)
@@ -455,6 +456,10 @@ namespace DragonBones
                             _meshBones.Clear();
                             _ffdVertices.Clear();
                         }
+                    }
+                    else if (_textureData != prevTextureData)
+                    {
+                        _meshDirty = true;
                     }
                 }
                 else
