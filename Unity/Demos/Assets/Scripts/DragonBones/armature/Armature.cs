@@ -516,15 +516,14 @@ namespace DragonBones
          * 判断点是否在所有插槽的自定义包围盒内。
          * @param x 点的水平坐标。（骨架内坐标系）
          * @param y 点的垂直坐标。（骨架内坐标系）
-         * @param color 指定的包围盒颜色。 [0: 与所有包围盒进行判断, N: 仅当包围盒的颜色为 N 时才进行判断]
          * @version DragonBones 5.0
          */
-        public Slot ContainsPoint(float x, float y, uint color = 0x000000)
+        public Slot ContainsPoint(float x, float y)
         {
             for (int i = 0, l = _slots.Count; i < l; ++i)
             {
                 var slot = _slots[i];
-                if (slot.ContainsPoint(x, y, color))
+                if (slot.ContainsPoint(x, y))
                 {
                     return slot;
                 }
@@ -539,7 +538,6 @@ namespace DragonBones
          * @param yA 线段起点的垂直坐标。（骨架内坐标系）
          * @param xB 线段终点的水平坐标。（骨架内坐标系）
          * @param yB 线段终点的垂直坐标。（骨架内坐标系）
-         * @param color 指定的包围盒颜色。 [0: 与所有包围盒进行判断, N: 仅当包围盒的颜色为 N 时才进行判断]
          * @param intersectionPointA 线段从起点到终点与包围盒相交的第一个交点。（骨架内坐标系）
          * @param intersectionPointB 线段从终点到起点与包围盒相交的第一个交点。（骨架内坐标系）
          * @param normalRadians 碰撞点处包围盒切线的法线弧度。 [x: 第一个碰撞点处切线的法线弧度, y: 第二个碰撞点处切线的法线弧度]
@@ -548,7 +546,6 @@ namespace DragonBones
          */
         public Slot intersectsSegment(
             float xA, float yA, float xB, float yB,
-            uint color = 0x000000,
             Point intersectionPointA = null,
             Point intersectionPointB = null,
             Point normalRadians = null
@@ -569,7 +566,7 @@ namespace DragonBones
             for (int i = 0, l = _slots.Count; i < l; ++i)
             {
                 var slot = _slots[i];
-                var intersectionCount = slot.IntersectsSegment(xA, yA, xB, yB, color, intersectionPointA, intersectionPointB, normalRadians);
+                var intersectionCount = slot.IntersectsSegment(xA, yA, xB, yB, intersectionPointA, intersectionPointB, normalRadians);
                 if (intersectionCount > 0)
                 {
                     if (intersectionPointA != null || intersectionPointB != null)
