@@ -287,7 +287,7 @@ namespace DragonBones
         public void _sortZOrder(List<int> slotIndices)
         {
             var sortedSlots = _armatureData.sortedSlots;
-            var isOriginal = slotIndices.Count < 1;
+            var isOriginal = slotIndices == null || slotIndices.Count < 1;
 
             for (int i = 0, l = sortedSlots.Count; i < l; ++i)
             {

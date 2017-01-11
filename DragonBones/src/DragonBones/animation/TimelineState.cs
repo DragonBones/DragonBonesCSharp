@@ -73,6 +73,11 @@ namespace DragonBones
 
                 if (prevState < 0 && _playState != prevState)
                 {
+                    if (_animationState.displayControl)
+                    {
+                        _armature._sortZOrder(null);
+                    }
+
                     if (eventDispatcher.HasEventListener(EventObject.START))
                     {
                         var eventObject = BaseObject.BorrowObject<EventObject>();
