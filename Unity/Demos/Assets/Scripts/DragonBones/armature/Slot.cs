@@ -340,7 +340,7 @@ namespace DragonBones
             {
                 var currentDisplayData = _replacedDisplayData != null ? _replacedDisplayData : _displayData;
                 var currentDisplay = _displayIndex >= 0 && _displayIndex < _displayList.Count ? _displayList[_displayIndex] : null;
-                if (currentDisplayData != null && currentDisplay == _rawDisplay || currentDisplay == _meshDisplay)
+                if (currentDisplayData != null && (currentDisplay == _rawDisplay || currentDisplay == _meshDisplay))
                 {
                     _textureData = _replacedDisplayData != null ? _replacedDisplayData.texture : _displayData.texture;
                     if (currentDisplay == _meshDisplay)

@@ -125,7 +125,7 @@ namespace DragonBones
          */
         public void CacheFrames(float frameRate)
         {
-            if (frameRate > 0.0f)
+            if (cacheFrameRate > 0.0f)
             {
                 return;
             }
@@ -138,12 +138,24 @@ namespace DragonBones
 
             foreach (var k in boneTimelines.Keys)
             {
-                boneCachedFrameIndices[k] = new List<int>(cacheFrameCount);
+                var indices = new List<int>(cacheFrameCount);
+                for (int i = 0, l = indices.Capacity; i < l; ++i)
+                {
+                    indices.Add(-1);
+                }
+
+                boneCachedFrameIndices[k] = indices;
             }
 
             foreach (var k in slotTimelines.Keys)
             {
-                slotCachedFrameIndices[k] = new List<int>(cacheFrameCount);
+                var indices = new List<int>(cacheFrameCount);
+                for (int i = 0, l = indices.Capacity; i < l; ++i)
+                {
+                    indices.Add(-1);
+                }
+
+                slotCachedFrameIndices[k] = indices;
             }
         }
         /**
