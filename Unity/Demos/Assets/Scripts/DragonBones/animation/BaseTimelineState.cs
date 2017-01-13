@@ -35,6 +35,7 @@ namespace DragonBones
         protected T _currentFrame;
         protected Armature _armature;
         protected AnimationState _animationState;
+        protected AnimationTimelineState _mainTimeline;
 
         public TimelineState()
         {
@@ -58,34 +59,36 @@ namespace DragonBones
             _currentFrame = null;
             _armature = null;
             _animationState = null;
+            _mainTimeline = null;
         }
 
         virtual protected void _onUpdateFrame() { }
         virtual protected void _onArriveAtFrame() { }
 
-        protected bool _setCurrentTime(float passedTime, float normalizedTime)
+        protected bool _setCurrentTime(float passedTime)
         {
             var prevState = _playState;
             uint currentPlayTimes = 0;
-            var currentTime = normalizedTime;
+            var currentTime = 0.0f;
 
-            if (_keyFrameCount == 1 && this != _animationState._timeline as object)
+            if (_mainTimeline != null && _keyFrameCount == 1)
             {
                 _playState = _animationState._timeline._playState >= 0 ? 1 : -1;
                 currentPlayTimes = 1;
+                currentTime = _mainTimeline._currentTime;
             }
-            else if (normalizedTime < 0.0f || _timeScale != 1.0f || _timeOffset != 0.0f) // Scale and offset.
+            else if (_mainTimeline == null || _timeScale != 1.0f || _timeOffset != 0.0f) // Scale and offset.
             {
                 var playTimes = _animationState.playTimes;
                 var totalTime = playTimes * _duration;
 
-                currentTime = passedTime * _timeScale;
+                passedTime *= _timeScale;
                 if (_timeOffset != 0.0f)
                 {
-                    currentTime += _timeOffset * _animationDutation;
+                    passedTime += _timeOffset * _animationDutation;
                 }
 
-                if (playTimes > 0 && (currentTime >= totalTime || currentTime <= -totalTime))
+                if (playTimes > 0 && (passedTime >= totalTime || passedTime <= -totalTime))
                 {
                     if (_playState <= 0 && _animationState._playheadState == 3)
                     {
@@ -94,7 +97,7 @@ namespace DragonBones
 
                     currentPlayTimes = playTimes;
 
-                    if (currentTime < 0.0f)
+                    if (passedTime < 0.0f)
                     {
                         currentTime = 0.0f;
                     }
@@ -110,16 +113,16 @@ namespace DragonBones
                         _playState = 0;
                     }
 
-                    if (currentTime < 0.0f)
+                    if (passedTime < 0.0f)
                     {
-                        currentTime = -currentTime;
-                        currentPlayTimes = (uint)(currentTime / _duration);
-                        currentTime = _duration - (currentTime % _duration);
+                        passedTime = -passedTime;
+                        currentPlayTimes = (uint)(passedTime / _duration);
+                        currentTime = _duration - (passedTime % _duration);
                     }
                     else
                     {
-                        currentPlayTimes = (uint)(currentTime / _duration);
-                        currentTime %= _duration;
+                        currentPlayTimes = (uint)(passedTime / _duration);
+                        currentTime = passedTime % _duration;
                     }
                 }
             }
@@ -127,6 +130,7 @@ namespace DragonBones
             {
                 _playState = _animationState._timeline._playState;
                 currentPlayTimes = _animationState._timeline._currentPlayTimes;
+                currentTime = _mainTimeline._currentTime;
             }
 
             currentTime += _position;
@@ -156,8 +160,12 @@ namespace DragonBones
             _armature = armature;
             _animationState = animationState;
             _timelineData = timelineData;
+            _mainTimeline = _animationState._timeline;
 
-            var isMainTimeline = this == (object)_animationState._timeline;
+            if (this == (object)_mainTimeline)
+            {
+                _mainTimeline = null;
+            }
 
             _frameRate = _armature.armatureData.frameRate;
             _keyFrameCount = (uint)_timelineData.frames.Count;
@@ -165,15 +173,15 @@ namespace DragonBones
             _position = _animationState._position;
             _duration = _animationState._duration;
             _animationDutation = _animationState.animationData.duration;
-            _timeScale = isMainTimeline ? 1.0f : (1.0f / _timelineData.scale);
-            _timeOffset = isMainTimeline ? 0.0f : _timelineData.offset;
+            _timeScale = _mainTimeline == null ? 1.0f : (1.0f / _timelineData.scale);
+            _timeOffset = _mainTimeline == null ? 0.0f : _timelineData.offset;
         }
 
         virtual public void FadeOut() { }
 
-        virtual public void Update(float passedTime, float normalizedTime)
+        virtual public void Update(float passedTime)
         {
-            if (_playState <= 0 && _setCurrentTime(passedTime, normalizedTime))
+            if (_playState <= 0 && _setCurrentTime(passedTime))
             {
                 var currentFrameIndex = _keyFrameCount > 1 ? (int)(_currentTime * _frameRate) : 0; // uint
                 var currentFrame = _timelineData.frames[currentFrameIndex];
