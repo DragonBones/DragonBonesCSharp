@@ -317,6 +317,7 @@ namespace DragonBones
             var prevReplaceDisplayData = _replacedDisplayData;
             var prevTextureData = _textureData;
             var prevMeshData = _meshData;
+            var currentDisplay = _displayIndex >= 0 && _displayIndex < _displayList.Count ? _displayList[_displayIndex] : null;
 
             if (_displayIndex >= 0 && _displayIndex < _skinSlotData.displays.Count)
             {
@@ -336,10 +337,9 @@ namespace DragonBones
                 _replacedDisplayData = null;
             }
 
-            if (_displayData != prevDisplayData || _replacedDisplayData != prevReplaceDisplayData)
+            if (_displayData != prevDisplayData || _replacedDisplayData != prevReplaceDisplayData || this._display != currentDisplay)
             {
                 var currentDisplayData = _replacedDisplayData != null ? _replacedDisplayData : _displayData;
-                var currentDisplay = _displayIndex >= 0 && _displayIndex < _displayList.Count ? _displayList[_displayIndex] : null;
                 if (currentDisplayData != null && (currentDisplay == _rawDisplay || currentDisplay == _meshDisplay))
                 {
                     _textureData = _replacedDisplayData != null ? _replacedDisplayData.texture : _displayData.texture;
@@ -605,7 +605,7 @@ namespace DragonBones
          */
         protected void _updateLocalTransformMatrix()
         {
-            if (origin !=null)
+            if (origin != null)
             {
                 global.CopyFrom(origin).Add(offset).ToMatrix(_localMatrix);
             }
@@ -796,6 +796,8 @@ namespace DragonBones
                 }
 
                 _updateTransform(false);
+
+                _updateState = 0;
             }
         }
         /**
@@ -1006,6 +1008,7 @@ namespace DragonBones
         public void InvalidUpdate()
         {
             _displayDirty = true;
+            _transformDirty = true;
         }
         /**
          * @private

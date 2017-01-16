@@ -496,27 +496,24 @@ namespace DragonBones
 
             if (_weightResult != 0.0f)
             {
+                var isCacheEnabled = _fadeState == 0 && cacheFrameRate > 0.0f;
                 var isUpdatesTimeline = true;
                 var isUpdatesBoneTimeline = true;
                 var time = _time;
 
+                // Update main timeline.                
+                _timeline.Update(time);
+
                 // Cache time internval.
-                var isCacheEnabled = _fadeState == 0 && cacheFrameRate > 0.0f;
                 if (isCacheEnabled)
                 {
-                    time = cacheFrameRate * 2.0f;
-                    time = (float)Math.Floor(_time * time) / time;
+                    _timeline._currentTime = (float)Math.Floor(_timeline._currentTime * cacheFrameRate) / cacheFrameRate;
                 }
-
-                // Update main timeline.                
-                _timeline.Update(time, -1.0f);
-
-                var normalizedTime = _timeline._currentTime;
 
                 // Update zOrder timeline.
                 if (_zOrderTimeline != null)
                 {
-                    _zOrderTimeline.Update(time, normalizedTime);
+                    _zOrderTimeline.Update(time);
                 }
 
                 // Update cache.
@@ -550,18 +547,18 @@ namespace DragonBones
                     {
                         for (int i = 0, l = _boneTimelines.Count; i < l; ++i)
                         {
-                            _boneTimelines[i].Update(time, normalizedTime);
+                            _boneTimelines[i].Update(time);
                         }
                     }
 
                     for (int i = 0, l = _slotTimelines.Count; i < l; ++i)
                     {
-                        _slotTimelines[i].Update(time, normalizedTime);
+                        _slotTimelines[i].Update(time);
                     }
 
                     for (int i = 0, l = _ffdTimelines.Count; i < l; ++i)
                     {
-                        _ffdTimelines[i].Update(time, normalizedTime);
+                        _ffdTimelines[i].Update(time);
                     }
                 }
             }

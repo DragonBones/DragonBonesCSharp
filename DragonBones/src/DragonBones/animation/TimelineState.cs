@@ -61,13 +61,13 @@ namespace DragonBones
             }
         }
 
-        override public void Update(float passedTime, float normalizedTime)
+        override public void Update(float passedTime)
         {
             var prevState = _playState;
             var prevTime = _currentTime;
             var prevPlayTimes = _currentPlayTimes;
 
-            if (_playState <= 0 && _setCurrentTime(passedTime, normalizedTime))
+            if (_playState <= 0 && _setCurrentTime(passedTime))
             {
                 var eventDispatcher = _armature.eventDispatcher;
 
@@ -166,7 +166,7 @@ namespace DragonBones
 
         public void setCurrentTime(float value)
         {
-            _setCurrentTime(value, -1.0f);
+            _setCurrentTime(value);
             _currentFrame = null;
         }
     }
@@ -193,6 +193,7 @@ namespace DragonBones
     {
         public Bone bone;
 
+        private bool _transformDirty;
         private TweenType _tweenTransform;
         private TweenType _tweenRotate;
         private TweenType _tweenScale;
@@ -211,6 +212,7 @@ namespace DragonBones
 
             bone = null;
 
+            _transformDirty = false;
             _tweenTransform = TweenType.None;
             _tweenRotate = TweenType.None;
             _tweenScale = TweenType.None;
@@ -329,6 +331,8 @@ namespace DragonBones
                     _transform.x = _originalTransform.x + currentTransform.x + _durationTransform.x * tweenProgress;
                     _transform.y = _originalTransform.y + currentTransform.y + _durationTransform.y * tweenProgress;
                 }
+
+                _transformDirty = true;
             }
 
             if (_tweenRotate != TweenType.None)
@@ -353,6 +357,8 @@ namespace DragonBones
                     _transform.skewX = _originalTransform.skewX + currentTransform.skewX + _durationTransform.skewX * tweenProgress;
                     _transform.skewY = _originalTransform.skewY + currentTransform.skewY + _durationTransform.skewY * tweenProgress;
                 }
+
+                _transformDirty = true;
             }
 
             if (_tweenScale != TweenType.None)
@@ -377,9 +383,9 @@ namespace DragonBones
                     _transform.scaleX = _originalTransform.scaleX * (currentTransform.scaleX + _durationTransform.scaleX * tweenProgress);
                     _transform.scaleY = _originalTransform.scaleY * (currentTransform.scaleY + _durationTransform.scaleY * tweenProgress);
                 }
-            }
 
-            bone.InvalidUpdate();
+                _transformDirty = true;
+            }
         }
 
         override public void _init(Armature armature, AnimationState animationState, BoneTimelineData timelineData)
@@ -396,7 +402,7 @@ namespace DragonBones
             _transform.skewY = Transform.NormalizeRadian(_transform.skewY);
         }
 
-        override public void Update(float passedTime, float normalizedTime)
+        override public void Update(float passedTime)
         {
             // Blend animation state.
             var animationLayer = _animationState._layer;
@@ -404,7 +410,7 @@ namespace DragonBones
 
             if (bone._updateState <= 0)
             {
-                base.Update(passedTime, normalizedTime);
+                base.Update(passedTime);
 
                 bone._blendLayer = animationLayer;
                 bone._blendLeftWeight = 1.0f;
@@ -438,7 +444,7 @@ namespace DragonBones
                 weight *= bone._blendLeftWeight;
                 if (weight > 0.0f)
                 {
-                    base.Update(passedTime, normalizedTime);
+                    base.Update(passedTime);
 
                     bone._blendTotalWeight += weight;
 
@@ -455,8 +461,10 @@ namespace DragonBones
 
             if (bone._updateState > 0)
             {
-                if (_animationState._fadeState != 0 || _animationState._subFadeState != 0)
+                if (_transformDirty || _animationState._fadeState != 0 || _animationState._subFadeState != 0)
                 {
+                    _transformDirty = false;
+
                     bone.InvalidUpdate();
                 }
             }
@@ -616,9 +624,9 @@ namespace DragonBones
             _tweenColor = TweenType.None;
         }
 
-        override public void Update(float passedTime, float normalizedTime)
+        override public void Update(float passedTime)
         {
-            base.Update(passedTime, normalizedTime);
+            base.Update(passedTime);
 
             // Fade animation.
             if (_tweenColor != TweenType.None || _colorDirty)
@@ -778,14 +786,14 @@ namespace DragonBones
             _tweenFFD = TweenType.None;
         }
 
-        override public void Update(float passedTime, float normalizedTime)
+        override public void Update(float passedTime)
         {
             if (slot.parent._blendLayer < _animationState._layer)
             {
                 return;
             }
 
-            base.Update(passedTime, normalizedTime);
+            base.Update(passedTime);
             
             if (slot._meshData != _timelineData.display.mesh)
             {

@@ -384,6 +384,9 @@ namespace DragonBones
                 }
 
                 _mesh.vertices = _vertices;
+
+                // Modify skew.
+                _transformDirty = true;
             }
         }
         /**

@@ -510,8 +510,6 @@ namespace DragonBones
                     _timeline._currentTime = (float)Math.Floor(_timeline._currentTime * cacheFrameRate) / cacheFrameRate;
                 }
 
-                var normalizedTime = _timeline._currentTime;
-
                 // Update zOrder timeline.
                 if (_zOrderTimeline != null)
                 {

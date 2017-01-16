@@ -1008,6 +1008,7 @@ namespace DragonBones
         public void InvalidUpdate()
         {
             _displayDirty = true;
+            _transformDirty = true;
         }
         /**
          * @private
