@@ -275,7 +275,7 @@ namespace DragonBones
          */
         public void AddBone(BoneData value, string parentName)
         {
-            if (value != null && value.name != null && !bones.ContainsKey(value.name))
+            if (value != null && !string.IsNullOrEmpty(value.name) && !bones.ContainsKey(value.name))
             {
                 if (parentName != null)
                 {
@@ -317,7 +317,7 @@ namespace DragonBones
          */
         public void AddSlot(SlotData value)
         {
-            if (value != null && value.name != null && !slots.ContainsKey(value.name))
+            if (value != null && !string.IsNullOrEmpty(value.name) && !slots.ContainsKey(value.name))
             {
                 slots[value.name] = value;
                 _sortedSlots.Add(value);
@@ -334,7 +334,7 @@ namespace DragonBones
          */
         public void AddSkin(SkinData value)
         {
-            if (value != null && value.name != null && !skins.ContainsKey(value.name))
+            if (value != null && !string.IsNullOrEmpty(value.name) && !skins.ContainsKey(value.name))
             {
                 skins[value.name] = value;
 
@@ -353,7 +353,7 @@ namespace DragonBones
          */
         public void AddAnimation(AnimationData value)
         {
-            if (value != null && value.name != null && !animations.ContainsKey(value.name))
+            if (value != null && !string.IsNullOrEmpty(value.name) && !animations.ContainsKey(value.name))
             {
                 animations[value.name] = value;
                 _animationNames.Add(value.name);
@@ -377,7 +377,7 @@ namespace DragonBones
          */
         public BoneData GetBone(string name)
         {
-            return bones.ContainsKey(name) ? bones[name] : null;
+            return (!string.IsNullOrEmpty(name) && bones.ContainsKey(name)) ? bones[name] : null;
         }
         /**
          * @language zh_CN
@@ -388,7 +388,7 @@ namespace DragonBones
          */
         public SlotData GetSlot(string name)
         {
-            return slots.ContainsKey(name) ? slots[name] : null;
+            return (!string.IsNullOrEmpty(name) && slots.ContainsKey(name)) ? slots[name] : null;
         }
         /**
          * @language zh_CN
