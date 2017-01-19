@@ -721,27 +721,6 @@ namespace DragonBones
                 _updateLocalTransformMatrix();
             }
 
-            if (_meshData != null && _displayData != null && _meshData == _displayData.mesh)
-            {
-                if (_meshDirty || (_meshData.skinned && _isMeshBonesUpdate()))
-                {
-                    _meshDirty = false;
-
-                    _updateMesh();
-                }
-
-                if (_meshData.skinned)
-                {
-                    if (_transformDirty)
-                    {
-                        _transformDirty = false;
-                        _updateTransform(true);
-                    }
-
-                    return;
-                }
-            }
-
             if (cacheFrameIndex >= 0 && _cachedFrameIndices != null)
             {
                 var cachedFrameIndex = _cachedFrameIndices[cacheFrameIndex];
@@ -775,6 +754,27 @@ namespace DragonBones
                 cacheFrameIndex = -1;
                 _transformDirty = true;
                 _cachedFrameIndex = -1;
+            }
+
+            if (_meshData != null && _displayData != null && _meshData == _displayData.mesh)
+            {
+                if (_meshDirty || (_meshData.skinned && _isMeshBonesUpdate()))
+                {
+                    _meshDirty = false;
+
+                    _updateMesh();
+                }
+
+                if (_meshData.skinned && _meshData == _displayData.mesh)
+                {
+                    if (_transformDirty)
+                    {
+                        _transformDirty = false;
+                        _updateTransform(true);
+                    }
+
+                    return;
+                }
             }
 
             if (_transformDirty)

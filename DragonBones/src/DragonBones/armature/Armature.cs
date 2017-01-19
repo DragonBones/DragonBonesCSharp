@@ -923,6 +923,11 @@ namespace DragonBones
             get { return _replacedTexture; }
             set
             {
+                if (_replacedTexture == value)
+                {
+                    return;
+                }
+
                 if (_replaceTextureAtlasData != null)
                 {
                     _replaceTextureAtlasData.ReturnToPool();
@@ -963,7 +968,7 @@ namespace DragonBones
                     }
                 }
 
-                InvalidUpdate(null, true);
+                InvalidUpdate();
             }
         }
 
@@ -990,7 +995,7 @@ namespace DragonBones
                     }
                 }
 
-                InvalidUpdate(null, true);
+                InvalidUpdate();
             }
         }
     }
