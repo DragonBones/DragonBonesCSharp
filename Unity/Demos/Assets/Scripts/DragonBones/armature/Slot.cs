@@ -65,7 +65,7 @@ namespace DragonBones
         /**
          * @private
          */
-        internal int _updateState;
+        protected int _updateState;
         /**
          * @private
          */
@@ -530,15 +530,7 @@ namespace DragonBones
             if (currentDisplay != prevDisplay)
             {
                 _onUpdateDisplay();
-
-                if (prevDisplay != null)
-                {
-                    _replaceDisplay(prevDisplay);
-                }
-                else
-                {
-                    _addDisplay();
-                }
+                _replaceDisplay(prevDisplay);
 
                 _blendModeDirty = true;
                 _colorDirty = true;

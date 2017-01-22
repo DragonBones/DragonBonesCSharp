@@ -39,6 +39,7 @@ namespace DragonBones
          */
         internal bool _bonesDirty;
         private bool _slotsDirty;
+        private bool _zOrderDirty;
         /**
          * @private
          */
@@ -124,8 +125,9 @@ namespace DragonBones
 
             _delayDispose = false;
             _lockDispose = false;
-            _slotsDirty = false;
             _bonesDirty = false;
+            _slotsDirty = false;
+            _zOrderDirty = false;
             _flipX = false;
             _flipY = false;
             _bones.Clear();
@@ -289,19 +291,23 @@ namespace DragonBones
             var sortedSlots = _armatureData.sortedSlots;
             var isOriginal = slotIndices == null || slotIndices.Count < 1;
 
-            for (int i = 0, l = sortedSlots.Count; i < l; ++i)
+            if (_zOrderDirty || !isOriginal)
             {
-                var slotIndex = isOriginal ? i : slotIndices[i];
-                var slotData = sortedSlots[slotIndex];
-                var slot = GetSlot(slotData.name);
-
-                if (slot != null)
+                for (int i = 0, l = sortedSlots.Count; i < l; ++i)
                 {
-                    slot._setZorder(i);
-                }
-            }
+                    var slotIndex = isOriginal ? i : slotIndices[i];
+                    var slotData = sortedSlots[slotIndex];
+                    var slot = GetSlot(slotData.name);
 
-            _slotsDirty = true;
+                    if (slot != null)
+                    {
+                        slot._setZorder(i);
+                    }
+                }
+
+                _slotsDirty = true;
+                _zOrderDirty = !isOriginal;
+            }
         }
         /**
          * @private

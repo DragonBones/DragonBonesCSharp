@@ -587,6 +587,13 @@ namespace DragonBones
             return _slots;
         }
         /**
+         * @deprecated
+         */
+        public BoneData boneData
+        {
+            get { return _boneData; }
+        }
+        /**
          * @language zh_CN
          * 控制此骨骼所有插槽的可见。
          * @default true

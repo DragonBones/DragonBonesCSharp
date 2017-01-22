@@ -755,7 +755,11 @@ namespace DragonBones
          */
         public AnimationConfig animationConfig
         {
-            get { return _animationConfig; }
+            get
+            {
+                _animationConfig.Clear();
+                return _animationConfig;
+            }
         }
         /**
          * @language zh_CN

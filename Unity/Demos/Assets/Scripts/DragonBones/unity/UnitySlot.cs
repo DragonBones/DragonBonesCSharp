@@ -79,10 +79,14 @@ namespace DragonBones
         {
             var container = _armature.display as GameObject;
             var armatureComponent = container.GetComponent<UnityArmatureComponent>();
-            _renderDisplay.transform.parent = container.transform;
 
-            _helpVector3.Set(0.0f, 0.0f, -_zOrder * (armatureComponent.zSpace + 0.001f));
-            _renderDisplay.transform.localPosition = _helpVector3;
+            if (_renderDisplay.transform.parent != container.transform)
+            {
+                _renderDisplay.transform.parent = container.transform;
+
+                _helpVector3.Set(0.0f, 0.0f, -_zOrder * (armatureComponent.zSpace + 0.001f));
+                _renderDisplay.transform.localPosition = _helpVector3;
+            }
         }
         /**
          * @private
