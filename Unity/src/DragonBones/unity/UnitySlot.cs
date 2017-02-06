@@ -15,6 +15,7 @@ namespace DragonBones
         private static readonly Vector2[] _helpVector2s = { new Vector2(), new Vector2(), new Vector2(), new Vector2() };
 
         private bool _skewed;
+        private UnityArmatureComponent _proxy;
         private GameObject _renderDisplay;
         private Mesh _mesh;
         private Vector2[] _uvs;
@@ -42,6 +43,7 @@ namespace DragonBones
             }
 
             _skewed = false;
+            _proxy = null;
             _renderDisplay = null;
             _mesh = null;
             _uvs = null;
@@ -77,14 +79,14 @@ namespace DragonBones
          */
         override protected void _addDisplay()
         {
-            var container = _armature.display as GameObject;
-            var armatureComponent = container.GetComponent<UnityArmatureComponent>();
+            _proxy = _armature.eventDispatcher as UnityArmatureComponent;
 
+            var container = _armature.display as GameObject;
             if (_renderDisplay.transform.parent != container.transform)
             {
                 _renderDisplay.transform.parent = container.transform;
 
-                _helpVector3.Set(0.0f, 0.0f, -_zOrder * (armatureComponent.zSpace + 0.001f));
+                _helpVector3.Set(0.0f, 0.0f, -_zOrder * (_proxy.zSpace + 0.001f));
                 _renderDisplay.transform.localPosition = _helpVector3;
             }
         }
@@ -116,9 +118,8 @@ namespace DragonBones
          */
         override protected void _updateZOrder()
         {
-            var container = _armature.display as GameObject;
-            var armatureComponent = container.GetComponent<UnityArmatureComponent>();
-            _helpVector3.Set(_renderDisplay.transform.localPosition.x, _renderDisplay.transform.localPosition.y, -_zOrder * (armatureComponent.zSpace + 0.001f));
+            // var container = _armature.display as GameObject;
+            _helpVector3.Set(_renderDisplay.transform.localPosition.x, _renderDisplay.transform.localPosition.y, -_zOrder * (_proxy.zSpace + 0.001f));
             _renderDisplay.transform.localPosition = _helpVector3;
         }
         /**
@@ -389,7 +390,7 @@ namespace DragonBones
 
                 _mesh.vertices = _vertices;
 
-                // Modify skew.
+                // Modify flip.
                 _transformDirty = true;
             }
         }
@@ -400,7 +401,7 @@ namespace DragonBones
         {
             if (isSkinnedMesh) // Identity transform.
             {
-                if (_armature._flipX)
+                if (_armature.flipX)
                 {
                     _helpVector3.y = 180.0f;
                 }
@@ -409,7 +410,7 @@ namespace DragonBones
                     _helpVector3.y = 0.0f;
                 }
 
-                if (_armature._flipY)
+                if (_armature.flipY)
                 {
                     _helpVector3.x = 180.0f;
                 }
@@ -426,8 +427,8 @@ namespace DragonBones
             }
             else
             {
-                var flipX = _armature._flipX;
-                var flipY = _armature._flipY;
+                var flipX = _armature.flipX;
+                var flipY = _armature.flipY;
                 var scaleX = flipX ? -global.scaleX : global.scaleX;
                 var scaleY = flipY ? -global.scaleY : global.scaleY;
                 var transform = _renderDisplay.transform;
@@ -475,11 +476,11 @@ namespace DragonBones
 
                 transform.localEulerAngles = _helpVector3;
 
-                // Modify skewX. // TODO child armature.
+                // Modify mesh skew. // TODO child armature skew.
                 if ((_display == _rawDisplay || _display == _meshDisplay) && _mesh != null)
                 {
                     var dSkew = global.skewX - global.skewY;
-                    var skewed = dSkew > 0.001f || dSkew < -0.001f;
+                    var skewed = dSkew < -0.001f || 0.001f < dSkew;
                     if (_skewed || skewed)
                     {
                         _skewed = skewed;

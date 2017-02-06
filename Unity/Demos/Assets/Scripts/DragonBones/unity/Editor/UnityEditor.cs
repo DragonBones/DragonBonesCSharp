@@ -22,13 +22,13 @@ namespace DragonBones
         }
 
         #region 右键JSON创建对应的Prefab
-        [MenuItem("Assets/DragonBones/Armature Object", true)]
+        [MenuItem("Assets/Create/DragonBones/Armature Object", true)]
         private static bool _createArmatureObjectFromJSONValidateMenuItem()
         {
             return _getDragonBonesJSONPaths().Count > 0;
         }
 
-        [MenuItem("Assets/DragonBones/Armature Object", false, 10)]
+        [MenuItem("Assets/Create/DragonBones/Armature Object", false, 10)]
         private static void _createArmatureObjectFromJSONMenuItem()
         {
             var parentTransform = _getSelectionParentTransform();
@@ -320,7 +320,7 @@ namespace DragonBones
         public override void OnInspectorGUI()
         {
             // DragonBones Data
-            GUILayout.BeginHorizontal();
+            EditorGUILayout.BeginHorizontal();
 
             _dragonBoneJSON = EditorGUILayout.ObjectField("DragonBones Data", _dragonBoneJSON, typeof(TextAsset), false) as TextAsset;
 
@@ -361,7 +361,7 @@ namespace DragonBones
                 }
             }
 
-            GUILayout.EndHorizontal();
+            EditorGUILayout.EndHorizontal();
             EditorGUILayout.Space();
 
             if (_armatureComponent.armature != null)
@@ -390,7 +390,7 @@ namespace DragonBones
                 // Animation
                 if (_animationNames != null && _animationNames.Count > 0)
                 {
-                    GUILayout.BeginHorizontal();
+                    EditorGUILayout.BeginHorizontal();
                     var animationIndex = EditorGUILayout.Popup("Animation", _animationIndex, _animationNames.ToArray());
                     if (animationIndex != _animationIndex)
                     {
@@ -421,7 +421,7 @@ namespace DragonBones
                         }
                     }
 
-                    GUILayout.EndHorizontal();
+                    EditorGUILayout.EndHorizontal();
                 }
 
                 EditorGUILayout.Space();
@@ -445,14 +445,21 @@ namespace DragonBones
                 }
 
                 // ZSpace
-                GUILayout.BeginHorizontal();
+                EditorGUILayout.BeginHorizontal();
                 _armatureComponent.zSpace = EditorGUILayout.Slider("Z Space", _armatureComponent.zSpace, 0.0f, 0.2f);
-                GUILayout.EndHorizontal();
+                EditorGUILayout.EndHorizontal();
 
                 // TimeScale
-                GUILayout.BeginHorizontal();
+                EditorGUILayout.BeginHorizontal();
                 _armatureComponent.animation.timeScale = EditorGUILayout.Slider("Time Scale", _armatureComponent.animation.timeScale, 0.0f, 2.0f);
-                GUILayout.EndHorizontal();
+                EditorGUILayout.EndHorizontal();
+
+                // Flip
+                /*EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.PrefixLabel("Flip");
+                _armatureComponent.flipX = GUILayout.Toggle(_armatureComponent.flipX, "X");
+                _armatureComponent.flipY = GUILayout.Toggle(_armatureComponent.flipY, "Y");
+                EditorGUILayout.EndHorizontal();*/
 
                 EditorGUILayout.Space();
             }
