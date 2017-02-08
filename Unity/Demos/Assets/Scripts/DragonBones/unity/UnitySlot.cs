@@ -480,7 +480,7 @@ namespace DragonBones
                 if ((_display == _rawDisplay || _display == _meshDisplay) && _mesh != null)
                 {
                     var dSkew = global.skewX - global.skewY;
-                    var skewed = dSkew < -0.001f || 0.001f < dSkew;
+                    var skewed = dSkew < -0.01f || 0.01f < dSkew;
                     if (_skewed || skewed)
                     {
                         _skewed = skewed;

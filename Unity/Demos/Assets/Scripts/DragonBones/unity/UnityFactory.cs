@@ -159,7 +159,7 @@ namespace DragonBones
                         var childTransform = armatureDisplay.transform.Find(childDisplayName);
                         var childArmature = childTransform == null ?
                             BuildArmature(displayData.path, dataPackage.dataName) :
-                            BuildArmatureComponent(displayData.path, dataPackage.dataName, null, childTransform.gameObject).armature;
+                            BuildArmatureComponent(displayData.path, dataPackage.dataName, null, dataPackage.textureAtlasName, childTransform.gameObject).armature;
 
                         if (childArmature != null)
                         {
@@ -283,10 +283,10 @@ namespace DragonBones
          * @see DragonBones.UnityArmatureComponent
          * @version DragonBones 4.5
          */
-        public UnityArmatureComponent BuildArmatureComponent(string armatureName, string dragonBonesName = null, string skinName = null, GameObject gameObject = null)
+        public UnityArmatureComponent BuildArmatureComponent(string armatureName, string dragonBonesName = null, string skinName = null, string textureAtlasName = null, GameObject gameObject = null)
         {
             _armatureGameObject = gameObject;
-            var armature = BuildArmature(armatureName, dragonBonesName, skinName);
+            var armature = BuildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
             if (armature != null)
             {
                 _clock.Add(armature);

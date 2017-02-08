@@ -757,7 +757,7 @@ namespace DragonBones
                     _updateMesh();
                 }
 
-                if (_meshData.skinned && _meshData == _displayData.mesh)
+                if (_meshData.skinned)
                 {
                     if (_transformDirty)
                     {

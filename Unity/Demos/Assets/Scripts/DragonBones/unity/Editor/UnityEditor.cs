@@ -207,7 +207,7 @@ namespace DragonBones
             }
 
             _armatureComponent.armatureName = armatureName;
-            _armatureComponent = UnityFactory.factory.BuildArmatureComponent(_armatureComponent.armatureName, dragonBonesName, null, _armatureComponent.gameObject);
+            _armatureComponent = UnityFactory.factory.BuildArmatureComponent(_armatureComponent.armatureName, dragonBonesName, null, null, _armatureComponent.gameObject);
 
             if (slot != null)
             {

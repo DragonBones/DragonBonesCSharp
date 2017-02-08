@@ -162,7 +162,7 @@ namespace DragonBones
 
             if (!string.IsNullOrEmpty(armatureName))
             {
-                UnityFactory.factory.BuildArmatureComponent(armatureName, null, null, gameObject);
+                UnityFactory.factory.BuildArmatureComponent(armatureName, null, null, null, gameObject);
             }
 
             if (_armature != null)
