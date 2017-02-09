@@ -246,14 +246,14 @@ namespace DragonBones
 
                 if (displayData.type == DisplayType.Armature)
                 {
-                    var childArmature = BuildArmature(displayData.path, dataPackage.dataName, null, dataPackage.textureAtlasName);
+                    var childArmature = BuildArmature(displayData.path, dataPackage.dataName);
                     displayList[displayIndex] = childArmature;
                 }
                 else
                 {
-                    if (displayData.texture == null || !string.IsNullOrEmpty(dataPackage.textureAtlasName))
+                    if (displayData.texture == null)
                     {
-                        displayData.texture = _getTextureData(!string.IsNullOrEmpty(dataPackage.textureAtlasName) ? dataPackage.textureAtlasName : dataPackage.dataName, displayData.path);
+                        displayData.texture = _getTextureData(dataPackage.dataName, displayData.path);
                     }
 
                     var displayDatas = slot.skinSlotData.displays;

@@ -297,11 +297,14 @@ namespace DragonBones
                 {
                     var slotIndex = isOriginal ? i : slotIndices[i];
                     var slotData = sortedSlots[slotIndex];
-                    var slot = GetSlot(slotData.name);
-
-                    if (slot != null)
+                    if (slotData != null)
                     {
-                        slot._setZorder(i);
+                        var slot = GetSlot(slotData.name);
+
+                        if (slot != null)
+                        {
+                            slot._setZorder(i);
+                        }
                     }
                 }
 

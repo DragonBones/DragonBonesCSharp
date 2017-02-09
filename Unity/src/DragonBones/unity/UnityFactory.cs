@@ -137,18 +137,28 @@ namespace DragonBones
                 switch (displayData.type)
                 {
                     case DisplayType.Image:
-                        if (displayData.texture == null || !string.IsNullOrEmpty(dataPackage.textureAtlasName))
+                        if (displayData.texture == null)
                         {
-                            displayData.texture = _getTextureData(!string.IsNullOrEmpty(dataPackage.textureAtlasName) ? dataPackage.textureAtlasName : dataPackage.dataName, displayData.path);
+                            displayData.texture = _getTextureData(dataPackage.dataName, displayData.path);
+                        }
+
+                        if (!string.IsNullOrEmpty(dataPackage.textureAtlasName))
+                        {
+                            slot._textureDatas.Add(_getTextureData(dataPackage.textureAtlasName, displayData.path));
                         }
 
                         displayList.Add(slot.rawDisplay);
                         break;
 
                     case DisplayType.Mesh:
-                        if (displayData.texture == null || !string.IsNullOrEmpty(dataPackage.textureAtlasName))
+                        if (displayData.texture == null)
                         {
-                            displayData.texture = _getTextureData(!string.IsNullOrEmpty(dataPackage.textureAtlasName) ? dataPackage.textureAtlasName : dataPackage.dataName, displayData.path);
+                            displayData.texture = _getTextureData(dataPackage.dataName, displayData.path);
+                        }
+
+                        if (!string.IsNullOrEmpty(dataPackage.textureAtlasName))
+                        {
+                            slot._textureDatas.Add(_getTextureData(dataPackage.textureAtlasName, displayData.path));
                         }
 
                         displayList.Add(slot.meshDisplay);

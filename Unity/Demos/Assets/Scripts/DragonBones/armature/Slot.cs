@@ -109,6 +109,10 @@ namespace DragonBones
         /**
          * @private
          */
+        internal readonly List<TextureData> _textureDatas = new List<TextureData>();
+        /**
+         * @private
+         */
         internal readonly List<DisplayData> _replacedDisplayDatas = new List<DisplayData>();
         /**
          * @private
@@ -227,6 +231,7 @@ namespace DragonBones
             _colorTransform.Identity();
             _ffdVertices.Clear();
             _displayList.Clear();
+            _textureDatas.Clear();
             _replacedDisplayDatas.Clear();
             _meshBones.Clear();
             _skinSlotData = null;
@@ -342,7 +347,19 @@ namespace DragonBones
                 var currentDisplayData = _replacedDisplayData != null ? _replacedDisplayData : _displayData;
                 if (currentDisplayData != null && (currentDisplay == _rawDisplay || currentDisplay == _meshDisplay))
                 {
-                    _textureData = _replacedDisplayData != null ? _replacedDisplayData.texture : _displayData.texture;
+                    if (_replacedDisplayData != null)
+                    {
+                        _textureData = _replacedDisplayData.texture;
+                    }
+                    else if (_textureDatas[_displayIndex] != null)
+                    {
+                        _textureData = _textureDatas[_displayIndex];
+                    }
+                    else
+                    {
+                        _textureData = _displayData.texture;
+                    }
+
                     if (currentDisplay == _meshDisplay)
                     {
                         if (_replacedDisplayData != null && _replacedDisplayData.mesh != null)
