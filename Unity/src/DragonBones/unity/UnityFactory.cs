@@ -200,10 +200,20 @@ namespace DragonBones
                         }
 
                         displayList.Add(childArmature);
+
+                        if (!string.IsNullOrEmpty(dataPackage.textureAtlasName))
+                        {
+                            slot._textureDatas.Add(null);
+                        }
                         break;
 
                     default:
                         displayList.Add(null);
+
+                        if (!string.IsNullOrEmpty(dataPackage.textureAtlasName))
+                        {
+                            slot._textureDatas.Add(null);
+                        }
                         break;
                 }
             }

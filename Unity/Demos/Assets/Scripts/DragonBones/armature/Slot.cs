@@ -351,7 +351,7 @@ namespace DragonBones
                     {
                         _textureData = _replacedDisplayData.texture;
                     }
-                    else if (_textureDatas[_displayIndex] != null)
+                    else if (_displayIndex > _textureDatas.Count && _textureDatas[_displayIndex] != null)
                     {
                         _textureData = _textureDatas[_displayIndex];
                     }
