@@ -246,7 +246,7 @@ namespace DragonBones
 
                 if (displayData.type == DisplayType.Armature)
                 {
-                    var childArmature = BuildArmature(displayData.path, dataPackage.dataName);
+                    var childArmature = BuildArmature(displayData.path, dataPackage.dataName, null, dataPackage.textureAtlasName);
                     displayList[displayIndex] = childArmature;
                 }
                 else
