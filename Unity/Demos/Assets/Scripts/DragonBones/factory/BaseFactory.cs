@@ -309,7 +309,7 @@ namespace DragonBones
          * @language zh_CN
          * 解析并添加贴图集数据。
          * @param rawData 需要解析的原始数据。 (JSON)
-         * @param textureAtlas 贴图。
+         * @param textureAtlas 贴图。 (根据渲染引擎的不同而不同，通常是贴图或材质)
          * @param name 为数据指定一个名称，以便可以通过这个名称获取数据，如果未设置，则使用数据中的名称。
          * @param scale 为贴图集设置一个缩放值。
          * @returns 贴图集数据

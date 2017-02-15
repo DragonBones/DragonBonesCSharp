@@ -351,7 +351,7 @@ namespace DragonBones
                     {
                         _textureData = _replacedDisplayData.texture;
                     }
-                    else if (_displayIndex > _textureDatas.Count && _textureDatas[_displayIndex] != null)
+                    else if (_displayIndex < _textureDatas.Count && _textureDatas[_displayIndex] != null)
                     {
                         _textureData = _textureDatas[_displayIndex];
                     }
@@ -654,6 +654,7 @@ namespace DragonBones
             _colorTransform.CopyFrom(slotData.color);
             _rawDisplay = rawDisplay;
             _meshDisplay = meshDisplay;
+            DragonBones.ResizeList(_textureDatas, _skinSlotData.displays.Count, null);
 
             _blendModeDirty = true;
             _colorDirty = true;
