@@ -114,6 +114,8 @@ namespace DragonBones
         {
             var slotData = skinSlotData.slot;
             var slot = BaseObject.BorrowObject<UnitySlot>();
+            var displayList = new List<object>();
+            DragonBones.ResizeList(displayList, skinSlotData.displays.Count, null);
 
             var armatureDisplay = armature.display as GameObject;
             var transform = armatureDisplay.transform.Find(skinSlotData.slot.name);
@@ -131,9 +133,9 @@ namespace DragonBones
                 gameObject
             );
 
-            var displayList = new List<object>();
-            foreach (var displayData in skinSlotData.displays)
-            {
+            for (int i = 0, l = skinSlotData.displays.Count; i < l; ++i) 
+			{
+                var displayData = skinSlotData.displays[i];
                 switch (displayData.type)
                 {
                     case DisplayType.Image:
@@ -144,10 +146,10 @@ namespace DragonBones
 
                         if (!string.IsNullOrEmpty(dataPackage.textureAtlasName))
                         {
-                            slot._textureDatas.Add(_getTextureData(dataPackage.textureAtlasName, displayData.path));
+                            slot._textureDatas[i] = _getTextureData(dataPackage.textureAtlasName, displayData.path);
                         }
 
-                        displayList.Add(slot.rawDisplay);
+                        displayList[i] = slot.rawDisplay;
                         break;
 
                     case DisplayType.Mesh:
@@ -158,10 +160,10 @@ namespace DragonBones
 
                         if (!string.IsNullOrEmpty(dataPackage.textureAtlasName))
                         {
-                            slot._textureDatas.Add(_getTextureData(dataPackage.textureAtlasName, displayData.path));
+                            slot._textureDatas[i] = _getTextureData(dataPackage.textureAtlasName, displayData.path);
                         }
 
-                        displayList.Add(slot.meshDisplay);
+                        displayList[i] = slot.meshDisplay;
                         break;
 
                     case DisplayType.Armature:
@@ -199,21 +201,11 @@ namespace DragonBones
                             childArmatureDisplay.SetActive(false);
                         }
 
-                        displayList.Add(childArmature);
-
-                        if (!string.IsNullOrEmpty(dataPackage.textureAtlasName))
-                        {
-                            slot._textureDatas.Add(null);
-                        }
+                        displayList[i] = childArmature;
                         break;
 
                     default:
-                        displayList.Add(null);
-
-                        if (!string.IsNullOrEmpty(dataPackage.textureAtlasName))
-                        {
-                            slot._textureDatas.Add(null);
-                        }
+                        displayList[i] = null;
                         break;
                 }
             }
@@ -425,7 +417,7 @@ namespace DragonBones
         /**
          * @language zh_CN
          * 加载、解析并添加贴图集数据。
-         * @param path 贴图集数据在 Resources 中的路径。（其他形式的加载可自行扩展）
+         * @param path 贴图集数据在 Resources 中的路径。（其他形式的加载可自行扩展，使用 factory.ParseTextureAtlasData(JSONObject, Material)）
          * @param name 为数据指定一个名称，以便可以通过这个名称获取数据，如果未设置，则使用数据中的名称。
          * @param scale 为贴图集设置一个缩放值。
          * @returns 贴图集数据
