@@ -264,7 +264,7 @@ namespace DragonBones
             var fromValue = valueIndex == 0 ? 0.0f : samples[valueIndex - 1];
             var toValue = (valueIndex == segmentCount - 1) ? 1.0f : samples[valueIndex];
 
-            return fromValue + (toValue - fromValue) * (progress - valueIndex / segmentCount);
+            return fromValue + (toValue - fromValue) * (progress * segmentCount - valueIndex);
         }
 
         protected float _tweenProgress;

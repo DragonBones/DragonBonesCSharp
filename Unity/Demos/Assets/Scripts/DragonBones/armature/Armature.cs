@@ -335,11 +335,16 @@ namespace DragonBones
          */
         public void Dispose()
         {
-            _delayDispose = true;
-
-            if (!_lockDispose && _armatureData != null)
+            if (_armatureData != null)
             {
-                ReturnToPool();
+                if (_lockDispose)
+                {
+                    _delayDispose = true;
+                }
+                else
+                {
+                    ReturnToPool();
+                }
             }
         }
         /**

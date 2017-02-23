@@ -20,6 +20,7 @@ namespace DragonBones
         {
             if (_armature != null)
             {
+                _armature = null;
                 if (_disposeProxy)
                 {
 #if UNITY_EDITOR
