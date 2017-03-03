@@ -257,7 +257,8 @@ namespace coreElement
             var bulletArmatureComonponnet = UnityFactory.factory.BuildArmatureComponent("bullet_01");
             var bulletComonponnet = bulletArmatureComonponnet.gameObject.AddComponent<Bullet>();
             var radian = _faceDir < 0 ? Mathf.PI - _aimRadian : _aimRadian;
-            bulletArmatureComonponnet.animation.timeScale = _armatureComponent.animation.timeScale;            bulletComonponnet.transform.position = firePoint;
+            bulletArmatureComonponnet.animation.timeScale = _armatureComponent.animation.timeScale;
+            bulletComonponnet.transform.position = firePoint;
             bulletComonponnet.Init("fireEffect_01", radian + Random.Range(-0.01f, 0.01f), 0.4f);
         }
 

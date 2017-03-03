@@ -227,6 +227,7 @@ namespace DragonBones
                 material.mainTexture = textureAtlas;
 
                 textureAtlasData.texture = material;
+                textureAtlasData._disposeTexture = true;
             }
         }
         /**

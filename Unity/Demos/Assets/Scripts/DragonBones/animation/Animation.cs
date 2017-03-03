@@ -377,30 +377,32 @@ namespace DragonBones
                 }
                 else if (animationConfig.position == animationData.duration)
                 {
-                    animationConfig.position -= 0.001f;
+                    animationConfig.position -= 0.000001f;
                 }
                 else if (animationConfig.position > animationData.duration)
                 {
                     animationConfig.position %= animationData.duration;
                 }
 
-                if (animationConfig.position + animationConfig.duration > animationData.duration)
+                if (animationConfig.duration > 0.0f && animationConfig.position + animationConfig.duration > animationData.duration)
                 {
                     animationConfig.duration = animationData.duration - animationConfig.position;
+                }
+
+                if (animationConfig.duration == 0.0f)
+                {
+                    animationConfig.playTimes = 1;
+                }
+                else if (animationConfig.playTimes < 0)
+                {
+                    animationConfig.playTimes = (int)animationData.playTimes;
                 }
             }
             else
             {
-                animationConfig.position = 0.0f;
-                animationConfig.duration = -1.0f;
-            }
-
-            var isStop = animationConfig.duration == 0.0f;
-            if (isStop)
-            {
                 animationConfig.playTimes = 1;
-                animationConfig.duration = -1.0f;
-                animationConfig.fadeInTime = 0.0f;
+                animationConfig.position = 0.0f;
+                animationConfig.duration = 0.0f;
             }
 
             _fadeOut(animationConfig);
@@ -434,11 +436,6 @@ namespace DragonBones
             if (animationConfig.fadeInTime <= 0.0f) // Blend animation state, update armature.
             {
                 _armature.AdvanceTime(0.0f);
-            }
-
-            if (isStop)
-            {
-                _lastAnimationState.Stop();
             }
 
             return _lastAnimationState;

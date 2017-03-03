@@ -301,6 +301,8 @@ namespace DragonBones
                         _mesh.triangles = TRIANGLES;
                     }
 
+                    _mesh.RecalculateBounds();
+
                     meshFilter.sharedMesh = _mesh;
                     renderer.sharedMaterial = currentTextureAtlas;
 
@@ -375,6 +377,7 @@ namespace DragonBones
                 }
 
                 _mesh.vertices = _vertices;
+                _mesh.RecalculateBounds();
             }
             else if (hasFFD)
             {
@@ -389,6 +392,7 @@ namespace DragonBones
                 }
 
                 _mesh.vertices = _vertices;
+                _mesh.RecalculateBounds();
 
                 // Modify flip.
                 _transformDirty = true;
@@ -508,6 +512,7 @@ namespace DragonBones
                         }
 
                         _mesh.vertices = vertices;
+                        _mesh.RecalculateBounds();
                     }
                 }
 

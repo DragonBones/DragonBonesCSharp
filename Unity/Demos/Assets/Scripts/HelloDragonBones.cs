@@ -17,13 +17,16 @@ public class HelloDragonBones :MonoBehaviour
 {
     void Start()
     {
-        UnityFactory.factory.LoadDragonBonesData("DragonBoy/DragonBoy");
-        UnityFactory.factory.LoadTextureAtlasData("DragonBoy/DragonBoy_texture_1");
+        UnityFactory.factory.LoadDragonBonesData("Test/superman_1_ske");
+        UnityFactory.factory.LoadTextureAtlasData("Test/superman_1_tex");
 
-        var armatureComponent = UnityFactory.factory.BuildArmatureComponent("DragonBoy");
+        var armatureComponent = UnityFactory.factory.BuildArmatureComponent("Armature");
         armatureComponent.animation.Play("walk");
 
         // Set position.
         armatureComponent.transform.localPosition = new Vector3(5.0f, 0.0f, 1.0f);
+
+        // Set flip.
+        armatureComponent.armature.flipX = true;
     }
 }

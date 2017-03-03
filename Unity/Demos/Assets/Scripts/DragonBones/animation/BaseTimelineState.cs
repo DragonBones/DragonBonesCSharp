@@ -124,6 +124,8 @@ namespace DragonBones
                         currentPlayTimes = (uint)(passedTime / _duration);
                         currentTime = passedTime % _duration;
                     }
+
+                    currentTime += _position;
                 }
             }
             else
@@ -132,8 +134,6 @@ namespace DragonBones
                 currentPlayTimes = _animationState._timeline._currentPlayTimes;
                 currentTime = _mainTimeline._currentTime;
             }
-
-            currentTime += _position;
 
             if (_currentPlayTimes == currentPlayTimes && _currentTime == currentTime)
             {
@@ -309,7 +309,7 @@ namespace DragonBones
         {
             if (_tweenEasing != DragonBones.NO_TWEEN)
             {
-                _tweenProgress = (_currentTime - _currentFrame.position + _position) / _currentFrame.duration;
+                _tweenProgress = (_currentTime - _currentFrame.position) / _currentFrame.duration;
                 if (_tweenEasing != 0.0f)
                 {
                     _tweenProgress = _getEasingValue(_tweenProgress, _tweenEasing);
@@ -317,7 +317,7 @@ namespace DragonBones
             }
             else if (_curve != null)
             {
-                _tweenProgress = (_currentTime - _currentFrame.position + _position) / _currentFrame.duration;
+                _tweenProgress = (_currentTime - _currentFrame.position) / _currentFrame.duration;
                 _tweenProgress = _getCurveEasingValue(_tweenProgress, _curve);
             }
             else

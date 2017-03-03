@@ -299,11 +299,32 @@ namespace DragonBones
             {
                 _position = 0.0f;
                 _duration = _animationData.duration;
+                if (animationConfig.position != 0.0f)
+                {
+                    if (timeScale >= 0.0f)
+                    {
+                        _time = animationConfig.position;
+                    }
+                    else
+                    {
+                        _time = animationConfig.position - _duration;
+                    }
+                }
+                else
+                {
+                    _time = 0.0f;
+                }
             }
             else
             {
                 _position = animationConfig.position;
                 _duration = animationConfig.duration;
+                _time = 0.0f;
+            }
+
+            if (timeScale < 0.0f && _time == 0.0f)
+            {
+                _time = -0.000001f; // Can not cross last frame event.
             }
 
             if (fadeTotalTime <= 0.0f)

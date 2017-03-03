@@ -91,75 +91,166 @@ namespace DragonBones
                     return;
                 }
 
+                bool isReverse = false;
+                EventObject loopCompleteEvent  = null;
+                EventObject completeEvent  = null;
+
+                if (_currentPlayTimes != prevPlayTimes)
+                {
+                    if (eventDispatcher.HasEventListener(EventObject.LOOP_COMPLETE))
+                    {
+                        loopCompleteEvent = BaseObject.BorrowObject<EventObject>();
+                        loopCompleteEvent.animationState = _animationState;
+                    }
+
+                    if (_playState > 0)
+                    {
+                        if (eventDispatcher.HasEventListener(EventObject.COMPLETE))
+                        {
+                            completeEvent = BaseObject.BorrowObject<EventObject>();
+                            completeEvent.animationState = _animationState;
+                        }
+
+                        isReverse = prevTime > this._currentTime;
+                    }
+                    else
+                    {
+                        isReverse = prevTime < this._currentTime;
+                    }
+                }
+                else
+                {
+                    isReverse = prevTime > this._currentTime;
+                }
+
                 if (_keyFrameCount > 1)
                 {
                     var currentFrameIndex = (int)(_currentTime * _frameRate); // uint
                     var currentFrame = _timelineData.frames[currentFrameIndex];
                     if (_currentFrame != currentFrame)
                     {
-                        var isReverse = _currentPlayTimes == prevPlayTimes && prevTime > _currentTime;
                         var crossedFrame = _currentFrame;
                         _currentFrame = currentFrame;
 
-                        if (crossedFrame == null)
-                        {
-                            var prevFrameIndex = (int)(prevTime * _frameRate);
-                            crossedFrame = _timelineData.frames[prevFrameIndex];
-
-                            if (isReverse)
-                            {
-                            }
-                            else
-                            {
-                                if (
-                                    prevTime <= crossedFrame.position
-                                    // || prevPlayTimes != _currentPlayTimes ?
-                                )
-                                {
-                                    crossedFrame = crossedFrame.prev;
-                                }
-                            }
-                        }
-                        
                         if (isReverse)
                         {
-                            while (crossedFrame != currentFrame)
+                            if (crossedFrame == null)
                             {
-                                _onCrossFrame(crossedFrame);
+                                var prevFrameIndex = (int)(prevTime * _frameRate);
+                                crossedFrame = _timelineData.frames[prevFrameIndex];
+
+                                if (_currentPlayTimes == prevPlayTimes) // Start.
+                                {
+                                    if (crossedFrame == currentFrame) // Uncrossed.
+                                    {
+                                        crossedFrame = null;
+                                    }
+                                }
+                            }
+
+                            while (crossedFrame != null)
+                            {
+                                if (
+                                    _position <= crossedFrame.position &&
+                                    crossedFrame.position <= _position + _duration
+                                ) // Support interval play.
+                                {
+                                    _onCrossFrame(crossedFrame);
+                                }
+
+                                if (loopCompleteEvent != null && crossedFrame == _timelineData.frames[0]) // Add loop complete event after first frame.
+                                {
+                                    _armature._bufferEvent(loopCompleteEvent, EventObject.LOOP_COMPLETE);
+                                    loopCompleteEvent = null;
+                                }
+
                                 crossedFrame = crossedFrame.prev;
+
+                                if (crossedFrame == currentFrame)
+                                {
+                                    break;
+                                }
                             }
                         }
                         else
                         {
-                            while (crossedFrame != currentFrame)
+                            if (crossedFrame == null)
+                            {
+                                var prevFrameIndex = (int)(prevTime * _frameRate);
+                                crossedFrame = _timelineData.frames[prevFrameIndex];
+
+                                if (_currentPlayTimes == prevPlayTimes) // Start.
+                                {
+                                    if (prevTime <= crossedFrame.position) // Crossed.
+                                    {
+                                        crossedFrame = crossedFrame.prev;
+                                    }
+                                    else if (crossedFrame == currentFrame) // Uncrossed.
+                                    {
+                                        crossedFrame = null;
+                                    }
+                                }
+                            }
+
+                            while (crossedFrame != null)
                             {
                                 crossedFrame = crossedFrame.next;
-                                _onCrossFrame(crossedFrame);
+
+                                if (loopCompleteEvent != null && crossedFrame == _timelineData.frames[0]) // Add loop complete event before first frame.
+                                {
+                                    _armature._bufferEvent(loopCompleteEvent, EventObject.LOOP_COMPLETE);
+                                    loopCompleteEvent = null;
+                                }
+
+                                if (
+                                    _position <= crossedFrame.position &&
+                                    crossedFrame.position <= _position + _duration
+                                ) // Support interval play.
+                                {
+                                    _onCrossFrame(crossedFrame);
+                                }
+
+                                if (crossedFrame == currentFrame)
+                                {
+                                    break;
+                                }
                             }
                         }
                     }
                     else if (_keyFrameCount > 0 && _currentFrame == null)
                     {
                         _currentFrame = _timelineData.frames[0];
-                        _onCrossFrame(_currentFrame);
+
+                        if (_currentPlayTimes == prevPlayTimes) // Start.
+                        {
+                            if (prevTime <= _currentFrame.position)
+                            {
+                                _onCrossFrame(_currentFrame);
+                            }
+                        }
+                        else if (_position <= _currentFrame.position) // Loop complete.
+                        {
+                            if (!isReverse && loopCompleteEvent != null) // Add loop complete event before first frame.
+                            {
+                                _armature._bufferEvent(loopCompleteEvent, EventObject.LOOP_COMPLETE);
+                                loopCompleteEvent = null;
+                            }
+
+                            _onCrossFrame(_currentFrame);
+                        }
                     }
                 }
-
-                if (_currentPlayTimes != prevPlayTimes)
+                
+                if (loopCompleteEvent != null)
                 {
-                    if (eventDispatcher.HasEventListener(EventObject.LOOP_COMPLETE))
-                    {
-                        var eventObject = BaseObject.BorrowObject<EventObject>();
-                        eventObject.animationState = _animationState;
-                        _armature._bufferEvent(eventObject, EventObject.LOOP_COMPLETE);
-                    }
+                    _armature._bufferEvent(loopCompleteEvent, EventObject.LOOP_COMPLETE);
+                    loopCompleteEvent = null;
+                }
 
-                    if (_playState > 0 && eventDispatcher.HasEventListener(EventObject.COMPLETE))
-                    {
-                        var eventObject = BaseObject.BorrowObject<EventObject>();
-                        eventObject.animationState = _animationState;
-                        _armature._bufferEvent(eventObject, EventObject.COMPLETE);
-                    }
+                if (completeEvent != null)
+                {
+                    _armature._bufferEvent(completeEvent, EventObject.COMPLETE);
+                    completeEvent = null;
                 }
             }
         }

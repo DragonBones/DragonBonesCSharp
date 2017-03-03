@@ -10,6 +10,10 @@ namespace DragonBones
     public class UnityTextureAtlasData : TextureAtlasData
     {
         /**
+         * @private
+         */
+        internal bool _disposeTexture;
+        /**
          * @language zh_CN
          * Unity 贴图。
          * @version DragonBones 3.0
@@ -28,11 +32,16 @@ namespace DragonBones
         {
             base._onClear();
 
-            if (texture != null)
+            if (_disposeTexture && texture != null)
             {
-                //Object.Destroy(texture);
+#if UNITY_EDITOR
+                //Object.DestroyImmediate(texture);
+#else
+                Object.Destroy(texture);
+#endif
             }
 
+            _disposeTexture = false;
             texture = null;
         }
         /**

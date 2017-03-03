@@ -457,7 +457,7 @@ namespace DragonBones
          * @language zh_CN
          * 移除贴图集数据。
          * @param name 数据名称。
-         * @param disposeData 是否释放数据。 [false: 不释放, true: 释放]
+         * @param disposeData 是否释放数据。
          * @see #ParseTextureAtlasData()
          * @see #GetTextureAtlasData()
          * @see #AddTextureAtlasData()
@@ -482,7 +482,7 @@ namespace DragonBones
         /**
          * @language zh_CN
          * 清除所有的数据。
-         * @param disposeData 是否释放数据。 [false: 不释放, true: 释放]
+         * @param disposeData 是否释放数据。
          * @version DragonBones 4.5
          */
         virtual public void Clear(bool disposeData = true)

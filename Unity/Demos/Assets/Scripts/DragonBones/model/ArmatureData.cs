@@ -269,6 +269,8 @@ namespace DragonBones
             transform.skewY = dataArray[arrayOffset + 7];
             transform.scaleX = dataArray[arrayOffset + 8];
             transform.scaleY = dataArray[arrayOffset + 9];
+            transform.x = globalTransformMatrix.tx;
+            transform.y = globalTransformMatrix.ty;
         }
         /**
          * @private
