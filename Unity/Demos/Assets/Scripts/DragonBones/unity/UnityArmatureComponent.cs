@@ -159,11 +159,11 @@ namespace DragonBones
          */
         void Awake()
         {
-            LoadData(dragonBonesJSON, textureAtlasJSON);
+            var dragonBonesData = LoadData(dragonBonesJSON, textureAtlasJSON);
 
-            if (!string.IsNullOrEmpty(armatureName))
+			if (dragonBonesData != null && !string.IsNullOrEmpty(armatureName))
             {
-                UnityFactory.factory.BuildArmatureComponent(armatureName, null, null, null, gameObject);
+				UnityFactory.factory.BuildArmatureComponent(armatureName, dragonBonesData.name, null, null, gameObject);
             }
 
             if (_armature != null)
