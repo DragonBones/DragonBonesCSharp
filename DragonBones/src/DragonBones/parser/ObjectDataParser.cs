@@ -1375,7 +1375,7 @@ namespace DragonBones
                         var rawFloats = rawEvent[FLOATS] as List<object>;
                         for (int j = 0, lJ = rawFloats.Count; j < lJ; ++j)
                         {
-                            eventData.data.floats.Add(_getParameter(rawFloats, i, 0.0f));
+                            eventData.data.floats.Add(_getParameter(rawFloats, j, 0.0f));
                         }
                     }
 
@@ -1389,7 +1389,7 @@ namespace DragonBones
                         var rawStrings = rawEvent[STRINGS] as List<object>;
                         for (int j = 0, lJ = rawStrings.Count; j < lJ; ++j)
                         {
-                            eventData.data.strings.Add(_getParameter(rawStrings, i, ""));
+                            eventData.data.strings.Add(_getParameter(rawStrings, j, ""));
                         }
                     }
 

@@ -368,6 +368,13 @@ namespace DragonBones
                 return;
             }
 
+            var prevCacheFrameIndex = _animation._cacheFrameIndex;
+
+            // Update animations.
+            _animation._advanceTime(passedTime);
+
+            var currentCacheFrameIndex = _animation._cacheFrameIndex;
+
             // Bones and slots.
             if (_bonesDirty)
             {
@@ -381,13 +388,6 @@ namespace DragonBones
                 _sortSlots();
             }
 
-            var prevCacheFrameIndex = _animation._cacheFrameIndex;
-
-            // Update animations.
-            _animation._advanceTime(passedTime);
-
-            var currentCacheFrameIndex = _animation._cacheFrameIndex;
-            
             int i = 0, l = 0;
 
             if (currentCacheFrameIndex < 0 || currentCacheFrameIndex != prevCacheFrameIndex)
