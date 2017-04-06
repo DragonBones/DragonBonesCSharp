@@ -17,10 +17,10 @@ public class HelloDragonBones :MonoBehaviour
 {
     void Start()
     {
-        UnityFactory.factory.LoadDragonBonesData("Test/superman_1_ske");
-        UnityFactory.factory.LoadTextureAtlasData("Test/superman_1_tex");
+        UnityFactory.factory.LoadDragonBonesData("DragonBoy/DragonBoy");
+        UnityFactory.factory.LoadTextureAtlasData("DragonBoy/DragonBoy_texture_1");
 
-        var armatureComponent = UnityFactory.factory.BuildArmatureComponent("Armature");
+        var armatureComponent = UnityFactory.factory.BuildArmatureComponent("DragonBoy");
         armatureComponent.animation.Play("walk");
 
         // Set position.
