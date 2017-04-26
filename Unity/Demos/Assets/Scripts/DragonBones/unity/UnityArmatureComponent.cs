@@ -1,11 +1,15 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace DragonBones
 {
     /**
      * @inheritDoc
      */
+	[ExecuteInEditMode]
     public class UnityArmatureComponent : UnityEventDispatcher<EventObject>, IArmatureProxy
     {
         private bool _disposeProxy = true;
@@ -100,6 +104,11 @@ namespace DragonBones
                 foreach (var render in GetComponentsInChildren<Renderer>(true))
                 {
                     render.sortingLayerName = value;
+					#if UNITY_EDITOR
+					if(!Application.isPlaying){
+						EditorUtility.SetDirty(render);
+					}
+					#endif
                 }
             }
         }
@@ -121,6 +130,11 @@ namespace DragonBones
                 foreach (var render in GetComponentsInChildren<Renderer>(true))
                 {
                     render.sortingOrder = value;
+					#if UNITY_EDITOR
+					if(!Application.isPlaying){
+						EditorUtility.SetDirty(render);
+					}
+					#endif
                 }
             }
         }
@@ -154,6 +168,18 @@ namespace DragonBones
                 }
             }
         }
+		[SerializeField]
+		[HideInInspector]
+		private bool _isUGUI = false;
+		public bool isUGUI{
+			get{ return _isUGUI;}
+			#if UNITY_EDITOR
+			set{_isUGUI=value;}
+			#endif
+		}
+
+		protected internal bool _zorderIsDirty = false;
+
         /**
          * @private
          */
@@ -165,7 +191,6 @@ namespace DragonBones
             {
 				UnityFactory.factory.BuildArmatureComponent(armatureName, dragonBonesData.name, null, null, gameObject);
             }
-
             if (_armature != null)
             {
                 sortingLayerName = sortingLayerName;
@@ -177,6 +202,26 @@ namespace DragonBones
                 }
             }
         }
+
+		void LateUpdate(){
+			if(_isUGUI && _zorderIsDirty){
+				List<Slot> slots = new List<Slot>(_armature.GetSlots());
+				slots.Sort(delegate(Slot x, Slot y) {
+					return x._zOrder-y._zOrder;
+				});
+				for (int i=0 ; i<slots.Count ;++i )
+				{
+					Slot slot = slots[i];
+					var display = slot.display as GameObject;
+					if (display != null)
+					{
+						display.transform.SetSiblingIndex(i);
+					}
+				}
+				_zorderIsDirty = false;
+			}
+		}
+
         /**
          * @private
          */
@@ -207,7 +252,7 @@ namespace DragonBones
                 {
                     foreach (var eachJSON in textureAtlasJSON)
                     {
-                        UnityFactory.factory.LoadTextureAtlasData(eachJSON);
+						UnityFactory.factory.LoadTextureAtlasData(eachJSON,null,0,this);
                     }
                 }
             }

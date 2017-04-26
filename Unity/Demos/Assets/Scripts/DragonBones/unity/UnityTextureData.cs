@@ -19,6 +19,7 @@ namespace DragonBones
          * @version DragonBones 3.0
          */
         public Material texture;
+		public Material uiTexture;
         /**
          * @private
          */

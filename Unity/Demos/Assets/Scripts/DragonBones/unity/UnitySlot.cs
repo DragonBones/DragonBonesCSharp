@@ -84,7 +84,7 @@ namespace DragonBones
             var container = _armature.display as GameObject;
             if (_renderDisplay.transform.parent != container.transform)
             {
-                _renderDisplay.transform.parent = container.transform;
+				_renderDisplay.transform.SetParent(container.transform);
 
                 _helpVector3.Set(0.0f, 0.0f, -_zOrder * (_proxy.zSpace + 0.001f));
                 _renderDisplay.transform.localPosition = _helpVector3;
@@ -97,13 +97,15 @@ namespace DragonBones
         {
             var container = _armature.display as GameObject;
             var prevDisplay = value as GameObject;
+			int index = prevDisplay.transform.GetSiblingIndex();
             prevDisplay.hideFlags = HideFlags.HideInHierarchy;
-            prevDisplay.transform.parent = null;
+			prevDisplay.transform.SetParent(null);
             prevDisplay.SetActive(false);
 
             _renderDisplay.hideFlags = HideFlags.None;
-            _renderDisplay.transform.parent = container.transform;
+			_renderDisplay.transform.SetParent(container.transform);
             _renderDisplay.transform.localPosition = prevDisplay.transform.localPosition;
+			_renderDisplay.transform.SetSiblingIndex(index);
             _renderDisplay.SetActive(true);
         }
         /**
@@ -120,7 +122,10 @@ namespace DragonBones
         {
             // var container = _armature.display as GameObject;
             _helpVector3.Set(_renderDisplay.transform.localPosition.x, _renderDisplay.transform.localPosition.y, -_zOrder * (_proxy.zSpace + 0.001f));
-            _renderDisplay.transform.localPosition = _helpVector3;
+			if(_renderDisplay.transform.localPosition.z!=_helpVector3.z){
+				_proxy._zorderIsDirty=true;
+			}
+			_renderDisplay.transform.localPosition = _helpVector3;
         }
         /**
          * @private
@@ -170,7 +175,7 @@ namespace DragonBones
                 var mesh = meshFilter.sharedMesh;
                 if (mesh != null)
                 {
-                    var colors = new List<Color>(mesh.vertices.Length);
+                    var colors = new List<Color32>(mesh.vertices.Length);
                     for (int i = 0, l = mesh.vertices.Length; i < l; ++i)
                     {
                         colors.Add(new Color(
@@ -181,7 +186,7 @@ namespace DragonBones
                         ));
                     }
 
-                    mesh.SetColors(colors);
+					mesh.SetColors(colors);
                 }
             }
         }
@@ -193,8 +198,25 @@ namespace DragonBones
             var isMeshDisplay = _meshData != null && _display == _meshDisplay;
             var currentTextureData = _textureData as UnityTextureData;
 
-            var renderer = _renderDisplay.GetComponent<MeshRenderer>();
-            var meshFilter = _renderDisplay.GetComponent<MeshFilter>();
+			MeshRenderer renderer = null;
+			MeshFilter meshFilter = null;
+			UnityUGUIDisplay uiDisplay = null;
+			if(_proxy.isUGUI){
+				uiDisplay = _renderDisplay.GetComponent<UnityUGUIDisplay>();
+				if(uiDisplay==null){
+					uiDisplay = _renderDisplay.AddComponent<UnityUGUIDisplay>();
+					uiDisplay.raycastTarget = false;
+				}
+			}else{
+				renderer = _renderDisplay.GetComponent<MeshRenderer>();
+				if(renderer==null){
+					renderer = _renderDisplay.AddComponent<MeshRenderer>();
+				}
+				meshFilter = _renderDisplay.GetComponent<MeshFilter>();
+				if(meshFilter==null){
+					meshFilter = _renderDisplay.AddComponent<MeshFilter>();
+				}
+			}
 
             if (_display != null && _displayIndex >= 0 && currentTextureData != null)
             {
@@ -208,14 +230,18 @@ namespace DragonBones
                     {
                         currentTextureAtlasData = BaseObject.BorrowObject<UnityTextureAtlasData>();
                         currentTextureAtlasData.CopyFrom(_textureData.parent);
-                        currentTextureAtlasData.texture = _armature.replacedTexture as Material;
+						if(_proxy.isUGUI){
+							currentTextureAtlasData.uiTexture = _armature.replacedTexture as Material;
+						}else{
+                        	currentTextureAtlasData.texture = _armature.replacedTexture as Material;
+						}
                         _armature._replaceTextureAtlasData = currentTextureAtlasData;
                     }
 
                     currentTextureData = currentTextureAtlasData.GetTexture(currentTextureData.name) as UnityTextureData;
                 }
 
-                var currentTextureAtlas = currentTextureAtlasData.texture;
+				var currentTextureAtlas = _proxy.isUGUI?currentTextureAtlasData.uiTexture :currentTextureAtlasData.texture;
                 if (currentTextureAtlas != null)
                 {
                     var textureAtlasWidth = currentTextureAtlasData.width > 0.0f ? currentTextureAtlasData.width : currentTextureAtlas.mainTexture.width;
@@ -303,8 +329,14 @@ namespace DragonBones
 
                     _mesh.RecalculateBounds();
 
-                    meshFilter.sharedMesh = _mesh;
-                    renderer.sharedMaterial = currentTextureAtlas;
+					if(_proxy.isUGUI){
+						uiDisplay.material = currentTextureAtlas;
+						uiDisplay.texture = currentTextureAtlas.mainTexture;
+						uiDisplay.sharedMesh = _mesh;
+					}else{
+						meshFilter.sharedMesh = _mesh;
+						renderer.sharedMaterial = currentTextureAtlas;
+					}
 
                     _updateVisible();
 
@@ -313,8 +345,14 @@ namespace DragonBones
             }
 
             _renderDisplay.SetActive(false);
-            meshFilter.sharedMesh = null;
-            renderer.sharedMaterial = null;
+			if(_proxy.isUGUI){
+				uiDisplay.material = null;
+				uiDisplay.texture = null;
+				uiDisplay.sharedMesh = null;
+			}else{
+				meshFilter.sharedMesh = null;
+				renderer.sharedMaterial = null;
+			}
             _helpVector3.x = 0.0f;
             _helpVector3.y = 0.0f;
             _helpVector3.z = _renderDisplay.transform.localPosition.z;

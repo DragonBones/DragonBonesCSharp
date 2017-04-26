@@ -41,6 +41,49 @@ namespace DragonBones
             }
         }
 
+		[MenuItem("GameObject/DragonBones/Armature Object(UGUI)", false, 11)]
+		private static void _createUGUIArmatureObjectMenuItem()
+		{
+			var armatureComponent = _createEmptyObject(_getSelectionParentTransform());
+			armatureComponent.isUGUI=true;
+			if(armatureComponent.GetComponentInParent<Canvas>()==null){
+				var canvas = GameObject.Find("/Canvas");
+				if(canvas){
+					armatureComponent.transform.SetParent(canvas.transform);
+				}
+			}
+			armatureComponent.transform.localScale = Vector2.one*100f;
+			armatureComponent.transform.localPosition = Vector3.zero;
+		}
+
+		[MenuItem("Assets/Create/DragonBones/Armature Object(UGUI)", true)]
+		private static bool _createUGUIArmatureObjectFromJSONValidateMenuItem()
+		{
+			return _getDragonBonesJSONPaths().Count > 0;
+		}
+
+		[MenuItem("Assets/Create/DragonBones/Armature Object(UGUI)", false, 11)]
+		private static void _createNUGUIArmatureObjectFromJSOIMenuItem()
+		{
+			var parentTransform = _getSelectionParentTransform();
+			foreach (var dragonBonesJSONPath in _getDragonBonesJSONPaths())
+			{
+				var armatureComponent = _createEmptyObject(parentTransform);
+				armatureComponent.isUGUI=true;
+				if(armatureComponent.GetComponentInParent<Canvas>()==null){
+					var canvas = GameObject.Find("/Canvas");
+					if(canvas){
+						armatureComponent.transform.SetParent(canvas.transform);
+					}
+				}
+				armatureComponent.transform.localScale = Vector2.one*100f;
+				armatureComponent.transform.localPosition = Vector3.zero;
+				var dragonBonesJSON = AssetDatabase.LoadMainAssetAtPath(dragonBonesJSONPath) as TextAsset;
+
+				_changeDragonBonesData(armatureComponent, dragonBonesJSON);
+			}
+		}
+
         private static List<string> _getDragonBonesJSONPaths()
         {
             var dragonBonesJSONPaths = new List<string>();
@@ -65,7 +108,7 @@ namespace DragonBones
         {
             var gameObject = new GameObject("New Armature Object", typeof(UnityArmatureComponent));
             var armatureComponent = gameObject.GetComponent<UnityArmatureComponent>();
-            gameObject.transform.SetParent(parentTransform, false);
+			gameObject.transform.SetParent(parentTransform, false);
 
             //
             EditorUtility.FocusProjectWindow();
@@ -203,7 +246,7 @@ namespace DragonBones
             }
 
             _armatureComponent.armatureName = armatureName;
-            _armatureComponent = UnityFactory.factory.BuildArmatureComponent(_armatureComponent.armatureName, dragonBonesName, null, null, _armatureComponent.gameObject);
+			_armatureComponent = UnityFactory.factory.BuildArmatureComponent(_armatureComponent.armatureName, dragonBonesName, null, null, _armatureComponent.gameObject);
 
             if (slot != null)
             {
@@ -281,7 +324,7 @@ namespace DragonBones
                 var dragonBonesData = _armatureComponent.LoadData(_armatureComponent.dragonBonesJSON, _armatureComponent.textureAtlasJSON);
 
                 // Refresh texture atlas.
-                UnityFactory.factory.RefreshAllTextureAtlas();
+				UnityFactory.factory.RefreshAllTextureAtlas(_armatureComponent);
 
                 // Refresh armature.
                 _changeArmatureData(_armatureComponent, _armatureComponent.armatureName, dragonBonesData.name);
@@ -380,6 +423,9 @@ namespace DragonBones
                         _armatureComponent.gameObject.name = armatureName;
 
                         EditorUtility.SetDirty(_armatureComponent);
+						if (!Application.isPlaying && !string.IsNullOrEmpty(_armatureComponent.gameObject.scene.name)){
+							UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene());
+						}
                     }
                 }
 
@@ -387,16 +433,26 @@ namespace DragonBones
                 if (_animationNames != null && _animationNames.Count > 0)
                 {
                     EditorGUILayout.BeginHorizontal();
-                    var animationIndex = EditorGUILayout.Popup("Animation", _animationIndex, _animationNames.ToArray());
+					List<string> anims=new List<string>(_animationNames);
+					anims.Insert(0,"<None>");
+					var animationIndex = EditorGUILayout.Popup("Animation", _animationIndex+1, anims.ToArray())-1;
                     if (animationIndex != _animationIndex)
                     {
                         _animationIndex = animationIndex;
-                        _armatureComponent.animationName = _animationNames[animationIndex];
-                        _armatureComponent.animation.Play(_armatureComponent.animationName);
+						if(animationIndex>=0){
+	                        _armatureComponent.animationName = _animationNames[animationIndex];
+							_armatureComponent.animation.Play(_armatureComponent.animationName);
+							_updateParameters();
+						}else{
+							_armatureComponent.animation.Stop();
+							_armatureComponent.animationName = null;
+							_animationIndex = -1;
+						}
 
-                        _updateParameters();
-
-                        EditorUtility.SetDirty(_armatureComponent);
+						EditorUtility.SetDirty(_armatureComponent);
+						if (!Application.isPlaying && !string.IsNullOrEmpty(_armatureComponent.gameObject.scene.name)){
+							UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene());
+						}
                     }
 
                     if (_animationIndex >= 0)
@@ -422,28 +478,36 @@ namespace DragonBones
 
                 EditorGUILayout.Space();
 
-                // Sorting Layer
-                _sortingLayerIndex = EditorGUILayout.Popup("Sorting Layer", _sortingLayerIndex, _sortingLayerNames.ToArray());
-                if (_sortingLayerNames[_sortingLayerIndex] != _armatureComponent.sortingLayerName)
-                {
-                    Undo.RecordObject(_armatureComponent, "Sorting Layer");
-                    _armatureComponent.sortingLayerName = _sortingLayerNames[_sortingLayerIndex];
-                    EditorUtility.SetDirty(_armatureComponent);
-                }
+				if(!_armatureComponent.isUGUI){
+					// Sorting Layer
+					_sortingLayerIndex = EditorGUILayout.Popup("Sorting Layer", _sortingLayerIndex, _sortingLayerNames.ToArray());
+					if (_sortingLayerNames[_sortingLayerIndex] != _armatureComponent.sortingLayerName)
+					{
+						Undo.RecordObject(_armatureComponent, "Sorting Layer");
+						_armatureComponent.sortingLayerName = _sortingLayerNames[_sortingLayerIndex];
+						EditorUtility.SetDirty(_armatureComponent);
+						if (!Application.isPlaying && !string.IsNullOrEmpty(_armatureComponent.gameObject.scene.name)){
+							UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene());
+						}
+					}
 
-                // Sorting Order
-                var sortingOrder = EditorGUILayout.IntField("Order in Layer", _armatureComponent.sortingOrder);
-                if (sortingOrder != _armatureComponent.sortingOrder)
-                {
-                    Undo.RecordObject(_armatureComponent, "Edit Sorting Order");
-                    _armatureComponent.sortingOrder = sortingOrder;
-                    EditorUtility.SetDirty(_armatureComponent);
-                }
+					// Sorting Order
+					var sortingOrder = EditorGUILayout.IntField("Order in Layer", _armatureComponent.sortingOrder);
+					if (sortingOrder != _armatureComponent.sortingOrder)
+					{
+						Undo.RecordObject(_armatureComponent, "Edit Sorting Order");
+						_armatureComponent.sortingOrder = sortingOrder;
+						EditorUtility.SetDirty(_armatureComponent);
+						if (!Application.isPlaying && !string.IsNullOrEmpty(_armatureComponent.gameObject.scene.name)){
+							UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene());
+						}
+					}
 
-                // ZSpace
-                EditorGUILayout.BeginHorizontal();
-                _armatureComponent.zSpace = EditorGUILayout.Slider("Z Space", _armatureComponent.zSpace, 0.0f, 0.2f);
-                EditorGUILayout.EndHorizontal();
+					// ZSpace
+					EditorGUILayout.BeginHorizontal();
+					_armatureComponent.zSpace = EditorGUILayout.Slider("Z Space", _armatureComponent.zSpace, 0.0f, 0.2f);
+					EditorGUILayout.EndHorizontal();
+				}
 
                 // TimeScale
                 EditorGUILayout.BeginHorizontal();
