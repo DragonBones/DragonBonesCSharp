@@ -510,11 +510,21 @@ namespace DragonBones
                 EditorGUILayout.EndHorizontal();
 
                 // Flip
-                /*EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.PrefixLabel("Flip");
-                _armatureComponent.flipX = GUILayout.Toggle(_armatureComponent.flipX, "X");
-                _armatureComponent.flipY = GUILayout.Toggle(_armatureComponent.flipY, "Y");
-                EditorGUILayout.EndHorizontal();*/
+                EditorGUILayout.BeginHorizontal();
+				EditorGUILayout.PrefixLabel("Flip");
+				bool flipX = _armatureComponent.flipX;
+				bool flipY = _armatureComponent.flipY;
+				_armatureComponent.flipX = GUILayout.Toggle(_armatureComponent.flipX, "X",GUILayout.Width(30));
+				_armatureComponent.flipY = GUILayout.Toggle(_armatureComponent.flipY, "Y",GUILayout.Width(30));
+				_armatureComponent.armature.flipX = _armatureComponent.flipX;
+				_armatureComponent.armature.flipY = _armatureComponent.flipY;
+				if(_armatureComponent.flipX!=flipX || _armatureComponent.flipY!=flipY){
+					EditorUtility.SetDirty(_armatureComponent);
+					if (!Application.isPlaying && !_isPrefab()){
+						UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene());
+					}
+				}
+                EditorGUILayout.EndHorizontal();
 
                 EditorGUILayout.Space();
             }

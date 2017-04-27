@@ -171,6 +171,8 @@ namespace DragonBones
 	
 		public bool isUGUI = false;
 		public bool zorderIsDirty = false;
+		public bool flipX = false;
+		public bool flipY = false;
 
         /**
          * @private
@@ -188,7 +190,8 @@ namespace DragonBones
             {
                 sortingLayerName = sortingLayerName;
                 sortingOrder = sortingOrder;
-
+				_armature.flipX = flipX;
+				_armature.flipY = flipY;
                 if (!string.IsNullOrEmpty(animationName))
                 {
                     _armature.animation.Play(animationName);
