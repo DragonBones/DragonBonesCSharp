@@ -168,23 +168,16 @@ namespace DragonBones
                 }
             }
         }
-		[SerializeField]
-		[HideInInspector]
-		private bool _isUGUI = false;
-		public bool isUGUI{
-			get{ return _isUGUI;}
-			#if UNITY_EDITOR
-			set{_isUGUI=value;}
-			#endif
-		}
-
-		protected internal bool _zorderIsDirty = false;
+	
+		public bool isUGUI = false;
+		public bool zorderIsDirty = false;
 
         /**
          * @private
          */
         void Awake()
         {
+			zorderIsDirty = true;
             var dragonBonesData = LoadData(dragonBonesJSON, textureAtlasJSON);
 
 			if (dragonBonesData != null && !string.IsNullOrEmpty(armatureName))
@@ -204,7 +197,7 @@ namespace DragonBones
         }
 
 		void LateUpdate(){
-			if(_isUGUI && _zorderIsDirty){
+			if(isUGUI && zorderIsDirty){
 				List<Slot> slots = new List<Slot>(_armature.GetSlots());
 				slots.Sort(delegate(Slot x, Slot y) {
 					return x._zOrder-y._zOrder;
@@ -218,7 +211,7 @@ namespace DragonBones
 						display.transform.SetSiblingIndex(i);
 					}
 				}
-				_zorderIsDirty = false;
+				zorderIsDirty = false;
 			}
 		}
 
@@ -252,7 +245,7 @@ namespace DragonBones
                 {
                     foreach (var eachJSON in textureAtlasJSON)
                     {
-						UnityFactory.factory.LoadTextureAtlasData(eachJSON,null,0,_isUGUI);
+						UnityFactory.factory.LoadTextureAtlasData(eachJSON,null,0,isUGUI);
                     }
                 }
             }

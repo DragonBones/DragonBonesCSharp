@@ -42,6 +42,7 @@ namespace DragonBones
 
         private string _textureAtlasPath = null;
         private GameObject _armatureGameObject = null;
+		private bool _isUGUI = false;
         private readonly Dictionary<string, DragonBonesData> _pathDragonBonesDataMap = new Dictionary<string, DragonBonesData>();
         private readonly Dictionary<string, TextureAtlasData> _pathTextureAtlasDataMap = new Dictionary<string, TextureAtlasData>();
         /**
@@ -91,6 +92,7 @@ namespace DragonBones
                 if (_eventManager == null)
                 {
                     _eventManager = _gameObject.AddComponent<UnityArmatureComponent>();
+					(_eventManager as UnityArmatureComponent).isUGUI = _isUGUI;
                 }
             }
 
@@ -100,6 +102,7 @@ namespace DragonBones
             if (armatureComponent == null)
             {
                 armatureComponent = armatureDisplay.AddComponent<UnityArmatureComponent>();
+				armatureComponent.isUGUI = _isUGUI;
             }
 
             armatureComponent._armature = armature;
@@ -176,7 +179,7 @@ namespace DragonBones
                         var childArmature = childTransform == null ?
                             BuildArmature(displayData.path, dataPackage.dataName) :
                             BuildArmatureComponent(displayData.path, dataPackage.dataName, null, dataPackage.textureAtlasName, childTransform.gameObject).armature;
-
+					    
                         if (childArmature != null)
                         {
                             childArmature.inheritAnimation = displayData.inheritAnimation;
@@ -200,6 +203,7 @@ namespace DragonBones
 
                             // Hide
                             var childArmatureDisplay = childArmature.display as GameObject;
+							childArmatureDisplay.GetComponent<UnityArmatureComponent>().isUGUI = armatureDisplay.GetComponent<UnityArmatureComponent>().isUGUI;
                             childArmatureDisplay.name = childDisplayName;
                             childArmatureDisplay.gameObject.hideFlags = HideFlags.HideInHierarchy;
                             childArmatureDisplay.SetActive(false);
@@ -306,9 +310,10 @@ namespace DragonBones
          * @see DragonBones.UnityArmatureComponent
          * @version DragonBones 4.5
          */
-        public UnityArmatureComponent BuildArmatureComponent(string armatureName, string dragonBonesName = null, string skinName = null, string textureAtlasName = null, GameObject gameObject = null)
+		public UnityArmatureComponent BuildArmatureComponent(string armatureName, string dragonBonesName = null, string skinName = null, string textureAtlasName = null, GameObject gameObject = null,bool isUGUI=false)
         {
             _armatureGameObject = gameObject;
+			_isUGUI = isUGUI;
             var armature = BuildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
             if (armature != null)
             {

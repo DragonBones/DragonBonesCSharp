@@ -80,7 +80,6 @@ namespace DragonBones
         override protected void _addDisplay()
         {
             _proxy = _armature.eventDispatcher as UnityArmatureComponent;
-
             var container = _armature.display as GameObject;
             if (_renderDisplay.transform.parent != container.transform)
             {
@@ -123,7 +122,7 @@ namespace DragonBones
             // var container = _armature.display as GameObject;
             _helpVector3.Set(_renderDisplay.transform.localPosition.x, _renderDisplay.transform.localPosition.y, -_zOrder * (_proxy.zSpace + 0.001f));
 			if(_renderDisplay.transform.localPosition.z!=_helpVector3.z){
-				_proxy._zorderIsDirty=true;
+				_proxy.zorderIsDirty=true;
 			}
 			_renderDisplay.transform.localPosition = _helpVector3;
         }
@@ -168,27 +167,20 @@ namespace DragonBones
 
                 renderer.color = _helpColor;
             }*/
-
-            var meshFilter = _renderDisplay.GetComponent<MeshFilter>();
-            if (meshFilter != null)
-            {
-                var mesh = meshFilter.sharedMesh;
-                if (mesh != null)
-                {
-                    var colors = new List<Color32>(mesh.vertices.Length);
-                    for (int i = 0, l = mesh.vertices.Length; i < l; ++i)
-                    {
-                        colors.Add(new Color(
-                            _colorTransform.redMultiplier,
-                            _colorTransform.greenMultiplier,
-                            _colorTransform.blueMultiplier,
-                            _colorTransform.alphaMultiplier
-                        ));
-                    }
-
-					mesh.SetColors(colors);
-                }
-            }
+			if(_mesh!=null)
+			{
+				var colors = new List<Color32>(_mesh.vertexCount);
+				for (int i = 0, l = _mesh.vertexCount; i < l; ++i)
+				{
+					colors.Add(new Color(
+						_colorTransform.redMultiplier,
+						_colorTransform.greenMultiplier,
+						_colorTransform.blueMultiplier,
+						_colorTransform.alphaMultiplier
+					));
+				}
+				_mesh.SetColors(colors);
+			}
         }
         /**
          * @private
@@ -201,6 +193,7 @@ namespace DragonBones
 			MeshRenderer renderer = null;
 			MeshFilter meshFilter = null;
 			UnityUGUIDisplay uiDisplay = null;
+
 			if(_proxy.isUGUI){
 				uiDisplay = _renderDisplay.GetComponent<UnityUGUIDisplay>();
 				if(uiDisplay==null){
