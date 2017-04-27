@@ -252,7 +252,7 @@ namespace DragonBones
                 {
                     foreach (var eachJSON in textureAtlasJSON)
                     {
-						UnityFactory.factory.LoadTextureAtlasData(eachJSON,null,0,this);
+						UnityFactory.factory.LoadTextureAtlasData(eachJSON,null,0,_isUGUI);
                     }
                 }
             }

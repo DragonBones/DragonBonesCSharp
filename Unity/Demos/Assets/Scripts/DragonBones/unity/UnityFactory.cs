@@ -58,7 +58,17 @@ namespace DragonBones
          */
         override protected TextureAtlasData _generateTextureAtlasData(TextureAtlasData textureAtlasData, object textureAtlas)
         {
-            if (textureAtlasData == null)
+			if (textureAtlasData != null)
+			{
+				if(textureAtlas!=null){
+					if((textureAtlas as Material).name.Equals(defaultUIShaderName)){
+						(textureAtlasData as UnityTextureAtlasData).uiTexture = textureAtlas as Material;
+					}else{
+						(textureAtlasData as UnityTextureAtlasData).texture = textureAtlas as Material;
+					}
+				}
+			}
+			else
             {
                 textureAtlasData = BaseObject.BorrowObject<UnityTextureAtlasData>();
             }
@@ -211,26 +221,24 @@ namespace DragonBones
         /**
          * @private
          */
-		protected void _refreshTextureAtlas(UnityArmatureComponent unityArmature,UnityTextureAtlasData textureAtlasData)
+		protected void _refreshTextureAtlas(UnityTextureAtlasData textureAtlasData,bool isUGUI)
         {
-			if (textureAtlasData.texture == null || textureAtlasData.uiTexture == null)
-            {
-                var textureAtlas = Resources.Load<Texture2D>(textureAtlasData.imagePath);
-				Shader shader = null;
-				if(unityArmature.isUGUI){
-					shader = Shader.Find(defaultUIShaderName);
-				}else{
-	                shader = Shader.Find(defaultShaderName);
-				}
+			if(isUGUI && textureAtlasData.uiTexture == null){
+				var textureAtlas = Resources.Load<Texture2D>(textureAtlasData.imagePath);
+				Shader shader = Shader.Find(defaultUIShaderName);
 				var material = new Material(shader);
 				material.mainTexture = textureAtlas;
-				if(unityArmature.isUGUI){
-					textureAtlasData.uiTexture = material;
-				}else{
-                	textureAtlasData.texture = material;
-				}
-                textureAtlasData._disposeTexture = true;
-            }
+				textureAtlasData.uiTexture = material;
+				textureAtlasData._disposeTexture = true;
+			}
+			else if(!isUGUI && textureAtlasData.texture == null){
+				var textureAtlas = Resources.Load<Texture2D>(textureAtlasData.imagePath);
+				Shader shader = Shader.Find(defaultShaderName);
+				var material = new Material(shader);
+				material.mainTexture = textureAtlas;
+				textureAtlasData.texture = material;
+				textureAtlasData._disposeTexture = true;
+			}
         }
         /**
          * @inheritDoc
@@ -430,7 +438,7 @@ namespace DragonBones
          * @see #RemoveTextureAtlasData()
          * @see DragonBones.UnityTextureAtlasData
          */
-		public UnityTextureAtlasData LoadTextureAtlasData(string path, string name = null, float scale = 0.0f,UnityArmatureComponent unityArmature=null)
+		public UnityTextureAtlasData LoadTextureAtlasData(string path, string name = null, float scale = 0.0f,bool isUGUI=false)
         {
             var index = path.LastIndexOf("Resources");
             if (index > 0)
@@ -449,13 +457,13 @@ namespace DragonBones
             if (_pathTextureAtlasDataMap.ContainsKey(path))
             {
                 textureAtlasData = _pathTextureAtlasDataMap[path] as UnityTextureAtlasData;
-				_refreshTextureAtlas(unityArmature,textureAtlasData);
+				_refreshTextureAtlas(textureAtlasData,isUGUI);
             }
             else
             {
                 _textureAtlasPath = path;
 
-				textureAtlasData = LoadTextureAtlasData(Resources.Load<TextAsset>(path), name, scale,unityArmature);
+				textureAtlasData = LoadTextureAtlasData(Resources.Load<TextAsset>(path), name, scale,isUGUI);
                 if (textureAtlasData != null)
                 {
                     _pathTextureAtlasDataMap[path] = textureAtlasData;
@@ -467,7 +475,7 @@ namespace DragonBones
         /**
          * @private
          */
-		public UnityTextureAtlasData LoadTextureAtlasData(TextAsset textureAtlasJSON, string name = null, float scale = 0.0f,UnityArmatureComponent unityArmature=null)
+		public UnityTextureAtlasData LoadTextureAtlasData(TextAsset textureAtlasJSON, string name = null, float scale = 0.0f,bool isUGUI=false)
         {
             if (textureAtlasJSON == null)
             {
@@ -495,7 +503,7 @@ namespace DragonBones
                 textureAtlasData.imagePath = textureAtlasData.imagePath.Substring(0, index);
             }
             
-			_refreshTextureAtlas(unityArmature, textureAtlasData);
+			_refreshTextureAtlas(textureAtlasData,isUGUI);
 
             return textureAtlasData;
         }
@@ -514,7 +522,7 @@ namespace DragonBones
             {
                 foreach (UnityTextureAtlasData textureAtlasData in textureAtlasDatas)
                 {
-					_refreshTextureAtlas(unityArmature,textureAtlasData);
+					_refreshTextureAtlas(textureAtlasData,unityArmature.isUGUI);
                 }
             }
         }
