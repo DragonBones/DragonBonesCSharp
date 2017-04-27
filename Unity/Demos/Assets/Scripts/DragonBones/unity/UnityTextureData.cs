@@ -42,8 +42,17 @@ namespace DragonBones
 #endif
             }
 
+			if (_disposeTexture && uiTexture != null)
+			{
+#if UNITY_EDITOR
+				//Object.DestroyImmediate(uiTexture);
+#else
+				Object.Destroy(uiTexture);
+#endif
+			}
             _disposeTexture = false;
             texture = null;
+			uiTexture = null;
         }
         /**
          * @private
