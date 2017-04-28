@@ -98,18 +98,18 @@ namespace DragonBones
                 {
                     //return;
                 }
-
                 _sortingLayerName = value;
-
-                foreach (var render in GetComponentsInChildren<Renderer>(true))
-                {
-                    render.sortingLayerName = value;
-					#if UNITY_EDITOR
-					if(!Application.isPlaying){
-						EditorUtility.SetDirty(render);
+				if(!isUGUI){
+					foreach (var render in GetComponentsInChildren<Renderer>(true))
+					{
+						render.sortingLayerName = value;
+						#if UNITY_EDITOR
+						if(!Application.isPlaying){
+							EditorUtility.SetDirty(render);
+						}
+						#endif
 					}
-					#endif
-                }
+				}
             }
         }
 
@@ -124,18 +124,18 @@ namespace DragonBones
                 {
                     //return;
                 }
-
                 _sortingOrder = value;
-
-                foreach (var render in GetComponentsInChildren<Renderer>(true))
-                {
-                    render.sortingOrder = value;
-					#if UNITY_EDITOR
-					if(!Application.isPlaying){
-						EditorUtility.SetDirty(render);
-					}
-					#endif
-                }
+				if(!isUGUI){
+                	foreach (var render in GetComponentsInChildren<Renderer>(true))
+	                {
+	                    render.sortingOrder = value;
+						#if UNITY_EDITOR
+						if(!Application.isPlaying){
+							EditorUtility.SetDirty(render);
+						}
+						#endif
+	                }
+				}
             }
         }
 
