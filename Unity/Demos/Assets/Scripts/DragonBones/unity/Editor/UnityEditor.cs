@@ -294,7 +294,6 @@ namespace DragonBones
         private int _animationIndex = -1;
         private int _sortingLayerIndex = -1;
         private long _nowTime = 0;
-        private TextAsset _dragonBoneJSON = null;
         private List<string> _armatureNames = null;
         private List<string> _animationNames = null;
         private List<string> _sortingLayerNames = null;
@@ -303,7 +302,6 @@ namespace DragonBones
         void OnEnable()
         {
             _armatureComponent = target as UnityArmatureComponent;
-            _dragonBoneJSON = _armatureComponent == null ? null : _armatureComponent.dragonBonesJSON; //
 
             // 
             _nowTime = System.DateTime.Now.Ticks;
@@ -359,10 +357,10 @@ namespace DragonBones
             // DragonBones Data
             EditorGUILayout.BeginHorizontal();
 
-            _dragonBoneJSON = EditorGUILayout.ObjectField("DragonBones Data", _dragonBoneJSON, typeof(TextAsset), false) as TextAsset;
+			_armatureComponent.dragonBonesJSON = EditorGUILayout.ObjectField("DragonBones Data", _armatureComponent.dragonBonesJSON, typeof(TextAsset), false) as TextAsset;
 
             var created = false;
-            if (_dragonBoneJSON != null)
+			if (_armatureComponent.dragonBonesJSON != null)
             {
                 if (_armatureComponent.armature == null)
                 {
@@ -371,30 +369,20 @@ namespace DragonBones
                         created = true;
                     }
                 }
-                else if (_armatureComponent.dragonBonesJSON != _dragonBoneJSON)
+                else
                 {
-                    if (GUILayout.Button("Change"))
+                    if (GUILayout.Button("Reload"))
                     {
                         created = true;
                     }
                 }
             }
-            else if (_armatureComponent.dragonBonesJSON != null)
-            {
-                created = true;
-            }
 
             if (created)
             {
-                var currentDragonBoneJSON = _armatureComponent.dragonBonesJSON;
-
-                if (_changeDragonBonesData(_armatureComponent, _dragonBoneJSON))
+				if (_changeDragonBonesData(_armatureComponent, _armatureComponent.dragonBonesJSON))
                 {
                     _updateParameters();
-                }
-                else
-                {
-                    _dragonBoneJSON = currentDragonBoneJSON;
                 }
             }
 
@@ -551,8 +539,6 @@ namespace DragonBones
 
         private void _updateParameters()
         {
-            _dragonBoneJSON = _armatureComponent.dragonBonesJSON;
-
             if (_armatureComponent.armature != null)
             {
                 _armatureNames = _armatureComponent.armature.armatureData.parent.armatureNames;
