@@ -21,6 +21,9 @@ namespace DragonBones
         private Mesh _mesh;
         private Vector2[] _uvs;
         private Vector3[] _vertices;
+		private MeshRenderer _renderer = null;
+		private MeshFilter _meshFilter = null;
+		private UnityUGUIDisplay _uiDisplay = null;
 
 		public Mesh mesh{
 			get { return _mesh;}
@@ -205,24 +208,20 @@ namespace DragonBones
             var isMeshDisplay = _meshData != null && _display == _meshDisplay;
             var currentTextureData = _textureData as UnityTextureData;
 
-			MeshRenderer renderer = null;
-			MeshFilter meshFilter = null;
-			UnityUGUIDisplay uiDisplay = null;
-
 			if(_proxy.isUGUI){
-				uiDisplay = _renderDisplay.GetComponent<UnityUGUIDisplay>();
-				if(uiDisplay==null){
-					uiDisplay = _renderDisplay.AddComponent<UnityUGUIDisplay>();
-					uiDisplay.raycastTarget = false;
+				_uiDisplay = _renderDisplay.GetComponent<UnityUGUIDisplay>();
+				if(_uiDisplay==null){
+					_uiDisplay = _renderDisplay.AddComponent<UnityUGUIDisplay>();
+					_uiDisplay.raycastTarget = false;
 				}
 			}else{
-				renderer = _renderDisplay.GetComponent<MeshRenderer>();
-				if(renderer==null){
-					renderer = _renderDisplay.AddComponent<MeshRenderer>();
+				_renderer = _renderDisplay.GetComponent<MeshRenderer>();
+				if(_renderer==null){
+					_renderer = _renderDisplay.AddComponent<MeshRenderer>();
 				}
-				meshFilter = _renderDisplay.GetComponent<MeshFilter>();
-				if(meshFilter==null){
-					meshFilter = _renderDisplay.AddComponent<MeshFilter>();
+				_meshFilter = _renderDisplay.GetComponent<MeshFilter>();
+				if(_meshFilter==null){
+					_meshFilter = _renderDisplay.AddComponent<MeshFilter>();
 				}
 			}
 
@@ -335,15 +334,18 @@ namespace DragonBones
                         _mesh.triangles = TRIANGLES;
                     }
 
-                    _mesh.RecalculateBounds();
 
 					if(_proxy.isUGUI){
-						uiDisplay.material = currentTextureAtlas;
-						uiDisplay.texture = currentTextureAtlas.mainTexture;
-						uiDisplay.sharedMesh = _mesh;
+						_uiDisplay.material = currentTextureAtlas;
+						_uiDisplay.texture = currentTextureAtlas.mainTexture;
+						_mesh.RecalculateBounds();
+						_uiDisplay.sharedMesh = _mesh;
 					}else{
-						meshFilter.sharedMesh = _mesh;
-						renderer.sharedMaterial = currentTextureAtlas;
+						if(_renderer.enabled){
+							_mesh.RecalculateBounds();
+						}
+						_meshFilter.sharedMesh = _mesh;
+						_renderer.sharedMaterial = currentTextureAtlas;
 					}
 
                     _updateVisible();
@@ -354,12 +356,12 @@ namespace DragonBones
 
             _renderDisplay.SetActive(false);
 			if(_proxy.isUGUI){
-				uiDisplay.material = null;
-				uiDisplay.texture = null;
-				uiDisplay.sharedMesh = null;
+				_uiDisplay.material = null;
+				_uiDisplay.texture = null;
+				_uiDisplay.sharedMesh = null;
 			}else{
-				meshFilter.sharedMesh = null;
-				renderer.sharedMaterial = null;
+				_meshFilter.sharedMesh = null;
+				_renderer.sharedMaterial = null;
 			}
             _helpVector3.x = 0.0f;
             _helpVector3.y = 0.0f;
@@ -423,7 +425,7 @@ namespace DragonBones
                 }
 
                 _mesh.vertices = _vertices;
-                _mesh.RecalculateBounds();
+				if(_renderer && _renderer.enabled) _mesh.RecalculateBounds();
             }
             else if (hasFFD)
             {
@@ -438,7 +440,7 @@ namespace DragonBones
                 }
 
                 _mesh.vertices = _vertices;
-                _mesh.RecalculateBounds();
+				if(_renderer && _renderer.enabled)  _mesh.RecalculateBounds();
 
                 // Modify flip.
                 _transformDirty = true;
@@ -558,7 +560,7 @@ namespace DragonBones
                         }
 
                         _mesh.vertices = vertices;
-                        _mesh.RecalculateBounds();
+						if(_renderer && _renderer.enabled) _mesh.RecalculateBounds();
                     }
                 }
 

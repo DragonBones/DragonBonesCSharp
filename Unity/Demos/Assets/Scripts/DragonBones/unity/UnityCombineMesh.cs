@@ -62,7 +62,10 @@ namespace DragonBones
 				return;
 			}
 			_mesh = new Mesh();
-			Init();
+			_mesh.MarkDynamic();
+			if(_unityArmature.armature!=null){
+				UpdateMesh();
+			}
 		}
 
 		void Init(){
@@ -106,9 +109,7 @@ namespace DragonBones
 			}
 		}
 
-		void LateUpdate () {
-			if(_unityArmature ==null || _unityArmature.armature==null) return;
-
+		void UpdateMesh(){
 			#if UNITY_EDITOR
 			Init();
 			#endif
@@ -127,6 +128,17 @@ namespace DragonBones
 				mats.Add(mat);
 			}
 			meshRenderer.sharedMaterials = mats.ToArray();
+		}
+
+		void LateUpdate () {
+			if(_unityArmature ==null || _unityArmature.armature==null) return;
+			#if UNITY_EDITOR
+			UpdateMesh();
+			#else
+			if(_unityArmature.animation.isPlaying){
+				UpdateMesh();
+			}
+			#endif
 		}
 
 		#if UNITY_EDITOR
