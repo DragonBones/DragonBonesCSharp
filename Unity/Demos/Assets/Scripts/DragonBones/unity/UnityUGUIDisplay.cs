@@ -4,6 +4,7 @@ using UnityEngine.UI;
 
 namespace DragonBones
 {
+	[DisallowMultipleComponent]
 	[ExecuteInEditMode,RequireComponent(typeof(CanvasRenderer), typeof(RectTransform))]
 	public class UnityUGUIDisplay : MaskableGraphic {
 

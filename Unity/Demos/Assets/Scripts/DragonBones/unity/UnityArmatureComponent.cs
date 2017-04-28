@@ -9,7 +9,7 @@ namespace DragonBones
     /**
      * @inheritDoc
      */
-	[ExecuteInEditMode]
+	[ExecuteInEditMode,DisallowMultipleComponent]
     public class UnityArmatureComponent : UnityEventDispatcher<EventObject>, IArmatureProxy
     {
         private bool _disposeProxy = true;

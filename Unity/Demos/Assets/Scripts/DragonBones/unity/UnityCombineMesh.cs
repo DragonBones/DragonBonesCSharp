@@ -106,7 +106,7 @@ namespace DragonBones
 			}
 		}
 
-		void Update () {
+		void LateUpdate () {
 			if(_unityArmature ==null || _unityArmature.armature==null) return;
 
 			#if UNITY_EDITOR

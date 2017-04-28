@@ -8,6 +8,7 @@ namespace DragonBones
      * Unity 插槽。
      * @version DragonBones 3.0
      */
+	[DisallowMultipleComponent]
     public class UnitySlot : Slot
     {
         private static readonly int[] TRIANGLES = { 0, 1, 2, 0, 2, 3 };
