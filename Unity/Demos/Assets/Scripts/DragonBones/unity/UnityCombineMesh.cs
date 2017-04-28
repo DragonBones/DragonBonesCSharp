@@ -83,10 +83,7 @@ namespace DragonBones
 		}
 
 		void CollectMesh(Armature armature,List<CombineInstance> combines,Dictionary<Material,bool> matKV){
-			List<Slot> slots = new List<Slot>(armature.GetSlots());
-			slots.Sort(delegate(Slot x, Slot y) {
-				return x._zOrder-y._zOrder;
-			});
+			List<Slot> slots = (armature.eventDispatcher as UnityArmatureComponent).sortedSlots;
 			foreach(Slot slot in slots){
 				UnitySlot us = slot as UnitySlot;
 				var currentTextureData = us.currentTextureAtlasData;

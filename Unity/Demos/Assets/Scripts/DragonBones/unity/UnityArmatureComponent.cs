@@ -174,6 +174,16 @@ namespace DragonBones
 		public bool flipX = false;
 		public bool flipY = false;
 
+		private List<Slot> _sortedSlots = null;
+		public List<Slot> sortedSlots{
+			get{
+				if(_sortedSlots==null){
+					_sortedSlots = new List<Slot>(_armature.GetSlots());
+				}
+				return _sortedSlots;
+			}
+		}
+
         /**
          * @private
          */
@@ -200,14 +210,14 @@ namespace DragonBones
         }
 
 		void LateUpdate(){
-			if(isUGUI && zorderIsDirty){
-				List<Slot> slots = new List<Slot>(_armature.GetSlots());
-				slots.Sort(delegate(Slot x, Slot y) {
+			if(zorderIsDirty){
+				_sortedSlots = new List<Slot>(_armature.GetSlots());
+				_sortedSlots.Sort(delegate(Slot x, Slot y) {
 					return x._zOrder-y._zOrder;
 				});
-				for (int i=0 ; i<slots.Count ;++i )
+				for (int i=0 ; i<_sortedSlots.Count ;++i )
 				{
-					Slot slot = slots[i];
+					Slot slot = _sortedSlots[i];
 					var display = slot.display as GameObject;
 					if (display != null)
 					{
