@@ -87,13 +87,9 @@ namespace DragonBones
 			foreach(Slot slot in slots){
 				UnitySlot us = slot as UnitySlot;
 				var currentTextureData = us.currentTextureAtlasData;
-
-				#if UNITY_EDITOR
 				if(currentTextureData!=null && currentTextureData.texture){
 					matKV[currentTextureData.texture] = true;
 				}
-				#endif
-
 				if(us!=null && us.mesh!=null){
 					GameObject go = us.renderDisplay;
 					if(go && go.activeSelf){
@@ -126,13 +122,11 @@ namespace DragonBones
 			_mesh.RecalculateBounds();
 			meshFilter.sharedMesh = _mesh;
 
-			#if UNITY_EDITOR
 			List<Material> mats = new List<Material>();
 			foreach(Material mat in matKV.Keys){
 				mats.Add(mat);
 			}
 			meshRenderer.sharedMaterials = mats.ToArray();
-			#endif
 		}
 
 		#if UNITY_EDITOR
