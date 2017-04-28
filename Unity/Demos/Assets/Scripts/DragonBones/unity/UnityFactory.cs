@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace DragonBones
 {
@@ -62,7 +65,7 @@ namespace DragonBones
 			if (textureAtlasData != null)
 			{
 				if(textureAtlas!=null){
-					if((textureAtlas as Material).name.Equals(defaultUIShaderName)){
+					if((textureAtlas as Material).name.IndexOf("UI_Mat")>-1){
 						(textureAtlasData as UnityTextureAtlasData).uiTexture = textureAtlas as Material;
 					}else{
 						(textureAtlasData as UnityTextureAtlasData).texture = textureAtlas as Material;
@@ -227,21 +230,51 @@ namespace DragonBones
          */
 		protected void _refreshTextureAtlas(UnityTextureAtlasData textureAtlasData,bool isUGUI)
         {
+			Material material = null;
 			if(isUGUI && textureAtlasData.uiTexture == null){
-				var textureAtlas = Resources.Load<Texture2D>(textureAtlasData.imagePath);
-				Shader shader = Shader.Find(defaultUIShaderName);
-				var material = new Material(shader);
-				material.mainTexture = textureAtlas;
+				material = Resources.Load<Material>(textureAtlasData.imagePath+"_UI_Mat");
+				if(material==null || material.mainTexture==null){
+					var textureAtlas = Resources.Load<Texture2D>(textureAtlasData.imagePath);
+					Shader shader = Shader.Find(defaultUIShaderName);
+					material = new Material(shader);
+					material.name = textureAtlas.name+"_UI_Mat";
+					material.mainTexture = textureAtlas;
+					textureAtlasData.width = textureAtlas.width;
+					textureAtlasData.height = textureAtlas.height;
+					textureAtlasData._disposeTexture = true;
+					#if UNITY_EDITOR
+					if(!Application.isPlaying){
+						string path = AssetDatabase.GetAssetPath(textureAtlas);
+						path = path.Substring(0,path.Length-4);
+						AssetDatabase.CreateAsset(material,path+"_UI_Mat.mat");
+						AssetDatabase.SaveAssets();
+					}
+					#endif
+				}
 				textureAtlasData.uiTexture = material;
-				textureAtlasData._disposeTexture = true;
 			}
 			else if(!isUGUI && textureAtlasData.texture == null){
-				var textureAtlas = Resources.Load<Texture2D>(textureAtlasData.imagePath);
-				Shader shader = Shader.Find(defaultShaderName);
-				var material = new Material(shader);
-				material.mainTexture = textureAtlas;
+				material = Resources.Load<Material>(textureAtlasData.imagePath+"_Mat");
+				if(material==null || material.mainTexture==null)
+				{
+					var textureAtlas = Resources.Load<Texture2D>(textureAtlasData.imagePath);
+					Shader shader = Shader.Find(defaultShaderName);
+					material = new Material(shader);
+					material.name = textureAtlas.name+"_Mat";
+					material.mainTexture = textureAtlas;
+					textureAtlasData.width = textureAtlas.width;
+					textureAtlasData.height = textureAtlas.height;
+					textureAtlasData._disposeTexture = true;
+					#if UNITY_EDITOR
+					if(!Application.isPlaying){
+						string path = AssetDatabase.GetAssetPath(textureAtlas);
+						path = path.Substring(0,path.Length-4);
+						AssetDatabase.CreateAsset(material,path+"_Mat.mat");
+						AssetDatabase.SaveAssets();
+					}
+					#endif
+				}
 				textureAtlasData.texture = material;
-				textureAtlasData._disposeTexture = true;
 			}
         }
         /**
