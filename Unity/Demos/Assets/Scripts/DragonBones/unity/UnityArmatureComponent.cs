@@ -210,7 +210,7 @@ namespace DragonBones
         }
 
 		void LateUpdate(){
-			if(zorderIsDirty){
+			if(zorderIsDirty && _armature!=null){
 				_sortedSlots = new List<Slot>(_armature.GetSlots());
 				_sortedSlots.Sort(delegate(Slot x, Slot y) {
 					return x._zOrder-y._zOrder;
