@@ -407,6 +407,7 @@ namespace DragonBones
                         _updateParameters();
 
                         _armatureComponent.gameObject.name = armatureName;
+						_armatureComponent.zorderIsDirty = true;
 
                         EditorUtility.SetDirty(_armatureComponent);
 						if (!Application.isPlaying && !_isPrefab()){
@@ -516,7 +517,14 @@ namespace DragonBones
 
                 EditorGUILayout.Space();
             }
-
+			if(!Application.isPlaying && !_armatureComponent.isUGUI){
+				UnityCombineMesh ucm = _armatureComponent.gameObject.GetComponent<UnityCombineMesh>();
+				if(!ucm) {
+					if(GUILayout.Button("Add Mesh Combine",GUILayout.Height(20))){
+						ucm = _armatureComponent.gameObject.AddComponent<UnityCombineMesh>();
+					}
+				}
+			}
             if (!EditorApplication.isPlayingOrWillChangePlaymode && Selection.activeObject == _armatureComponent.gameObject)
             {
                 EditorUtility.SetDirty(_armatureComponent);

@@ -20,6 +20,20 @@ namespace DragonBones
         private Mesh _mesh;
         private Vector2[] _uvs;
         private Vector3[] _vertices;
+
+		public Mesh mesh{
+			get { return _mesh;}
+		}
+		public UnityTextureAtlasData currentTextureAtlasData{
+			get{ 
+				if(_textureData==null || _textureData.parent==null) return null;
+				return _textureData.parent as UnityTextureAtlasData;
+			}
+		}
+		public GameObject renderDisplay{
+			get{ return _renderDisplay; }
+		}
+
         /**
          * @private
          */
