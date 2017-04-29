@@ -173,6 +173,9 @@ namespace DragonBones
 		public bool zorderIsDirty = false;
 		public bool flipX = false;
 		public bool flipY = false;
+		public GameObject slotsRoot;
+		public GameObject bonesRoot;
+		public List<UnityBone> unityBones = null;
 
 		private List<Slot> _sortedSlots = null;
 		public List<Slot> sortedSlots{
@@ -189,6 +192,15 @@ namespace DragonBones
          */
         void Awake()
         {
+			if(slotsRoot==null){
+				GameObject go = new GameObject("Slots");
+				go.transform.SetParent(transform);
+				go.transform.localPosition = Vector3.zero;
+				go.transform.localRotation = Quaternion.identity;
+				go.transform.localScale = Vector3.one;
+				slotsRoot = go;
+				go.hideFlags = HideFlags.NotEditable;
+			}
 			zorderIsDirty = true;
             var dragonBonesData = LoadData(dragonBonesJSON, textureAtlasJSON);
 
@@ -206,6 +218,7 @@ namespace DragonBones
                 {
                     _armature.animation.Play(animationName);
                 }
+				CollectBones();
             }
         }
 
@@ -225,6 +238,13 @@ namespace DragonBones
 					}
 				}
 				zorderIsDirty = false;
+			}
+			if(unityBones!=null){
+				int len = unityBones.Count;
+				for(int i=0;i<len;++i){
+					UnityBone bone = unityBones[i];
+					if(bone) bone._Update();
+				}
 			}
 		}
 
@@ -265,5 +285,56 @@ namespace DragonBones
 
             return dragonBonesData;
         }
+
+
+		public void CollectBones(){
+			if(unityBones!=null )
+			{
+				foreach(UnityBone unityBone in unityBones){
+					foreach(Bone bone in armature.GetBones()){
+						if(unityBone.name.Equals(bone.name)){
+							unityBone._bone = bone;
+							unityBone._proxy=this;
+						}
+					}
+				}
+			}
+		}
+		public void ShowBones(){
+			RemoveBones();
+			if(bonesRoot==null){
+				GameObject go = new GameObject("Bones");
+				go.transform.SetParent(transform);
+				go.transform.localPosition = Vector3.zero;
+				go.transform.localRotation = Quaternion.identity;
+				go.transform.localScale = Vector3.one;
+				bonesRoot = go;
+				go.hideFlags = HideFlags.NotEditable;
+			}
+			if(armature!=null)
+			{
+				unityBones = new List<UnityBone>();
+				foreach(Bone bone in armature.GetBones()){
+					GameObject go = new GameObject(bone.name);
+					UnityBone ub = go.AddComponent<UnityBone> ();
+					ub._bone = bone;
+					ub._proxy = this;
+					unityBones.Add(ub);
+
+					go.transform.SetParent(bonesRoot.transform);
+				}
+				foreach(UnityBone bone in unityBones){
+					bone.GetParentGameObject();
+				}
+			}
+		}
+		public void RemoveBones(){
+			if(unityBones!=null){
+				unityBones = null;
+			}
+			if(bonesRoot){
+				DestroyImmediate(bonesRoot);
+			}
+		}
     }
 }

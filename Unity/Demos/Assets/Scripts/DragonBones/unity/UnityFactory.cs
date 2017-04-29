@@ -130,7 +130,8 @@ namespace DragonBones
             DragonBones.ResizeList(displayList, skinSlotData.displays.Count, null);
 
             var armatureDisplay = armature.display as GameObject;
-            var transform = armatureDisplay.transform.Find(skinSlotData.slot.name);
+			var slotsRoot = armatureDisplay.GetComponent<UnityArmatureComponent>().slotsRoot.transform;
+			var transform = slotsRoot.Find(skinSlotData.slot.name);
             var gameObject = transform == null ? null : transform.gameObject;
             if (gameObject == null)
             {
@@ -178,7 +179,7 @@ namespace DragonBones
 
                     case DisplayType.Armature:
                         var childDisplayName = slotData.name + " (" + displayData.path + ")"; //
-                        var childTransform = armatureDisplay.transform.Find(childDisplayName);
+						var childTransform = slotsRoot.Find(childDisplayName);
                         var childArmature = childTransform == null ?
                             BuildArmature(displayData.path, dataPackage.dataName) :
                             BuildArmatureComponent(displayData.path, dataPackage.dataName, null, dataPackage.textureAtlasName, childTransform.gameObject).armature;

@@ -334,6 +334,7 @@ namespace DragonBones
                 {
                     _armatureComponent.animation.Play(_armatureComponent.animationName);
                 }
+				_armatureComponent.CollectBones();
             }
 
             // Update hideFlags.
@@ -518,14 +519,32 @@ namespace DragonBones
 
                 EditorGUILayout.Space();
             }
-			if(!Application.isPlaying && !_armatureComponent.isUGUI){
-				UnityCombineMesh ucm = _armatureComponent.gameObject.GetComponent<UnityCombineMesh>();
-				if(!ucm) {
-					if(GUILayout.Button("Add Mesh Combine",GUILayout.Height(20))){
-						ucm = _armatureComponent.gameObject.AddComponent<UnityCombineMesh>();
+
+			if(_armatureComponent.armature!=null && _armatureComponent.armature.parent==null)
+			{
+				EditorGUILayout.BeginHorizontal();
+				if(!Application.isPlaying){
+					if(_armatureComponent.unityBones!=null && _armatureComponent.bonesRoot!=null){
+						if(GUILayout.Button("Remove Bones",GUILayout.Height(20))){
+							_armatureComponent.RemoveBones();
+						}
+					}else{
+						if(GUILayout.Button("Show Bones",GUILayout.Height(20))){
+							_armatureComponent.ShowBones();
+						}
 					}
 				}
+				if(!Application.isPlaying && !_armatureComponent.isUGUI){
+					UnityCombineMesh ucm = _armatureComponent.gameObject.GetComponent<UnityCombineMesh>();
+					if(!ucm) {
+						if(GUILayout.Button("Add Mesh Combine",GUILayout.Height(20))){
+							ucm = _armatureComponent.gameObject.AddComponent<UnityCombineMesh>();
+						}
+					}
+				}
+				EditorGUILayout.EndHorizontal();
 			}
+
             if (!EditorApplication.isPlayingOrWillChangePlaymode && Selection.activeObject == _armatureComponent.gameObject)
             {
                 EditorUtility.SetDirty(_armatureComponent);

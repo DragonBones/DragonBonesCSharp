@@ -98,7 +98,7 @@ namespace DragonBones
         override protected void _addDisplay()
         {
             _proxy = _armature.eventDispatcher as UnityArmatureComponent;
-            var container = _armature.display as GameObject;
+			var container = _proxy.slotsRoot;
             if (_renderDisplay.transform.parent != container.transform)
             {
 				_renderDisplay.transform.SetParent(container.transform);
@@ -112,7 +112,7 @@ namespace DragonBones
          */
         override protected void _replaceDisplay(object value)
         {
-            var container = _armature.display as GameObject;
+			var container = _proxy.slotsRoot;
             var prevDisplay = value as GameObject;
 			int index = prevDisplay.transform.GetSiblingIndex();
             prevDisplay.hideFlags = HideFlags.HideInHierarchy;
@@ -137,7 +137,6 @@ namespace DragonBones
          */
         override protected void _updateZOrder()
         {
-            // var container = _armature.display as GameObject;
             _helpVector3.Set(_renderDisplay.transform.localPosition.x, _renderDisplay.transform.localPosition.y, -_zOrder * (_proxy.zSpace + 0.001f));
 			if(_renderDisplay.transform.localPosition.z!=_helpVector3.z){
 				_proxy.zorderIsDirty=true;
