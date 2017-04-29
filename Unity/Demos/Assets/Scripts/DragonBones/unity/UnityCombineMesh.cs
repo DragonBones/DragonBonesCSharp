@@ -85,26 +85,34 @@ namespace DragonBones
 			}
 		}
 
-		void CollectMesh(Armature armature,List<CombineInstance> combines,Dictionary<Material,bool> matKV){
+		void CollectMesh(Armature armature,List<List<CombineInstance>> combines,List<Material> mats){
 			List<Slot> slots = (armature.eventDispatcher as UnityArmatureComponent).sortedSlots;
 			foreach(Slot slot in slots){
 				UnitySlot us = slot as UnitySlot;
-				var currentTextureData = us.currentTextureAtlasData;
-				if(currentTextureData!=null && currentTextureData.texture){
-					matKV[currentTextureData.texture] = true;
-				}
-				if(us!=null && us.mesh!=null){
-					GameObject go = us.renderDisplay;
-					if(go && go.activeSelf){
-						CombineInstance com = new CombineInstance();
-						com.mesh = us.mesh;
-						com.transform = transform.worldToLocalMatrix * go.transform.localToWorldMatrix;
-						combines.Add(com);
-					}
+				if(slot.childArmature!=null){
+					CollectMesh(slot.childArmature,combines,mats);
 				}
 
-				if(slot.childArmature!=null){
-					CollectMesh(slot.childArmature,combines,matKV);
+				var currentTextureData = us.currentTextureAtlasData;
+
+				if(currentTextureData!=null && currentTextureData.texture){
+					if(mats.Count==0 || mats[mats.Count-1] != currentTextureData.texture )
+					{
+						mats.Add(currentTextureData.texture);
+					}
+					if(combines.Count<mats.Count) {
+						combines.Add(new List<CombineInstance>());
+					}
+
+					if(us!=null && us.mesh!=null){
+						GameObject go = us.renderDisplay;
+						if(go && go.activeSelf){
+							CombineInstance com = new CombineInstance();
+							com.mesh = us.mesh;
+							com.transform = transform.worldToLocalMatrix * go.transform.localToWorldMatrix;
+							combines[mats.Count-1].Add(com);
+						}
+					}
 				}
 			}
 		}
@@ -114,19 +122,28 @@ namespace DragonBones
 			Init();
 			#endif
 
-			Dictionary<Material,bool> matKV = new Dictionary<Material,bool>();
-			List<CombineInstance> combines = new List<CombineInstance>();
-			CollectMesh(_unityArmature.armature,combines,matKV);
-
 			_mesh.Clear();
-			_mesh.CombineMeshes(combines.ToArray());
-			_mesh.RecalculateBounds();
-			meshFilter.sharedMesh = _mesh;
 
 			List<Material> mats = new List<Material>();
-			foreach(Material mat in matKV.Keys){
-				mats.Add(mat);
+			List<List<CombineInstance>> combines =  new List<List<CombineInstance>>();
+			CollectMesh(_unityArmature.armature,combines,mats);
+			int len = mats.Count;
+			if(len>1){
+				CombineInstance[] newCombines = new CombineInstance[len];
+				for(int i=0;i<len;++i){
+					Mesh mesh = new Mesh();
+					mesh.CombineMeshes(combines[i].ToArray(),true,true);
+
+					CombineInstance combine = new CombineInstance();
+					combine.mesh = mesh;
+					newCombines[i] = combine;
+				}
+				_mesh.CombineMeshes(newCombines,false,false);
+			}else{
+				_mesh.CombineMeshes(combines[0].ToArray());
 			}
+			_mesh.RecalculateBounds();
+			meshFilter.sharedMesh = _mesh;
 			meshRenderer.sharedMaterials = mats.ToArray();
 		}
 
