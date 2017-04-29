@@ -98,7 +98,7 @@ namespace DragonBones
 				texImporter.textureType = TextureImporterType.Advanced;
 				texImporter.textureFormat = TextureImporterFormat.AutomaticTruecolor;
 				texImporter.mipmapEnabled = false;
-				texImporter.alphaIsTransparency = false;
+				texImporter.alphaIsTransparency = true;
 				texImporter.spriteImportMode = SpriteImportMode.None;
 				texImporter.anisoLevel = 0;
 				texImporter.wrapMode = TextureWrapMode.Clamp;
