@@ -233,7 +233,7 @@ namespace DragonBones
 			Material material = null;
 			if(isUGUI && textureAtlasData.uiTexture == null){
 				material = Resources.Load<Material>(textureAtlasData.imagePath+"_UI_Mat");
-				if(material==null || material.mainTexture==null){
+				if(material==null){
 					var textureAtlas = Resources.Load<Texture2D>(textureAtlasData.imagePath);
 					Shader shader = Shader.Find(defaultUIShaderName);
 					material = new Material(shader);
@@ -255,7 +255,7 @@ namespace DragonBones
 			}
 			else if(!isUGUI && textureAtlasData.texture == null){
 				material = Resources.Load<Material>(textureAtlasData.imagePath+"_Mat");
-				if(material==null || material.mainTexture==null)
+				if(material==null)
 				{
 					var textureAtlas = Resources.Load<Texture2D>(textureAtlasData.imagePath);
 					Shader shader = Shader.Find(defaultShaderName);
