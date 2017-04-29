@@ -239,8 +239,8 @@ namespace DragonBones
 					material = new Material(shader);
 					material.name = textureAtlas.name+"_UI_Mat";
 					material.mainTexture = textureAtlas;
-					textureAtlasData.width = textureAtlas.width;
-					textureAtlasData.height = textureAtlas.height;
+					if(textureAtlasData.width<2) textureAtlasData.width = textureAtlas.width;
+					if(textureAtlasData.height<2) textureAtlasData.height = textureAtlas.height;
 					textureAtlasData._disposeTexture = true;
 					#if UNITY_EDITOR
 					if(!Application.isPlaying){
@@ -262,8 +262,8 @@ namespace DragonBones
 					material = new Material(shader);
 					material.name = textureAtlas.name+"_Mat";
 					material.mainTexture = textureAtlas;
-					textureAtlasData.width = textureAtlas.width;
-					textureAtlasData.height = textureAtlas.height;
+					if(textureAtlasData.width<2) textureAtlasData.width = textureAtlas.width;
+					if(textureAtlasData.height<2) textureAtlasData.height = textureAtlas.height;
 					textureAtlasData._disposeTexture = true;
 					#if UNITY_EDITOR
 					if(!Application.isPlaying){
@@ -520,7 +520,16 @@ namespace DragonBones
                 return null;
             }
 
-            var textureAtlasData = ParseTextureAtlasData((Dictionary<string, object>)MiniJSON.Json.Deserialize(textureAtlasJSON.text), null, name, scale) as UnityTextureAtlasData;
+			Dictionary<string, object> textureJSONData = (Dictionary<string, object>)MiniJSON.Json.Deserialize(textureAtlasJSON.text);
+			var textureAtlasData = ParseTextureAtlasData(textureJSONData, null, name, scale) as UnityTextureAtlasData;
+
+			if(textureJSONData.ContainsKey("width")){
+				textureAtlasData.width = float.Parse(textureJSONData["width"].ToString());
+			}
+			if(textureJSONData.ContainsKey("height")){
+				textureAtlasData.height = float.Parse(textureJSONData["height"].ToString());
+			}
+
             var path = _textureAtlasPath;
 
             var index = path.LastIndexOf("Resources");
@@ -529,7 +538,7 @@ namespace DragonBones
                 path = path.Substring(index + 10);
             }
 
-            index = path.LastIndexOf("/");
+            index = path.LastIndexOf("/"); 
             if (index > 0)
             {
                 textureAtlasData.imagePath = path.Substring(0, index + 1) + textureAtlasData.imagePath;
