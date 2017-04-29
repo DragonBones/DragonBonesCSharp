@@ -437,7 +437,11 @@ namespace DragonBones
             var dragonBonesData = LoadDragonBonesData(Resources.Load<TextAsset>(path), name);
             if (dragonBonesData != null)
             {
-                _pathDragonBonesDataMap[path] = dragonBonesData;
+				#if UNITY_EDITOR
+				if(Application.isPlaying) _pathDragonBonesDataMap[path] = dragonBonesData;
+				#else
+				_pathDragonBonesDataMap[path] = dragonBonesData;
+				#endif
             }
 
             return dragonBonesData;
@@ -504,7 +508,11 @@ namespace DragonBones
 				textureAtlasData = LoadTextureAtlasData(Resources.Load<TextAsset>(path), name, scale,isUGUI);
                 if (textureAtlasData != null)
                 {
-                    _pathTextureAtlasDataMap[path] = textureAtlasData;
+					#if UNITY_EDITOR
+					if(Application.isPlaying) _pathTextureAtlasDataMap[path] = textureAtlasData;
+					#else
+					_pathTextureAtlasDataMap[path] = textureAtlasData;
+					#endif
                 }
             }
 
