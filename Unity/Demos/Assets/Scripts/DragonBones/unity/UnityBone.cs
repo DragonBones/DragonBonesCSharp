@@ -27,8 +27,12 @@ namespace DragonBones
 					UnityEngine.Transform child = transform.parent.GetChild(i);
 					if(child.name.Equals(_bone.parent.name)){
 						_parent = child.gameObject;
+						break;
 					}
 				}
+//				if(_parent){
+//					transform.SetParent(_parent.transform);
+//				}
 			}
 			return _parent;
 		}
@@ -36,6 +40,9 @@ namespace DragonBones
 		internal void _Update(){
 			if(_bone!=null && _proxy!=null && _proxy.armature!=null)
 			{
+//				GameObject parent = GetParentGameObject();
+//				if(parent) transform.SetParent(_proxy.bonesRoot.transform);
+
 				Armature armature = _proxy.armature;
 
 				var flipX = armature.flipX;
@@ -82,7 +89,10 @@ namespace DragonBones
 				_helpVector3.z = 1f;
 
 				transform.localScale = _helpVector3;
+
+//				if(parent) transform.SetParent(parent.transform);
 			}
 		}
+
 	}
 }
