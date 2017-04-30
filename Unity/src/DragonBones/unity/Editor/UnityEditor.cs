@@ -41,6 +41,49 @@ namespace DragonBones
             }
         }
 
+		[MenuItem("GameObject/DragonBones/Armature Object(UGUI)", false, 11)]
+		private static void _createUGUIArmatureObjectMenuItem()
+		{
+			var armatureComponent = _createEmptyObject(_getSelectionParentTransform());
+			armatureComponent.isUGUI=true;
+			if(armatureComponent.GetComponentInParent<Canvas>()==null){
+				var canvas = GameObject.Find("/Canvas");
+				if(canvas){
+					armatureComponent.transform.SetParent(canvas.transform);
+				}
+			}
+			armatureComponent.transform.localScale = Vector2.one*100f;
+			armatureComponent.transform.localPosition = Vector3.zero;
+		}
+
+		[MenuItem("Assets/Create/DragonBones/Armature Object(UGUI)", true)]
+		private static bool _createUGUIArmatureObjectFromJSONValidateMenuItem()
+		{
+			return _getDragonBonesJSONPaths().Count > 0;
+		}
+
+		[MenuItem("Assets/Create/DragonBones/Armature Object(UGUI)", false, 11)]
+		private static void _createNUGUIArmatureObjectFromJSOIMenuItem()
+		{
+			var parentTransform = _getSelectionParentTransform();
+			foreach (var dragonBonesJSONPath in _getDragonBonesJSONPaths())
+			{
+				var armatureComponent = _createEmptyObject(parentTransform);
+				armatureComponent.isUGUI=true;
+				if(armatureComponent.GetComponentInParent<Canvas>()==null){
+					var canvas = GameObject.Find("/Canvas");
+					if(canvas){
+						armatureComponent.transform.SetParent(canvas.transform);
+					}
+				}
+				armatureComponent.transform.localScale = Vector2.one*100f;
+				armatureComponent.transform.localPosition = Vector3.zero;
+				var dragonBonesJSON = AssetDatabase.LoadMainAssetAtPath(dragonBonesJSONPath) as TextAsset;
+
+				_changeDragonBonesData(armatureComponent, dragonBonesJSON);
+			}
+		}
+
         private static List<string> _getDragonBonesJSONPaths()
         {
             var dragonBonesJSONPaths = new List<string>();
@@ -65,7 +108,7 @@ namespace DragonBones
         {
             var gameObject = new GameObject("New Armature Object", typeof(UnityArmatureComponent));
             var armatureComponent = gameObject.GetComponent<UnityArmatureComponent>();
-            gameObject.transform.SetParent(parentTransform, false);
+			gameObject.transform.SetParent(parentTransform, false);
 
             //
             EditorUtility.FocusProjectWindow();
@@ -81,6 +124,7 @@ namespace DragonBones
         {
             var folder = Directory.GetParent(filePath).ToString();
             var name = rawName != null ? rawName : filePath.Substring(0, filePath.LastIndexOf(".")).Substring(filePath.LastIndexOf("/") + 1);
+			name = name.Replace("_ske","");
             int index = 0;
             var textureAtlasName = "";
             var textureAtlasConfigFile = "";
@@ -201,10 +245,8 @@ namespace DragonBones
                 slot = _armatureComponent.armature.parent;
                 _armatureComponent.Dispose(false);
             }
-
             _armatureComponent.armatureName = armatureName;
-            _armatureComponent = UnityFactory.factory.BuildArmatureComponent(_armatureComponent.armatureName, dragonBonesName, null, null, _armatureComponent.gameObject);
-
+			_armatureComponent = UnityFactory.factory.BuildArmatureComponent(_armatureComponent.armatureName, dragonBonesName, null, null, _armatureComponent.gameObject,_armatureComponent.isUGUI);
             if (slot != null)
             {
                 slot.childArmature = _armatureComponent.armature;
@@ -253,7 +295,6 @@ namespace DragonBones
         private int _animationIndex = -1;
         private int _sortingLayerIndex = -1;
         private long _nowTime = 0;
-        private TextAsset _dragonBoneJSON = null;
         private List<string> _armatureNames = null;
         private List<string> _animationNames = null;
         private List<string> _sortingLayerNames = null;
@@ -262,7 +303,6 @@ namespace DragonBones
         void OnEnable()
         {
             _armatureComponent = target as UnityArmatureComponent;
-            _dragonBoneJSON = _armatureComponent == null ? null : _armatureComponent.dragonBonesJSON; //
 
             // 
             _nowTime = System.DateTime.Now.Ticks;
@@ -281,7 +321,7 @@ namespace DragonBones
                 var dragonBonesData = _armatureComponent.LoadData(_armatureComponent.dragonBonesJSON, _armatureComponent.textureAtlasJSON);
 
                 // Refresh texture atlas.
-                UnityFactory.factory.RefreshAllTextureAtlas();
+				UnityFactory.factory.RefreshAllTextureAtlas(_armatureComponent);
 
                 // Refresh armature.
                 _changeArmatureData(_armatureComponent, _armatureComponent.armatureName, dragonBonesData.name);
@@ -294,6 +334,7 @@ namespace DragonBones
                 {
                     _armatureComponent.animation.Play(_armatureComponent.animationName);
                 }
+				_armatureComponent.CollectBones();
             }
 
             // Update hideFlags.
@@ -318,10 +359,10 @@ namespace DragonBones
             // DragonBones Data
             EditorGUILayout.BeginHorizontal();
 
-            _dragonBoneJSON = EditorGUILayout.ObjectField("DragonBones Data", _dragonBoneJSON, typeof(TextAsset), false) as TextAsset;
+			_armatureComponent.dragonBonesJSON = EditorGUILayout.ObjectField("DragonBones Data", _armatureComponent.dragonBonesJSON, typeof(TextAsset), false) as TextAsset;
 
             var created = false;
-            if (_dragonBoneJSON != null)
+			if (_armatureComponent.dragonBonesJSON != null)
             {
                 if (_armatureComponent.armature == null)
                 {
@@ -330,30 +371,20 @@ namespace DragonBones
                         created = true;
                     }
                 }
-                else if (_armatureComponent.dragonBonesJSON != _dragonBoneJSON)
+                else
                 {
-                    if (GUILayout.Button("Change"))
+                    if (GUILayout.Button("Reload"))
                     {
                         created = true;
                     }
                 }
             }
-            else if (_armatureComponent.dragonBonesJSON != null)
-            {
-                created = true;
-            }
 
             if (created)
             {
-                var currentDragonBoneJSON = _armatureComponent.dragonBonesJSON;
-
-                if (_changeDragonBonesData(_armatureComponent, _dragonBoneJSON))
+				if (_changeDragonBonesData(_armatureComponent, _armatureComponent.dragonBonesJSON))
                 {
                     _updateParameters();
-                }
-                else
-                {
-                    _dragonBoneJSON = currentDragonBoneJSON;
                 }
             }
 
@@ -378,8 +409,12 @@ namespace DragonBones
                         _updateParameters();
 
                         _armatureComponent.gameObject.name = armatureName;
+						_armatureComponent.zorderIsDirty = true;
 
                         EditorUtility.SetDirty(_armatureComponent);
+						if (!Application.isPlaying && !_isPrefab()){
+							UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene());
+						}
                     }
                 }
 
@@ -387,16 +422,24 @@ namespace DragonBones
                 if (_animationNames != null && _animationNames.Count > 0)
                 {
                     EditorGUILayout.BeginHorizontal();
-                    var animationIndex = EditorGUILayout.Popup("Animation", _animationIndex, _animationNames.ToArray());
+					List<string> anims=new List<string>(_animationNames);
+					anims.Insert(0,"<None>");
+					var animationIndex = EditorGUILayout.Popup("Animation", _animationIndex+1, anims.ToArray())-1;
                     if (animationIndex != _animationIndex)
                     {
                         _animationIndex = animationIndex;
-                        _armatureComponent.animationName = _animationNames[animationIndex];
-                        _armatureComponent.animation.Play(_armatureComponent.animationName);
-
-                        _updateParameters();
-
-                        EditorUtility.SetDirty(_armatureComponent);
+						if(animationIndex>=0){
+	                        _armatureComponent.animationName = _animationNames[animationIndex];
+							_armatureComponent.animation.Play(_armatureComponent.animationName);
+							_updateParameters();
+						}else{
+							_armatureComponent.animationName = null;
+							_armatureComponent.animation.Stop();
+						}
+						EditorUtility.SetDirty(_armatureComponent);
+						if (!Application.isPlaying && !_isPrefab()){
+							UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene());
+						}
                     }
 
                     if (_animationIndex >= 0)
@@ -416,34 +459,41 @@ namespace DragonBones
                             }
                         }
                     }
-
-                    EditorGUILayout.EndHorizontal();
+					EditorGUILayout.EndHorizontal();
                 }
 
                 EditorGUILayout.Space();
 
-                // Sorting Layer
-                _sortingLayerIndex = EditorGUILayout.Popup("Sorting Layer", _sortingLayerIndex, _sortingLayerNames.ToArray());
-                if (_sortingLayerNames[_sortingLayerIndex] != _armatureComponent.sortingLayerName)
-                {
-                    Undo.RecordObject(_armatureComponent, "Sorting Layer");
-                    _armatureComponent.sortingLayerName = _sortingLayerNames[_sortingLayerIndex];
-                    EditorUtility.SetDirty(_armatureComponent);
-                }
+				if(!_armatureComponent.isUGUI){
+					// Sorting Layer
+					_sortingLayerIndex = EditorGUILayout.Popup("Sorting Layer", _sortingLayerIndex, _sortingLayerNames.ToArray());
+					if (_sortingLayerNames[_sortingLayerIndex] != _armatureComponent.sortingLayerName)
+					{
+						Undo.RecordObject(_armatureComponent, "Sorting Layer");
+						_armatureComponent.sortingLayerName = _sortingLayerNames[_sortingLayerIndex];
+						EditorUtility.SetDirty(_armatureComponent);
+						if (!Application.isPlaying && !_isPrefab()){
+							UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene());
+						}
+					}
 
-                // Sorting Order
-                var sortingOrder = EditorGUILayout.IntField("Order in Layer", _armatureComponent.sortingOrder);
-                if (sortingOrder != _armatureComponent.sortingOrder)
-                {
-                    Undo.RecordObject(_armatureComponent, "Edit Sorting Order");
-                    _armatureComponent.sortingOrder = sortingOrder;
-                    EditorUtility.SetDirty(_armatureComponent);
-                }
+					// Sorting Order
+					var sortingOrder = EditorGUILayout.IntField("Order in Layer", _armatureComponent.sortingOrder);
+					if (sortingOrder != _armatureComponent.sortingOrder)
+					{
+						Undo.RecordObject(_armatureComponent, "Edit Sorting Order");
+						_armatureComponent.sortingOrder = sortingOrder;
+						EditorUtility.SetDirty(_armatureComponent);
+						if (!Application.isPlaying && !_isPrefab()){
+							UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene());
+						}
+					}
 
-                // ZSpace
-                EditorGUILayout.BeginHorizontal();
-                _armatureComponent.zSpace = EditorGUILayout.Slider("Z Space", _armatureComponent.zSpace, 0.0f, 0.2f);
-                EditorGUILayout.EndHorizontal();
+					// ZSpace
+					EditorGUILayout.BeginHorizontal();
+					_armatureComponent.zSpace = EditorGUILayout.Slider("Z Space", _armatureComponent.zSpace, 0.0f, 0.2f);
+					EditorGUILayout.EndHorizontal();
+				}
 
                 // TimeScale
                 EditorGUILayout.BeginHorizontal();
@@ -451,14 +501,54 @@ namespace DragonBones
                 EditorGUILayout.EndHorizontal();
 
                 // Flip
-                /*EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.PrefixLabel("Flip");
-                _armatureComponent.flipX = GUILayout.Toggle(_armatureComponent.flipX, "X");
-                _armatureComponent.flipY = GUILayout.Toggle(_armatureComponent.flipY, "Y");
-                EditorGUILayout.EndHorizontal();*/
+                EditorGUILayout.BeginHorizontal();
+				EditorGUILayout.PrefixLabel("Flip");
+				bool flipX = _armatureComponent.flipX;
+				bool flipY = _armatureComponent.flipY;
+				_armatureComponent.flipX = GUILayout.Toggle(_armatureComponent.flipX, "X",GUILayout.Width(30));
+				_armatureComponent.flipY = GUILayout.Toggle(_armatureComponent.flipY, "Y",GUILayout.Width(30));
+				_armatureComponent.armature.flipX = _armatureComponent.flipX;
+				_armatureComponent.armature.flipY = _armatureComponent.flipY;
+				if(_armatureComponent.flipX!=flipX || _armatureComponent.flipY!=flipY){
+					EditorUtility.SetDirty(_armatureComponent);
+					if (!Application.isPlaying && !_isPrefab()){
+						UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene());
+					}
+				}
+                EditorGUILayout.EndHorizontal();
+
+				//normals
+				EditorGUILayout.BeginHorizontal();
+				_armatureComponent.addNormal = EditorGUILayout.Toggle("Normals", _armatureComponent.addNormal);
+				EditorGUILayout.EndHorizontal();
 
                 EditorGUILayout.Space();
             }
+
+			if(_armatureComponent.armature!=null && _armatureComponent.armature.parent==null)
+			{
+				EditorGUILayout.BeginHorizontal();
+				if(!Application.isPlaying){
+					if(_armatureComponent.unityBones!=null && _armatureComponent.bonesRoot!=null){
+						if(GUILayout.Button("Remove Bones",GUILayout.Height(20))){
+							_armatureComponent.RemoveBones();
+						}
+					}else{
+						if(GUILayout.Button("Show Bones",GUILayout.Height(20))){
+							_armatureComponent.ShowBones();
+						}
+					}
+				}
+				if(!Application.isPlaying && !_armatureComponent.isUGUI){
+					UnityCombineMesh ucm = _armatureComponent.gameObject.GetComponent<UnityCombineMesh>();
+					if(!ucm) {
+						if(GUILayout.Button("Add Mesh Combine",GUILayout.Height(20))){
+							ucm = _armatureComponent.gameObject.AddComponent<UnityCombineMesh>();
+						}
+					}
+				}
+				EditorGUILayout.EndHorizontal();
+			}
 
             if (!EditorApplication.isPlayingOrWillChangePlaymode && Selection.activeObject == _armatureComponent.gameObject)
             {
@@ -482,14 +572,14 @@ namespace DragonBones
 
         private void _updateParameters()
         {
-            _dragonBoneJSON = _armatureComponent.dragonBonesJSON;
-
             if (_armatureComponent.armature != null)
             {
                 _armatureNames = _armatureComponent.armature.armatureData.parent.armatureNames;
                 _animationNames = _armatureComponent.armature.armatureData.animationNames;
                 _armatureIndex = _armatureNames.IndexOf(_armatureComponent.armature.name);
-                _animationIndex = _animationNames.IndexOf(_armatureComponent.armature.animation.lastAnimationName);
+				if(!string.IsNullOrEmpty(_armatureComponent.animationName)){
+					_animationIndex = _animationNames.IndexOf(_armatureComponent.animationName);
+				}
             }
             else
             {
@@ -499,5 +589,10 @@ namespace DragonBones
                 _animationIndex = -1;
             }
         }
+
+		private bool _isPrefab(){
+			return PrefabUtility.GetPrefabParent(_armatureComponent.gameObject) == null 
+				&& PrefabUtility.GetPrefabObject(_armatureComponent.gameObject) != null;
+		}
     }
 }

@@ -350,9 +350,17 @@ namespace DragonBones
 				foreach(UnityBone bone in unityBones){
 					bone.GetParentGameObject();
 				}
+				foreach (UnityArmatureComponent child in slotsRoot.GetComponentsInChildren<UnityArmatureComponent>(true))
+				{
+					child.ShowBones();
+				}
 			}
 		}
 		public void RemoveBones(){
+			foreach (UnityArmatureComponent child in slotsRoot.GetComponentsInChildren<UnityArmatureComponent>(true))
+			{
+				child.RemoveBones();
+			}
 			if(unityBones!=null){
 				unityBones = null;
 			}

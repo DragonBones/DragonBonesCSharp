@@ -19,6 +19,7 @@ namespace DragonBones
          * @version DragonBones 3.0
          */
         public Material texture;
+		public Material uiTexture;
         /**
          * @private
          */
@@ -41,8 +42,17 @@ namespace DragonBones
 #endif
             }
 
+			if (_disposeTexture && uiTexture != null)
+			{
+#if UNITY_EDITOR
+				//Object.DestroyImmediate(uiTexture);
+#else
+				Object.Destroy(uiTexture);
+#endif
+			}
             _disposeTexture = false;
             texture = null;
+			uiTexture = null;
         }
         /**
          * @private
