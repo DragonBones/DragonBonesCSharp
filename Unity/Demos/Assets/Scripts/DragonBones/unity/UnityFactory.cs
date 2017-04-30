@@ -582,5 +582,90 @@ namespace DragonBones
                 }
             }
         }
+
+		/**
+         * @language zh_CN
+         * 用外部贴图替换display贴图。
+         * @param dragonBonesName 指定的龙骨数据名称。
+         * @param armatureName 指定的骨架名称。
+         * @param slotName 指定的插槽名称。
+         * @param displayName 指定的显示对象名称。
+         * @param slot 指定的插槽实例。
+         * @param texture 新的贴图。
+         * @param material 新的材质。
+         * @param isUGUI 是否为ugui。
+         * @param displayIndex 要替换的显示对象的索引，如果未设置，则替换当前正在显示的显示对象。
+         * @version DragonBones 4.5
+         */
+		public void ReplaceSlotDisplay(string dragonBonesName, string armatureName, string slotName, string displayName, Slot slot,Texture2D texture,Material material,bool isUGUI = false ,int displayIndex = -1)
+		{
+			var dataPackage = new BuildArmaturePackage();
+			if (_fillBuildArmaturePackage(dataPackage, dragonBonesName, armatureName, null, null))
+			{
+				var slotDisplayDataSet = dataPackage.skin.GetSlot(slotName);
+				if (slotDisplayDataSet != null)
+				{
+					DisplayData prevDispalyData = null;
+					int index = 0;
+					foreach (var displayData in slotDisplayDataSet.displays)
+					{
+						if (displayData.name == displayName)
+						{
+							prevDispalyData = displayData;
+							break;
+						}
+						++index;
+					}
+					if(prevDispalyData==null){
+						return;
+					}
+
+					TextureData prevTextureData = prevDispalyData.texture;
+					UnityTextureData newTextureData = new UnityTextureData();
+					newTextureData.CopyFrom(prevTextureData);
+					newTextureData.rotated = false;
+					newTextureData.region.x = 0f;
+					newTextureData.region.y = 0f;
+					newTextureData.region.width = texture.width;
+					newTextureData.region.height = texture.height;
+					newTextureData.frame = newTextureData.region;
+					newTextureData.name = prevTextureData.name;
+					newTextureData.parent = new UnityTextureAtlasData();
+					newTextureData.parent.width = texture.width;
+					newTextureData.parent.height = texture.height;
+					if(isUGUI) (newTextureData.parent as UnityTextureAtlasData).uiTexture = material;
+					else (newTextureData.parent as UnityTextureAtlasData).texture = material;
+					material.mainTexture = texture;
+
+					DisplayData newDisplayData = new DisplayData();
+					newDisplayData.armature = prevDispalyData.armature;
+					newDisplayData.boundingBox = prevDispalyData.boundingBox;
+					newDisplayData.inheritAnimation = prevDispalyData.inheritAnimation;
+					newDisplayData.isRelativePivot = prevDispalyData.isRelativePivot;
+					newDisplayData.name = prevDispalyData.name;
+					newDisplayData.pivot.CopyFrom(prevDispalyData.pivot);
+					newDisplayData.texture = newTextureData;
+					newDisplayData.type = prevDispalyData.type;
+					newDisplayData.transform.CopyFrom(prevDispalyData.transform);
+					newDisplayData.mesh = prevDispalyData.mesh;
+					if(newDisplayData.mesh!=null && newDisplayData.mesh.uvs!=null)
+					{
+						List<float> uvs = new List<float>();
+						for(int i=0;i<newDisplayData.mesh.uvs.Count;i+=2){
+							Vector2 uv=new Vector2(newDisplayData.mesh.uvs[i],newDisplayData.mesh.uvs[i+1]);
+							Vector2 uvPos = new Vector2(newTextureData.frame.x,-newTextureData.frame.y)+ 
+								new Vector2(newTextureData.frame.width*uv.x,newTextureData.frame.height*uv.y);
+							uv.x = uvPos.x/newTextureData.frame.width;
+							uv.y = uvPos.y/newTextureData.frame.height;
+							uvs.Add(uv.x);
+							uvs.Add(uv.y);
+						}
+						newDisplayData.mesh.uvs.Clear();
+						newDisplayData.mesh.uvs.AddRange(uvs);
+					}
+					_replaceSlotDisplay(dataPackage, newDisplayData, slot, displayIndex);
+				}
+			}
+		}
     }
 }

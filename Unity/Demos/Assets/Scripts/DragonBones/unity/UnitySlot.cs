@@ -37,6 +37,9 @@ namespace DragonBones
 		public GameObject renderDisplay{
 			get{ return _renderDisplay; }
 		}
+		public UnityArmatureComponent proxy{
+			get{ return _proxy;}
+		}
 
         /**
          * @private
