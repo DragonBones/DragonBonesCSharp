@@ -331,8 +331,7 @@ namespace DragonBones
                         _mesh.vertices = _vertices; // Must set vertices before uvs.
                         _mesh.uv = _helpVector2s;
                         _mesh.triangles = TRIANGLES;
-                    }
-
+					}
 
 					if(_proxy.isUGUI){
 						_uiDisplay.material = currentTextureAtlas;
@@ -423,7 +422,7 @@ namespace DragonBones
                     _vertices[iH].y = -yG;
                 }
 
-                _mesh.vertices = _vertices;
+				_mesh.vertices = _vertices;
 				if(_renderer && _renderer.enabled) _mesh.RecalculateBounds();
             }
             else if (hasFFD)
@@ -438,12 +437,12 @@ namespace DragonBones
                     _vertices[iH].y = -yG;
                 }
 
-                _mesh.vertices = _vertices;
+				_mesh.vertices = _vertices;
 				if(_renderer && _renderer.enabled)  _mesh.RecalculateBounds();
 
                 // Modify flip.
                 _transformDirty = true;
-            }
+			}
         }
         /**
          * @private
@@ -567,8 +566,34 @@ namespace DragonBones
                 _helpVector3.y = scaleY >= 0.0f ? scaleY : -scaleY;
                 _helpVector3.z = 1.0f;
 
-                transform.localScale = _helpVector3;
+				transform.localScale = _helpVector3;
             }
+			UpdateNormal();
         }
+
+		public void UpdateNormal(){
+			if(childArmature!=null){
+				childArmature.flipX = _proxy.armature.flipX;
+				childArmature.flipY = _proxy.armature.flipY;
+				(childArmature.eventDispatcher as UnityArmatureComponent).addNormal = _proxy.addNormal;
+			}
+			if(_mesh!=null){
+				if(_proxy.addNormal){
+					var flipX = armature.flipX?1f:-1f;
+					var flipY = armature.flipY?1f:-1f;
+					float normalZ = -flipX*flipY;
+					Vector3[] normals = _mesh.normals;
+					if(normals==null||normals.Length!=_mesh.vertexCount)
+					{
+						normals = new Vector3[_mesh.vertexCount];
+					}
+					Vector3 n = new Vector3(0f,0f,normalZ);
+					for(int i=0;i<_mesh.vertexCount;++i){
+						normals[i] = n;
+					}
+					_mesh.normals = normals;
+				}
+			}
+		}
     }
 }

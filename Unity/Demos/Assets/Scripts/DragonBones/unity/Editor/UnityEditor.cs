@@ -517,6 +517,11 @@ namespace DragonBones
 				}
                 EditorGUILayout.EndHorizontal();
 
+				//normals
+				EditorGUILayout.BeginHorizontal();
+				_armatureComponent.addNormal = EditorGUILayout.Toggle("Normals", _armatureComponent.addNormal);
+				EditorGUILayout.EndHorizontal();
+
                 EditorGUILayout.Space();
             }
 

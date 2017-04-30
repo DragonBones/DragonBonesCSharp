@@ -173,6 +173,7 @@ namespace DragonBones
 		public bool zorderIsDirty = false;
 		public bool flipX = false;
 		public bool flipY = false;
+		public bool addNormal = false;
 		public GameObject slotsRoot;
 		public GameObject bonesRoot;
 		public List<UnityBone> unityBones = null;
@@ -214,6 +215,16 @@ namespace DragonBones
                 sortingOrder = sortingOrder;
 				_armature.flipX = flipX;
 				_armature.flipY = flipY;
+				if(zSpace>0){
+					foreach (var slot in _armature.GetSlots())
+					{
+						var display = slot.display as GameObject;
+						if (display != null)
+						{
+							display.transform.localPosition = new Vector3(display.transform.localPosition.x, display.transform.localPosition.y, -slot._zOrder * (_zSpace + 0.001f));
+						}
+					}
+				}
                 if (!string.IsNullOrEmpty(animationName))
                 {
                     _armature.animation.Play(animationName);
@@ -223,7 +234,20 @@ namespace DragonBones
         }
 
 		void LateUpdate(){
-			if(zorderIsDirty && _armature!=null){
+			if(_armature==null) return;
+			#if UNITY_EDITOR
+			if(!Application.isPlaying && zSpace>0f){
+				foreach (var slot in _armature.GetSlots())
+				{
+					var display = slot.display as GameObject;
+					if (display != null)
+					{
+						display.transform.localPosition = new Vector3(display.transform.localPosition.x, display.transform.localPosition.y, -slot._zOrder * (_zSpace + 0.001f));
+					}
+				}
+			}
+			#endif
+			if(zorderIsDirty){
 				_sortedSlots = new List<Slot>(_armature.GetSlots());
 				_sortedSlots.Sort(delegate(Slot x, Slot y) {
 					return x._zOrder-y._zOrder;
@@ -259,7 +283,7 @@ namespace DragonBones
                 _armature = null;
                 armature.Dispose();
             }
-            
+			unityBones = null;
             _disposeProxy = true;
             _armature = null;
         }
