@@ -124,7 +124,9 @@ namespace DragonBones
         {
             var folder = Directory.GetParent(filePath).ToString();
             var name = rawName != null ? rawName : filePath.Substring(0, filePath.LastIndexOf(".")).Substring(filePath.LastIndexOf("/") + 1);
-			name = name.Replace("_ske","");
+			if(name.LastIndexOf("_ske")>-1){
+				name = name.Substring(0,name.LastIndexOf("_ske"));
+			}
             int index = 0;
             var textureAtlasName = "";
             var textureAtlasConfigFile = "";
