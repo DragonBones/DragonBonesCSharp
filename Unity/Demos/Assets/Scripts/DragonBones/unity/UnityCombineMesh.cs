@@ -122,6 +122,7 @@ namespace DragonBones
 			Init();
 			#endif
 
+			if(_mesh==null) return;
 			_mesh.Clear();
 
 			List<Material> mats = new List<Material>();
@@ -139,8 +140,13 @@ namespace DragonBones
 					newCombines[i] = combine;
 				}
 				_mesh.CombineMeshes(newCombines,false,false);
-			}else{
+			}else if(len==1){
 				_mesh.CombineMeshes(combines[0].ToArray());
+			}
+			else
+			{
+				meshFilter.sharedMesh = _mesh;
+				return;
 			}
 			_mesh.RecalculateBounds();
 			if(_unityArmature.addNormal){
