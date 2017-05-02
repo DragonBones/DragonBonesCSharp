@@ -386,6 +386,7 @@ namespace DragonBones
             {
 				if (_changeDragonBonesData(_armatureComponent, _armatureComponent.dragonBonesJSON))
                 {
+					_armatureComponent.CollectBones();
                     _updateParameters();
                 }
             }
@@ -409,6 +410,9 @@ namespace DragonBones
                         var armatureName = _armatureNames[_armatureIndex];
                         _changeArmatureData(_armatureComponent, armatureName, dragonBonesData.name);
                         _updateParameters();
+						if(_armatureComponent.bonesRoot!=null && _armatureComponent.unityBones!=null){
+							_armatureComponent.ShowBones();
+						}
 
                         _armatureComponent.gameObject.name = armatureName;
 						_armatureComponent.zorderIsDirty = true;
@@ -523,12 +527,15 @@ namespace DragonBones
 				EditorGUILayout.BeginHorizontal();
 				_armatureComponent.addNormal = EditorGUILayout.Toggle("Normals", _armatureComponent.addNormal);
 				EditorGUILayout.EndHorizontal();
-
                 EditorGUILayout.Space();
             }
 
 			if(_armatureComponent.armature!=null && _armatureComponent.armature.parent==null)
 			{
+				if(_armatureComponent.unityBones!=null && _armatureComponent.bonesRoot!=null)
+				{
+					_armatureComponent.boneHierarchy = EditorGUILayout.Toggle("Bone Hierarchy", _armatureComponent.boneHierarchy);
+				}
 				EditorGUILayout.BeginHorizontal();
 				if(!Application.isPlaying){
 					if(_armatureComponent.unityBones!=null && _armatureComponent.bonesRoot!=null){

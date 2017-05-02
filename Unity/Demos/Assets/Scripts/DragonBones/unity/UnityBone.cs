@@ -30,9 +30,9 @@ namespace DragonBones
 						break;
 					}
 				}
-//				if(_parent){
-//					transform.SetParent(_parent.transform);
-//				}
+				if(_proxy.boneHierarchy && _parent){
+					transform.SetParent(_parent.transform);
+				}
 			}
 			return _parent;
 		}
@@ -40,8 +40,13 @@ namespace DragonBones
 		internal void _Update(){
 			if(_bone!=null && _proxy!=null && _proxy.armature!=null)
 			{
-//				GameObject parent = GetParentGameObject();
-//				if(parent) transform.SetParent(_proxy.bonesRoot.transform);
+				GameObject parent = null;
+				if(_proxy.boneHierarchy){
+					parent = GetParentGameObject();
+					if(parent) transform.SetParent(_proxy.bonesRoot.transform);
+				}else if(transform.parent!=_proxy.bonesRoot){
+					transform.SetParent(_proxy.bonesRoot.transform);
+				}
 
 				Armature armature = _proxy.armature;
 
@@ -90,7 +95,7 @@ namespace DragonBones
 
 				transform.localScale = _helpVector3;
 
-//				if(parent) transform.SetParent(parent.transform);
+				if(_proxy.boneHierarchy && parent) transform.SetParent(parent.transform);
 			}
 		}
 

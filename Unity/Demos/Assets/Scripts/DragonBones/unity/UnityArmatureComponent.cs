@@ -177,6 +177,7 @@ namespace DragonBones
 		public GameObject slotsRoot;
 		public GameObject bonesRoot;
 		public List<UnityBone> unityBones = null;
+		public bool boneHierarchy = false;
 
 		private List<Slot> _sortedSlots = null;
 		public List<Slot> sortedSlots{

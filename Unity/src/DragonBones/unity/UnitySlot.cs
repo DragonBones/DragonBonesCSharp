@@ -578,7 +578,9 @@ namespace DragonBones
 			if(childArmature!=null){
 				childArmature.flipX = _proxy.armature.flipX;
 				childArmature.flipY = _proxy.armature.flipY;
-				(childArmature.eventDispatcher as UnityArmatureComponent).addNormal = _proxy.addNormal;
+				UnityArmatureComponent unityArmature = (childArmature.eventDispatcher as UnityArmatureComponent);
+				unityArmature.addNormal = _proxy.addNormal;
+				unityArmature.boneHierarchy = _proxy.boneHierarchy;
 			}
 			if(_mesh!=null){
 				if(_proxy.addNormal){
