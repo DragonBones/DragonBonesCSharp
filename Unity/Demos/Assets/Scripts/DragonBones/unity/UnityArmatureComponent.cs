@@ -288,6 +288,7 @@ namespace DragonBones
                 armature.Dispose();
             }
 			unityBones = null;
+			_sortedSlots = null;
             _disposeProxy = true;
             _armature = null;
         }
