@@ -235,6 +235,10 @@ namespace DragonBones
 
 		void LateUpdate(){
 			if(_armature==null) return;
+
+			flipX = _armature.flipX ;
+			flipY = _armature.flipY ;
+
 			#if UNITY_EDITOR
 			if(!Application.isPlaying && zSpace>0f){
 				foreach (var slot in _armature.GetSlots())
