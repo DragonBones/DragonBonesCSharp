@@ -466,8 +466,15 @@ namespace DragonBones
                 }
             }
 
-            return ParseDragonBonesData((Dictionary<string, object>)MiniJSON.Json.Deserialize(dragonBonesJSON.text), name, scale); // Unity default Scale Factor.
-        }
+			DragonBonesData data = ParseDragonBonesData((Dictionary<string, object>)MiniJSON.Json.Deserialize(dragonBonesJSON.text), name, scale); // Unity default Scale Factor.
+			#if UNITY_EDITOR
+			name = string.IsNullOrEmpty(name) ? data.name : name;
+			if(!Application.isPlaying){
+				_dragonBonesDataMap[name] = data;
+			}
+			#endif
+			return data;
+		}
         /**
          * @language zh_CN
          * 加载、解析并添加贴图集数据。
