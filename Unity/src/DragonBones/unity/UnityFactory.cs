@@ -438,13 +438,8 @@ namespace DragonBones
             var dragonBonesData = LoadDragonBonesData(Resources.Load<TextAsset>(path), name);
             if (dragonBonesData != null)
             {
-				#if UNITY_EDITOR
-				if(Application.isPlaying) _pathDragonBonesDataMap[path] = dragonBonesData;
-				#else
 				_pathDragonBonesDataMap[path] = dragonBonesData;
-				#endif
             }
-
             return dragonBonesData;
         }
         /**
@@ -473,12 +468,7 @@ namespace DragonBones
 				name = name.Substring(0,index);
 				data.name = name;
 			}
-
-			#if UNITY_EDITOR
-			if(!Application.isPlaying){
-				_dragonBonesDataMap[name] = data;
-			}
-			#endif
+			_dragonBonesDataMap[name] = data;
 			return data;
 		}
         /**
@@ -535,11 +525,7 @@ namespace DragonBones
                 if (textureAtlasData != null)
 				{
 					if(!string.IsNullOrEmpty(name)) textureAtlasData.name = name;
-					#if UNITY_EDITOR
-					if(Application.isPlaying) _pathTextureAtlasDataMap[path] = textureAtlasData;
-					#else
 					_pathTextureAtlasDataMap[path] = textureAtlasData;
-					#endif
                 }
             }
 

@@ -331,6 +331,8 @@ namespace DragonBones
                 !string.IsNullOrEmpty(_armatureComponent.armatureName)
             )
             {
+				//clear cache
+				UnityFactory.factory.Clear(true);
                 // Load data.
                 var dragonBonesData = _armatureComponent.LoadData(_armatureComponent.dragonBonesJSON, _armatureComponent.textureAtlasJSON);
 
@@ -395,7 +397,9 @@ namespace DragonBones
             }
 
             if (created)
-            {
+			{
+				//clear cache
+				UnityFactory.factory.Clear(true);
 				if (_changeDragonBonesData(_armatureComponent, _armatureComponent.dragonBonesJSON))
                 {
 					_armatureComponent.CollectBones();
