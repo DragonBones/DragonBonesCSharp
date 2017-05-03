@@ -467,8 +467,14 @@ namespace DragonBones
             }
 
 			DragonBonesData data = ParseDragonBonesData((Dictionary<string, object>)MiniJSON.Json.Deserialize(dragonBonesJSON.text), name, scale); // Unity default Scale Factor.
+			name = dragonBonesJSON.name;
+			int index = name.LastIndexOf("_ske");
+			if(index>0){
+				name = name.Substring(0,index);
+				data.name = name;
+			}
+
 			#if UNITY_EDITOR
-			name = string.IsNullOrEmpty(name) ? data.name : name;
 			if(!Application.isPlaying){
 				_dragonBonesDataMap[name] = data;
 			}
@@ -511,11 +517,24 @@ namespace DragonBones
             }
             else
             {
+				if(string.IsNullOrEmpty(name)){
+					index = path.LastIndexOf("/")+1;
+					int lastIdx = path.LastIndexOf("_tex");
+					if(lastIdx>-1){
+						if(lastIdx>index){
+							name = path.Substring(index,lastIdx-index);
+						}else{
+							name = path.Substring(index);
+						}
+					}
+				}
+
                 _textureAtlasPath = path;
 
 				textureAtlasData = LoadTextureAtlasData(Resources.Load<TextAsset>(path), name, scale,isUGUI);
                 if (textureAtlasData != null)
-                {
+				{
+					if(!string.IsNullOrEmpty(name)) textureAtlasData.name = name;
 					#if UNITY_EDITOR
 					if(Application.isPlaying) _pathTextureAtlasDataMap[path] = textureAtlasData;
 					#else

@@ -248,7 +248,19 @@ namespace DragonBones
                 _armatureComponent.Dispose(false);
             }
             _armatureComponent.armatureName = armatureName;
-			_armatureComponent = UnityFactory.factory.BuildArmatureComponent(_armatureComponent.armatureName, dragonBonesName, null, null, _armatureComponent.gameObject,_armatureComponent.isUGUI);
+
+			string texName = _armatureComponent.textureAtlasJSON[0];
+			int index = texName.LastIndexOf("/")+1;
+			int lastIdx = texName.LastIndexOf("_tex");
+			if(lastIdx>-1){
+				if(lastIdx>index){
+					texName = texName.Substring(index,lastIdx-index);
+				}else{
+					texName = texName.Substring(index);
+				}
+			}
+
+			_armatureComponent = UnityFactory.factory.BuildArmatureComponent(_armatureComponent.armatureName, dragonBonesName, null, texName, _armatureComponent.gameObject,_armatureComponent.isUGUI);
             if (slot != null)
             {
                 slot.childArmature = _armatureComponent.armature;
