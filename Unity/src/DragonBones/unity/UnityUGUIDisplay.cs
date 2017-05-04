@@ -7,7 +7,7 @@ namespace DragonBones
 	[DisallowMultipleComponent]
 	[ExecuteInEditMode,RequireComponent(typeof(CanvasRenderer), typeof(RectTransform))]
 	public class UnityUGUIDisplay : MaskableGraphic {
-
+		[HideInInspector]
 		public Mesh sharedMesh;
 
 		private Texture _Texture;

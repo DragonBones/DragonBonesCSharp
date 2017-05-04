@@ -84,7 +84,42 @@ namespace DragonBones
 			}
 		}
 
-        private static List<string> _getDragonBonesJSONPaths()
+
+		[MenuItem("Assets/Create/DragonBones/Create Unity Data", true)]
+		private static bool _createUnityDataValidateMenuItem()
+		{
+			return _getDragonBonesJSONPaths(true).Count > 0;
+		}
+
+		[MenuItem("Assets/Create/DragonBones/Create Unity Data", false, 32)]
+		private static void _createUnityDataMenuItem()
+		{
+			foreach (var dragonBonesJSONPath in _getDragonBonesJSONPaths(true))
+			{
+				var dragonBonesJSON = AssetDatabase.LoadMainAssetAtPath(dragonBonesJSONPath) as TextAsset;
+				var textureAtlasJSONs = new List<string>();
+				_getTextureAtlasConfigs(textureAtlasJSONs, AssetDatabase.GetAssetPath(dragonBonesJSON.GetInstanceID()));
+				UnityDragonBonesData.TextureAtlas[] textureAtlas = new UnityDragonBonesData.TextureAtlas[textureAtlasJSONs.Count];
+				for(int i=0;i<textureAtlasJSONs.Count;++i){
+					string path = textureAtlasJSONs[i];
+					//load textureAtlas data
+					UnityDragonBonesData.TextureAtlas ta = new UnityDragonBonesData.TextureAtlas();
+					ta.textureAtlasJSON = AssetDatabase.LoadAssetAtPath<TextAsset>(path);
+					//load texture
+					path = path.Substring(0,path.LastIndexOf(".json"));
+					ta.texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path+".png");
+					//load material
+					ta.material = AssetDatabase.LoadAssetAtPath<Material>(path+"_Mat.mat");
+					ta.uiMaterial = AssetDatabase.LoadAssetAtPath<Material>(path+"_UI_Mat.mat");
+					textureAtlas[i] = ta;
+				}
+				CreateUnityDragonBonesData(dragonBonesJSON,textureAtlas);
+			}
+		}
+
+
+
+		private static List<string> _getDragonBonesJSONPaths( bool isCreateUnityData = false)
         {
             var dragonBonesJSONPaths = new List<string>();
             foreach (var guid in Selection.assetGUIDs)
@@ -98,6 +133,13 @@ namespace DragonBones
                         dragonBonesJSONPaths.Add(assetPath);
                     }
                 }
+				else if(!isCreateUnityData && assetPath.EndsWith("_Data.asset"))
+				{
+					UnityDragonBonesData data = AssetDatabase.LoadAssetAtPath<UnityDragonBonesData>(assetPath);
+					if(data.dragonBonesJSON!=null){
+						dragonBonesJSONPaths.Add(AssetDatabase.GetAssetPath(data.dragonBonesJSON));
+					}
+				}
             }
 
             return dragonBonesJSONPaths;
@@ -195,14 +237,29 @@ namespace DragonBones
             {
                 var textureAtlasJSONs = new List<string>();
                 _getTextureAtlasConfigs(textureAtlasJSONs, AssetDatabase.GetAssetPath(dragonBoneJSON.GetInstanceID()));
+				UnityDragonBonesData.TextureAtlas[] textureAtlas = new UnityDragonBonesData.TextureAtlas[textureAtlasJSONs.Count];
+				for(int i=0;i<textureAtlasJSONs.Count;++i){
+					string path = textureAtlasJSONs[i];
+					//load textureAtlas data
+					UnityDragonBonesData.TextureAtlas ta = new UnityDragonBonesData.TextureAtlas();
+					ta.textureAtlasJSON = AssetDatabase.LoadAssetAtPath<TextAsset>(path);
+					//load texture
+					path = path.Substring(0,path.LastIndexOf(".json"));
+					ta.texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path+".png");
+					//load material
+					ta.material = AssetDatabase.LoadAssetAtPath<Material>(path+"_Mat.mat");
+					ta.uiMaterial = AssetDatabase.LoadAssetAtPath<Material>(path+"_UI_Mat.mat");
+					textureAtlas[i] = ta;
+				}
+				UnityDragonBonesData data = CreateUnityDragonBonesData(dragonBoneJSON,textureAtlas);
+				_armatureComponent.unityData = data;
 
-                var dragonBonesData = _armatureComponent.LoadData(dragonBoneJSON, textureAtlasJSONs);
+				var dragonBonesData = _armatureComponent.LoadData(dragonBoneJSON, textureAtlas,data.dataName);
                 if (dragonBonesData != null)
                 {
                     Undo.RecordObject(_armatureComponent, "Set DragonBones");
 
-                    _armatureComponent.dragonBonesJSON = dragonBoneJSON;
-                    _armatureComponent.textureAtlasJSON = textureAtlasJSONs;
+					_armatureComponent.unityData = data;
 
                     var armatureName = dragonBonesData.armatureNames[0];
                     _changeArmatureData(_armatureComponent, armatureName, dragonBonesData.name);
@@ -220,11 +277,11 @@ namespace DragonBones
                     return false;
                 }
             }
-            else if (_armatureComponent.dragonBonesJSON != null)
+			else if (_armatureComponent.unityData != null)
             {
                 Undo.RecordObject(_armatureComponent, "Set DragonBones");
 
-                _armatureComponent.dragonBonesJSON = null;
+				_armatureComponent.unityData = null;
 
                 if (_armatureComponent.armature != null)
                 {
@@ -239,6 +296,34 @@ namespace DragonBones
             return false;
         }
 
+		private static UnityDragonBonesData CreateUnityDragonBonesData(TextAsset dragonBonesJSON,UnityDragonBonesData.TextureAtlas[] textureAtlas){
+			if(dragonBonesJSON){
+				string path = AssetDatabase.GetAssetPath(dragonBonesJSON);
+				path = path.Substring(0,path.Length-5);
+				int index = path.LastIndexOf("_ske");
+				if(index>0){
+					path = path.Substring(0,index);
+				}
+				string dataPath = path+"_Data.asset";
+				UnityDragonBonesData data = AssetDatabase.LoadAssetAtPath<UnityDragonBonesData>(dataPath);
+				if(data==null){
+					data = UnityDragonBonesData.CreateInstance<UnityDragonBonesData>();
+					AssetDatabase.CreateAsset(data,dataPath);
+				}
+				string name = path.Substring(path.LastIndexOf("/")+1);
+				data.name = name;
+				data.dragonBonesJSON = dragonBonesJSON;
+
+				if(textureAtlas!=null && textureAtlas.Length>0 && textureAtlas[0]!=null && textureAtlas[0].texture!=null){
+					data.textureAtlas = textureAtlas;
+				}
+				EditorUtility.SetDirty(data);
+				AssetDatabase.SaveAssets();
+				return data;
+			}
+			return null;
+		}
+
         private static void _changeArmatureData(UnityArmatureComponent _armatureComponent, string armatureName, string dragonBonesName)
         {
             Slot slot = null;
@@ -249,18 +334,7 @@ namespace DragonBones
             }
             _armatureComponent.armatureName = armatureName;
 
-			string texName = _armatureComponent.textureAtlasJSON[0];
-			int index = texName.LastIndexOf("/")+1;
-			int lastIdx = texName.LastIndexOf("_tex");
-			if(lastIdx>-1){
-				if(lastIdx>index){
-					texName = texName.Substring(index,lastIdx-index);
-				}else{
-					texName = texName.Substring(index);
-				}
-			}
-
-			_armatureComponent = UnityFactory.factory.BuildArmatureComponent(_armatureComponent.armatureName, dragonBonesName, null, texName, _armatureComponent.gameObject,_armatureComponent.isUGUI);
+			_armatureComponent = UnityFactory.factory.BuildArmatureComponent(_armatureComponent.armatureName, dragonBonesName, null, _armatureComponent.unityData.dataName, _armatureComponent.gameObject,_armatureComponent.isUGUI);
             if (slot != null)
             {
                 slot.childArmature = _armatureComponent.armature;
@@ -327,14 +401,14 @@ namespace DragonBones
             if (
                 !EditorApplication.isPlayingOrWillChangePlaymode &&
                 _armatureComponent.armature == null &&
-                _armatureComponent.dragonBonesJSON != null &&
+				_armatureComponent.unityData != null &&
                 !string.IsNullOrEmpty(_armatureComponent.armatureName)
             )
             {
 				//clear cache
 				UnityFactory.factory.Clear(true);
                 // Load data.
-                var dragonBonesData = _armatureComponent.LoadData(_armatureComponent.dragonBonesJSON, _armatureComponent.textureAtlasJSON);
+				var dragonBonesData = _armatureComponent.LoadData(_armatureComponent.unityData.dragonBonesJSON, _armatureComponent.unityData.textureAtlas,_armatureComponent.unityData.dataName);
 
                 // Refresh texture atlas.
 				UnityFactory.factory.RefreshAllTextureAtlas(_armatureComponent);
@@ -375,10 +449,10 @@ namespace DragonBones
             // DragonBones Data
             EditorGUILayout.BeginHorizontal();
 
-			_armatureComponent.dragonBonesJSON = EditorGUILayout.ObjectField("DragonBones Data", _armatureComponent.dragonBonesJSON, typeof(TextAsset), false) as TextAsset;
+			_armatureComponent.unityData = EditorGUILayout.ObjectField("DragonBones Data", _armatureComponent.unityData, typeof(UnityDragonBonesData), false) as UnityDragonBonesData;
 
             var created = false;
-			if (_armatureComponent.dragonBonesJSON != null)
+			if (_armatureComponent.unityData != null)
             {
                 if (_armatureComponent.armature == null)
                 {
@@ -397,10 +471,10 @@ namespace DragonBones
             }
 
             if (created)
-			{
+			{	
 				//clear cache
 				UnityFactory.factory.Clear(true);
-				if (_changeDragonBonesData(_armatureComponent, _armatureComponent.dragonBonesJSON))
+				if (_changeDragonBonesData(_armatureComponent, _armatureComponent.unityData.dragonBonesJSON))
                 {
 					_armatureComponent.CollectBones();
                     _updateParameters();
@@ -599,11 +673,19 @@ namespace DragonBones
         {
             if (_armatureComponent.armature != null)
             {
-                _armatureNames = _armatureComponent.armature.armatureData.parent.armatureNames;
-                _animationNames = _armatureComponent.armature.armatureData.animationNames;
-                _armatureIndex = _armatureNames.IndexOf(_armatureComponent.armature.name);
-				if(!string.IsNullOrEmpty(_armatureComponent.animationName)){
-					_animationIndex = _animationNames.IndexOf(_armatureComponent.animationName);
+				if(_armatureComponent.armature.armatureData.parent!=null){
+	                _armatureNames = _armatureComponent.armature.armatureData.parent.armatureNames;
+	                _animationNames = _armatureComponent.armature.armatureData.animationNames;
+	                _armatureIndex = _armatureNames.IndexOf(_armatureComponent.armature.name);
+					if(!string.IsNullOrEmpty(_armatureComponent.animationName)){
+						_animationIndex = _animationNames.IndexOf(_armatureComponent.animationName);
+					}
+				}else
+				{
+					_armatureNames = null;
+					_animationNames = null;
+					_armatureIndex = -1;
+					_animationIndex = -1;
 				}
             }
             else

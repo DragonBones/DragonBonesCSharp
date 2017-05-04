@@ -229,13 +229,26 @@ namespace DragonBones
         /**
          * @private
          */
-		protected void _refreshTextureAtlas(UnityTextureAtlasData textureAtlasData,bool isUGUI)
+		protected void _refreshTextureAtlas(UnityTextureAtlasData textureAtlasData,bool isUGUI,bool isEditor=false)
         {
 			Material material = null;
 			if(isUGUI && textureAtlasData.uiTexture == null){
-				material = Resources.Load<Material>(textureAtlasData.imagePath+"_UI_Mat");
+				if(isEditor){
+					#if UNITY_EDITOR
+					material = AssetDatabase.LoadAssetAtPath<Material>(textureAtlasData.imagePath+"_UI_Mat.mat");
+					#endif
+				}else{
+					material = Resources.Load<Material>(textureAtlasData.imagePath+"_UI_Mat");
+				}
 				if(material==null){
-					var textureAtlas = Resources.Load<Texture2D>(textureAtlasData.imagePath);
+					Texture2D textureAtlas = null;
+					if(isEditor){
+						#if UNITY_EDITOR
+						textureAtlas = AssetDatabase.LoadAssetAtPath<Texture2D>(textureAtlasData.imagePath+".png");
+						#endif
+					}else{
+						textureAtlas = Resources.Load<Texture2D>(textureAtlasData.imagePath);
+					}
 					Shader shader = Shader.Find(defaultUIShaderName);
 					material = new Material(shader);
 					material.name = textureAtlas.name+"_UI_Mat";
@@ -255,10 +268,23 @@ namespace DragonBones
 				textureAtlasData.uiTexture = material;
 			}
 			else if(!isUGUI && textureAtlasData.texture == null){
-				material = Resources.Load<Material>(textureAtlasData.imagePath+"_Mat");
+				if(isEditor){
+					#if UNITY_EDITOR
+					material = AssetDatabase.LoadAssetAtPath<Material>(textureAtlasData.imagePath+"_Mat.mat");
+					#endif
+				}else{
+					material = Resources.Load<Material>(textureAtlasData.imagePath+"_Mat");
+				}
 				if(material==null)
 				{
-					var textureAtlas = Resources.Load<Texture2D>(textureAtlasData.imagePath);
+					Texture2D textureAtlas = null;
+					if(isEditor){
+						#if UNITY_EDITOR
+						textureAtlas = AssetDatabase.LoadAssetAtPath<Texture2D>(textureAtlasData.imagePath+".png");
+						#endif
+					}else{
+						textureAtlas = Resources.Load<Texture2D>(textureAtlasData.imagePath);
+					}
 					Shader shader = Shader.Find(defaultShaderName);
 					material = new Material(shader);
 					material.name = textureAtlas.name+"_Mat";
@@ -278,6 +304,7 @@ namespace DragonBones
 				textureAtlasData.texture = material;
 			}
         }
+
         /**
          * @inheritDoc
          */
@@ -440,6 +467,7 @@ namespace DragonBones
             {
 				_pathDragonBonesDataMap[path] = dragonBonesData;
             }
+
             return dragonBonesData;
         }
         /**
@@ -468,9 +496,63 @@ namespace DragonBones
 				name = name.Substring(0,index);
 				data.name = name;
 			}
+
 			_dragonBonesDataMap[name] = data;
 			return data;
 		}
+
+		/**
+         * @language zh_CN
+         * 加载、解析并添加贴图集数据。
+         * @param textureAtlas 贴图集数据
+         * @param name 为数据指定一个名称，以便可以通过这个名称获取数据，如果未设置，则使用数据中的名称。
+         * @param scale 为贴图集设置一个缩放值。
+         * @returns 贴图集数据
+         * @see #ParseTextureAtlasData()
+         * @see #GetTextureAtlasData()
+         * @see #AddTextureAtlasData()
+         * @see #RemoveTextureAtlasData()
+         * @see DragonBones.UnityTextureAtlasData
+         */
+		internal UnityTextureAtlasData LoadTextureAtlasData(UnityDragonBonesData.TextureAtlas textureAtlas, string name , float scale = 0.0f,bool isUGUI=false)
+		{
+			UnityTextureAtlasData textureAtlasData = null;
+			if (_pathTextureAtlasDataMap.ContainsKey(name+textureAtlas.texture.name))
+			{
+				textureAtlasData = _pathTextureAtlasDataMap[name+textureAtlas.texture.name] as UnityTextureAtlasData;
+				_refreshTextureAtlas(textureAtlasData,isUGUI,true);
+			}
+			else
+			{
+				Dictionary<string, object> textureJSONData = (Dictionary<string, object>)MiniJSON.Json.Deserialize(textureAtlas.textureAtlasJSON.text);
+				textureAtlasData = ParseTextureAtlasData(textureJSONData, null, name, scale) as UnityTextureAtlasData;
+	
+				if(textureJSONData.ContainsKey("width")){
+					textureAtlasData.width = float.Parse(textureJSONData["width"].ToString());
+				}
+				if(textureJSONData.ContainsKey("height")){
+					textureAtlasData.height = float.Parse(textureJSONData["height"].ToString());
+				}
+				if (textureAtlasData != null)
+				{
+					textureAtlasData.uiTexture = textureAtlas.uiMaterial;
+					textureAtlasData.texture = textureAtlas.material;
+					#if UNITY_EDITOR
+					textureAtlasData.imagePath = AssetDatabase.GetAssetPath(textureAtlas.texture);
+					textureAtlasData.imagePath =textureAtlasData.imagePath.Substring(0,textureAtlasData.imagePath.Length-4);
+					_refreshTextureAtlas(textureAtlasData,isUGUI,true);
+					if(isUGUI) textureAtlas.uiMaterial = textureAtlasData.uiTexture;
+					else textureAtlas.material = textureAtlasData.texture;
+					#endif
+
+					textureAtlasData.name = name;
+					_pathTextureAtlasDataMap[name+textureAtlas.texture.name] = textureAtlasData;
+				}
+			}
+			return textureAtlasData;
+		}
+
+
         /**
          * @language zh_CN
          * 加载、解析并添加贴图集数据。

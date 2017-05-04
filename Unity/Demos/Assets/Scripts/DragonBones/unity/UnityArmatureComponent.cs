@@ -73,11 +73,7 @@ namespace DragonBones
         /**
          * @private
          */
-        public TextAsset dragonBonesJSON = null;
-        /**
-         * @private
-         */
-        public List<string> textureAtlasJSON = null;
+		public UnityDragonBonesData unityData = null;
         /**
          * @private
          */
@@ -204,22 +200,16 @@ namespace DragonBones
 				go.hideFlags = HideFlags.NotEditable;
 			}
 			zorderIsDirty = true;
-            var dragonBonesData = LoadData(dragonBonesJSON, textureAtlasJSON);
 
-			if (dragonBonesData != null && !string.IsNullOrEmpty(armatureName))
-            {
-				string texName = textureAtlasJSON[0];
-				int index = texName.LastIndexOf("/")+1;
-				int lastIdx = texName.LastIndexOf("_tex");
-				if(lastIdx>-1){
-					if(lastIdx>index){
-						texName = texName.Substring(index,lastIdx-index);
-					}else{
-						texName = texName.Substring(index);
-					}
+			if(unityData!=null && unityData.dragonBonesJSON!=null && unityData.textureAtlas!=null){
+				var dragonBonesData = LoadData(unityData.dragonBonesJSON, unityData.textureAtlas,unityData.dataName);
+				if (dragonBonesData != null && !string.IsNullOrEmpty(armatureName))
+				{
+					UnityFactory.factory.BuildArmatureComponent(armatureName, dragonBonesData.name, null, unityData.dataName, gameObject);
 				}
-				UnityFactory.factory.BuildArmatureComponent(armatureName, dragonBonesData.name, null, texName, gameObject);
-            }
+			}
+
+
             if (_armature != null)
             {
                 sortingLayerName = sortingLayerName;
@@ -306,7 +296,7 @@ namespace DragonBones
         /**
          * @private
          */
-        public DragonBonesData LoadData(TextAsset dragonBonesJSON, List<string> textureAtlasJSON)
+		public DragonBonesData LoadData(TextAsset dragonBonesJSON, UnityDragonBonesData.TextureAtlas[] textureAtlas,string texName)
         {
             DragonBonesData dragonBonesData = null;
 
@@ -314,11 +304,11 @@ namespace DragonBones
             {
                 dragonBonesData = UnityFactory.factory.LoadDragonBonesData(dragonBonesJSON);
 
-                if (dragonBonesData != null && textureAtlasJSON != null)
+				if (!string.IsNullOrEmpty(texName) && dragonBonesData != null && textureAtlas != null)
                 {
-                    foreach (var eachJSON in textureAtlasJSON)
+					for(int i=0;i<textureAtlas.Length;++i)
                     {
-						UnityFactory.factory.LoadTextureAtlasData(eachJSON,null,0,isUGUI);
+						UnityFactory.factory.LoadTextureAtlasData(textureAtlas[i],texName,0,isUGUI);
                     }
                 }
             }
