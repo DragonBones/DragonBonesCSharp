@@ -465,7 +465,9 @@ namespace DragonBones
                 {
                     if (GUILayout.Button("Reload"))
                     {
-                        created = true;
+						if(EditorUtility.DisplayDialog("DragonBones Alert", "Are you sure you want to reload data", "Yes", "No")){
+							created = true;
+						}
                     }
                 }
             }
@@ -630,7 +632,9 @@ namespace DragonBones
 				if(!Application.isPlaying){
 					if(_armatureComponent.unityBones!=null && _armatureComponent.bonesRoot!=null){
 						if(GUILayout.Button("Remove Bones",GUILayout.Height(20))){
-							_armatureComponent.RemoveBones();
+							if(EditorUtility.DisplayDialog("DragonBones Alert", "Are you sure you want to remove bones", "Yes", "No")){
+								_armatureComponent.RemoveBones();
+							}
 						}
 					}else{
 						if(GUILayout.Button("Show Bones",GUILayout.Height(20))){
