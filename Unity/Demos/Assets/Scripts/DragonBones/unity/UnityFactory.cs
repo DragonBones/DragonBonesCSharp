@@ -235,7 +235,7 @@ namespace DragonBones
 			if(isUGUI && textureAtlasData.uiTexture == null){
 				if(isEditor){
 					#if UNITY_EDITOR
-					material = AssetDatabase.LoadAssetAtPath<Material>(textureAtlasData.imagePath+"_UI_Mat.mat");
+					if(!Application.isPlaying) material = AssetDatabase.LoadAssetAtPath<Material>(textureAtlasData.imagePath+"_UI_Mat.mat");
 					#endif
 				}else{
 					material = Resources.Load<Material>(textureAtlasData.imagePath+"_UI_Mat");
@@ -244,7 +244,7 @@ namespace DragonBones
 					Texture2D textureAtlas = null;
 					if(isEditor){
 						#if UNITY_EDITOR
-						textureAtlas = AssetDatabase.LoadAssetAtPath<Texture2D>(textureAtlasData.imagePath+".png");
+						if(!Application.isPlaying) textureAtlas = AssetDatabase.LoadAssetAtPath<Texture2D>(textureAtlasData.imagePath+".png");
 						#endif
 					}else{
 						textureAtlas = Resources.Load<Texture2D>(textureAtlasData.imagePath);
@@ -270,7 +270,7 @@ namespace DragonBones
 			else if(!isUGUI && textureAtlasData.texture == null){
 				if(isEditor){
 					#if UNITY_EDITOR
-					material = AssetDatabase.LoadAssetAtPath<Material>(textureAtlasData.imagePath+"_Mat.mat");
+					if(!Application.isPlaying) material = AssetDatabase.LoadAssetAtPath<Material>(textureAtlasData.imagePath+"_Mat.mat");
 					#endif
 				}else{
 					material = Resources.Load<Material>(textureAtlasData.imagePath+"_Mat");
@@ -280,7 +280,7 @@ namespace DragonBones
 					Texture2D textureAtlas = null;
 					if(isEditor){
 						#if UNITY_EDITOR
-						textureAtlas = AssetDatabase.LoadAssetAtPath<Texture2D>(textureAtlasData.imagePath+".png");
+						if(!Application.isPlaying) textureAtlas = AssetDatabase.LoadAssetAtPath<Texture2D>(textureAtlasData.imagePath+".png");
 						#endif
 					}else{
 						textureAtlas = Resources.Load<Texture2D>(textureAtlasData.imagePath);
@@ -538,11 +538,13 @@ namespace DragonBones
 					textureAtlasData.uiTexture = textureAtlas.uiMaterial;
 					textureAtlasData.texture = textureAtlas.material;
 					#if UNITY_EDITOR
-					textureAtlasData.imagePath = AssetDatabase.GetAssetPath(textureAtlas.texture);
-					textureAtlasData.imagePath =textureAtlasData.imagePath.Substring(0,textureAtlasData.imagePath.Length-4);
-					_refreshTextureAtlas(textureAtlasData,isUGUI,true);
-					if(isUGUI) textureAtlas.uiMaterial = textureAtlasData.uiTexture;
-					else textureAtlas.material = textureAtlasData.texture;
+					if(!Application.isPlaying){
+						textureAtlasData.imagePath = AssetDatabase.GetAssetPath(textureAtlas.texture);
+						textureAtlasData.imagePath =textureAtlasData.imagePath.Substring(0,textureAtlasData.imagePath.Length-4);
+						_refreshTextureAtlas(textureAtlasData,isUGUI,true);
+						if(isUGUI) textureAtlas.uiMaterial = textureAtlasData.uiTexture;
+						else textureAtlas.material = textureAtlasData.texture;
+					}
 					#endif
 
 					textureAtlasData.name = name;
