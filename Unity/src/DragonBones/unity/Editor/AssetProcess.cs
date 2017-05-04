@@ -64,19 +64,11 @@ namespace DragonBones
 		static bool IsValidDragonBonesData (TextAsset asset) {
 			if (asset.name.Contains("_ske")) return true;
 
-			object obj = null;
-			obj = MiniJSON.Json.Deserialize(asset.text);
-
-			if (obj == null) {
-				return false;
+			if (asset.text.IndexOf("\"armature\":") > 0)
+			{
+				return true;
 			}
-
-			var root = obj as Dictionary<string, object>;
-			if (root == null) {
-				return false;
-			}
-
-			return root.ContainsKey("armature");
+			return false;
 		}
 
 		static void ProcessTextureAtlasData(List<string> atlasPaths){

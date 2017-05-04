@@ -521,6 +521,8 @@ namespace DragonBones
 			{
 				textureAtlasData = _pathTextureAtlasDataMap[name+textureAtlas.texture.name] as UnityTextureAtlasData;
 				_refreshTextureAtlas(textureAtlasData,isUGUI,true);
+				if(isUGUI) textureAtlas.uiMaterial = textureAtlasData.uiTexture;
+				else textureAtlas.material = textureAtlasData.texture;
 			}
 			else
 			{

@@ -317,7 +317,6 @@ namespace DragonBones
 				if(textureAtlas!=null && textureAtlas.Length>0 && textureAtlas[0]!=null && textureAtlas[0].texture!=null){
 					data.textureAtlas = textureAtlas;
 				}
-				EditorUtility.SetDirty(data);
 				AssetDatabase.SaveAssets();
 				return data;
 			}
@@ -465,7 +464,9 @@ namespace DragonBones
                 {
                     if (GUILayout.Button("Reload"))
                     {
-                        created = true;
+						if(EditorUtility.DisplayDialog("DragonBones Alert", "Are you sure you want to reload data", "Yes", "No")){
+							created = true;
+						}
                     }
                 }
             }
@@ -509,7 +510,7 @@ namespace DragonBones
 
                         EditorUtility.SetDirty(_armatureComponent);
 						if (!Application.isPlaying && !_isPrefab()){
-							UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene());
+							EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
 						}
                     }
                 }
@@ -534,7 +535,7 @@ namespace DragonBones
 						}
 						EditorUtility.SetDirty(_armatureComponent);
 						if (!Application.isPlaying && !_isPrefab()){
-							UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene());
+							EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
 						}
                     }
 
@@ -569,7 +570,7 @@ namespace DragonBones
 						_armatureComponent.sortingLayerName = _sortingLayerNames[_sortingLayerIndex];
 						EditorUtility.SetDirty(_armatureComponent);
 						if (!Application.isPlaying && !_isPrefab()){
-							UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene());
+							EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
 						}
 					}
 
@@ -581,7 +582,7 @@ namespace DragonBones
 						_armatureComponent.sortingOrder = sortingOrder;
 						EditorUtility.SetDirty(_armatureComponent);
 						if (!Application.isPlaying && !_isPrefab()){
-							UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene());
+							EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
 						}
 					}
 
@@ -608,7 +609,7 @@ namespace DragonBones
 				if(_armatureComponent.flipX!=flipX || _armatureComponent.flipY!=flipY){
 					EditorUtility.SetDirty(_armatureComponent);
 					if (!Application.isPlaying && !_isPrefab()){
-						UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene());
+						EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
 					}
 				}
                 EditorGUILayout.EndHorizontal();
@@ -630,7 +631,9 @@ namespace DragonBones
 				if(!Application.isPlaying){
 					if(_armatureComponent.unityBones!=null && _armatureComponent.bonesRoot!=null){
 						if(GUILayout.Button("Remove Bones",GUILayout.Height(20))){
-							_armatureComponent.RemoveBones();
+							if(EditorUtility.DisplayDialog("DragonBones Alert", "Are you sure you want to remove bones", "Yes", "No")){
+								_armatureComponent.RemoveBones();
+							}
 						}
 					}else{
 						if(GUILayout.Button("Show Bones",GUILayout.Height(20))){
