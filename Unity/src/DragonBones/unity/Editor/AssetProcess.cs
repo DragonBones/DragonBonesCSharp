@@ -46,8 +46,19 @@ namespace DragonBones
 				}
 			} 
 			if(skeletonPaths.Count==0) return;
-			ProcessTexture(imagePaths);
-			ProcessTextureAtlasData(atlasPaths);
+			foreach(string skeletonPath in skeletonPaths){
+
+				List<string> imgPaths = new List<string>();
+				List<string> atlPaths = new List<string>();
+				foreach(string atlasPath in atlasPaths){
+					if(atlasPath.IndexOf(skeletonPath.Substring(0,skeletonPath.LastIndexOf("/")))==0){
+						atlPaths.Add(atlasPath);
+						imgPaths.Add(atlasPath.Substring(0,atlasPath.LastIndexOf(".json"))+".png");
+					}
+				}
+				ProcessTextureAtlasData(atlPaths);
+				ProcessTexture(imgPaths);
+			}
 		}
 
 		static bool IsValidDragonBonesData (TextAsset asset) {
@@ -95,18 +106,20 @@ namespace DragonBones
 		static void ProcessTexture(List<string> imagePaths){
 			foreach(string texturePath in imagePaths){
 				TextureImporter texImporter = (TextureImporter)TextureImporter.GetAtPath(texturePath);
-				texImporter.textureType = TextureImporterType.Advanced;
-				texImporter.textureFormat = TextureImporterFormat.AutomaticTruecolor;
-				texImporter.mipmapEnabled = false;
-				texImporter.alphaIsTransparency = true;
-				texImporter.spriteImportMode = SpriteImportMode.None;
-				texImporter.anisoLevel = 0;
-				texImporter.wrapMode = TextureWrapMode.Clamp;
-				texImporter.maxTextureSize = 2048;
+				if(texImporter!=null){
+					texImporter.textureType = TextureImporterType.Advanced;
+					texImporter.textureFormat = TextureImporterFormat.AutomaticTruecolor;
+					texImporter.mipmapEnabled = false;
+					texImporter.alphaIsTransparency = true;
+					texImporter.spriteImportMode = SpriteImportMode.None;
+					texImporter.anisoLevel = 0;
+					texImporter.wrapMode = TextureWrapMode.Clamp;
+					texImporter.maxTextureSize = 2048;
 
-				EditorUtility.SetDirty(texImporter);
-				AssetDatabase.ImportAsset(texturePath);
-				AssetDatabase.SaveAssets();
+					EditorUtility.SetDirty(texImporter);
+					AssetDatabase.ImportAsset(texturePath);
+					AssetDatabase.SaveAssets();
+				}
 			}
 		}
 	}

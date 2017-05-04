@@ -311,7 +311,7 @@ namespace DragonBones
 					AssetDatabase.CreateAsset(data,dataPath);
 				}
 				string name = path.Substring(path.LastIndexOf("/")+1);
-				data.name = name;
+				data.dataName = name;
 				data.dragonBonesJSON = dragonBonesJSON;
 
 				if(textureAtlas!=null && textureAtlas.Length>0 && textureAtlas[0]!=null && textureAtlas[0].texture!=null){
