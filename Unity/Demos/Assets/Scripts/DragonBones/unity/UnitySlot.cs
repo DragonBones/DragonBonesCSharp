@@ -266,6 +266,7 @@ namespace DragonBones
                     }
 
                     _mesh = new Mesh();
+					_mesh.MarkDynamic();
 
                     if (isMeshDisplay) // Mesh.
                     {
