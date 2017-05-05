@@ -125,6 +125,11 @@ namespace DragonBones
 			if(_mesh==null) return;
 			_mesh.Clear();
 
+			if(!_unityArmature.isUGUI){
+				meshRenderer.sortingLayerName = _unityArmature.sortingLayerName;
+				meshRenderer.sortingOrder = _unityArmature.sortingOrder;
+			}
+
 			List<Material> mats = new List<Material>();
 			List<List<CombineInstance>> combines =  new List<List<CombineInstance>>();
 			CollectMesh(_unityArmature.armature,combines,mats);
