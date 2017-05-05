@@ -15,10 +15,11 @@ using DragonBones;
  */
 public class HelloDragonBones :MonoBehaviour
 {
+	public UnityDragonBonesData dragonBoneData;
+
     void Start()
     {
-        UnityFactory.factory.LoadDragonBonesData("DragonBoy/DragonBoy");
-        UnityFactory.factory.LoadTextureAtlasData("DragonBoy/DragonBoy_texture_1");
+		UnityFactory.factory.LoadData(dragonBoneData);
 
         var armatureComponent = UnityFactory.factory.BuildArmatureComponent("DragonBoy");
         armatureComponent.animation.Play("walk");

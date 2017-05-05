@@ -430,6 +430,36 @@ namespace DragonBones
         {
             get { return _eventManager; }
         }
+
+		/**
+         * @language zh_CN
+         * 解析龙骨数据。
+         * @param data 龙骨数据
+         * @param isUGUI 为数据提供一个名称，以便可以通过这个名称获取数据，如果未设置，则使用数据中的名称。
+         * @param texScale 贴图缩放值
+         * @returns 龙骨数据
+         */
+		public DragonBonesData LoadData(UnityDragonBonesData data,bool isUGUI=false,float texScale=0)
+		{
+			DragonBonesData dragonBonesData = null;
+
+			if (data.dragonBonesJSON != null)
+			{
+				dragonBonesData = LoadDragonBonesData(data.dragonBonesJSON);
+
+				if (!string.IsNullOrEmpty(data.dataName) && dragonBonesData != null && data.textureAtlas != null)
+				{
+					for(int i=0;i<data.textureAtlas.Length;++i)
+					{
+						LoadTextureAtlasData(data.textureAtlas[i],data.dataName,texScale,isUGUI);
+					}
+				}
+			}
+
+			return dragonBonesData;
+		}
+
+
         /**
          * @language zh_CN
          * 加载、解析并添加龙骨数据。
@@ -443,6 +473,7 @@ namespace DragonBones
          * @see #RemoveDragonBonesData()
          * @see DragonBones.DragonBonesData
          */
+		[System.Obsolete("Use 'DragonBonesData LoadData(UnityDragonBonesData data)'")]
         public DragonBonesData LoadDragonBonesData(string path, string name = null, float scale = 0.01f)
         {
             var index = path.LastIndexOf("Resources");
@@ -473,7 +504,7 @@ namespace DragonBones
         /**
          * @private
          */
-        public DragonBonesData LoadDragonBonesData(TextAsset dragonBonesJSON, string name = null, float scale = 0.01f)
+		protected DragonBonesData LoadDragonBonesData(TextAsset dragonBonesJSON, string name = null, float scale = 0.01f)
         {
             if (dragonBonesJSON == null)
             {
@@ -514,7 +545,7 @@ namespace DragonBones
          * @see #RemoveTextureAtlasData()
          * @see DragonBones.UnityTextureAtlasData
          */
-		internal UnityTextureAtlasData LoadTextureAtlasData(UnityDragonBonesData.TextureAtlas textureAtlas, string name , float scale = 0.0f,bool isUGUI=false)
+		protected UnityTextureAtlasData LoadTextureAtlasData(UnityDragonBonesData.TextureAtlas textureAtlas, string name , float scale = 0.0f,bool isUGUI=false)
 		{
 			UnityTextureAtlasData textureAtlasData = null;
 			if (_pathTextureAtlasDataMap.ContainsKey(name+textureAtlas.texture.name))
@@ -570,6 +601,7 @@ namespace DragonBones
          * @see #RemoveTextureAtlasData()
          * @see DragonBones.UnityTextureAtlasData
          */
+		[System.Obsolete("Use 'DragonBonesData LoadData(UnityDragonBonesData data)'")]
 		public UnityTextureAtlasData LoadTextureAtlasData(string path, string name = null, float scale = 0.0f,bool isUGUI=false)
         {
             var index = path.LastIndexOf("Resources");
@@ -617,9 +649,8 @@ namespace DragonBones
 
             return textureAtlasData;
         }
-        /**
-         * @private
-         */
+
+		[System.Obsolete("Use 'DragonBonesData LoadData(UnityDragonBonesData data)'")]
 		public UnityTextureAtlasData LoadTextureAtlasData(TextAsset textureAtlasJSON, string name = null, float scale = 0.0f,bool isUGUI=false)
         {
             if (textureAtlasJSON == null)

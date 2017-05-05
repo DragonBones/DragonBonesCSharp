@@ -202,7 +202,7 @@ namespace DragonBones
 			zorderIsDirty = true;
 
 			if(unityData!=null && unityData.dragonBonesJSON!=null && unityData.textureAtlas!=null){
-				var dragonBonesData = LoadData(unityData.dragonBonesJSON, unityData.textureAtlas,unityData.dataName);
+				var dragonBonesData = UnityFactory.factory.LoadData(unityData);
 				if (dragonBonesData != null && !string.IsNullOrEmpty(armatureName))
 				{
 					UnityFactory.factory.BuildArmatureComponent(armatureName, dragonBonesData.name, null, unityData.dataName, gameObject);
@@ -293,28 +293,7 @@ namespace DragonBones
             _disposeProxy = true;
             _armature = null;
         }
-        /**
-         * @private
-         */
-		public DragonBonesData LoadData(TextAsset dragonBonesJSON, UnityDragonBonesData.TextureAtlas[] textureAtlas,string texName)
-        {
-            DragonBonesData dragonBonesData = null;
-
-            if (dragonBonesJSON != null)
-            {
-                dragonBonesData = UnityFactory.factory.LoadDragonBonesData(dragonBonesJSON);
-
-				if (!string.IsNullOrEmpty(texName) && dragonBonesData != null && textureAtlas != null)
-                {
-					for(int i=0;i<textureAtlas.Length;++i)
-                    {
-						UnityFactory.factory.LoadTextureAtlasData(textureAtlas[i],texName,0,isUGUI);
-                    }
-                }
-            }
-
-            return dragonBonesData;
-        }
+    
 
 
 		public void CollectBones(){
