@@ -12,12 +12,6 @@ namespace DragonBones
 			public Texture2D texture;
 			public Material material;
 			public Material uiMaterial;
-
-			public TextureAtlas(){}
-			public TextureAtlas(TextAsset json,Texture2D tex){
-				this.textureAtlasJSON = json;
-				this.texture = tex;
-			}
 		}
 
 		public string dataName;
