@@ -76,6 +76,9 @@ namespace DragonBones
 
 		public override void OnInspectorGUI()
 		{
+			if(_armatureIndex==-1){
+				_updateParameters();
+			}
 			// DragonBones Data
 			EditorGUILayout.BeginHorizontal();
 
@@ -106,6 +109,11 @@ namespace DragonBones
 			{	
 				//clear cache
 				UnityFactory.factory.Clear(true);
+				_armatureNames = null;
+				_animationNames = null;
+				_armatureIndex = -1;
+				_animationIndex = -1;
+				_armatureComponent.animationName = null;
 				if (UnityEditor.ChangeDragonBonesData(_armatureComponent, _armatureComponent.unityData.dragonBonesJSON))
 				{
 					_armatureComponent.CollectBones();
@@ -307,14 +315,16 @@ namespace DragonBones
 		{
 			if (_armatureComponent.armature != null)
 			{
-				if(_armatureComponent.armature.armatureData.parent!=null){
+				if(_armatureComponent.armature.armatureData.parent!=null)
+				{
 					_armatureNames = _armatureComponent.armature.armatureData.parent.armatureNames;
 					_animationNames = _armatureComponent.armature.armatureData.animationNames;
 					_armatureIndex = _armatureNames.IndexOf(_armatureComponent.armature.name);
 					if(!string.IsNullOrEmpty(_armatureComponent.animationName)){
 						_animationIndex = _animationNames.IndexOf(_armatureComponent.animationName);
 					}
-				}else
+				}
+				else
 				{
 					_armatureNames = null;
 					_animationNames = null;
