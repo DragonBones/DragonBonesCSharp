@@ -100,7 +100,11 @@ namespace DragonBones
 				TextureImporter texImporter = (TextureImporter)TextureImporter.GetAtPath(texturePath);
 				if(texImporter!=null){
 					texImporter.textureType = TextureImporterType.Advanced;
+					#if UNITY_5_5_OR_NEWER
+					texImporter.textureCompression = TextureImporterCompression.Uncompressed;
+					#else
 					texImporter.textureFormat = TextureImporterFormat.AutomaticTruecolor;
+					#endif
 					texImporter.mipmapEnabled = false;
 					texImporter.alphaIsTransparency = true;
 					texImporter.spriteImportMode = SpriteImportMode.None;
