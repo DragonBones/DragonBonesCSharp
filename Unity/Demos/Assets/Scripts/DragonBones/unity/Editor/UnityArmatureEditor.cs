@@ -200,34 +200,51 @@ namespace DragonBones
 				EditorGUILayout.Space();
 
 				if(!_armatureComponent.isUGUI){
-					// Sorting Layer
-					_sortingLayerIndex = EditorGUILayout.Popup("Sorting Layer", _sortingLayerIndex, _sortingLayerNames.ToArray());
-					if (_sortingLayerNames[_sortingLayerIndex] != _armatureComponent.sortingLayerName)
+					bool haveSpriteGorup = false;
+					#if UNITY_5_6_OR_NEWER
+					haveSpriteGorup = _armatureComponent.GetComponent<UnityEngine.Rendering.SortingGroup>()!=null;
+					#endif
+					if(!haveSpriteGorup)
 					{
-						Undo.RecordObject(_armatureComponent, "Sorting Layer");
-						_armatureComponent.sortingLayerName = _sortingLayerNames[_sortingLayerIndex];
-						EditorUtility.SetDirty(_armatureComponent);
-						if (!Application.isPlaying && !_isPrefab()){
-							EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
+						// Sorting Layer
+						_sortingLayerIndex = EditorGUILayout.Popup("Sorting Layer", _sortingLayerIndex, _sortingLayerNames.ToArray());
+						if (_sortingLayerNames[_sortingLayerIndex] != _armatureComponent.sortingLayerName)
+						{
+							Undo.RecordObject(_armatureComponent, "Sorting Layer");
+							_armatureComponent.sortingLayerName = _sortingLayerNames[_sortingLayerIndex];
+							EditorUtility.SetDirty(_armatureComponent);
+							if (!Application.isPlaying && !_isPrefab()){
+								EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
+							}
+						}
+
+						// Sorting Order
+						var sortingOrder = EditorGUILayout.IntField("Order in Layer", _armatureComponent.sortingOrder);
+						if (sortingOrder != _armatureComponent.sortingOrder)
+						{
+							Undo.RecordObject(_armatureComponent, "Edit Sorting Order");
+							_armatureComponent.sortingOrder = sortingOrder;
+							EditorUtility.SetDirty(_armatureComponent);
+							if (!Application.isPlaying && !_isPrefab()){
+								EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
+							}
+						}
+						//sort mode
+						serializedObject.Update();
+						EditorGUILayout.PropertyField(serializedObject.FindProperty("sortingMode"), true);
+						serializedObject.ApplyModifiedProperties();
+						if(_armatureComponent.sortingMode== SortingMode.SortByZ){
+							// ZSpace
+							EditorGUILayout.BeginHorizontal();
+							_armatureComponent.zSpace = EditorGUILayout.Slider("Z Space", _armatureComponent.zSpace, 0.0f, 0.2f);
+							EditorGUILayout.EndHorizontal();
 						}
 					}
-
-					// Sorting Order
-					var sortingOrder = EditorGUILayout.IntField("Order in Layer", _armatureComponent.sortingOrder);
-					if (sortingOrder != _armatureComponent.sortingOrder)
+					else
 					{
-						Undo.RecordObject(_armatureComponent, "Edit Sorting Order");
-						_armatureComponent.sortingOrder = sortingOrder;
-						EditorUtility.SetDirty(_armatureComponent);
-						if (!Application.isPlaying && !_isPrefab()){
-							EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
-						}
+						_armatureComponent.zSpace = 0;
+						_armatureComponent.sortingMode = SortingMode.SortByOrder;
 					}
-
-					// ZSpace
-					EditorGUILayout.BeginHorizontal();
-					_armatureComponent.zSpace = EditorGUILayout.Slider("Z Space", _armatureComponent.zSpace, 0.0f, 0.2f);
-					EditorGUILayout.EndHorizontal();
 				}
 
 				// TimeScale
