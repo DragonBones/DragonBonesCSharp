@@ -90,7 +90,7 @@ namespace DragonBones
         public string animationName = null;
 
         [SerializeField]
-        protected string _sortingLayerName = "Default";
+		internal string _sortingLayerName = "Default";
         public string sortingLayerName
         {
             get { return _sortingLayerName; }
@@ -102,6 +102,18 @@ namespace DragonBones
                 }
                 _sortingLayerName = value;
 				if(!isUGUI){
+				#if UNITY_5_6_OR_NEWER
+					if(_sortingGroup){
+						_sortingGroup.sortingLayerName = value;
+					#if UNITY_EDITOR
+						if(!Application.isPlaying){
+							EditorUtility.SetDirty(_sortingGroup);
+						}
+					#endif
+						return;
+					}
+				#endif
+
 					foreach (var render in GetComponentsInChildren<Renderer>(true))
 					{
 						render.sortingLayerName = value;
@@ -116,7 +128,7 @@ namespace DragonBones
         }
 
         [SerializeField]
-        protected int _sortingOrder = 0;
+		internal int _sortingOrder = 0;
         public int sortingOrder
         {
             get { return _sortingOrder; }
@@ -128,15 +140,26 @@ namespace DragonBones
                 }
                 _sortingOrder = value;
 				if(!isUGUI){
-                	foreach (var render in GetComponentsInChildren<Renderer>(true))
-	                {
-	                    render.sortingOrder = value;
+					#if UNITY_5_6_OR_NEWER
+					if(_sortingGroup){
+						_sortingGroup.sortingOrder = value;
+						#if UNITY_EDITOR
+						if(!Application.isPlaying){
+							EditorUtility.SetDirty(_sortingGroup);
+						}
+						#endif
+						return;
+					}
+					#endif
+					foreach (var render in GetComponentsInChildren<Renderer>(true))
+					{
+						render.sortingOrder = value;
 						#if UNITY_EDITOR
 						if(!Application.isPlaying){
 							EditorUtility.SetDirty(render);
 						}
 						#endif
-	                }
+					}
 				}
             }
         }
@@ -166,9 +189,16 @@ namespace DragonBones
                     if (display != null)
                     {
                         display.transform.localPosition = new Vector3(display.transform.localPosition.x, display.transform.localPosition.y, -slot._zOrder * (_zSpace + 0.001f));
-						if(!isUGUI && sortingMode==SortingMode.SortByOrder){
+						if(!isUGUI){
 							UnitySlot us = slot as UnitySlot;
-							if(us.meshRenderer!=null) us.meshRenderer.sortingOrder = slot._zOrder;
+							if(us.meshRenderer!=null) {
+								if(sortingMode==SortingMode.SortByOrder){
+									us.meshRenderer.sortingOrder = slot._zOrder;
+								}else{
+									us.meshRenderer.sortingOrder = sortingOrder;
+								}
+								us.meshRenderer.sortingOrder = sortingOrder;
+							}
 						}
 					}
                 }
@@ -197,7 +227,10 @@ namespace DragonBones
 		}
 
 		#if UNITY_5_6_OR_NEWER
-		private UnityEngine.Rendering.SortingGroup _sortingGroup;
+		internal UnityEngine.Rendering.SortingGroup _sortingGroup;
+		public UnityEngine.Rendering.SortingGroup sortingGroup{
+			get { return _sortingGroup; }
+		}
 		#endif
         /**
          * @private
@@ -229,7 +262,7 @@ namespace DragonBones
 				var dragonBonesData = UnityFactory.factory.LoadData(unityData,isUGUI);
 				if (dragonBonesData != null && !string.IsNullOrEmpty(armatureName))
 				{
-					UnityFactory.factory.BuildArmatureComponent(armatureName, dragonBonesData.name, null, unityData.dataName, gameObject);
+					UnityFactory.factory.BuildArmatureComponent(armatureName, dragonBonesData.name, null, unityData.dataName, gameObject , isUGUI);
 				}
 			}
 
@@ -240,7 +273,7 @@ namespace DragonBones
                 sortingOrder = sortingOrder;
 				_armature.flipX = flipX;
 				_armature.flipY = flipY;
-				if(zSpace>0){
+				if(zSpace>0 || sortingMode==SortingMode.SortByOrder){
 					foreach (var slot in _armature.GetSlots())
 					{
 						var display = slot.display as GameObject;
@@ -286,14 +319,49 @@ namespace DragonBones
 					if (display != null)
 					{
 						display.transform.localPosition = new Vector3(display.transform.localPosition.x, display.transform.localPosition.y, -slot._zOrder * (_zSpace + 0.001f));
-						if(!isUGUI && sortingMode==SortingMode.SortByOrder){
+						if(!isUGUI){
 							UnitySlot us = slot as UnitySlot;
-							if(us.meshRenderer!=null) us.meshRenderer.sortingOrder = slot._zOrder;
+							if(us.meshRenderer!=null) {
+								us.meshRenderer.sortingLayerName = _sortingLayerName;
+								if(sortingMode==SortingMode.SortByOrder){
+									us.meshRenderer.sortingOrder = slot._zOrder;
+								}else{
+									us.meshRenderer.sortingOrder = _sortingOrder;
+								}
+							}
 						}
 					}
 				}
 			}
 			#endif
+
+			//child armatrue
+			if(armature.parent!=null && armature.parent.armature!=null)
+			{
+				UnityArmatureComponent parentArmature = armature.parent.armature.eventDispatcher as UnityArmatureComponent;
+				if(parentArmature!=null)
+				{
+					sortingMode = parentArmature.sortingMode;
+					_sortingOrder = parentArmature.sortingOrder;
+					_sortingLayerName = parentArmature.sortingLayerName;
+					#if UNITY_5_6_OR_NEWER
+					if(parentArmature.sortingGroup)
+					{
+						if(_sortingGroup==null) _sortingGroup = gameObject.AddComponent<UnityEngine.Rendering.SortingGroup>();
+						_sortingGroup.sortingLayerName = parentArmature.sortingGroup.sortingLayerName;
+						_sortingGroup.sortingOrder = armature.parent._zOrder;
+						_sortingOrder = _sortingGroup.sortingOrder;
+						_sortingLayerName = _sortingGroup.sortingLayerName;
+					}
+					else if(_sortingGroup)
+					{
+						DestroyImmediate(_sortingGroup);
+					}
+					#endif
+				}
+			}
+
+
 			if(zorderIsDirty){
 				_sortedSlots = new List<Slot>(_armature.GetSlots());
 				_sortedSlots.Sort(delegate(Slot x, Slot y) {

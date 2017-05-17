@@ -233,18 +233,11 @@ namespace DragonBones
 						serializedObject.Update();
 						EditorGUILayout.PropertyField(serializedObject.FindProperty("sortingMode"), true);
 						serializedObject.ApplyModifiedProperties();
-						if(_armatureComponent.sortingMode== SortingMode.SortByZ){
-							// ZSpace
-							EditorGUILayout.BeginHorizontal();
-							_armatureComponent.zSpace = EditorGUILayout.Slider("Z Space", _armatureComponent.zSpace, 0.0f, 0.2f);
-							EditorGUILayout.EndHorizontal();
-						}
 					}
-					else
-					{
-						_armatureComponent.zSpace = 0;
-						_armatureComponent.sortingMode = SortingMode.SortByOrder;
-					}
+					// ZSpace
+					EditorGUILayout.BeginHorizontal();
+					_armatureComponent.zSpace = EditorGUILayout.Slider("Z Space", _armatureComponent.zSpace, 0.0f, 0.2f);
+					EditorGUILayout.EndHorizontal();
 				}
 
 				// TimeScale
