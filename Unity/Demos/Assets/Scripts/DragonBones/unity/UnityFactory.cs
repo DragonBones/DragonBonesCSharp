@@ -551,6 +551,12 @@ namespace DragonBones
 			if (_pathTextureAtlasDataMap.ContainsKey(name+textureAtlas.texture.name))
 			{
 				textureAtlasData = _pathTextureAtlasDataMap[name+textureAtlas.texture.name] as UnityTextureAtlasData;
+				#if UNITY_EDITOR
+				if(!Application.isPlaying){
+					textureAtlasData.imagePath = AssetDatabase.GetAssetPath(textureAtlas.texture);
+					textureAtlasData.imagePath =textureAtlasData.imagePath.Substring(0,textureAtlasData.imagePath.Length-4);
+				}
+				#endif
 				_refreshTextureAtlas(textureAtlasData,isUGUI,true);
 				if(isUGUI) textureAtlas.uiMaterial = textureAtlasData.uiTexture;
 				else textureAtlas.material = textureAtlasData.texture;
