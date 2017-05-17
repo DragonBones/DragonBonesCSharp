@@ -206,6 +206,11 @@ namespace DragonBones
 					#endif
 					if(!haveSpriteGorup)
 					{
+						//sort mode
+						serializedObject.Update();
+						EditorGUILayout.PropertyField(serializedObject.FindProperty("sortingMode"), true);
+						serializedObject.ApplyModifiedProperties();
+
 						// Sorting Layer
 						_sortingLayerIndex = EditorGUILayout.Popup("Sorting Layer", _sortingLayerIndex, _sortingLayerNames.ToArray());
 						if (_sortingLayerNames[_sortingLayerIndex] != _armatureComponent.sortingLayerName)
@@ -217,22 +222,19 @@ namespace DragonBones
 								EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
 							}
 						}
-
-						// Sorting Order
-						var sortingOrder = EditorGUILayout.IntField("Order in Layer", _armatureComponent.sortingOrder);
-						if (sortingOrder != _armatureComponent.sortingOrder)
-						{
-							Undo.RecordObject(_armatureComponent, "Edit Sorting Order");
-							_armatureComponent.sortingOrder = sortingOrder;
-							EditorUtility.SetDirty(_armatureComponent);
-							if (!Application.isPlaying && !_isPrefab()){
-								EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
+						if(_armatureComponent.sortingMode ==  SortingMode.SortByZ){
+							// Sorting Order
+							var sortingOrder = EditorGUILayout.IntField("Order in Layer", _armatureComponent.sortingOrder);
+							if (sortingOrder != _armatureComponent.sortingOrder)
+							{
+								Undo.RecordObject(_armatureComponent, "Edit Sorting Order");
+								_armatureComponent.sortingOrder = sortingOrder;
+								EditorUtility.SetDirty(_armatureComponent);
+								if (!Application.isPlaying && !_isPrefab()){
+									EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
+								}
 							}
 						}
-						//sort mode
-						serializedObject.Update();
-						EditorGUILayout.PropertyField(serializedObject.FindProperty("sortingMode"), true);
-						serializedObject.ApplyModifiedProperties();
 					}
 					// ZSpace
 					EditorGUILayout.BeginHorizontal();
