@@ -136,7 +136,7 @@ namespace DragonBones
 				UnityDragonBonesData data = UnityEditor.CreateUnityDragonBonesData(dragonBoneJSON,textureAtlas);
 				_armatureComponent.unityData = data;
 
-				var dragonBonesData = UnityFactory.factory.LoadData(data);
+				var dragonBonesData = UnityFactory.factory.LoadData(data,_armatureComponent.isUGUI);
 				if (dragonBonesData != null)
 				{
 					Undo.RecordObject(_armatureComponent, "Set DragonBones");

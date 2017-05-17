@@ -6,6 +6,12 @@ using UnityEditor;
 
 namespace DragonBones
 {
+
+	public enum SortingMode{
+		SortByZ,
+		SortByOrder
+	}
+
     /**
      * @inheritDoc
      */
@@ -160,13 +166,18 @@ namespace DragonBones
                     if (display != null)
                     {
                         display.transform.localPosition = new Vector3(display.transform.localPosition.x, display.transform.localPosition.y, -slot._zOrder * (_zSpace + 0.001f));
-                    }
+						if(!isUGUI && sortingMode==SortingMode.SortByOrder){
+							UnitySlot us = slot as UnitySlot;
+							if(us.meshRenderer!=null) us.meshRenderer.sortingOrder = slot._zOrder;
+						}
+					}
                 }
             }
         }
 	
 		public bool isUGUI = false;
 		public bool zorderIsDirty = false;
+		public SortingMode sortingMode = SortingMode.SortByZ;
 		public bool flipX = false;
 		public bool flipY = false;
 		public bool addNormal = false;
@@ -185,11 +196,24 @@ namespace DragonBones
 			}
 		}
 
+		#if UNITY_5_6_OR_NEWER
+		private UnityEngine.Rendering.SortingGroup _sortingGroup;
+		#endif
         /**
          * @private
          */
         void Awake()
-        {
+		{
+			#if UNITY_5_6_OR_NEWER
+			if(!isUGUI) {
+				_sortingGroup = GetComponent<UnityEngine.Rendering.SortingGroup>();
+				if(_sortingGroup){
+					sortingMode = SortingMode.SortByOrder;
+					_sortingLayerName = _sortingGroup.sortingLayerName;
+					_sortingOrder = _sortingGroup.sortingOrder;
+				}
+			}
+			#endif
 			if(slotsRoot==null){
 				GameObject go = new GameObject("Slots");
 				go.transform.SetParent(transform);
@@ -202,7 +226,7 @@ namespace DragonBones
 			zorderIsDirty = true;
 
 			if(unityData!=null && unityData.dragonBonesJSON!=null && unityData.textureAtlas!=null){
-				var dragonBonesData = UnityFactory.factory.LoadData(unityData);
+				var dragonBonesData = UnityFactory.factory.LoadData(unityData,isUGUI);
 				if (dragonBonesData != null && !string.IsNullOrEmpty(armatureName))
 				{
 					UnityFactory.factory.BuildArmatureComponent(armatureName, dragonBonesData.name, null, unityData.dataName, gameObject);
@@ -223,6 +247,10 @@ namespace DragonBones
 						if (display != null)
 						{
 							display.transform.localPosition = new Vector3(display.transform.localPosition.x, display.transform.localPosition.y, -slot._zOrder * (_zSpace + 0.001f));
+							if(!isUGUI && sortingMode==SortingMode.SortByOrder){
+								UnitySlot us = slot as UnitySlot;
+								if(us.meshRenderer!=null) us.meshRenderer.sortingOrder = slot._zOrder;
+							}
 						}
 					}
 				}
@@ -241,13 +269,27 @@ namespace DragonBones
 			flipY = _armature.flipY ;
 
 			#if UNITY_EDITOR
-			if(!Application.isPlaying && zSpace>0f){
+			if(!Application.isPlaying){
+				#if UNITY_5_6_OR_NEWER
+				if(!isUGUI){
+					_sortingGroup = GetComponent<UnityEngine.Rendering.SortingGroup>();
+					if(_sortingGroup){
+						sortingMode = SortingMode.SortByOrder;
+						_sortingLayerName = _sortingGroup.sortingLayerName;
+						_sortingOrder = _sortingGroup.sortingOrder;
+					}
+				}
+				#endif
 				foreach (var slot in _armature.GetSlots())
 				{
 					var display = slot.display as GameObject;
 					if (display != null)
 					{
 						display.transform.localPosition = new Vector3(display.transform.localPosition.x, display.transform.localPosition.y, -slot._zOrder * (_zSpace + 0.001f));
+						if(!isUGUI && sortingMode==SortingMode.SortByOrder){
+							UnitySlot us = slot as UnitySlot;
+							if(us.meshRenderer!=null) us.meshRenderer.sortingOrder = slot._zOrder;
+						}
 					}
 				}
 			}
@@ -264,6 +306,10 @@ namespace DragonBones
 					if (display != null)
 					{
 						display.transform.SetSiblingIndex(i);
+						if(!isUGUI && sortingMode==SortingMode.SortByOrder){
+							UnitySlot us = slot as UnitySlot;
+							if(us.meshRenderer!=null) us.meshRenderer.sortingOrder = i;
+						}
 					}
 				}
 				zorderIsDirty = false;

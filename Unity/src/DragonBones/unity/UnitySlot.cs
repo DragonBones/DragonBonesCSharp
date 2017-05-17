@@ -28,6 +28,9 @@ namespace DragonBones
 		public Mesh mesh{
 			get { return _mesh;}
 		}
+		public MeshRenderer meshRenderer{
+			get{ return _renderer;}
+		}
 		public UnityTextureAtlasData currentTextureAtlasData{
 			get{ 
 				if(_textureData==null || _textureData.parent==null) return null;
