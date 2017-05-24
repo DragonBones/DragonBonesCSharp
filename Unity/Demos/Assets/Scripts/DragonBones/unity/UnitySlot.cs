@@ -23,6 +23,7 @@ namespace DragonBones
 		private Vector3[] _vertices;
 		private Vector3[] _vertices2;
 		private Vector3[] _normals;
+		private Color32[] _colors;
 		private Vector3 _normalVal = Vector3.zero;
 		private MeshRenderer _renderer = null;
 		private MeshFilter _meshFilter = null;
@@ -77,6 +78,7 @@ namespace DragonBones
             _vertices = null;
 			_vertices2 = null;
 			_normals = null;
+			_colors = null;
         }
         /**
          * @private
@@ -197,17 +199,17 @@ namespace DragonBones
             }*/
 			if(_mesh!=null)
 			{
-				var colors = new List<Color32>(_mesh.vertexCount);
+				if(_colors==null || _colors.Length!=_mesh.vertexCount){
+					_colors = new Color32[_mesh.vertexCount];
+				}
 				for (int i = 0, l = _mesh.vertexCount; i < l; ++i)
 				{
-					colors.Add(new Color(
-						_colorTransform.redMultiplier,
-						_colorTransform.greenMultiplier,
-						_colorTransform.blueMultiplier,
-						_colorTransform.alphaMultiplier
-					));
+					_colors[i].r = (byte)(_colorTransform.redMultiplier*255);
+					_colors[i].g = (byte)(_colorTransform.greenMultiplier*255);
+					_colors[i].b = (byte)(_colorTransform.blueMultiplier*255);
+					_colors[i].a = (byte)(_colorTransform.alphaMultiplier*255);
 				}
-				_mesh.SetColors(colors);
+				_mesh.colors32 = _colors;
 			}
         }
         /**
@@ -264,23 +266,27 @@ namespace DragonBones
                     var textureAtlasWidth = currentTextureAtlasData.width > 0.0f ? currentTextureAtlasData.width : currentTextureAtlas.mainTexture.width;
                     var textureAtlasHeight = currentTextureAtlasData.height > 0.0f ? currentTextureAtlasData.height : currentTextureAtlas.mainTexture.height;
 
-                    if (_mesh != null)
-                    {
-#if UNITY_EDITOR
-                        //Object.DestroyImmediate(_mesh);
-#else
-                        Object.Destroy(_mesh);
-#endif
-                    }
-
-                    _mesh = new Mesh();
-					_mesh.MarkDynamic();
+					if(_mesh==null){
+	                    _mesh = new Mesh();
+						_mesh.MarkDynamic();
+					}else{
+						_mesh.Clear();
+						_mesh.uv = null;
+						_mesh.vertices = null;
+						_mesh.normals = null;
+						_mesh.triangles = null;
+						_mesh.colors32 = null;
+					}
 
                     if (isMeshDisplay) // Mesh.
                     {
-                        _uvs = new Vector2[_meshData.uvs.Count / 2];
-                        _vertices = new Vector3[_meshData.vertices.Count / 2];
-						_vertices2 = new Vector3[_vertices.Length];
+						if(_uvs==null || _uvs.Length!=_meshData.uvs.Count / 2){
+                        	_uvs = new Vector2[_meshData.uvs.Count / 2];
+						}
+						if(_vertices==null || _vertices.Length!=_meshData.vertices.Count / 2){
+	                        _vertices = new Vector3[_meshData.vertices.Count / 2];
+							_vertices2 = new Vector3[_vertices.Length];
+						}
 
                         for (int i = 0, l = _meshData.uvs.Count; i < l; i += 2)
                         {
@@ -558,7 +564,7 @@ namespace DragonBones
                         var isPositive = global.scaleX >= 0.0f;
                         var cos = Mathf.Cos(dSkew);
                         var sin = Mathf.Sin(dSkew);
-
+			
                         for (int i = 0, l = _vertices.Length; i < l; ++i)
                         {
                             var x = _vertices[i].x;
