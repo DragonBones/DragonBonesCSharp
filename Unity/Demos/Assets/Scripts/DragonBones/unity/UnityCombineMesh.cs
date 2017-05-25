@@ -54,7 +54,6 @@ namespace DragonBones
 			}
 		}
 
-
 		void Start () {
 			_unityArmature = GetComponent<UnityArmatureComponent>();
 			if(_unityArmature.isUGUI){
@@ -154,18 +153,6 @@ namespace DragonBones
 				return;
 			}
 			_mesh.RecalculateBounds();
-			if(_unityArmature.addNormal){
-				Vector3[] normals = _mesh.normals;
-				if(normals==null||normals.Length!=_mesh.vertexCount)
-				{
-					normals = new Vector3[_mesh.vertexCount];
-					Vector3 n = new Vector3(0f,0f,-1f);
-					for(int i=0;i<_mesh.vertexCount;++i){
-						normals[i] = n;
-					}
-				}
-				_mesh.normals = normals;
-			}
 			meshFilter.sharedMesh = _mesh;
 			meshRenderer.sharedMaterials = mats.ToArray();
 		}
