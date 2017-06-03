@@ -297,6 +297,7 @@ namespace DragonBones
 				if(textureAtlas!=null && textureAtlas.Length>0 && textureAtlas[0]!=null && textureAtlas[0].texture!=null){
 					data.textureAtlas = textureAtlas;
 				}
+				EditorUtility.SetDirty(data);
 				AssetDatabase.SaveAssets();
 				return data;
 			}
