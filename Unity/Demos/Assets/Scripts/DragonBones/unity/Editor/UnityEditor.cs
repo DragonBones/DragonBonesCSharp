@@ -278,6 +278,7 @@ namespace DragonBones
 
 		public static UnityDragonBonesData CreateUnityDragonBonesData(TextAsset dragonBonesJSON,UnityDragonBonesData.TextureAtlas[] textureAtlas){
 			if(dragonBonesJSON){
+				bool isDirty = false;
 				string path = AssetDatabase.GetAssetPath(dragonBonesJSON);
 				path = path.Substring(0,path.Length-5);
 				int index = path.LastIndexOf("_ske");
@@ -289,15 +290,38 @@ namespace DragonBones
 				if(data==null){
 					data = UnityDragonBonesData.CreateInstance<UnityDragonBonesData>();
 					AssetDatabase.CreateAsset(data,dataPath);
+					isDirty = true;
 				}
 				string name = path.Substring(path.LastIndexOf("/")+1);
-				data.dataName = name;
-				data.dragonBonesJSON = dragonBonesJSON;
+				if(string.IsNullOrEmpty(data.dataName) || !data.dataName.Equals(name)){
+					data.dataName = name;
+					isDirty = true;
+				}
+				if(data.dragonBonesJSON!=dragonBonesJSON){
+					data.dragonBonesJSON = dragonBonesJSON;
+					isDirty = true;
+				}
 
 				if(textureAtlas!=null && textureAtlas.Length>0 && textureAtlas[0]!=null && textureAtlas[0].texture!=null){
+					if(data.textureAtlas == null || data.textureAtlas.Length!=textureAtlas.Length){
+						isDirty = true;
+					}else{
+						for(int i=0;i<textureAtlas.Length;++i){
+							if(textureAtlas[i].material!=data.textureAtlas[i].material || 
+								textureAtlas[i].uiMaterial!=data.textureAtlas[i].uiMaterial || 
+								textureAtlas[i].texture!=data.textureAtlas[i].texture || 
+								textureAtlas[i].textureAtlasJSON!=data.textureAtlas[i].textureAtlasJSON
+							){
+								isDirty = true;
+								break;
+							}
+						}
+					}
 					data.textureAtlas = textureAtlas;
 				}
-				EditorUtility.SetDirty(data);
+				if(isDirty){
+					EditorUtility.SetDirty(data);
+				}
 				AssetDatabase.SaveAssets();
 				return data;
 			}
