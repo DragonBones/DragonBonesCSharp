@@ -243,9 +243,10 @@ namespace DragonBones
 				}
 
 				// TimeScale
-				EditorGUILayout.BeginHorizontal();
-				_armatureComponent.animation.timeScale = EditorGUILayout.Slider("Time Scale", _armatureComponent.animation.timeScale, 0.0f, 2.0f);
-				EditorGUILayout.EndHorizontal();
+				serializedObject.Update();
+				EditorGUILayout.PropertyField(serializedObject.FindProperty("_timeScale"), true);
+				serializedObject.ApplyModifiedProperties();
+				_armatureComponent.animation.timeScale = serializedObject.FindProperty("_timeScale").floatValue;
 
 				// Flip
 				EditorGUILayout.BeginHorizontal();

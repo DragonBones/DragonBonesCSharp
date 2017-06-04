@@ -474,6 +474,7 @@ namespace DragonBones
 					}
 					#if UNITY_EDITOR
 					if(isDirty){
+						AssetDatabase.Refresh();
 						EditorUtility.SetDirty(data);
 						AssetDatabase.SaveAssets();
 					}

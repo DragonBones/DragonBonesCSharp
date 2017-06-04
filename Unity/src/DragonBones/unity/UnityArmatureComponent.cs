@@ -204,6 +204,24 @@ namespace DragonBones
                 }
             }
         }
+
+		[Range(-2f,2f)]
+		[SerializeField]
+		protected float _timeScale = 1f;
+		public float timeScale{
+			set { 
+				_timeScale = value;
+				if(_armature!=null){
+					_armature.animation.timeScale = _timeScale;
+				}
+			}
+			get {
+				if(_armature!=null){
+					_timeScale = _armature.animation.timeScale;
+				}
+				return _timeScale;
+			}
+		}
 	
 		public bool isUGUI = false;
 		public bool zorderIsDirty = false;
@@ -273,6 +291,7 @@ namespace DragonBones
                 sortingOrder = sortingOrder;
 				_armature.flipX = flipX;
 				_armature.flipY = flipY;
+				_armature.animation.timeScale = _timeScale;
 				if(zSpace>0 || sortingMode==SortingMode.SortByOrder){
 					foreach (var slot in _armature.GetSlots())
 					{
