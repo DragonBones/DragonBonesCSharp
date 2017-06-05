@@ -445,7 +445,7 @@ namespace DragonBones
 
 			if (data.dragonBonesJSON != null)
 			{
-				dragonBonesData = LoadDragonBonesData(data.dragonBonesJSON);
+				dragonBonesData = LoadDragonBonesData(data.dragonBonesJSON,data.dataName);
 
 				if (!string.IsNullOrEmpty(data.dataName) && dragonBonesData != null && data.textureAtlas != null)
 				{
