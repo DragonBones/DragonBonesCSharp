@@ -767,7 +767,6 @@ namespace DragonBones
 				if (slotDisplayDataSet != null)
 				{
 					DisplayData prevDispalyData = null;
-					int index = 0;
 					foreach (var displayData in slotDisplayDataSet.displays)
 					{
 						if (displayData.name == displayName)
@@ -775,7 +774,6 @@ namespace DragonBones
 							prevDispalyData = displayData;
 							break;
 						}
-						++index;
 					}
 					if(prevDispalyData==null){
 						return;
