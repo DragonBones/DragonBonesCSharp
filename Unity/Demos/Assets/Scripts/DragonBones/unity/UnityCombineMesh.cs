@@ -199,9 +199,10 @@ namespace DragonBones
 			if(!Application.isPlaying){
 				UnityCombineMesh ucm = target as UnityCombineMesh;
 				if (ucm.unityArmature!=null && ucm.unityArmature.armature!=null &&
-					ucm.unityArmature.armature.parent==null && GUILayout.Button("Remove",GUILayout.Height(20)))
+					ucm.unityArmature.armature.parent==null && GUILayout.Button("Remove Combine Mesh",GUILayout.Height(20)))
 				{
 					ucm.Remove();
+					GUIUtility.ExitGUI();
 				}
 			}
 		}
