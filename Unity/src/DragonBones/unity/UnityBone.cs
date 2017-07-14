@@ -87,6 +87,7 @@ namespace DragonBones
 					_helpVector3.y = 180.0f;
 				}
 
+				_helpVector3.z = -_bone.global.skewX*Mathf.Rad2Deg;
 				transform.localEulerAngles = _helpVector3;
 
 				_helpVector3.x = scaleX >= 0.0f ? scaleX : -scaleX;
