@@ -79,7 +79,7 @@ namespace DragonBones
 					if(tdc!=null && (tdc.width==0 || tdc.height==0)){
 						//add width and height
 						string imgPath = path.Substring(0,path.IndexOf(".json"))+".png";
-						Texture2D texture = AssetDatabase.LoadAssetAtPath<Texture2D>(imgPath);
+						Texture2D texture = LoadPNG(Application.dataPath+"/"+ imgPath.Substring(6));
 						if(texture){
 							tdc.width = texture.width;
 							tdc.height = texture.height;
@@ -87,12 +87,26 @@ namespace DragonBones
 							string json = JsonUtility.ToJson(tdc);
 							File.WriteAllText(path,json);
 							EditorUtility.SetDirty(ta);
+
+							GameObject.DestroyImmediate(texture);
 						}
 					}
 				}
 			}
 			AssetDatabase.Refresh();
 			AssetDatabase.SaveAssets();
+		}
+
+		static Texture2D LoadPNG(string filePath) {
+			Texture2D tex = null;
+			byte[] fileData;
+
+			if (File.Exists(filePath))     {
+				fileData = File.ReadAllBytes(filePath);
+				tex = new Texture2D(2, 2);
+				tex.LoadImage(fileData);
+			}
+			return tex;
 		}
 
 		static void ProcessTexture(List<string> imagePaths){
