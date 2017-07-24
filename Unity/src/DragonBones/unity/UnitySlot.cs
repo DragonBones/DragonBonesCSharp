@@ -268,6 +268,7 @@ namespace DragonBones
 
 					if(_mesh==null){
 	                    _mesh = new Mesh();
+                        _mesh.hideFlags = HideFlags.DontSaveInEditor|HideFlags.DontSaveInBuild;
 						_mesh.MarkDynamic();
 					}else{
 						_mesh.Clear();

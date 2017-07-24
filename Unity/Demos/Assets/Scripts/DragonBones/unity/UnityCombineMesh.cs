@@ -61,6 +61,7 @@ namespace DragonBones
 				return;
 			}
 			_mesh = new Mesh();
+			_mesh.hideFlags = HideFlags.DontSaveInEditor|HideFlags.DontSaveInBuild;
 			_mesh.MarkDynamic();
 			if(_unityArmature.armature!=null){
 				UpdateMesh();
