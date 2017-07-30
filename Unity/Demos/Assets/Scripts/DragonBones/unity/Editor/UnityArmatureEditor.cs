@@ -23,6 +23,8 @@ namespace DragonBones
 		void OnEnable()
 		{
 			_armatureComponent = target as UnityArmatureComponent;
+			if (_isPrefab ())
+				return;
 
 			// 
 			_nowTime = System.DateTime.Now.Ticks;
@@ -76,6 +78,8 @@ namespace DragonBones
 
 		public override void OnInspectorGUI()
 		{
+			if (_isPrefab ())
+				return;
 			if(_armatureIndex==-1){
 				_updateParameters();
 			}

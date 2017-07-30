@@ -367,6 +367,7 @@ namespace DragonBones
          * @param armatureName 骨架数据名称。
          * @param dragonBonesName 龙骨数据名称，如果未设置，将检索所有的龙骨数据，如果多个数据中包含同名的骨架数据，可能无法创建出准确的骨架。
          * @param skinName 皮肤名称，如果未设置，则使用默认皮肤。
+         * @param isUGUI 是否是UGUI，默认为false
          * @returns 骨架的显示容器。
          * @see DragonBones.UnityArmatureComponent
          * @version DragonBones 4.5
