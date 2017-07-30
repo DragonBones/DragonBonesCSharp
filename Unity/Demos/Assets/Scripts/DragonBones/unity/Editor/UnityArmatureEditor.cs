@@ -10,24 +10,7 @@ namespace DragonBones
 {
 	[CustomEditor(typeof(UnityArmatureComponent))]
 	public class UnityArmatureEditor : Editor {
-
-		[InitializeOnLoadMethod]
-		static void StartInitializeOnLoadMethod () 
-		{
-			PrefabUtility.prefabInstanceUpdated = delegate(GameObject instance) {
-				//prefab保存的路径
-				if (instance.GetComponent<UnityArmatureComponent> () != null
-				    && Selection.activeGameObject
-				    && Selection.activeGameObject.GetComponent<UnityArmatureComponent> () != null) {
-
-					//防止动画创建prefab时报错
-					UnityArmatureComponent armature = Selection.activeGameObject.GetComponent<UnityArmatureComponent> ();
-					armature.animation.Stop ();
-				}
-			};
-		}
-
-
+		
 		private int _armatureIndex = -1;
 		private int _animationIndex = -1;
 		private int _sortingLayerIndex = -1;
