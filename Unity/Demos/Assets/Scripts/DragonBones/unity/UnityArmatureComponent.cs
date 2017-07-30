@@ -250,11 +250,24 @@ namespace DragonBones
 			get { return _sortingGroup; }
 		}
 		#endif
-        /**
+
+
+		#if UNITY_EDITOR
+		private bool _isPrefab(){
+			return PrefabUtility.GetPrefabParent(gameObject) == null 
+				&& PrefabUtility.GetPrefabObject(gameObject) != null;
+		}
+		#endif
+
+		/**
          * @private
          */
         void Awake()
 		{
+			#if UNITY_EDITOR
+			if(_isPrefab()) return;
+			#endif
+
 			#if UNITY_5_6_OR_NEWER
 			if(!isUGUI) {
 				_sortingGroup = GetComponent<UnityEngine.Rendering.SortingGroup>();
