@@ -4,40 +4,49 @@ using System.Collections.Generic;
 namespace DragonBones
 {
     /**
-     * @language zh_CN
      * WorldClock 提供时钟支持，为每个加入到时钟的 IAnimatable 对象更新时间。
-     * @see DragonBones.IAnimateble
-     * @see DragonBones.Armature
+     * @see dragonBones.IAnimateble
+     * @see dragonBones.Armature
      * @version DragonBones 3.0
+     * @language zh_CN
      */
     public class WorldClock : IAnimateble
     {
         /**
-         * @language zh_CN
          * 当前时间。 (以秒为单位)
          * @version DragonBones 3.0
-         */
-        public float time = DateTime.Now.Ticks / 100.0f / DragonBones.SECOND_TO_MILLISECOND;
-        /**
          * @language zh_CN
+         */
+        public float time = 0.0f;
+
+        /**
          * 时间流逝速度，用于控制动画变速播放。 [0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
-         * @default 1
+         * @default 1.0
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public float timeScale = 1.0f;
-
         private readonly List<IAnimateble> _animatebles = new List<IAnimateble>();
         private WorldClock _clock = null;
         /**
-         * @language zh_CN
          * 创建一个新的 WorldClock 实例。
          * 通常并不需要单独创建 WorldClock 实例，可以直接使用 WorldClock.clock 静态实例。
          * (创建更多独立的 WorldClock 实例可以更灵活的为需要更新的 IAnimateble 实例分组，用于控制不同组不同的播放速度)
          * @version DragonBones 3.0
+         * @language zh_CN
          */
-        public WorldClock()
+        public WorldClock(float time = -1.0f)
         {
+            if (time <= 0.0f)
+            {
+                this.time = DateTime.Now.Ticks / 100.0f / DragonBones.SECOND_TO_MILLISECOND;
+            }
+            else
+            {
+                this.time = time;
+            }
         }
+
         /**
          * @language zh_CN
          * 为所有的 IAnimatable 实例更新时间。
@@ -53,21 +62,21 @@ namespace DragonBones
 
             if (passedTime < 0.0f)
             {
-                passedTime = DateTime.Now.Ticks / 100.0f / DragonBones.SECOND_TO_MILLISECOND - time;
+                passedTime = DateTime.Now.Ticks / 100.0f / DragonBones.SECOND_TO_MILLISECOND - this.time;
             }
-            
-            if (timeScale != 1.0f)
+
+            if (this.timeScale != 1.0f)
             {
-                passedTime *= timeScale;
+                passedTime *= this.timeScale;
             }
 
             if (passedTime < 0.0f)
             {
-                time -= passedTime;
+                this.time -= passedTime;
             }
             else
             {
-                time += passedTime;
+                this.time += passedTime;
             }
 
             if (passedTime > 0.0f)
@@ -100,7 +109,7 @@ namespace DragonBones
                         var animateble = _animatebles[i];
                         if (animateble != null)
                         {
-                                _animatebles[i - r] = animateble;
+                            _animatebles[i - r] = animateble;
                         }
                         else
                         {
@@ -116,15 +125,17 @@ namespace DragonBones
          * 是否包含 IAnimatable 实例
          * @param value IAnimatable 实例。
          * @version DragonBones 3.0
+         * @language zh_CN
          */
-        public bool Contains(IAnimateble value) {
+        public bool Contains(IAnimateble value)
+        {
             return _animatebles.Contains(value);
         }
         /**
-         * @language zh_CN
          * 添加 IAnimatable 实例。
          * @param value IAnimatable 实例。
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public void Add(IAnimateble value)
         {
@@ -135,13 +146,14 @@ namespace DragonBones
             }
         }
         /**
-         * @language zh_CN
-         * 清除所有的 IAnimatable 实例。
+         * 移除 IAnimatable 实例。
+         * @param value IAnimatable 实例。
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public void Remove(IAnimateble value)
         {
-            var index =     _animatebles.IndexOf(value);
+            var index = _animatebles.IndexOf(value);
             if (index >= 0)
             {
                 _animatebles[index] = null;
@@ -149,13 +161,13 @@ namespace DragonBones
             }
         }
         /**
-         * @language zh_CN
          * 清除所有的 IAnimatable 实例。
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public void Clear()
         {
-            for (int i = 0, l =     _animatebles.Count; i < l; ++i)
+            for (int i = 0, l = _animatebles.Count; i < l; ++i)
             {
                 var animateble = _animatebles[i];
                 _animatebles[i] = null;
@@ -178,13 +190,12 @@ namespace DragonBones
                     return;
                 }
 
-                var prevClock = _clock;
-                _clock = value;
-
-                if (prevClock != null)
+                if (_clock != null)
                 {
-                    prevClock.Remove(this);
+                    _clock.Remove(this);
                 }
+
+                _clock = value;
 
                 if (_clock != null)
                 {

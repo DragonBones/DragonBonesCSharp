@@ -25,9 +25,9 @@ namespace DragonBones
         BoundingBox = 3
     }
     /**
-     * @language zh_CN
      * 包围盒类型。
      * @version DragonBones 5.0
+     * @language zh_CN
      */
     public enum BoundingBoxType
     {
@@ -39,26 +39,17 @@ namespace DragonBones
     /**
      * @private
      */
-    public enum EventType
+    public enum ActionType
     {
-        None = -1,
+        Play = 0,
         Frame = 10,
         Sound = 11
     }
     /**
      * @private
      */
-    public enum ActionType
-    {
-        None = -1,
-        Play = 0
-    }
-    /**
-     * @private
-     */
     public enum BlendMode
     {
-        None = -1,
         Normal = 0,
         Add = 1,
         Alpha = 2,
@@ -74,84 +65,102 @@ namespace DragonBones
         Screen = 12,
         Subtract = 13
     }
+
     /**
-     * @language zh_CN
+     * @private
+     */
+    public enum TweenType
+    {
+        None = 0,
+        Line = 1,
+        Curve = 2,
+        QuadIn = 3,
+        QuadOut = 4,
+        QuadInOut = 5
+    }
+
+    /**
+     * @private
+     */
+    public enum TimelineType
+    {
+        Action = 0,
+        ZOrder = 1,
+
+        BoneAll = 10,
+        BoneTranslate = 11,
+        BoneRotate = 12,
+        BoneScale = 13,
+
+        SlotDisplay = 20,
+        SlotColor = 21,
+        SlotFFD = 22,
+
+        AnimationTime = 40,
+        AnimationWeight = 41
+    }
+    /**
+     * @private
+     */
+    public enum OffsetMode
+    {
+        None,
+        Additive,
+        Override
+    }
+    /**
      * 动画混合的淡出方式。
      * @version DragonBones 4.5
+     * @language zh_CN
      */
     public enum AnimationFadeOutMode
     {
         /**
-         * @language zh_CN
          * 不淡出动画。
          * @version DragonBones 4.5
+         * @language zh_CN
          */
         None = 0,
         /**
-        * @language zh_CN
          * 淡出同层的动画。
          * @version DragonBones 4.5
+         * @language zh_CN
          */
         SameLayer = 1,
         /**
-         * @language zh_CN
          * 淡出同组的动画。
          * @version DragonBones 4.5
+         * @language zh_CN
          */
         SameGroup = 2,
         /**
-         * @language zh_CN
          * 淡出同层并且同组的动画。
          * @version DragonBones 4.5
+         * @language zh_CN
          */
         SameLayerAndGroup = 3,
         /**
-         * @language zh_CN
          * 淡出所有动画。
          * @version DragonBones 4.5
+         * @language zh_CN
          */
-        All = 4
+        All = 4,
+        /**
+         * 不替换同名动画。
+         * @version DragonBones 5.1
+         * @language zh_CN
+         */
+        Single = 5
     }
     public class DragonBones
     {
-        /**
-         * @private
-         */
-        public const float PI = 3.14159265358979323846f;
-        /**
-         * @private
-         */
-        public const float PI_D = PI * 2.0f;
-        /**
-         * @private
-         */
-        public const float PI_H = PI / 2.0f;
-        /**
-         * @private
-         */
-        public const float PI_Q = PI / 4.0f;
-        /**
-         * @private
-         */
-        public const float ANGLE_TO_RADIAN = PI / 180.0f;
-        /**
-         * @private
-         */
-        public const float RADIAN_TO_ANGLE = 180.0f / PI;
-        /**
-         * @private
-         */
         public const float SECOND_TO_MILLISECOND = 1000.0f;
-        /**
-         * @private
-         */
-        public const float NO_TWEEN = 100.0f;
 
-        public const string VSESION = "5.0.0";
-        /**
-         * @private
-         */
-        public const string ARGUMENT_ERROR = "Argument error.";
+        public static bool yDown = true;
+        public static bool debug = false;
+        public static bool debugDraw = false;
+        public static bool webAssembly = false;
+        public static readonly string VERSION = "5.5.0";
 
         /**
          * @private
@@ -180,6 +189,41 @@ namespace DragonBones
                 for (int i = list.Count, l = count; i < l; ++i)
                 {
                     list.Add(value);
+                }
+            }
+        }
+
+        private readonly WorldClock _clock = new WorldClock();
+        private readonly List<EventObject> _events = new List<EventObject>();
+        private readonly List<BaseObject> _objects = new List<BaseObject>();
+        private IEventDispatcher<EventObject> _eventManager = null;
+
+        public DragonBones(IEventDispatcher<EventObject> eventManager)
+        {
+            this._eventManager = eventManager;
+        }
+
+        public void AdvanceTime(float passedTime)
+        {
+            if (this._objects.Count > 0)
+            {
+                for (int i = 0; i < this._objects.Count; ++i)
+                {
+                    var obj = this._objects[i];
+                    obj.ReturnToPool();
+                }
+
+                this._objects.Clear();
+            }
+
+            this._clock.AdvanceTime(passedTime);
+
+            if (this._events.Count > 0)
+            {
+                for (int i = 0; i < this._events.Count; ++i)
+                {
+                    var eventObject = this._events[i];
+                    //var armature = eventObject.ar
                 }
             }
         }

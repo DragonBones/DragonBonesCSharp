@@ -13,9 +13,11 @@ namespace DragonBones
         protected const string DATA_VERSION_4_0 = "4.0";
         protected const string DATA_VERSION_4_5 = "4.5";
         protected const string DATA_VERSION_5_0 = "5.0";
-        protected const string DATA_VERSION = DATA_VERSION_5_0;
+        protected const string DATA_VERSION_5_5 = "5.5";
+        protected const string DATA_VERSION = DATA_VERSION_5_5;
         protected static readonly List<string> DATA_VERSIONS = new List<string>()
         {
+            DATA_VERSION_5_5,
             DATA_VERSION_5_0,
             DATA_VERSION_4_5,
             DATA_VERSION_4_0,
@@ -259,7 +261,7 @@ namespace DragonBones
         protected bool _isAutoTween = false; // For 2.x ~ 3.x
         protected float _animationTweenEasing = 0.0f; // For 2.x ~ 3.x
         protected readonly Point _timelinePivot = new Point(); // For 2.x ~ 3.x
-        
+
         protected readonly Point _helpPoint = new Point();
         protected readonly Transform _helpTransformA = new Transform();
         protected readonly Transform _helpTransformB = new Transform();
@@ -416,15 +418,16 @@ namespace DragonBones
                 var startFrame = BaseObject.BorrowObject<AnimationFrameData>(); // Add start frame.
                 startFrame.position = 0.0f;
 
-                if (_animation.frameCount > 1) {
-                    DragonBones.ResizeList (frames, (int)_animation.frameCount + 1, null); // One more count for zero duration frame.
+                if (_animation.frameCount > 1)
+                {
+                    DragonBones.ResizeList(frames, (int)_animation.frameCount + 1, null); // One more count for zero duration frame.
 
-                    var endFrame = BaseObject.BorrowObject<AnimationFrameData> (); // Add end frame to keep animation timeline has two different frames atleast.
+                    var endFrame = BaseObject.BorrowObject<AnimationFrameData>(); // Add end frame to keep animation timeline has two different frames atleast.
                     endFrame.position = _animation.frameCount / _armature.frameRate;
 
                     frames[0] = startFrame;
                     frames[(int)_animation.frameCount] = endFrame;
-                } 
+                }
                 else // TODO
                 {
                     DragonBones.ResizeList(frames, 1, null);
