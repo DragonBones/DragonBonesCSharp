@@ -98,7 +98,7 @@ namespace DragonBones
 
         }
 
-        protected override void _onClear()
+        protected override void _OnClear()
         {
             foreach (var pair in boneTimelines)
             {
@@ -219,7 +219,7 @@ namespace DragonBones
         public uint offset; // TimelineArray.
         public int frameIndicesOffset; // FrameIndices.
 
-        protected override void _onClear()
+        protected override void _OnClear()
         {
             this.type = TimelineType.BoneAll;
             this.offset = 0;

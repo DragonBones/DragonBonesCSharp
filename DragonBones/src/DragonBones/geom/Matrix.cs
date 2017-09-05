@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace DragonBones
 {
@@ -45,11 +46,26 @@ namespace DragonBones
         }
 
         /**
-         * @language zh_CN
-         * 转换为恒等矩阵。
-         * @version DragonBones 3.0
+         * @private
          */
-        public Matrix Identity()
+        public Matrix CopyFromArray(List<float> value, int offset = 0)
+        {
+            this.a = value[offset];
+            this.b = value[offset + 1];
+            this.c = value[offset + 2];
+            this.d = value[offset + 3];
+            this.tx = value[offset + 4];
+            this.ty = value[offset + 5];
+
+            return this;
+        }
+
+    /**
+     * @language zh_CN
+     * 转换为恒等矩阵。
+     * @version DragonBones 3.0
+     */
+    public Matrix Identity()
         {
             this.a = this.d = 1.0f;
             this.b = this.c = 0.0f;

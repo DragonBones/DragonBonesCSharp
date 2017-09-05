@@ -31,7 +31,7 @@ namespace DragonBones
         /**
          * @private
          */
-        protected override void _onClear()
+        protected override void _OnClear()
         {
             this.ints.Clear();
             this.floats.Clear();
@@ -75,7 +75,7 @@ namespace DragonBones
         public SlotData slot;
         public UserData data;
 
-        protected override void _onClear()
+        protected override void _OnClear()
         {
             if (this.data != null)
             {

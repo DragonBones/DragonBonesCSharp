@@ -10,7 +10,7 @@
         public BoneData bone;
         public BoneData root = null;
 
-        protected override void _onClear()
+        protected override void _OnClear()
         {
             this.order = 0;
             this.target = null; 
@@ -27,9 +27,9 @@
         public bool scaleEnabled;
         public float weight;
 
-        protected override void _onClear()
+        protected override void _OnClear()
         {
-            base._onClear();
+            base._OnClear();
 
             this.bendPositive = false;
             this.scaleEnabled = false;
