@@ -158,8 +158,8 @@ namespace DragonBones
             this.cacheFrameRate = Math.Max((float)Math.Ceiling(frameRate * scale), 1.0f);
             var cacheFrameCount = (int)Math.Ceiling(this.cacheFrameRate * duration) + 1; // Cache one more frame.
 
-            DragonBones.ResizeList(cachedFrames, 0, false);
-            DragonBones.ResizeList(cachedFrames, cacheFrameCount, false);
+            cachedFrames.ResizeList(0, false);
+            cachedFrames.ResizeList(cacheFrameCount, false);
 
             
         }

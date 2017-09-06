@@ -53,7 +53,7 @@ namespace DragonBones
                     var pool = _poolsMap[classType];
                     if (pool.Count > maxCount)
                     {
-                        DragonBones.ResizeList(pool, (int)maxCount, null);
+                        pool.ResizeList((int)maxCount, null);
                     }
                 }
 
@@ -72,7 +72,7 @@ namespace DragonBones
                     var pool = _poolsMap[pair.Key];
                     if (pool.Count > maxCount)
                     {
-                        DragonBones.ResizeList(pool, (int)maxCount, null);
+                        pool.ResizeList((int)maxCount, null);
                     }
 
                     _maxCountMap[pair.Key] = maxCount;

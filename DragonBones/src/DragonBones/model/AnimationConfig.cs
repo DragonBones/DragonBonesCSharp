@@ -223,7 +223,7 @@ namespace DragonBones
             this.animation = value.animation;
             this.group = value.group;
 
-            DragonBones.ResizeList(boneMask, value.boneMask.Count, null);
+            boneMask.ResizeList(value.boneMask.Count, null);
             for (int i = 0, l = boneMask.Count; i < l; ++i)
             {
                 boneMask[i] = value.boneMask[i];

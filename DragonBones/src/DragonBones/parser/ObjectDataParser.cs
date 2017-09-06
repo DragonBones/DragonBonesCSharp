@@ -331,7 +331,7 @@ namespace DragonBones
         {
             var frameOffset = this._frameArray.Count;
             var actionCount = frame.actions.Count;
-            DragonBones.ResizeList(this._frameArray, this._frameArray.Count + 1 + 1 + actionCount, 0);
+            this._frameArray.ResizeList(this._frameArray.Count + 1 + 1 + actionCount, 0);
             this._frameArray[frameOffset + (int)BinaryOffset.FramePosition] = frame.frameStart;
             this._frameArray[frameOffset + (int)BinaryOffset.FramePosition + 1] = actionCount; // Action count.
 
@@ -801,7 +801,7 @@ namespace DragonBones
             var uvOffset = vertexOffset + vertexCount * 2;
 
             mesh.offset = this._intArray.Count;
-            DragonBones.ResizeList(this._intArray, this._intArray.Count + 1 + 1 + 1 + 1 + triangleCount * 3, 0);
+            this._intArray.ResizeList(this._intArray.Count + 1 + 1 + 1 + 1 + triangleCount * 3, 0);
             this._intArray[mesh.offset + (int)BinaryOffset.MeshVertexCount] = vertexCount;
             this._intArray[mesh.offset + (int)BinaryOffset.MeshTriangleCount] = triangleCount;
             this._intArray[mesh.offset + (int)BinaryOffset.MeshFloatOffset] = vertexOffset;
@@ -811,7 +811,7 @@ namespace DragonBones
                 this._intArray[mesh.offset + (int)BinaryOffset.MeshVertexIndices + i] = (int)rawTriangles[i];
             }
 
-            DragonBones.ResizeList(this._floatArray, this._floatArray.Count + vertexCount * 2 + vertexCount * 2, 0.0f);
+            this._floatArray.ResizeList(this._floatArray.Count + vertexCount * 2 + vertexCount * 2, 0.0f);
             for (int i = 0, l = vertexCount * 2; i < l; ++i)
             {
                 this._floatArray[vertexOffset + i] = (float)rawVertices[i];
@@ -831,9 +831,9 @@ namespace DragonBones
                 weight.count = (rawWeights.Count - vertexCount) / 2;
                 weight.offset = this._intArray.Count;
 
-                DragonBones.ResizeList(weight.bones, weightBoneCount, null);
-                DragonBones.ResizeList(weightBoneIndices, weightBoneCount, uint.MinValue);
-                DragonBones.ResizeList(this._intArray, this._intArray.Count + 1 + 1 + weightBoneCount + vertexCount + weight.count, 0);
+                weight.bones.ResizeList(weightBoneCount, null);
+                weightBoneIndices.ResizeList(weightBoneCount, uint.MinValue);
+                this._intArray.ResizeList(this._intArray.Count + 1 + 1 + weightBoneCount + vertexCount + weight.count, 0);
                 this._intArray[weight.offset + (int)BinaryOffset.WeigthFloatOffset] = floatOffset;
 
                 for (var i = 0; i < weightBoneCount; ++i)
@@ -845,8 +845,8 @@ namespace DragonBones
 
                     this._intArray[weight.offset + (int)BinaryOffset.WeigthBoneIndices + i] = this._armature.sortedBones.IndexOf(bone);
                 }
-                
-                DragonBones.ResizeList(this._floatArray, this._floatArray.Count + weight.count * 3, 0.0f);
+
+                this._floatArray.ResizeList(this._floatArray.Count + weight.count * 3, 0.0f);
                 this._helpMatrixA.CopyFromArray(rawSlotPose, 0);
 
                 
@@ -938,7 +938,7 @@ namespace DragonBones
             {
                 var rawVertices = rawData[ObjectDataParser.VERTICES] as List<float>;
 
-                DragonBones.ResizeList(polygonBoundingBox.vertices, rawVertices.Count, 0.0f);
+                polygonBoundingBox.vertices.ResizeList(rawVertices.Count, 0.0f);
 
                 for (int i = 0, l = rawVertices.Count; i < l; i += 2)
                 {
@@ -1094,7 +1094,7 @@ namespace DragonBones
                 timeline.type = TimelineType.Action;
                 timeline.offset = (uint)this._timelineArray.Count;
 
-                DragonBones.ResizeList(this._timelineArray, this._timelineArray.Count + 1 + 1 + 1 + 1 + 1 + keyFrameCount, 0);
+                this._timelineArray.ResizeList(this._timelineArray.Count + 1 + 1 + 1 + 1 + 1 + keyFrameCount, 0);
                 this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineScale] = 100;
                 this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineOffset] = 0;
                 this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineKeyFrameCount] = keyFrameCount;
@@ -1113,7 +1113,7 @@ namespace DragonBones
                     var frameIndices = this._data.frameIndices;
 
                     timeline.frameIndicesOffset = frameIndices.Count;
-                    DragonBones.ResizeList(frameIndices, frameIndices.Count + (int)totalFrameCount, uint.MinValue);
+                    frameIndices.ResizeList(frameIndices.Count + (int)totalFrameCount, uint.MinValue);
 
                     for (
                         int i = 0, iK = 0, frameStart = 0, frameCount = 0;
@@ -1175,8 +1175,8 @@ namespace DragonBones
             var timeline = BaseObject.BorrowObject<TimelineData>();
             timeline.type = type;
             timeline.offset = (uint)this._timelineArray.Count;
-            
-            DragonBones.ResizeList(this._timelineArray, this._timelineArray.Count + 1 + 1 + 1 + 1 + 1 + keyFrameCount, 0);
+
+            this._timelineArray.ResizeList(this._timelineArray.Count + 1 + 1 + 1 + 1 + 1 + keyFrameCount, 0);
             this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineScale] = (int)Math.Round(ObjectDataParser._GetNumber(rawData, ObjectDataParser.SCALE, 1.0f) * 100);
             this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineOffset] = (int)Math.Round(ObjectDataParser._GetNumber(rawData, ObjectDataParser.OFFSET, 0.0f) * 100);
             this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineKeyFrameCount] = keyFrameCount;
@@ -1210,7 +1210,7 @@ namespace DragonBones
                 var totalFrameCount = this._animation.frameCount + 1; // One more frame than animation.
 
                 timeline.frameIndicesOffset = frameIndices.Count;
-                DragonBones.ResizeList(frameIndices, frameIndices.Count + (int)totalFrameCount, uint.MinValue);
+                frameIndices.ResizeList(frameIndices.Count + (int)totalFrameCount, uint.MinValue);
 
                 for (
                     int i = 0, iK = 0, frameStart = 0, frameCount = 0;
@@ -1384,7 +1384,7 @@ namespace DragonBones
         {
             //rawData没用到
             var frameOffset = this._frameArray.Count;
-            DragonBones.ResizeList(this._frameArray, this._frameArray.Count + 1, 0);
+            this._frameArray.ResizeList(this._frameArray.Count + 1, 0);
             this._frameArray[(int)frameOffset + (int)BinaryOffset.FramePosition] = frameStart;
 
             return frameOffset;
@@ -1400,7 +1400,7 @@ namespace DragonBones
                 if (rawData.ContainsKey(ObjectDataParser.CURVE))
                 {
                     var sampleCount = (int)frameCount + 1;
-                    DragonBones.ResizeList(this._helpArray, sampleCount, 0.0f);
+                    this._helpArray.ResizeList(sampleCount, 0.0f);
                     var rawCurve = rawData[ObjectDataParser.CURVE] as List<object>;
                     var curve = new float[rawCurve.Count];
                     for (int i = 0, l = rawCurve.Count; i < l; ++i)
@@ -1409,7 +1409,7 @@ namespace DragonBones
                     }
                     this._SamplingEasingCurve(curve, this._helpArray.ToArray());
 
-                    DragonBones.ResizeList(this._frameArray, this._frameArray.Count + 1 + 1 + this._helpArray.Count, 0);
+                    this._frameArray.ResizeList(this._frameArray.Count + 1 + 1 + this._helpArray.Count, 0);
                     this._frameArray[frameOffset + (int)BinaryOffset.FrameTweenType] = (int)TweenType.Curve;
                     this._frameArray[frameOffset + (int)BinaryOffset.FrameTweenEasingOrCurveSampleCount] = sampleCount;
                     for (var i = 0; i < sampleCount; ++i)
@@ -1428,29 +1428,29 @@ namespace DragonBones
 
                     if (tweenEasing == noTween)
                     {
-                        DragonBones.ResizeList(this._frameArray, this._frameArray.Count + 1, 0);
+                        this._frameArray.ResizeList(this._frameArray.Count + 1, 0);
                         this._frameArray[frameOffset + (int)BinaryOffset.FrameTweenType] = (int)TweenType.None;
                     }
                     else if (tweenEasing == 0.0)
                     {
-                        DragonBones.ResizeList(this._frameArray, this._frameArray.Count + 1, 0);
+                        this._frameArray.ResizeList(this._frameArray.Count + 1, 0);
                         this._frameArray[frameOffset + (int)BinaryOffset.FrameTweenType] = (int)TweenType.Line;
                     }
                     else if (tweenEasing < 0.0)
                     {
-                        DragonBones.ResizeList(this._frameArray, this._frameArray.Count + 1 + 1, 0);
+                        this._frameArray.ResizeList(this._frameArray.Count + 1 + 1, 0);
                         this._frameArray[frameOffset + (int)BinaryOffset.FrameTweenType] = (int)TweenType.QuadIn;
                         this._frameArray[frameOffset + (int)BinaryOffset.FrameTweenEasingOrCurveSampleCount] = (int)Math.Round(-tweenEasing * 100.0);
                     }
                     else if (tweenEasing <= 1.0)
                     {
-                        DragonBones.ResizeList(this._frameArray, this._frameArray.Count + 1 + 1, 0);
+                        this._frameArray.ResizeList(this._frameArray.Count + 1 + 1, 0);
                         this._frameArray[frameOffset + (int)BinaryOffset.FrameTweenType] = (int)TweenType.QuadOut;
                         this._frameArray[frameOffset + (int)BinaryOffset.FrameTweenEasingOrCurveSampleCount] = (int)Math.Round(tweenEasing * 100.0);
                     }
                     else
                     {
-                        DragonBones.ResizeList(this._frameArray, this._frameArray.Count + 1 + 1, 0);
+                        this._frameArray.ResizeList(this._frameArray.Count + 1 + 1, 0);
                         this._frameArray[frameOffset + (int)BinaryOffset.FrameTweenType] = (int)TweenType.QuadInOut;
                         this._frameArray[frameOffset + (int)BinaryOffset.FrameTweenEasingOrCurveSampleCount] = (int)Math.Round(tweenEasing * 100.0 - 100.0);
                     }

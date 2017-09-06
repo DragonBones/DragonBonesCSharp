@@ -292,7 +292,7 @@ namespace DragonBones
             var dataArray = this.parent.cachedFrames;
             var arrayOffset = dataArray.Count;
 
-            DragonBones.ResizeList(dataArray, arrayOffset + 10, 0.0f);
+            dataArray.ResizeList(arrayOffset + 10, 0.0f);
 
             dataArray[arrayOffset] = globalTransformMatrix.a;
             dataArray[arrayOffset + 1] = globalTransformMatrix.b;

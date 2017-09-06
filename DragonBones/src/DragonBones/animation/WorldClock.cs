@@ -117,7 +117,7 @@ namespace DragonBones
                         }
                     }
 
-                    DragonBones.ResizeList(_animatebles, l - r, null);
+                    _animatebles.ResizeList(l - r, null);
                 }
             }
         }

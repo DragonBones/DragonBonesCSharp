@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System;
 
 namespace DragonBones
 {
@@ -189,18 +190,6 @@ namespace DragonBones
 
     public static class Helper
     {
-
-    }
-
-    public class DragonBones
-    {
-        public const float SECOND_TO_MILLISECOND = 1000.0f;
-
-        public static bool yDown = true;
-        public static bool debug = false;
-        public static bool debugDraw = false;
-        public static readonly string VERSION = "5.5.0";
-
         /**
          * @private
          */
@@ -208,10 +197,8 @@ namespace DragonBones
         {
             Debug.Assert(condition, message);
         }
-        /**
-         * @private
-         */
-        public static void ResizeList<T>(List<T> list, int count, T value)
+
+        public static void ResizeList<T>(this List<T> list, int count, T value)
         {
             if (list.Count == count)
             {
@@ -231,7 +218,17 @@ namespace DragonBones
                 }
             }
         }
+    }
 
+    public class DragonBones
+    {
+        public const float SECOND_TO_MILLISECOND = 1000.0f;
+
+        public static bool yDown = true;
+        public static bool debug = false;
+        public static bool debugDraw = false;
+        public static readonly string VERSION = "5.5.0";
+        
         private readonly WorldClock _clock = new WorldClock();
         private readonly List<EventObject> _events = new List<EventObject>();
         private readonly List<BaseObject> _objects = new List<BaseObject>();
