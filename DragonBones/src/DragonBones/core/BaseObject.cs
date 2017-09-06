@@ -28,7 +28,7 @@ namespace DragonBones
                 }
                 else
                 {
-                    DragonBones.Assert(false, "The object is already in the pool.");
+                    Helper.Assert(false, "The object is already in the pool.");
                 }
             }
             else

@@ -337,7 +337,7 @@ namespace DragonBones
             {
                 if (this.bones.ContainsKey(value.name))
                 {
-                    DragonBones.Assert(false, "Replace bone: " + value.name);
+                    Helper.Assert(false, "Replace bone: " + value.name);
                     this.bones[value.name].ReturnToPool();
                 }
 
@@ -354,7 +354,7 @@ namespace DragonBones
             {
                 if (this.slots.ContainsKey(value.name))
                 {
-                    DragonBones.Assert(false, "Replace slot: " + value.name);
+                    Helper.Assert(false, "Replace slot: " + value.name);
                     this.slots[value.name].ReturnToPool();
                 }
 
@@ -371,7 +371,7 @@ namespace DragonBones
             {
                 if (this.skins.ContainsKey(value.name))
                 {
-                    DragonBones.Assert(false, "Replace slot: " + value.name);
+                    Helper.Assert(false, "Replace slot: " + value.name);
                     this.skins[value.name].ReturnToPool();
                 }
 
@@ -391,7 +391,7 @@ namespace DragonBones
             {
                 if (this.animations.ContainsKey(value.name))
                 {
-                    DragonBones.Assert(false, "Replace animation: " + value.name);
+                    Helper.Assert(false, "Replace animation: " + value.name);
                     this.animations[value.name].ReturnToPool();
                 }
 

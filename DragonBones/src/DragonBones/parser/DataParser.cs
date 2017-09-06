@@ -274,6 +274,6 @@ namespace DragonBones
         /**
          * @private
          */
-        public abstract void ParseTextureAtlasData(object rawData, TextureAtlasData textureAtlasData, float scale);
+        public abstract bool ParseTextureAtlasData(object rawData, TextureAtlasData textureAtlasData, float scale);
     }
 }

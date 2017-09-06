@@ -188,8 +188,12 @@ namespace DragonBones
         Single = 5
     }
 
-    public static class Helper
+    internal static class Helper
     {
+        public static readonly uint INT16_SIZE = 2;
+        public static readonly uint UINT16_SIZE = 2;
+        public static readonly uint FLOAT_SIZE = 4;
+
         /**
          * @private
          */
@@ -198,7 +202,10 @@ namespace DragonBones
             Debug.Assert(condition, message);
         }
 
-        public static void ResizeList<T>(this List<T> list, int count, T value)
+        /**
+         * @private
+         */
+        public static void ResizeList<T>(this List<T> list, int count, T value = default(T))
         {
             if (list.Count == count)
             {

@@ -63,7 +63,7 @@ namespace DragonBones
         /**
          * @private
          */
-        public Int16[] intArray;
+        public short[] intArray;
         /**
          * @private
          */
@@ -71,7 +71,7 @@ namespace DragonBones
         /**
          * @private
          */
-        public Int16[] frameIntArray;
+        public short[] frameIntArray;
         /**
          * @private
          */
@@ -79,11 +79,11 @@ namespace DragonBones
         /**
          * @private
          */
-        public Int16[] frameArray;
+        public short[] frameArray;
         /**
          * @private
          */
-        public UInt16[] timelineArray;
+        public ushort[] timelineArray;
         /**
          * @private
          */
@@ -125,7 +125,7 @@ namespace DragonBones
         {
             if (this.armatures.ContainsKey(value.name))
             {
-                DragonBones.Assert(false, "Replace armature: " + value.name);
+                Helper.Assert(false, "Replace armature: " + value.name);
                 this.armatures[value.name].ReturnToPool();
             }
 
