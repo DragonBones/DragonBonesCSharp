@@ -1,0 +1,106 @@
+/// <summary>
+        /// 基础值类型数组解析
+        /// </summary>
+        /// <typeparam name="T">基础类型</typeparam>
+        /// <param name="bytes">字节流数组</param>
+        /// <param name="index">开始Index</param>
+        /// <param name="len">数组长度</param>
+        /// <returns></returns>
+        private static T[] getValues<T>(byte[] bytes, ref int index, int len) where T : struct
+        {
+            T[] bc = new T[len];
+            int i = 0;
+            switch (typeof(T).Name.ToLower())
+            {
+                case "uint16":
+                case "ushort":
+                    {
+                        while (i < len)
+                        {
+                            bc[i] = (T)Convert.ChangeType(BitConverter.ToUInt16(bytes, index), typeof(T));
+                            index += Marshal.SizeOf(typeof(T));
+                            i += 1;
+                        }
+                    }
+                    break;
+                case "int16":
+                case "short":
+                    {
+                        while (i < len)
+                        {
+                            bc[i] = (T)Convert.ChangeType(BitConverter.ToInt16(bytes, index), typeof(T));
+                            index += Marshal.SizeOf(typeof(T));
+                            i += 1;
+                        }
+                    }
+                    break;
+                case "bool":
+                case "boolean":
+                    {
+                        while (i < len)
+                        {
+                            bc[i] = (T)Convert.ChangeType(BitConverter.ToBoolean(bytes, index), typeof(T));
+                            index += Marshal.SizeOf(typeof(T));
+                            i += 1;
+                        }
+                    }
+                    break;
+                case "int64":
+                    {
+                        while (i < len)
+                        {
+                            bc[i] = (T)Convert.ChangeType(BitConverter.ToInt64(bytes, index), typeof(T));
+                            index += Marshal.SizeOf(typeof(T));
+                            i += 1;
+                        }
+                    }
+                    break;
+                case "uint64":
+                    {
+                        while (i < len)
+                        {
+                            bc[i] = (T)Convert.ChangeType(BitConverter.ToUInt64(bytes, index), typeof(T));
+                            index += Marshal.SizeOf(typeof(T));
+                            i += 1;
+                        }
+                    }
+                    break;
+                case "byte":
+                    {
+                        while (i < len)
+                        {
+                            bc[i] = (T)Convert.ChangeType(bytes[index], typeof(T));
+                            index += Marshal.SizeOf(typeof(T));
+                            i += 1;
+                        }
+                    }
+                    break;
+                case "int32":
+                    {
+                        while (i < len)
+                        {
+                            bc[i] = (T)Convert.ChangeType(BitConverter.ToInt32(bytes, index), typeof(T));
+                            index += Marshal.SizeOf(typeof(T));
+                            i += 1;
+                        }
+                    }
+                    break;
+                case "uint32":
+                    {
+                        while (i < len)
+                        {
+                            bc[i] = (T)Convert.ChangeType(BitConverter.ToUInt32(bytes, index), typeof(T));
+                            index += Marshal.SizeOf(typeof(T));
+                            i += 1;
+                        }
+                    }
+                    break;
+                case "char":
+                    {
+                        Buffer.BlockCopy(bytes, index, bc, 0, len);
+                        index += Marshal.SizeOf(bc);
+                    }
+                    break;
+            }
+            return bc;
+        }
