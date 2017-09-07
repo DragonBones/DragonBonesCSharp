@@ -190,9 +190,9 @@ namespace DragonBones
 
     internal static class Helper
     {
-        public static readonly uint INT16_SIZE = 2;
-        public static readonly uint UINT16_SIZE = 2;
-        public static readonly uint FLOAT_SIZE = 4;
+        public static readonly int INT16_SIZE = 2;
+        public static readonly int UINT16_SIZE = 2;
+        public static readonly int FLOAT_SIZE = 4;
 
         /**
          * @private

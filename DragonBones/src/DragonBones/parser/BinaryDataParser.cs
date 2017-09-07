@@ -1,10 +1,16 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 
 namespace DragonBones
 {
     public class BinaryDataParser : ObjectDataParser
     {
+        //JsonParse
+        public static delegate object JsonParseDelegate(string json);
+
+        public static JsonParseDelegate jsonParseDelegate;
+
         private byte[] _binary;
         private int _binaryOffset;
         private short[] _intArrayBuffer;
@@ -324,14 +330,32 @@ namespace DragonBones
          */
         protected override void _ParseArray(Dictionary<string, object> rawData)
         {
-            //TODO
             var offsets = rawData[ObjectDataParser.OFFSET] as List<int>;
-            var intArray = new short[0];
-            var floatArray = new float[0];
-            var frameIntArray = new short[0];
-            var frameFloatArray = new float[0];
-            var frameArray = new short[0];
-            var timelineArray = new ushort[0];
+            
+            using (MemoryStream ms = new MemoryStream(offsets[0] + offsets[1] + offsets[2] + offsets[3] + offsets[4] + offsets[5]))
+            using (BinaryDataWriter writer = new BinaryDataWriter(ms))
+            using (BinaryDataReader reader = new BinaryDataReader(ms))
+            {
+                //ToWrite
+                writer.Write(this._intArray.ToArray());
+                writer.Write(this._floatArray.ToArray());
+                writer.Write(this._frameArray.ToArray());
+                writer.Write(this._frameFloatArray.ToArray());
+                writer.Write(this._frameArray.ToArray());
+                writer.Write(this._timelineArray.ToArray());
+
+                ms.Position = 0;
+
+                //ToRead
+                this._data.intArray = reader.ReadInt16s();
+                this._data.floatArray = reader.ReadSingles();
+                this._data.frameIntArray = reader.ReadInt16s();
+                this._data.frameFloatArray = reader.ReadSingles();
+                this._data.frameArray = reader.ReadInt16s();
+                this._data.timelineArray = reader.ReadUInt16s();
+
+                ms.Close();
+            }
 
             this._data.intArray = this._intArrayBuffer = intArray;
             this._data.floatArray = this._floatArrayBuffer = floatArray;
@@ -347,16 +371,37 @@ namespace DragonBones
         {
             Helper.Assert(rawObj != null  && rawObj is byte[], "Data error.");
 
-            //TODO
-            var tag = new ushort[0];
-            if (tag[0] != Convert.ToByte("D") ||
-                tag[1] != Convert.ToByte("B") ||
-                tag[2] != Convert.ToByte("D") ||
-                tag[3] != Convert.ToByte("T")   )
+            byte[] bytes = rawObj as byte[];
+            using (MemoryStream ms = new MemoryStream(bytes))
+            using (BinaryDataWriter writer = new BinaryDataWriter(ms))
+            using (BinaryDataReader reader = new BinaryDataReader(ms))
             {
-                Helper.Assert(false, "Nonsupport data.");
-                return null;
+                ms.Position = 0;
+                byte[] tag = reader.ReadBytes(8);
+
+                if ( tag[0] != Convert.ToByte("D") ||
+                     tag[1] != Convert.ToByte("B") ||
+                     tag[2] != Convert.ToByte("D") ||
+                     tag[3] != Convert.ToByte("T"))
+                {
+                    Helper.Assert(false, "Nonsupport data.");
+                    return null;
+                }
+
+                /*const headerLength = new Uint32Array(rawData, 8, 1)[0];
+                const headerBytes = new Uint8Array(rawData, 8 + 4, headerLength);
+                const headerString = this._decodeUTF8(headerBytes);
+                const header = JSON.parse(headerString);*/
+
+                var headerLength = reader.ReadUInt32();
+                var headerBytes = reader.ReadBytes(headerLength);
+                var headerString = this._DecodeUTF8(headerBytes);
+                var header = jsonParseDelegate != null ? jsonParseDelegate(headerString) : string.Empty;
+
+                this._binary = bytes;
+                this._binaryOffset = 8 + 4 + headerLength;
             }
+            
 
             return base.ParseDragonBonesData(null, scale);
         }

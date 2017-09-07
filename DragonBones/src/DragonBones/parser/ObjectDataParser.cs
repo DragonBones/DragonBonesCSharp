@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace DragonBones
@@ -156,12 +157,12 @@ namespace DragonBones
         private readonly ColorTransform _helpColorTransform = new ColorTransform();
         private readonly Point _helpPoint = new Point();
         private readonly List<float> _helpArray = new List<float>();
-        private readonly List<int> _intArray = new List<int>();
+        private readonly List<short> _intArray = new List<short>();
         private readonly List<float> _floatArray = new List<float>();
-        private readonly List<int> _frameIntArray = new List<int>();
+        private readonly List<short> _frameIntArray = new List<short>();
         private readonly List<float> _frameFloatArray = new List<float>();
-        private readonly List<int> _frameArray = new List<int>();
-        private readonly List<int> _timelineArray = new List<int>();
+        private readonly List<short> _frameArray = new List<short>();
+        private readonly List<ushort> _timelineArray = new List<ushort>();
         private readonly List<ActionFrame> _actionFrames = new List<ActionFrame>();
         private readonly Dictionary<string, List<float>> _weightSlotPose = new Dictionary<string, List<float>>();
         private readonly Dictionary<string, List<float>> _weightBonePoses = new Dictionary<string, List<float>>();
@@ -332,14 +333,14 @@ namespace DragonBones
         {
             var frameOffset = this._frameArray.Count;
             var actionCount = frame.actions.Count;
-            this._frameArray.ResizeList(this._frameArray.Count + 1 + 1 + actionCount, 0);
-            this._frameArray[frameOffset + (int)BinaryOffset.FramePosition] = frame.frameStart;
-            this._frameArray[frameOffset + (int)BinaryOffset.FramePosition + 1] = actionCount; // Action count.
+            this._frameArray.ResizeList(this._frameArray.Count + 1 + 1 + actionCount, (short)0);
+            this._frameArray[frameOffset + (int)BinaryOffset.FramePosition] = (short)frame.frameStart;
+            this._frameArray[frameOffset + (int)BinaryOffset.FramePosition + 1] = (short)actionCount; // Action count.
 
             for (var i = 0; i < actionCount; ++i)
             { 
                 // Action offsets.
-                this._frameArray[frameOffset + (int)BinaryOffset.FramePosition + 2 + i] = frame.actions[i];
+                this._frameArray[frameOffset + (int)BinaryOffset.FramePosition + 2 + i] = (short)frame.actions[i];
             }
 
             return frameOffset;
@@ -802,14 +803,14 @@ namespace DragonBones
             var uvOffset = vertexOffset + vertexCount * 2;
 
             mesh.offset = this._intArray.Count;
-            this._intArray.ResizeList(this._intArray.Count + 1 + 1 + 1 + 1 + triangleCount * 3, 0);
-            this._intArray[mesh.offset + (int)BinaryOffset.MeshVertexCount] = vertexCount;
-            this._intArray[mesh.offset + (int)BinaryOffset.MeshTriangleCount] = triangleCount;
-            this._intArray[mesh.offset + (int)BinaryOffset.MeshFloatOffset] = vertexOffset;
+            this._intArray.ResizeList(this._intArray.Count + 1 + 1 + 1 + 1 + triangleCount * 3, (short)0);
+            this._intArray[mesh.offset + (int)BinaryOffset.MeshVertexCount] = (short)vertexCount;
+            this._intArray[mesh.offset + (int)BinaryOffset.MeshTriangleCount] = (short)triangleCount;
+            this._intArray[mesh.offset + (int)BinaryOffset.MeshFloatOffset] = (short)vertexOffset;
 
             for (int i = 0, l = triangleCount * 3; i < l; ++i)
             {
-                this._intArray[mesh.offset + (int)BinaryOffset.MeshVertexIndices + i] = (int)rawTriangles[i];
+                this._intArray[mesh.offset + (int)BinaryOffset.MeshVertexIndices + i] = (short)rawTriangles[i];
             }
 
             this._floatArray.ResizeList(this._floatArray.Count + vertexCount * 2 + vertexCount * 2, 0.0f);
@@ -834,8 +835,8 @@ namespace DragonBones
 
                 weight.bones.ResizeList(weightBoneCount, null);
                 weightBoneIndices.ResizeList(weightBoneCount, uint.MinValue);
-                this._intArray.ResizeList(this._intArray.Count + 1 + 1 + weightBoneCount + vertexCount + weight.count, 0);
-                this._intArray[weight.offset + (int)BinaryOffset.WeigthFloatOffset] = floatOffset;
+                this._intArray.ResizeList(this._intArray.Count + 1 + 1 + weightBoneCount + vertexCount + weight.count, (short)0);
+                this._intArray[weight.offset + (int)BinaryOffset.WeigthFloatOffset] = (short)floatOffset;
 
                 for (var i = 0; i < weightBoneCount; ++i)
                 {
@@ -844,7 +845,7 @@ namespace DragonBones
                     weight.bones[i] = bone;
                     weightBoneIndices[i] = (uint)rawBoneIndex;
 
-                    this._intArray[weight.offset + (int)BinaryOffset.WeigthBoneIndices + i] = this._armature.sortedBones.IndexOf(bone);
+                    this._intArray[weight.offset + (int)BinaryOffset.WeigthBoneIndices + i] = (short)this._armature.sortedBones.IndexOf(bone);
                 }
 
                 this._floatArray.ResizeList(this._floatArray.Count + weight.count * 3, 0.0f);
@@ -854,7 +855,7 @@ namespace DragonBones
                 for (int i = 0, iW = 0, iB = weight.offset + (int)BinaryOffset.WeigthBoneIndices + weightBoneCount, iV = floatOffset; i < vertexCount; ++i)
                 {
                     var iD = i * 2;
-                    var vertexBoneCount = this._intArray[iB++] = (int)rawWeights[iW++]; // uint
+                    var vertexBoneCount = this._intArray[iB++] = (short)rawWeights[iW++]; // uint
 
                     var x = this._floatArray[vertexOffset + iD];
                     var y = this._floatArray[vertexOffset + iD + 1];
@@ -869,7 +870,7 @@ namespace DragonBones
                         this._helpMatrixB.CopyFromArray(rawBonePoses, weightBoneIndices.IndexOf((uint)rawBoneIndex) * 7 + 1);
                         this._helpMatrixB.Invert();
                         this._helpMatrixB.TransformPoint(x, y, this._helpPoint);
-                        this._intArray[iB++] = weight.bones.IndexOf(bone);
+                        this._intArray[iB++] = (short)weight.bones.IndexOf(bone);
                         this._floatArray[iV++] = rawWeights[iW++];
                         this._floatArray[iV++] = this._helpPoint.x;
                         this._floatArray[iV++] = this._helpPoint.y;
@@ -1095,10 +1096,10 @@ namespace DragonBones
                 timeline.type = TimelineType.Action;
                 timeline.offset = (uint)this._timelineArray.Count;
 
-                this._timelineArray.ResizeList(this._timelineArray.Count + 1 + 1 + 1 + 1 + 1 + keyFrameCount, 0);
+                this._timelineArray.ResizeList(this._timelineArray.Count + 1 + 1 + 1 + 1 + 1 + keyFrameCount, (ushort)0);
                 this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineScale] = 100;
                 this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineOffset] = 0;
-                this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineKeyFrameCount] = keyFrameCount;
+                this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineKeyFrameCount] = (ushort)keyFrameCount;
                 this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineFrameValueCount] = 0;
                 this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineFrameValueOffset] = 0;
 
@@ -1106,7 +1107,7 @@ namespace DragonBones
                 if (keyFrameCount == 1)
                 {
                     timeline.frameIndicesOffset = -1;
-                    this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineFrameOffset + 0] = this._ParseCacheActionFrame(this._actionFrames[0]) - (int)this._animation.frameOffset;
+                    this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineFrameOffset + 0] = (ushort)(this._ParseCacheActionFrame(this._actionFrames[0]) - this._animation.frameOffset);
                 }
                 else
                 {
@@ -1135,7 +1136,7 @@ namespace DragonBones
                                 frameCount = this._actionFrames[iK + 1].frameStart - frameStart;
                             }
 
-                            this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineFrameOffset + iK] = this._ParseCacheActionFrame(frame) - (int)this._animation.frameOffset;
+                            this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineFrameOffset + iK] = (ushort)(this._ParseCacheActionFrame(frame) - (int)this._animation.frameOffset);
                             iK++;
                         }
 
@@ -1177,19 +1178,19 @@ namespace DragonBones
             timeline.type = type;
             timeline.offset = (uint)this._timelineArray.Count;
 
-            this._timelineArray.ResizeList(this._timelineArray.Count + 1 + 1 + 1 + 1 + 1 + keyFrameCount, 0);
-            this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineScale] = (int)Math.Round(ObjectDataParser._GetNumber(rawData, ObjectDataParser.SCALE, 1.0f) * 100);
-            this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineOffset] = (int)Math.Round(ObjectDataParser._GetNumber(rawData, ObjectDataParser.OFFSET, 0.0f) * 100);
-            this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineKeyFrameCount] = keyFrameCount;
-            this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineFrameValueCount] = (int)frameValueCount;
+            this._timelineArray.ResizeList(this._timelineArray.Count + 1 + 1 + 1 + 1 + 1 + keyFrameCount, (ushort)0);
+            this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineScale] = (ushort)Math.Round(ObjectDataParser._GetNumber(rawData, ObjectDataParser.SCALE, 1.0f) * 100);
+            this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineOffset] = (ushort)Math.Round(ObjectDataParser._GetNumber(rawData, ObjectDataParser.OFFSET, 0.0f) * 100);
+            this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineKeyFrameCount] = (ushort)keyFrameCount;
+            this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineFrameValueCount] = (ushort)frameValueCount;
 
             if (addIntOffset)
             {
-                this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineFrameValueOffset] = frameIntArrayLength - (int)this._animation.frameIntOffset;
+                this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineFrameValueOffset] = (ushort)(frameIntArrayLength - this._animation.frameIntOffset);
             }
             else if (addFloatOffset)
             {
-                this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineFrameValueOffset] = frameFloatArrayLength - (int)this._animation.frameFloatOffset;
+                this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineFrameValueOffset] = (ushort)(frameFloatArrayLength - (int)this._animation.frameFloatOffset);
             }
             else
             {
@@ -1203,7 +1204,7 @@ namespace DragonBones
                 // Only one frame.
                 timeline.frameIndicesOffset = -1;
                 int frameParserResult = frameParser(rawFrames[0] as Dictionary<string, object>, 0, 0);
-                this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineFrameOffset + 0] = frameParserResult - (int)this._animation.frameOffset;
+                this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineFrameOffset + 0] = (ushort)(frameParserResult - this._animation.frameOffset);
             }
             else
             {
@@ -1230,7 +1231,7 @@ namespace DragonBones
                         }
 
                         int frameParserResult = frameParser(rawFrame, frameStart, frameCount);
-                        this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineFrameOffset + iK] = frameParserResult - (int)this._animation.frameOffset;
+                        this._timelineArray[(int)timeline.offset + (int)BinaryOffset.TimelineFrameOffset + iK] = (ushort)(frameParserResult - this._animation.frameOffset);
                         iK++;
                     }
 
@@ -1385,8 +1386,8 @@ namespace DragonBones
         {
             //rawData没用到
             var frameOffset = this._frameArray.Count;
-            this._frameArray.ResizeList(this._frameArray.Count + 1, 0);
-            this._frameArray[(int)frameOffset + (int)BinaryOffset.FramePosition] = frameStart;
+            this._frameArray.ResizeList(this._frameArray.Count + 1, (short)0);
+            this._frameArray[(int)frameOffset + (int)BinaryOffset.FramePosition] = (short)frameStart;
 
             return frameOffset;
         }
@@ -1410,12 +1411,12 @@ namespace DragonBones
                     }
                     this._SamplingEasingCurve(curve, this._helpArray.ToArray());
 
-                    this._frameArray.ResizeList(this._frameArray.Count + 1 + 1 + this._helpArray.Count, 0);
+                    this._frameArray.ResizeList(this._frameArray.Count + 1 + 1 + this._helpArray.Count, (short)0);
                     this._frameArray[frameOffset + (int)BinaryOffset.FrameTweenType] = (int)TweenType.Curve;
-                    this._frameArray[frameOffset + (int)BinaryOffset.FrameTweenEasingOrCurveSampleCount] = sampleCount;
+                    this._frameArray[frameOffset + (int)BinaryOffset.FrameTweenEasingOrCurveSampleCount] = (short)sampleCount;
                     for (var i = 0; i < sampleCount; ++i)
                     {
-                        this._frameArray[frameOffset + (int)BinaryOffset.FrameCurveSamples + i] = (int)Math.Round(this._helpArray[i] * 10000.0f);
+                        this._frameArray[frameOffset + (int)BinaryOffset.FrameCurveSamples + i] = (short)Math.Round(this._helpArray[i] * 10000.0f);
                     }
                 }
                 else
@@ -1429,31 +1430,31 @@ namespace DragonBones
 
                     if (tweenEasing == noTween)
                     {
-                        this._frameArray.ResizeList(this._frameArray.Count + 1, 0);
+                        this._frameArray.ResizeList(this._frameArray.Count + 1, (short)0);
                         this._frameArray[frameOffset + (int)BinaryOffset.FrameTweenType] = (int)TweenType.None;
                     }
                     else if (tweenEasing == 0.0f)
                     {
-                        this._frameArray.ResizeList(this._frameArray.Count + 1, 0);
+                        this._frameArray.ResizeList(this._frameArray.Count + 1, (short)0);
                         this._frameArray[frameOffset + (int)BinaryOffset.FrameTweenType] = (int)TweenType.Line;
                     }
                     else if (tweenEasing < 0.0f)
                     {
-                        this._frameArray.ResizeList(this._frameArray.Count + 1 + 1, 0);
+                        this._frameArray.ResizeList(this._frameArray.Count + 1 + 1, (short)0);
                         this._frameArray[frameOffset + (int)BinaryOffset.FrameTweenType] = (int)TweenType.QuadIn;
-                        this._frameArray[frameOffset + (int)BinaryOffset.FrameTweenEasingOrCurveSampleCount] = (int)Math.Round(-tweenEasing * 100.0f);
+                        this._frameArray[frameOffset + (int)BinaryOffset.FrameTweenEasingOrCurveSampleCount] = (short)Math.Round(-tweenEasing * 100.0f);
                     }
                     else if (tweenEasing <= 1.0f)
                     {
-                        this._frameArray.ResizeList(this._frameArray.Count + 1 + 1, 0);
+                        this._frameArray.ResizeList(this._frameArray.Count + 1 + 1, (short)0);
                         this._frameArray[frameOffset + (int)BinaryOffset.FrameTweenType] = (int)TweenType.QuadOut;
-                        this._frameArray[frameOffset + (int)BinaryOffset.FrameTweenEasingOrCurveSampleCount] = (int)Math.Round(tweenEasing * 100.0f);
+                        this._frameArray[frameOffset + (int)BinaryOffset.FrameTweenEasingOrCurveSampleCount] = (short)Math.Round(tweenEasing * 100.0f);
                     }
                     else
                     {
-                        this._frameArray.ResizeList(this._frameArray.Count + 1 + 1, 0);
+                        this._frameArray.ResizeList(this._frameArray.Count + 1 + 1, (short)0);
                         this._frameArray[frameOffset + (int)BinaryOffset.FrameTweenType] = (int)TweenType.QuadInOut;
-                        this._frameArray[frameOffset + (int)BinaryOffset.FrameTweenEasingOrCurveSampleCount] = (int)Math.Round(tweenEasing * 100.0f - 100.0f);
+                        this._frameArray[frameOffset + (int)BinaryOffset.FrameTweenEasingOrCurveSampleCount] = (short)Math.Round(tweenEasing * 100.0f - 100.0f);
                     }
                 }
             }
@@ -1514,7 +1515,7 @@ namespace DragonBones
                     }
                     
                     this._frameArray.ResizeList(this._frameArray.Count + 1);
-                    this._frameArray[frameOffset + 1] = slotCount;
+                    this._frameArray[frameOffset + 1] = (short)slotCount;
 
                     var index = slotCount;
                     while (index-- > 0)
@@ -1523,12 +1524,12 @@ namespace DragonBones
                         if (zOrders[index] == -1)
                         {
                             value = unchanged[--unchangedIndex];
-                            this._frameArray[frameOffset + 2 + index] = value > 0 ? value : 0;
+                            this._frameArray[frameOffset + 2 + index] = (short)(value > 0 ? value : 0);
                         }
                         else
                         {
                             value = zOrders[index];
-                            this._frameArray[frameOffset + 2 + index] = value > 0 ? value : 0;
+                            this._frameArray[frameOffset + 2 + index] = (short)(value > 0 ? value : 0);
                         }
                     }
 
@@ -1663,11 +1664,11 @@ namespace DragonBones
 
             if (rawData.ContainsKey(ObjectDataParser.VALUE))
             {
-                this._frameArray[frameOffset + 1] = ObjectDataParser._GetNumber(rawData, ObjectDataParser.VALUE, 0);
+                this._frameArray[frameOffset + 1] = (short)ObjectDataParser._GetNumber(rawData, ObjectDataParser.VALUE, 0);
             }
             else
             {
-                this._frameArray[frameOffset + 1] = ObjectDataParser._GetNumber(rawData, ObjectDataParser.DISPLAY_INDEX, 0);
+                this._frameArray[frameOffset + 1] = (short)ObjectDataParser._GetNumber(rawData, ObjectDataParser.DISPLAY_INDEX, 0);
             }
 
             this._ParseActionDataInFrame(rawData, frameStart, this._slot.parent, this._slot);
@@ -1690,14 +1691,14 @@ namespace DragonBones
                     this._ParseColorTransform(rawColor, this._helpColorTransform);
                     colorOffset = this._intArray.Count;
                     this._intArray.ResizeList(this._intArray.Count + 8);
-                    this._intArray[colorOffset++] = (int)Math.Round(this._helpColorTransform.alphaMultiplier * 100);
-                    this._intArray[colorOffset++] = (int)Math.Round(this._helpColorTransform.redMultiplier * 100);
-                    this._intArray[colorOffset++] = (int)Math.Round(this._helpColorTransform.greenMultiplier * 100);
-                    this._intArray[colorOffset++] = (int)Math.Round(this._helpColorTransform.blueMultiplier * 100);
-                    this._intArray[colorOffset++] = (int)Math.Round((float)this._helpColorTransform.alphaOffset);
-                    this._intArray[colorOffset++] = (int)Math.Round((float)this._helpColorTransform.redOffset);
-                    this._intArray[colorOffset++] = (int)Math.Round((float)this._helpColorTransform.greenOffset);
-                    this._intArray[colorOffset++] = (int)Math.Round((float)this._helpColorTransform.blueOffset);
+                    this._intArray[colorOffset++] = (short)Math.Round(this._helpColorTransform.alphaMultiplier * 100);
+                    this._intArray[colorOffset++] = (short)Math.Round(this._helpColorTransform.redMultiplier * 100);
+                    this._intArray[colorOffset++] = (short)Math.Round(this._helpColorTransform.greenMultiplier * 100);
+                    this._intArray[colorOffset++] = (short)Math.Round(this._helpColorTransform.blueMultiplier * 100);
+                    this._intArray[colorOffset++] = (short)Math.Round((float)this._helpColorTransform.alphaOffset);
+                    this._intArray[colorOffset++] = (short)Math.Round((float)this._helpColorTransform.redOffset);
+                    this._intArray[colorOffset++] = (short)Math.Round((float)this._helpColorTransform.greenOffset);
+                    this._intArray[colorOffset++] = (short)Math.Round((float)this._helpColorTransform.blueOffset);
                     colorOffset -= 8;
                     break;
                 }
@@ -1724,7 +1725,7 @@ namespace DragonBones
 
             var frameIntOffset = this._frameIntArray.Count;
             this._frameIntArray.ResizeList(this._frameIntArray.Count + 1);
-            this._frameIntArray[frameIntOffset] = colorOffset;
+            this._frameIntArray[frameIntOffset] = (short)colorOffset;
 
             return frameOffset;
         }
@@ -1821,12 +1822,12 @@ namespace DragonBones
             {
                 var frameIntOffset = this._frameIntArray.Count;
                 this._frameIntArray.ResizeList(this._frameIntArray.Count + 1 + 1 + 1 + 1 + 1);
-                this._frameIntArray[frameIntOffset + (int)BinaryOffset.FFDTimelineMeshOffset] = this._mesh.offset;
-                this._frameIntArray[frameIntOffset + (int)BinaryOffset.FFDTimelineFFDCount] = this._frameFloatArray.Count - frameFloatOffset;
-                this._frameIntArray[frameIntOffset + (int)BinaryOffset.FFDTimelineValueCount] = this._frameFloatArray.Count - frameFloatOffset;
+                this._frameIntArray[frameIntOffset + (int)BinaryOffset.FFDTimelineMeshOffset] = (short)this._mesh.offset;
+                this._frameIntArray[frameIntOffset + (int)BinaryOffset.FFDTimelineFFDCount] = (short)(this._frameFloatArray.Count - frameFloatOffset);
+                this._frameIntArray[frameIntOffset + (int)BinaryOffset.FFDTimelineValueCount] = (short)(this._frameFloatArray.Count - frameFloatOffset);
                 this._frameIntArray[frameIntOffset + (int)BinaryOffset.FFDTimelineValueOffset] = 0;
-                this._frameIntArray[frameIntOffset + (int)BinaryOffset.FFDTimelineFloatOffset] = frameFloatOffset;
-                this._timelineArray[(int)this._timeline.offset + (int)BinaryOffset.TimelineFrameValueCount] = frameIntOffset - (int)this._animation.frameIntOffset;
+                this._frameIntArray[frameIntOffset + (int)BinaryOffset.FFDTimelineFloatOffset] = (short)frameFloatOffset;
+                this._timelineArray[(int)this._timeline.offset + (int)BinaryOffset.TimelineFrameValueCount] = (ushort)(frameIntOffset - this._animation.frameIntOffset);
             }
 
             return frameOffset;
@@ -1994,7 +1995,6 @@ namespace DragonBones
         protected void _ModifyArray()
         {
             // Align.
-            
             if ((this._intArray.Count % Helper.INT16_SIZE) != 0)
             {
                 this._intArray.Add(0);
@@ -2021,53 +2021,31 @@ namespace DragonBones
             var l4 = this._frameFloatArray.Count * Helper.FLOAT_SIZE;
             var l5 = this._frameArray.Count * Helper.INT16_SIZE;
             var l6 = this._timelineArray.Count * Helper.UINT16_SIZE;
-            
-            //TODO
-            byte[] buffer = new byte[l1 + l2 + l3 + l4 + l5 + l6];
 
-            var intArray = new short[l1 / Helper.FLOAT_SIZE];
-            var floatArray = new float[l2 / Helper.FLOAT_SIZE];
-            short[] frameIntArray = new short[l3 / Helper.INT16_SIZE];
-            float[] frameFloatArray = new float[l4 / Helper.FLOAT_SIZE];
-            short[] frameArray = new short[l5 / Helper.INT16_SIZE];
-            ushort[] timelineArray = new ushort[l6 / Helper.UINT16_SIZE];
-
-            for (var i = 0; i < this._intArray.Count; ++i)
+            using (MemoryStream ms = new MemoryStream(l1 + l2 + l3 + l4 + l5 + l6))
+            using (BinaryDataWriter writer = new BinaryDataWriter(ms))
+            using (BinaryDataReader reader = new BinaryDataReader(ms))
             {
-                intArray[i] = (short)this._intArray[i];
-            }
+                //ToWrite
+                writer.Write(_intArray.ToArray());
+                writer.Write(_floatArray.ToArray());
+                writer.Write(_frameArray.ToArray());
+                writer.Write(_frameFloatArray.ToArray());
+                writer.Write(_frameArray.ToArray());
+                writer.Write(_timelineArray.ToArray());
 
-            for (var i = 0; i < this._floatArray.Count; ++i)
-            {
-                floatArray[i] = this._floatArray[i];
-            }
+                ms.Position = 0;
 
-            for (var i = 0; i < this._frameIntArray.Count; ++i)
-            {
-                frameIntArray[i] = (short)this._frameIntArray[i];
-            }
+                //ToRead
+                this._data.intArray = reader.ReadInt16s();
+                this._data.floatArray = reader.ReadSingles();
+                this._data.frameIntArray = reader.ReadInt16s();
+                this._data.frameFloatArray = reader.ReadSingles();
+                this._data.frameArray = reader.ReadInt16s();
+                this._data.timelineArray = reader.ReadUInt16s();
 
-            for (var i = 0; i < this._frameFloatArray.Count; ++i)
-            {
-                frameFloatArray[i] = this._frameFloatArray[i];
+                ms.Close();
             }
-
-            for (var i = 0; i < this._frameArray.Count; ++i)
-            {
-                frameArray[i] = (short)this._frameArray[i];
-            }
-
-            for (var i = 0; i < this._timelineArray.Count; ++i)
-            {
-                timelineArray[i] = (ushort)this._timelineArray[i];
-            }
-
-            this._data.intArray = intArray;
-            this._data.floatArray = floatArray;
-            this._data.frameIntArray = frameIntArray;
-            this._data.frameFloatArray = frameFloatArray;
-            this._data.frameArray = frameArray;
-            this._data.timelineArray = timelineArray;
 
             this._defalultColorOffset = -1;
             this._intArray.Clear();
