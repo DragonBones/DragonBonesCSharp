@@ -60,5 +60,65 @@ namespace DragonBones
          * @language zh_CN
          */
         public static readonly string SOUND_EVENT = "soundEvent";
+
+        /**
+         * @private
+         */
+        public float time;
+        /**
+         * 事件类型。
+         * @version DragonBones 4.5
+         * @language zh_CN
+         */
+        public string type;
+        /**
+         * 事件名称。 (帧标签的名称或声音的名称)
+         * @version DragonBones 4.5
+         * @language zh_CN
+         */
+        public string name;
+        /**
+         * 发出事件的骨架。
+         * @version DragonBones 4.5
+         * @language zh_CN
+         */
+        public Armature armature;
+        /**
+         * 发出事件的骨骼。
+         * @version DragonBones 4.5
+         * @language zh_CN
+         */
+        public Bone bone;
+        /**
+         * 发出事件的插槽。
+         * @version DragonBones 4.5
+         * @language zh_CN
+         */
+        public Slot slot;
+        /**
+         * 发出事件的动画状态。
+         * @version DragonBones 4.5
+         * @language zh_CN
+         */
+        public AnimationState animationState;
+        /**
+         * 自定义数据
+         * @see dragonBones.CustomData
+         * @version DragonBones 5.0
+         * @language zh_CN
+         */
+        public UserData data;
+
+        protected override void _OnClear()
+        {
+            this.time = 0.0f;
+            this.type = string.Empty;
+            this.name = string.Empty;
+            this.armature = null;
+            this.bone = null;
+            this.slot = null;
+            this.animationState = null;
+            this.data = null;
+        }
     }
 }

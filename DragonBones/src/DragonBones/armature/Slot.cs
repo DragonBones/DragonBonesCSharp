@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DragonBones
 {
@@ -113,7 +114,7 @@ namespace DragonBones
         /**
          * @private
          */
-        protected readonly List<Armature> _displayList = new List<Armature>();
+        protected readonly List<object> _displayList = new List<object>();
         /**
          * @private
          */
@@ -541,7 +542,7 @@ namespace DragonBones
                         // Set child armature cache frameRate.
                         if (this._childArmature.cacheFrameRate == 0)
                         {
-                            const cacheFrameRate = this._armature.cacheFrameRate;
+                            var cacheFrameRate = this._armature.cacheFrameRate;
                             if (cacheFrameRate != 0)
                             {
                                 this._childArmature.cacheFrameRate = cacheFrameRate;
@@ -646,7 +647,7 @@ namespace DragonBones
          * @internal
          * @private
          */
-        public bool _SetDisplayIndex(int value, bool isAnimation = false)
+        internal bool _SetDisplayIndex(int value, bool isAnimation = false)
         {
             if (isAnimation)
             {
@@ -698,6 +699,496 @@ namespace DragonBones
             this._colorDirty = true;
 
             return this._colorDirty;
+        }
+        /**
+         * @internal
+         * @private
+         */
+        public bool _SetDisplayList(List<object> value)
+        {
+            if (value != null && value.Count > 0)
+            {
+                if (this._displayList.Count != value.Count)
+                {
+                    this._displayList.ResizeList(value.Count);
+                }
+
+                for (int i = 0, l = value.Count; i < l; ++i)
+                { 
+                    // Retain input render displays.
+                    var eachDisplay = value[i];
+                    if (
+                        eachDisplay != null &&
+                        eachDisplay != this._rawDisplay &&
+                        eachDisplay != this._meshDisplay &&
+                        !(eachDisplay is Armature) &&
+                        this._displayList.IndexOf(eachDisplay) < 0)
+                    {
+                        this._InitDisplay(eachDisplay);
+                    }
+
+                    this._displayList[i] = eachDisplay;
+                }
+            }
+            else if (this._displayList.Count > 0)
+            {
+                this._displayList.Clear();
+            }
+
+            if (this._displayIndex >= 0 && this._displayIndex < this._displayList.Count)
+            {
+                this._displayDirty = this._display != this._displayList[this._displayIndex];
+            }
+            else
+            {
+                this._displayDirty = this._display != null;
+            }
+
+            this._UpdateDisplayData();
+
+            return this._displayDirty;
+        }
+
+        /**
+         * @private
+         */
+        public void Init(SlotData slotData, List<DisplayData> displayDatas, object rawDisplay, object meshDisplay)
+        {
+            if (this.slotData != null)
+            {
+                return;
+            }
+
+            this.slotData = slotData;
+            this.name = this.slotData.name;
+
+            this._visibleDirty = true;
+            this._blendModeDirty = true;
+            this._colorDirty = true;
+            this._blendMode = this.slotData.blendMode;
+            this._zOrder = this.slotData.zOrder;
+            this._colorTransform.CopyFrom(this.slotData.color);
+            this._rawDisplayDatas = displayDatas;
+            this._rawDisplay = rawDisplay;
+            this._meshDisplay = meshDisplay;
+            
+            this._displayDatas.ResizeList(this._rawDisplayDatas.Count);
+            for (int i = 0, l = this._displayDatas.Count; i < l; ++i)
+            {
+                this._displayDatas[i] = this._rawDisplayDatas[i];
+            }
+        }
+
+        /**
+         * @internal
+         * @private
+         */
+        public void Update(int cacheFrameIndex)
+        {
+            if (this._displayDirty)
+            {
+                this._displayDirty = false;
+                this._UpdateDisplay();
+
+                if (this._transformDirty)
+                {
+                    // Update local matrix. (Only updated when both display and transform are dirty.)
+                    if (this.origin != null)
+                    {
+                        this.global.CopyFrom(this.origin).Add(this.offset).ToMatrix(this._localMatrix);
+                    }
+                    else
+                    {
+                        this.global.CopyFrom(this.offset).ToMatrix(this._localMatrix);
+                    }
+                }
+            }
+
+            if (this._zOrderDirty)
+            {
+                this._zOrderDirty = false;
+                this._UpdateZOrder();
+            }
+
+            if (cacheFrameIndex >= 0 && this._cachedFrameIndices != null)
+            {
+                var cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex];
+
+                if (cachedFrameIndex >= 0 && this._cachedFrameIndex == cachedFrameIndex)
+                { 
+                    // Same cache.
+                    this._transformDirty = false;
+                }
+                else if (cachedFrameIndex >= 0)
+                { 
+                    // Has been Cached.
+                    this._transformDirty = true;
+                    this._cachedFrameIndex = cachedFrameIndex;
+                }
+                else if (this._transformDirty || this._parent._childrenTransformDirty)
+                { 
+                    // Dirty.
+                    this._transformDirty = true;
+                    this._cachedFrameIndex = -1;
+                }
+                else if (this._cachedFrameIndex >= 0)
+                { 
+                    // Same cache, but not set index yet.
+                    this._transformDirty = false;
+                    this._cachedFrameIndices[cacheFrameIndex] = this._cachedFrameIndex;
+                }
+                else
+                { 
+                    // Dirty.
+                    this._transformDirty = true;
+                    this._cachedFrameIndex = -1;
+                }
+            }
+            else if (this._transformDirty || this._parent._childrenTransformDirty)
+            { 
+                // Dirty.
+                cacheFrameIndex = -1;
+                this._transformDirty = true;
+                this._cachedFrameIndex = -1;
+            }
+
+            if (this._display == null)
+            {
+                return;
+            }
+
+            if (this._visibleDirty)
+            {
+                this._visibleDirty = false;
+                this._UpdateVisible();
+            }
+
+            if (this._blendModeDirty)
+            {
+                this._blendModeDirty = false;
+                this._UpdateBlendMode();
+            }
+
+            if (this._colorDirty)
+            {
+                this._colorDirty = false;
+                this._UpdateColor();
+            }
+
+            if (this._meshData != null && this._display == this._meshDisplay)
+            {
+                var isSkinned = this._meshData.weight != null;
+
+                if (this._meshDirty || (isSkinned && this._IsMeshBonesUpdate()))
+                {
+                    this._meshDirty = false;
+                    this._UpdateMesh();
+                }
+
+                if (isSkinned)
+                {
+                    if (this._transformDirty)
+                    {
+                        this._transformDirty = false;
+                        this._UpdateTransform(true);
+                    }
+
+                    return;
+                }
+            }
+
+            if (this._transformDirty)
+            {
+                this._transformDirty = false;
+
+                if (this._cachedFrameIndex < 0)
+                {
+                    var isCache = cacheFrameIndex >= 0;
+                    this._UpdateGlobalTransformMatrix(isCache);
+
+                    if (isCache && this._cachedFrameIndices != null)
+                    {
+                        this._cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex] = this._armature.armatureData.setCacheFrame(this.globalTransformMatrix, this.global);
+                    }
+                }
+                else
+                {
+                    this._armature.armatureData.getCacheFrame(this.globalTransformMatrix, this.global, this._cachedFrameIndex);
+                }
+
+                this._UpdateTransform(false);
+            }
+        }
+
+        /**
+         * @private
+         */
+        public void UpdateTransformAndMatrix()
+        {
+            if (this._transformDirty)
+            {
+                this._transformDirty = false;
+                this._UpdateGlobalTransformMatrix(false);
+            }
+        }
+
+        /**
+         * 判断指定的点是否在插槽的自定义包围盒内。
+         * @param x 点的水平坐标。（骨架内坐标系）
+         * @param y 点的垂直坐标。（骨架内坐标系）
+         * @param color 指定的包围盒颜色。 [0: 与所有包围盒进行判断, N: 仅当包围盒的颜色为 N 时才进行判断]
+         * @version DragonBones 5.0
+         * @language zh_CN
+         */
+        public bool ContainsPoint(float x, float y)
+        {
+            if (this._boundingBoxData == null)
+            {
+                return false;
+            }
+
+            this.UpdateTransformAndMatrix();
+
+            Slot._helpMatrix.CopyFrom(this.globalTransformMatrix);
+            Slot._helpMatrix.Invert();
+            Slot._helpMatrix.TransformPoint(x, y, Slot._helpPoint);
+
+            return this._boundingBoxData.ContainsPoint(Slot._helpPoint.x, Slot._helpPoint.y);
+        }
+
+        /**
+         * 判断指定的线段与插槽的自定义包围盒是否相交。
+         * @param xA 线段起点的水平坐标。（骨架内坐标系）
+         * @param yA 线段起点的垂直坐标。（骨架内坐标系）
+         * @param xB 线段终点的水平坐标。（骨架内坐标系）
+         * @param yB 线段终点的垂直坐标。（骨架内坐标系）
+         * @param intersectionPointA 线段从起点到终点与包围盒相交的第一个交点。（骨架内坐标系）
+         * @param intersectionPointB 线段从终点到起点与包围盒相交的第一个交点。（骨架内坐标系）
+         * @param normalRadians 碰撞点处包围盒切线的法线弧度。 [x: 第一个碰撞点处切线的法线弧度, y: 第二个碰撞点处切线的法线弧度]
+         * @returns 相交的情况。 [-1: 不相交且线段在包围盒内, 0: 不相交, 1: 相交且有一个交点且终点在包围盒内, 2: 相交且有一个交点且起点在包围盒内, 3: 相交且有两个交点, N: 相交且有 N 个交点]
+         * @version DragonBones 5.0
+         * @language zh_CN
+         */
+        public int IntersectsSegment(float xA, float yA, float xB, float yB,
+                                    Point intersectionPointA = null,
+                                    Point intersectionPointB = null,
+                                    Point normalRadians = null)
+        {
+            if (this._boundingBoxData == null)
+            {
+                return 0;
+            }
+
+            this.UpdateTransformAndMatrix();
+            Slot._helpMatrix.CopyFrom(this.globalTransformMatrix);
+            Slot._helpMatrix.Invert();
+            Slot._helpMatrix.TransformPoint(xA, yA, Slot._helpPoint);
+            xA = Slot._helpPoint.x;
+            yA = Slot._helpPoint.y;
+            Slot._helpMatrix.TransformPoint(xB, yB, Slot._helpPoint);
+            xB = Slot._helpPoint.x;
+            yB = Slot._helpPoint.y;
+
+            var intersectionCount = this._boundingBoxData.IntersectsSegment(xA, yA, xB, yB, intersectionPointA, intersectionPointB, normalRadians);
+            if (intersectionCount > 0)
+            {
+                if (intersectionCount == 1 || intersectionCount == 2)
+                {
+                    if (intersectionPointA != null)
+                    {
+                        this.globalTransformMatrix.TransformPoint(intersectionPointA.x, intersectionPointA.y, intersectionPointA);
+
+                        if (intersectionPointB != null)
+                        {
+                            intersectionPointB.x = intersectionPointA.x;
+                            intersectionPointB.y = intersectionPointA.y;
+                        }
+                    }
+                    else if (intersectionPointB != null)
+                    {
+                        this.globalTransformMatrix.TransformPoint(intersectionPointB.x, intersectionPointB.y, intersectionPointB);
+                    }
+                }
+                else
+                {
+                    if (intersectionPointA != null)
+                    {
+                        this.globalTransformMatrix.TransformPoint(intersectionPointA.x, intersectionPointA.y, intersectionPointA);
+                    }
+
+                    if (intersectionPointB != null)
+                    {
+                        this.globalTransformMatrix.TransformPoint(intersectionPointB.x, intersectionPointB.y, intersectionPointB);
+                    }
+                }
+
+                if (normalRadians != null)
+                {
+                    this.globalTransformMatrix.TransformPoint((float)Math.Cos(normalRadians.x), (float)Math.Sin(normalRadians.x), Slot._helpPoint, true);
+                    normalRadians.x = (float)Math.Atan2(Slot._helpPoint.y, Slot._helpPoint.x);
+
+                    this.globalTransformMatrix.TransformPoint((float)Math.Cos(normalRadians.y), (float)Math.Sin(normalRadians.y), Slot._helpPoint, true);
+                    normalRadians.y = (float)Math.Atan2(Slot._helpPoint.y, Slot._helpPoint.x);
+                }
+            }
+
+            return intersectionCount;
+        }
+
+        /**
+         * 在下一帧更新显示对象的状态。
+         * @version DragonBones 4.5
+         * @language zh_CN
+         */
+        public void InvalidUpdate()
+        {
+            this._displayDirty = true;
+            this._transformDirty = true;
+        }
+        /**
+         * 此时显示的显示对象在显示列表中的索引。
+         * @version DragonBones 4.5
+         * @language zh_CN
+         */
+        public int displayIndex
+        {
+            get { return this._displayIndex; }
+            set
+            {
+                if (this._SetDisplayIndex(value))
+                {
+                    this.Update(-1);
+                }
+            }
+        }
+
+        /**
+         * 包含显示对象或子骨架的显示列表。
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
+        public List<object> displayList
+        {
+            get { return new List<object>(_displayList.ToArray()); }
+            set
+            {
+                var backupDisplayList = _displayList.ToArray(); // Copy.
+                var disposeDisplayList = new List<object>();
+
+                if (this._SetDisplayList(value))
+                {
+                    this.Update(-1);
+                }
+
+                // Release replaced displays.
+                foreach (var eachDisplay in backupDisplayList)
+                {
+                    if ( eachDisplay != null &&
+                        eachDisplay != this._rawDisplay &&
+                        eachDisplay != this._meshDisplay &&
+                        this._displayList.IndexOf(eachDisplay) < 0 &&
+                        disposeDisplayList.IndexOf(eachDisplay) < 0
+                    )
+                    {
+                        disposeDisplayList.Add(eachDisplay);
+                    }
+                }
+
+                foreach (var eachDisplay in disposeDisplayList)
+                {
+                    if (eachDisplay is Armature)
+                    {
+                        (eachDisplay as Armature).Dispose();
+                    }
+                    else
+                    {
+                        this._DisposeDisplay(eachDisplay);
+                    }
+                }
+            }
+        }
+        /**
+         * 插槽此时的自定义包围盒数据。
+         * @see dragonBones.Armature
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
+        public BoundingBoxData boundingBoxData
+        {
+            get { return this._boundingBoxData; }
+        }
+        /**
+         * @private
+         */
+        public object rawDisplay
+        {
+            get { return this._rawDisplay; }
+        }
+
+        /**
+         * @private
+         */
+        public object meshDisplay
+        {
+            get { return this._meshDisplay; }
+        }
+        /**
+         * 此时显示的显示对象。
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
+        public object display
+        {
+            get { return this._display; }
+            set
+            {
+                if (this._display == value)
+                {
+                    return;
+                }
+
+                var displayListLength = this._displayList.Count;
+                if (this._displayIndex < 0 && displayListLength == 0)
+                {  
+                    // Emprty.
+                    this._displayIndex = 0;
+                }
+
+                if (this._displayIndex < 0)
+                {
+                    return;
+                }
+                else
+                {
+                    var replaceDisplayList = this.displayList; // Copy.
+                    if (displayListLength <= this._displayIndex)
+                    {
+                        replaceDisplayList.ResizeList(this._displayIndex + 1);
+                    }
+
+                    replaceDisplayList[this._displayIndex] = value;
+                    this.displayList = replaceDisplayList;
+                }
+            }
+        }
+        /**
+         * 此时显示的子骨架。
+         * @see dragonBones.Armature
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
+        public Armature childArmature
+        {
+            get { return this._childArmature; }
+            set
+            {
+                if (this._childArmature == value)
+                {
+                    return;
+                }
+
+                this.display = value;
+            }
         }
 }
 }
