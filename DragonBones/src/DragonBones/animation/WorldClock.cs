@@ -39,7 +39,7 @@ namespace DragonBones
         {
             if (time <= 0.0f)
             {
-                this.time = DateTime.Now.Ticks / 100.0f / DragonBones.SECOND_TO_MILLISECOND;
+                this.time = DateTime.Now.Ticks / 100.0f / 1000.0f;
             }
             else
             {
@@ -62,7 +62,7 @@ namespace DragonBones
 
             if (passedTime < 0.0f)
             {
-                passedTime = DateTime.Now.Ticks / 100.0f / DragonBones.SECOND_TO_MILLISECOND - this.time;
+                passedTime = DateTime.Now.Ticks / 100.0f / 1000.0f - this.time;
             }
 
             if (this.timeScale != 1.0f)

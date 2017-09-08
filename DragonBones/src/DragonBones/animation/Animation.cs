@@ -193,7 +193,7 @@ namespace DragonBones
                     if (animationState._fadeState > 0 && animationState._subFadeState > 0)
                     {
                         r++;
-                        this._armature._dragonBones.bufferObject(animationState);
+                        this._armature._dragonBones.BufferObject(animationState);
                         this._animationDirty = true;
                         if (this._lastAnimationState == animationState)
                         {
@@ -295,10 +295,10 @@ namespace DragonBones
             var animationName = animationConfig.animation;
             if (!(this._animations.ContainsKey(animationName)))
             {
-                Helper.Assert(
-                    "Non-existent animation.\n",
-                    "DragonBones name: " + this._armature.armatureData.parent.name,
-                    "Armature name: " + this._armature.name,
+                Helper.Assert(false,
+                    "Non-existent animation.\n" + 
+                    "DragonBones name: " + this._armature.armatureData.parent.name + 
+                    "Armature name: " + this._armature.name +
                     "Animation name: " + animationName
                 );
 
@@ -417,8 +417,8 @@ namespace DragonBones
                 var childArmature = slot.childArmature;
                 if (childArmature != null &&
                     childArmature.inheritAnimation &&
-                    childArmature.animation.hasAnimation(animationName) &&
-                    childArmature.animation.getState(animationName) == null)
+                    childArmature.animation.HasAnimation(animationName) &&
+                    childArmature.animation.GetState(animationName) == null)
                 {
                     childArmature.animation.FadeIn(animationName); //
                 }

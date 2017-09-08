@@ -192,19 +192,19 @@ namespace DragonBones
                 }
                 else
                 {
-                    _disposeDisplay(eachDisplay);
+                    _DisposeDisplay(eachDisplay);
                 }
             }
 
             if (this._meshDisplay != null && this._meshDisplay != this._rawDisplay)
             { 
                 // May be _meshDisplay and _rawDisplay is the same one.
-                this._disposeDisplay(this._meshDisplay);
+                this._DisposeDisplay(this._meshDisplay);
             }
 
             if (this._rawDisplay != null)
             {
-                this._disposeDisplay(this._rawDisplay);
+                this._DisposeDisplay(this._rawDisplay);
             }
 
             this.displayController = null;
@@ -528,7 +528,7 @@ namespace DragonBones
                     prevChildArmature.clock = null;
                     if (prevChildArmature.inheritAnimation)
                     {
-                        prevChildArmature.animation.reset();
+                        prevChildArmature.animation.Reset();
                     }
                 }
 
@@ -573,7 +573,7 @@ namespace DragonBones
                         }
                         else
                         {
-                            this._childArmature.animation.play();
+                            this._childArmature.animation.Play();
                         }
                     }
                 }
@@ -589,7 +589,7 @@ namespace DragonBones
             this.globalTransformMatrix.Concat(this._parent.globalTransformMatrix);
             if (isCache)
             {
-                this.global.fromMatrix(this.globalTransformMatrix);
+                this.global.FromMatrix(this.globalTransformMatrix);
             }
             else
             {
@@ -616,7 +616,7 @@ namespace DragonBones
          * @internal
          * @private
          */
-        public void  _SetArmature(Armature value = null)
+        internal override void  _SetArmature(Armature value = null)
         {
             if (this._armature == value)
             {
@@ -625,7 +625,7 @@ namespace DragonBones
 
             if (this._armature != null)
             {
-                this._armature._removeSlotFromSlotList(this);
+                this._armature._RemoveSlotFromSlotList(this);
             }
 
             this._armature = value; //
@@ -908,12 +908,12 @@ namespace DragonBones
 
                     if (isCache && this._cachedFrameIndices != null)
                     {
-                        this._cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex] = this._armature.armatureData.setCacheFrame(this.globalTransformMatrix, this.global);
+                        this._cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex] = this._armature.armatureData.SetCacheFrame(this.globalTransformMatrix, this.global);
                     }
                 }
                 else
                 {
-                    this._armature.armatureData.getCacheFrame(this.globalTransformMatrix, this.global, this._cachedFrameIndex);
+                    this._armature.armatureData.GetCacheFrame(this.globalTransformMatrix, this.global, this._cachedFrameIndex);
                 }
 
                 this._UpdateTransform(false);

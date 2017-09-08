@@ -40,12 +40,4 @@
          */
          AnimationConfig animation { get; }
     }
-
-    /**
-     * @deprecated
-     * @see DragonBones.IArmatureProxy
-     */
-    public interface IArmatureDisplay : IArmatureProxy
-    {
-    }
 }

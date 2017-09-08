@@ -3,7 +3,7 @@ using System.IO;
 
 namespace DragonBones
 {
-    public class BinaryDataReader : BinaryReader
+    internal class BinaryDataReader : BinaryReader
     {
         private int i;
         private int readLength;
@@ -16,9 +16,21 @@ namespace DragonBones
         {
         }
 
-        public virtual bool[] ReadBooleans()
+        public virtual void Seek(int offset, SeekOrigin origin = SeekOrigin.Current)
         {
-            this.readLength = base.ReadInt32();
+            if (offset == 0)
+            {
+                return;
+            }
+
+            BaseStream.Seek(offset, origin);
+        }
+
+        public virtual bool[] ReadBooleans(int offset, int readLength)
+        {
+            Seek(offset);
+
+            this.readLength = readLength;
             bool[] flagArray = new bool[this.readLength];
             this.i = 0;
             while (this.i < this.readLength)
@@ -29,9 +41,11 @@ namespace DragonBones
             return flagArray;
         }
 
-        public virtual byte[] ReadBytes()
+        public virtual byte[] ReadBytes(int offset, int readLength)
         {
-            this.readLength = base.ReadInt32();
+            Seek(offset);
+
+            this.readLength = readLength;
             byte[] buffer = new byte[this.readLength];
             this.i = 0;
             while (this.i < this.readLength)
@@ -42,9 +56,11 @@ namespace DragonBones
             return buffer;
         }
 
-        public virtual char[] ReadChars()
+        public virtual char[] ReadChars(int offset, int readLength)
         {
-            this.readLength = base.ReadInt32();
+            Seek(offset);
+
+            this.readLength = readLength;
             char[] chArray = new char[this.readLength];
             this.i = 0;
             while (this.i < this.readLength)
@@ -55,9 +71,11 @@ namespace DragonBones
             return chArray;
         }
 
-        public virtual decimal[] ReadDecimals()
+        public virtual decimal[] ReadDecimals(int offset, int readLength)
         {
-            this.readLength = base.ReadInt32();
+            Seek(offset);
+
+            this.readLength = readLength;
             decimal[] numArray = new decimal[this.readLength];
             this.i = 0;
             while (this.i < this.readLength)
@@ -68,9 +86,11 @@ namespace DragonBones
             return numArray;
         }
 
-        public virtual double[] ReadDoubles()
+        public virtual double[] ReadDoubles(int offset, int readLength)
         {
-            this.readLength = base.ReadInt32();
+            Seek(offset);
+
+            this.readLength = readLength;
             double[] numArray = new double[this.readLength];
             this.i = 0;
             while (this.i < this.readLength)
@@ -81,9 +101,11 @@ namespace DragonBones
             return numArray;
         }
 
-        public virtual short[] ReadInt16s()
+        public virtual short[] ReadInt16s(int offset, int readLength)
         {
-            this.readLength = base.ReadInt32();
+            Seek(offset);
+
+            this.readLength = readLength;
             short[] numArray = new short[this.readLength];
             this.i = 0;
             while (this.i < this.readLength)
@@ -94,14 +116,11 @@ namespace DragonBones
             return numArray;
         }
 
-        public virtual short[] ReadInt16s(int count)
+        public virtual int[] ReadInt32s(int offset, int readLength)
         {
+            Seek(offset);
 
-        }
-
-        public virtual int[] ReadInt32s()
-        {
-            this.readLength = base.ReadInt32();
+            this.readLength = readLength;
             int[] numArray = new int[this.readLength];
             this.i = 0;
             while (this.i < this.readLength)
@@ -112,9 +131,11 @@ namespace DragonBones
             return numArray;
         }
 
-        public virtual long[] ReadInt64s()
+        public virtual long[] ReadInt64s(int offset, int readLength)
         {
-            this.readLength = base.ReadInt32();
+            Seek(offset);
+
+            this.readLength = readLength;
             long[] numArray = new long[this.readLength];
             this.i = 0;
             while (this.i < this.readLength)
@@ -125,9 +146,11 @@ namespace DragonBones
             return numArray;
         }
 
-        public virtual sbyte[] ReadSBytes()
+        public virtual sbyte[] ReadSBytes(int offset, int readLength)
         {
-            this.readLength = base.ReadInt32();
+            Seek(offset);
+
+            this.readLength = readLength;
             sbyte[] numArray = new sbyte[this.readLength];
             this.i = 0;
             while (this.i < this.readLength)
@@ -138,9 +161,11 @@ namespace DragonBones
             return numArray;
         }
 
-        public virtual float[] ReadSingles()
+        public virtual float[] ReadSingles(int offset, int readLength)
         {
-            this.readLength = base.ReadInt32();
+            Seek(offset);
+
+            this.readLength = readLength;
             float[] numArray = new float[this.readLength];
             this.i = 0;
             while (this.i < this.readLength)
@@ -151,9 +176,11 @@ namespace DragonBones
             return numArray;
         }
 
-        public virtual string[] ReadStrings()
+        public virtual string[] ReadStrings(int offset, int readLength)
         {
-            this.readLength = base.ReadInt32();
+            Seek(offset);
+
+            this.readLength = readLength;
             string[] strArray = new string[this.readLength];
             this.i = 0;
             while (this.i < this.readLength)
@@ -164,9 +191,11 @@ namespace DragonBones
             return strArray;
         }
 
-        public virtual ushort[] ReadUInt16s()
+        public virtual ushort[] ReadUInt16s(int offset, int readLength)
         {
-            this.readLength = base.ReadInt32();
+            Seek(offset);
+
+            this.readLength = readLength;
             ushort[] numArray = new ushort[this.readLength];
             this.i = 0;
             while (this.i < this.readLength)
@@ -177,9 +206,11 @@ namespace DragonBones
             return numArray;
         }
 
-        public virtual uint[] ReadUInt32s()
+        public virtual uint[] ReadUInt32s(int offset, int readLength)
         {
-            this.readLength = base.ReadInt32();
+            Seek(offset);
+
+            this.readLength = readLength;
             uint[] numArray = new uint[this.readLength];
             this.i = 0;
             while (this.i < this.readLength)
@@ -190,9 +221,11 @@ namespace DragonBones
             return numArray;
         }
 
-        public virtual ulong[] ReadUInt64s()
+        public virtual ulong[] ReadUInt64s(int offset, int readLength)
         {
-            this.readLength = base.ReadInt32();
+            Seek(offset);
+
+            this.readLength = readLength;
             ulong[] numArray = new ulong[this.readLength];
             this.i = 0;
             while (this.i < this.readLength)
@@ -209,113 +242,6 @@ namespace DragonBones
             {
                 return this.BaseStream.Length;
             }
-        }
-
-        /// <summary>
-        /// 基础值类型数组解析
-        /// </summary>
-        /// <typeparam name="T">基础类型</typeparam>
-        /// <param name="bytes">字节流数组</param>
-        /// <param name="index">开始Index</param>
-        /// <param name="len">数组长度</param>
-        /// <returns></returns>
-        private static T[] GetValues<T>(byte[] bytes, ref int index, int len) where T : struct
-        {
-            T[] bc = new T[len];
-            int i = 0;
-            switch (typeof(T).Name.ToLower())
-            {
-                case "uint16":
-                case "ushort":
-                    {
-                        while (i < len)
-                        {
-                            bc[i] = (T)Convert.ChangeType(BitConverter.ToUInt16(bytes, index), typeof(T));
-                            index += Marshal.SizeOf(typeof(T));
-                            i += 1;
-                        }
-                    }
-                    break;
-                case "int16":
-                case "short":
-                    {
-                        while (i < len)
-                        {
-                            bc[i] = (T)Convert.ChangeType(BitConverter.ToInt16(bytes, index), typeof(T));
-                            index += Marshal.SizeOf(typeof(T));
-                            i += 1;
-                        }
-                    }
-                    break;
-                case "bool":
-                case "boolean":
-                    {
-                        while (i < len)
-                        {
-                            bc[i] = (T)Convert.ChangeType(BitConverter.ToBoolean(bytes, index), typeof(T));
-                            index += Marshal.SizeOf(typeof(T));
-                            i += 1;
-                        }
-                    }
-                    break;
-                case "int64":
-                    {
-                        while (i < len)
-                        {
-                            bc[i] = (T)Convert.ChangeType(BitConverter.ToInt64(bytes, index), typeof(T));
-                            index += Marshal.SizeOf(typeof(T));
-                            i += 1;
-                        }
-                    }
-                    break;
-                case "uint64":
-                    {
-                        while (i < len)
-                        {
-                            bc[i] = (T)Convert.ChangeType(BitConverter.ToUInt64(bytes, index), typeof(T));
-                            index += Marshal.SizeOf(typeof(T));
-                            i += 1;
-                        }
-                    }
-                    break;
-                case "byte":
-                    {
-                        while (i < len)
-                        {
-                            bc[i] = (T)Convert.ChangeType(bytes[index], typeof(T));
-                            index += Marshal.SizeOf(typeof(T));
-                            i += 1;
-                        }
-                    }
-                    break;
-                case "int32":
-                    {
-                        while (i < len)
-                        {
-                            bc[i] = (T)Convert.ChangeType(BitConverter.ToInt32(bytes, index), typeof(T));
-                            index += Marshal.SizeOf(typeof(T));
-                            i += 1;
-                        }
-                    }
-                    break;
-                case "uint32":
-                    {
-                        while (i < len)
-                        {
-                            bc[i] = (T)Convert.ChangeType(BitConverter.ToUInt32(bytes, index), typeof(T));
-                            index += Marshal.SizeOf(typeof(T));
-                            i += 1;
-                        }
-                    }
-                    break;
-                case "char":
-                    {
-                        Buffer.BlockCopy(bytes, index, bc, 0, len);
-                        index += Marshal.SizeOf(bc);
-                    }
-                    break;
-            }
-            return bc;
         }
     }
 

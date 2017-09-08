@@ -2026,6 +2026,7 @@ namespace DragonBones
             using (BinaryDataWriter writer = new BinaryDataWriter(ms))
             using (BinaryDataReader reader = new BinaryDataReader(ms))
             {
+                
                 //ToWrite
                 writer.Write(_intArray.ToArray());
                 writer.Write(_floatArray.ToArray());
@@ -2037,12 +2038,12 @@ namespace DragonBones
                 ms.Position = 0;
 
                 //ToRead
-                this._data.intArray = reader.ReadInt16s();
-                this._data.floatArray = reader.ReadSingles();
-                this._data.frameIntArray = reader.ReadInt16s();
-                this._data.frameFloatArray = reader.ReadSingles();
-                this._data.frameArray = reader.ReadInt16s();
-                this._data.timelineArray = reader.ReadUInt16s();
+                this._data.intArray = reader.ReadInt16s(0, l1);
+                this._data.floatArray = reader.ReadSingles(0, l2);
+                this._data.frameIntArray = reader.ReadInt16s(0, l3);
+                this._data.frameFloatArray = reader.ReadSingles(0, l4);
+                this._data.frameArray = reader.ReadInt16s(0, l5);
+                this._data.timelineArray = reader.ReadUInt16s(0, l6);
 
                 ms.Close();
             }

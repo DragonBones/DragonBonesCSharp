@@ -167,7 +167,7 @@ namespace DragonBones
             return true;
         }
 
-        public void Init(Armature armature, AnimationState animationState, TimelineData timelineData)
+        public virtual void Init(Armature armature, AnimationState animationState, TimelineData timelineData)
         {
             this._armature = armature;
             this._animationState = animationState;
@@ -206,7 +206,7 @@ namespace DragonBones
 
         }
 
-        public void Update(float passedTime)
+        public virtual void Update(float passedTime)
         {
             if (this.playState <= 0 && this._SetCurrentTime(passedTime))
             {

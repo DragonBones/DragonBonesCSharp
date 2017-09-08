@@ -229,8 +229,6 @@ namespace DragonBones
 
     public class DragonBones
     {
-        public const float SECOND_TO_MILLISECOND = 1000.0f;
-
         public static bool yDown = true;
         public static bool debug = false;
         public static bool debugDraw = false;
@@ -266,9 +264,48 @@ namespace DragonBones
                 for (int i = 0; i < this._events.Count; ++i)
                 {
                     var eventObject = this._events[i];
-                    //var armature = eventObject.ar
+                    var armature = eventObject.armature;
+                    if (armature.armatureData != null)
+                    { 
+                        // May be armature disposed before advanceTime.
+                        armature.proxy.DispatchEvent(eventObject.type, eventObject);
+                        if (eventObject.type == EventObject.SOUND_EVENT)
+                        {
+                            this._eventManager.DispatchEvent(eventObject.type, eventObject);
+                        }
+                    }
+
+                    this.BufferObject(eventObject);
                 }
+
+                this._events.Clear();
             }
+        }
+
+        public void BufferEvent(EventObject value)
+        {
+            if (!this._events.Contains(value))
+            {
+                this._events.Add(value);
+            }
+        }
+
+        public void BufferObject(BaseObject value)
+        {
+            if (!this._objects.Contains(value))
+            {
+                this._objects.Add(value);
+            }
+        }
+
+        public WorldClock clock
+        {
+            get { return this._clock; }
+        }
+
+        public IEventDispatcher<EventObject> eventManager
+        {
+            get { return this._eventManager; }
         }
     }
 }

@@ -7,7 +7,7 @@ namespace DragonBones
     public class BinaryDataParser : ObjectDataParser
     {
         //JsonParse
-        public static delegate object JsonParseDelegate(string json);
+        public delegate object JsonParseDelegate(string json);
 
         public static JsonParseDelegate jsonParseDelegate;
 
@@ -331,28 +331,25 @@ namespace DragonBones
         protected override void _ParseArray(Dictionary<string, object> rawData)
         {
             var offsets = rawData[ObjectDataParser.OFFSET] as List<int>;
-            
-            using (MemoryStream ms = new MemoryStream(offsets[0] + offsets[1] + offsets[2] + offsets[3] + offsets[4] + offsets[5]))
-            using (BinaryDataWriter writer = new BinaryDataWriter(ms))
+
+            short[] intArray = { };
+            float[] floatArray = { };
+            short[] frameIntArray = { };
+            float[] frameFloatArray = { };
+            short[] frameArray = { };
+            ushort[] timelineArray = { };
+
+
+            using (MemoryStream ms = new MemoryStream(this._binary))
             using (BinaryDataReader reader = new BinaryDataReader(ms))
             {
-                //ToWrite
-                writer.Write(this._intArray.ToArray());
-                writer.Write(this._floatArray.ToArray());
-                writer.Write(this._frameArray.ToArray());
-                writer.Write(this._frameFloatArray.ToArray());
-                writer.Write(this._frameArray.ToArray());
-                writer.Write(this._timelineArray.ToArray());
-
-                ms.Position = 0;
-
                 //ToRead
-                this._data.intArray = reader.ReadInt16s();
-                this._data.floatArray = reader.ReadSingles();
-                this._data.frameIntArray = reader.ReadInt16s();
-                this._data.frameFloatArray = reader.ReadSingles();
-                this._data.frameArray = reader.ReadInt16s();
-                this._data.timelineArray = reader.ReadUInt16s();
+                intArray = reader.ReadInt16s(this._binaryOffset + offsets[0], offsets[1] / Helper.INT16_SIZE);
+                floatArray = reader.ReadSingles(this._binaryOffset + offsets[2], offsets[3] / Helper.FLOAT_SIZE);
+                frameIntArray = reader.ReadInt16s(this._binaryOffset + offsets[4], offsets[5] / Helper.INT16_SIZE);
+                frameFloatArray = reader.ReadSingles(this._binaryOffset + offsets[6], offsets[7] / Helper.FLOAT_SIZE);
+                frameArray = reader.ReadInt16s(this._binaryOffset + offsets[8], offsets[9] / Helper.INT16_SIZE);
+                timelineArray = reader.ReadUInt16s(this._binaryOffset + offsets[10], offsets[11] / Helper.UINT16_SIZE);
 
                 ms.Close();
             }
@@ -373,7 +370,6 @@ namespace DragonBones
 
             byte[] bytes = rawObj as byte[];
             using (MemoryStream ms = new MemoryStream(bytes))
-            using (BinaryDataWriter writer = new BinaryDataWriter(ms))
             using (BinaryDataReader reader = new BinaryDataReader(ms))
             {
                 ms.Position = 0;
@@ -388,14 +384,10 @@ namespace DragonBones
                     return null;
                 }
 
-                /*const headerLength = new Uint32Array(rawData, 8, 1)[0];
-                const headerBytes = new Uint8Array(rawData, 8 + 4, headerLength);
-                const headerString = this._decodeUTF8(headerBytes);
-                const header = JSON.parse(headerString);*/
-
-                var headerLength = reader.ReadUInt32();
+                var headerLength = (int)reader.ReadUInt32();
                 var headerBytes = reader.ReadBytes(headerLength);
-                var headerString = this._DecodeUTF8(headerBytes);
+                //var headerString = this._DecodeUTF8(headerBytes);
+                var headerString = System.Text.Encoding.UTF8.GetString(headerBytes);
                 var header = jsonParseDelegate != null ? jsonParseDelegate(headerString) : string.Empty;
 
                 this._binary = bytes;

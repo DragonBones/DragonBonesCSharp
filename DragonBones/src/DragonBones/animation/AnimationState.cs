@@ -253,7 +253,7 @@ namespace DragonBones
                 this._subFadeState = 0;
 
                 var eventType = isFadeOut ? EventObject.FADE_OUT : EventObject.FADE_IN;
-                if (this._armature.eventDispatcher.HasEvent(eventType))
+                if (this._armature.proxy.HasEventListener(eventType))
                 {
                     var eventObject = BaseObject.BorrowObject<EventObject>();
                     eventObject.type = eventType;
@@ -297,7 +297,7 @@ namespace DragonBones
                 }
 
                 var eventType = isFadeOut ? EventObject.FADE_OUT_COMPLETE : EventObject.FADE_IN_COMPLETE;
-                if (this._armature.eventDispatcher.HasEvent(eventType))
+                if (this._armature.proxy.HasEventListener(eventType))
                 {
                     var eventObject = BaseObject.BorrowObject<EventObject>();
                     eventObject.type = eventType;
@@ -431,7 +431,7 @@ namespace DragonBones
             }
 
             this._actionTimeline = BaseObject.BorrowObject<ActionTimelineState>();
-            this._actionTimeline.init(this._armature, this, this.animationData.actionTimeline);
+            this._actionTimeline.Init(this._armature, this, this.animationData.actionTimeline);
             this._actionTimeline.currentTime = this._time;
             if (this._actionTimeline.currentTime < 0.0f)
             {
@@ -441,7 +441,7 @@ namespace DragonBones
             if (this.animationData.zOrderTimeline != null)
             {
                 this._zOrderTimeline = BaseObject.BorrowObject<ZOrderTimelineState>();
-                this._zOrderTimeline.init(this._armature, this, this.animationData.zOrderTimeline);
+                this._zOrderTimeline.Init(this._armature, this, this.animationData.zOrderTimeline);
             }
         }
         /**
@@ -471,7 +471,7 @@ namespace DragonBones
                     continue;
                 }
 
-                TimelineData[] timelineDatas = this.animationData.GetBoneTimelines(timelineName);
+                var timelineDatas = this.animationData.GetBoneTimeline(timelineName);
                 if (boneTimelines.ContainsKey(timelineName))
                 {
                     // Remove bone timeline from map.
@@ -492,7 +492,7 @@ namespace DragonBones
                                         var timeline = BaseObject.BorrowObject<BoneAllTimelineState>();
                                         timeline.bone = bone;
                                         timeline.bonePose = bonePose;
-                                        timeline.init(this._armature, this, timelineData);
+                                        timeline.Init(this._armature, this, timelineData);
                                         this._boneTimelines.Add(timeline);
                                         break;
                                     }
@@ -501,7 +501,7 @@ namespace DragonBones
                                         var timeline = BaseObject.BorrowObject<BoneTranslateTimelineState>();
                                         timeline.bone = bone;
                                         timeline.bonePose = bonePose;
-                                        timeline.init(this._armature, this, timelineData);
+                                        timeline.Init(this._armature, this, timelineData);
                                         this._boneTimelines.Add(timeline);
                                         break;
                                     }
@@ -510,7 +510,7 @@ namespace DragonBones
                                         var timeline = BaseObject.BorrowObject<BoneRotateTimelineState>();
                                         timeline.bone = bone;
                                         timeline.bonePose = bonePose;
-                                        timeline.init(this._armature, this, timelineData);
+                                        timeline.Init(this._armature, this, timelineData);
                                         this._boneTimelines.Add(timeline);
                                         break;
                                     }
@@ -519,7 +519,7 @@ namespace DragonBones
                                         var timeline = BaseObject.BorrowObject<BoneScaleTimelineState>();
                                         timeline.bone = bone;
                                         timeline.bonePose = bonePose;
-                                        timeline.init(this._armature, this, timelineData);
+                                        timeline.Init(this._armature, this, timelineData);
                                         this._boneTimelines.Add(timeline);
                                         break;
                                     }
@@ -535,7 +535,7 @@ namespace DragonBones
                         var timeline = BaseObject.BorrowObject<BoneAllTimelineState>();
                         timeline.bone = bone;
                         timeline.bonePose = bonePose;
-                        timeline.init(this._armature, this, null);
+                        timeline.Init(this._armature, this, null);
                         this._boneTimelines.Add(timeline);
                     }
                 }
@@ -619,7 +619,7 @@ namespace DragonBones
                                         timeline.slot = slot;
                                         timeline.Init(this._armature, this, timelineData);
                                         this._slotTimelines.Add(timeline);
-                                        ffdFlags.Add(timeline.meshOffset);
+                                        ffdFlags.Add((int)timeline.meshOffset);
                                         break;
                                     }
 
@@ -715,13 +715,13 @@ namespace DragonBones
             this._weightResult = this.weight * this._fadeProgress;
 
             // Update main timeline.
-            this._actionTimeline.update(time);
+            this._actionTimeline.Update(time);
 
             if (isCacheEnabled)
             { 
                 // Cache time internval.
                 var internval = cacheFrameRate * 2.0f;
-                this._actionTimeline.currentTime = Math.Floor(this._actionTimeline.currentTime * internval) / internval;
+                this._actionTimeline.currentTime = (float)Math.Floor(this._actionTimeline.currentTime * internval) / internval;
             }
 
             if (this._zOrderTimeline != null)
@@ -733,7 +733,7 @@ namespace DragonBones
             if (isCacheEnabled)
             { 
                 // Update cache.
-                var cacheFrameIndex = Math.Floor(this._actionTimeline.currentTime * cacheFrameRate); // uint
+                var cacheFrameIndex = (int)Math.Floor(this._actionTimeline.currentTime * cacheFrameRate); // uint
                 if (this._armature._cacheFrameIndex == cacheFrameIndex)
                 { 
                     // Same cache.
@@ -950,7 +950,7 @@ namespace DragonBones
                 // Add recursive mixing.
                 foreach (var bone in this._armature.GetBones())
                 {
-                    if (this._boneMask.IndexOf(bone.name) < 0 && currentBone.contains(bone))
+                    if (this._boneMask.IndexOf(bone.name) < 0 && currentBone.Contains(bone))
                     {
                     this._boneMask.Add(bone.name);
                     }
