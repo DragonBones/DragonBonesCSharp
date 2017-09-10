@@ -161,7 +161,27 @@ namespace DragonBones
             cachedFrames.ResizeList(0, false);
             cachedFrames.ResizeList(cacheFrameCount, false);
 
-            
+            foreach (var bone in this.parent.sortedBones)
+            {
+                var indices = new List<int>(cacheFrameCount);
+                for (int i = 0, l = indices.Count; i < l; ++i)
+                {
+                    indices[i] = -1;
+                }
+
+                this.boneCachedFrameIndices[bone.name] = indices;
+            }
+
+            foreach (var slot in this.parent.sortedSlots)
+            {
+                var indices = new List<int>(cacheFrameCount);
+                for (int i = 0, l = indices.Count; i < l; ++i)
+                {
+                    indices[i] = -1;
+                }
+
+                this.slotCachedFrameIndices[slot.name] = indices;
+            }
         }
 
         /**
@@ -169,14 +189,42 @@ namespace DragonBones
          */
         public void AddBoneTimeline(BoneData bone, TimelineData tiemline)
         {
-            
+            if (bone == null || tiemline == null)
+            {
+                return;
+            }
+
+            if (!this.boneTimelines.ContainsKey(bone.name))
+            {
+                this.boneTimelines[bone.name] = new List<TimelineData>();
+            }
+
+            var timelines = this.boneTimelines[bone.name];
+            if (!timelines.Contains(tiemline))
+            {
+                timelines.Add(tiemline);
+            }
         }
         /**
          * @private
          */
         public void AddSlotTimeline(SlotData slot, TimelineData timeline)
         {
+            if (slot == null || timeline == null)
+            {
+                return;
+            }
 
+            if (!this.slotTimelines.ContainsKey(slot.name))
+            {
+                this.slotTimelines[slot.name] = new List<TimelineData>();
+            }
+
+            var timelines = this.slotTimelines[slot.name];
+            if (!timelines.Contains(timeline))
+            {
+                timelines.Add(timeline);
+            }
         }
 
         /**

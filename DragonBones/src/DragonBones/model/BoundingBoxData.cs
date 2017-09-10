@@ -1,5 +1,13 @@
 ﻿namespace DragonBones
 {
+    /**
+  * 边界框数据基类。
+  * @see dragonBones.RectangleData
+  * @see dragonBones.EllipseData
+  * @see dragonBones.PolygonData
+  * @version DragonBones 5.0
+  * @language zh_CN
+  */
     public abstract class BoundingBoxData : BaseObject
     {
         /**
@@ -45,11 +53,9 @@
          * @version DragonBones 5.0
          * @language zh_CN
          */
-        public abstract int IntersectsSegment(
-            float xA, float yA, float xB, float yB,
-            Point intersectionPointA = null,
-            Point intersectionPointB = null,
-            Point normalRadians = null
-        );
+        public abstract int IntersectsSegment(float xA, float yA, float xB, float yB,
+                                                Point intersectionPointA = null,
+                                                Point intersectionPointB = null,
+                                                Point normalRadians = null);
     }
 }
