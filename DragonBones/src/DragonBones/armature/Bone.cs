@@ -105,7 +105,7 @@ namespace DragonBones
         /**
          * @private
          */
-        private void _updateGlobalTransformMatrix(bool isCache)
+        private void _UpdateGlobalTransformMatrix(bool isCache)
         {
             var flipX = this._armature.flipX;
             var flipY = this._armature.flipY == DragonBones.yDown;
@@ -303,7 +303,8 @@ namespace DragonBones
 
             if (oldSlots != null)
             {
-                foreach (var slot in oldSlots) {
+                foreach (var slot in oldSlots)
+                {
                     if (slot.parent == this)
                     {
                         slot._SetArmature(this._armature);
@@ -313,7 +314,8 @@ namespace DragonBones
 
             if (oldBones != null)
             {
-                foreach (var bone in oldBones) {
+                foreach (var bone in oldBones)
+                {
                     if (bone.parent == this)
                     {
                         bone._SetArmature(this._armature);
@@ -419,7 +421,7 @@ namespace DragonBones
                     var isCache = cacheFrameIndex >= 0;
                     if (this._localDirty)
                     {
-                        this._updateGlobalTransformMatrix(isCache);
+                        this._UpdateGlobalTransformMatrix(isCache);
                     }
 
                     if (isCache && this._cachedFrameIndices != null)
@@ -450,7 +452,7 @@ namespace DragonBones
                 this._localDirty = false;
                 if (this._transformDirty || (this._parent != null && this._parent._childrenTransformDirty))
                 {
-                    this._updateGlobalTransformMatrix(true);
+                    this._UpdateGlobalTransformMatrix(true);
                 }
 
                 this._transformDirty = true;
@@ -462,7 +464,7 @@ namespace DragonBones
          */
         internal void AddConstraint(Constraint constraint)
         {
-            if (this.constraints.IndexOf(constraint) < 0)
+            if (!this.constraints.Contains(constraint))
             {
                 this.constraints.Add(constraint);
             }
@@ -485,7 +487,8 @@ namespace DragonBones
          */
         public bool Contains(TransformObject child)
         {
-            if (child == this) {
+            if (child == this)
+            {
                 return false;
             }
 
@@ -508,7 +511,8 @@ namespace DragonBones
 
             foreach (var bone in this._armature.GetBones())
             {
-                if (bone.parent == this) {
+                if (bone.parent == this)
+                {
                     this._bones.Add(bone);
                 }
             }
@@ -554,7 +558,8 @@ namespace DragonBones
 
                 this._visible = value;
 
-                foreach (var slot in this._armature.GetSlots()) {
+                foreach (var slot in this._armature.GetSlots())
+                {
                     if (slot._parent == this)
                     {
                         slot._UpdateVisible();

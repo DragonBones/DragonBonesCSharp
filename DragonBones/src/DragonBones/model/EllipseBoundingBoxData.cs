@@ -9,12 +9,11 @@ namespace DragonBones
      */
     public class EllipseBoundingBoxData : BoundingBoxData
     {
-        public static int EllipseIntersectsSegment(
-                                                float xA, float yA, float xB, float yB,
-                                                float xC, float yC, float widthH, float heightH,
-                                                Point intersectionPointA = null,
-                                                Point intersectionPointB = null,
-                                                Point normalRadians = null)
+        public static int EllipseIntersectsSegment( float xA, float yA, float xB, float yB,
+                                                    float xC, float yC, float widthH, float heightH,
+                                                    Point intersectionPointA = null,
+                                                    Point intersectionPointB = null,
+                                                    Point normalRadians = null)
         {
             var d = widthH / heightH;
             var dd = d * d;
@@ -157,17 +156,14 @@ namespace DragonBones
             return false;
         }
 
-        public override int IntersectsSegment(
-                                    float xA, float yA, float xB, float yB,
-                                    Point intersectionPointA,
-                                    Point intersectionPointB,
-                                    Point normalRadians)
+        public override int IntersectsSegment( float xA, float yA, float xB, float yB,
+                                                Point intersectionPointA,
+                                                Point intersectionPointB,
+                                                Point normalRadians)
         {
-            var intersectionCount = EllipseBoundingBoxData.EllipseIntersectsSegment(
-                xA, yA, xB, yB,
-                0.0f, 0.0f, this.width * 0.5f, this.height * 0.5f,
-                intersectionPointA, intersectionPointB, normalRadians
-            );
+            var intersectionCount = EllipseBoundingBoxData.EllipseIntersectsSegment(xA, yA, xB, yB,
+                                                                                    0.0f, 0.0f, this.width * 0.5f, this.height * 0.5f,
+                                                                                    intersectionPointA, intersectionPointB, normalRadians);
 
             return intersectionCount;
         }

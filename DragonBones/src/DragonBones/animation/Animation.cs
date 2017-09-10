@@ -443,7 +443,8 @@ namespace DragonBones
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public AnimationState Play(string animationName = null, int playTimes = -1) {
+        public AnimationState Play(string animationName = null, int playTimes = -1)
+        {
             this._animationConfig.Clear();
             this._animationConfig.resetToPose = true;
             this._animationConfig.playTimes = playTimes;

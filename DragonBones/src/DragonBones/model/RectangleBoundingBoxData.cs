@@ -53,13 +53,11 @@ namespace DragonBones
         /**
          * @private
          */
-        public static int RectangleIntersectsSegment(
-        float xA, float yA, float xB, float yB,
-        float xMin, float yMin, float xMax, float yMax,
-        Point intersectionPointA = null,
-        Point intersectionPointB = null,
-        Point normalRadians = null
-        )
+        public static int RectangleIntersectsSegment(float xA, float yA, float xB, float yB,
+                                                        float xMin, float yMin, float xMax, float yMax,
+                                                        Point intersectionPointA = null,
+                                                        Point intersectionPointB = null,
+                                                        Point normalRadians = null)
         {
             var inSideA = xA > xMin && xA < xMax && yA > yMin && yA < yMax;
             var inSideB = xB > xMin && xB < xMax && yB > yMin && yB < yMax;
@@ -253,8 +251,7 @@ namespace DragonBones
             return false;
         }
 
-        public override int IntersectsSegment(
-                                             float xA, float yA, float xB, float yB,
+        public override int IntersectsSegment(float xA, float yA, float xB, float yB,
                                              Point intersectionPointA = null,
                                              Point intersectionPointB = null,
                                              Point normalRadians = null)

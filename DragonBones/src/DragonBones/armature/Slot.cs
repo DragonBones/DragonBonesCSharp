@@ -676,7 +676,7 @@ namespace DragonBones
          * @internal
          * @private
          */
-        public bool _SetZorder(int value)
+        internal bool _SetZorder(int value)
         {
             if (this._zOrder == value)
             {
@@ -693,7 +693,7 @@ namespace DragonBones
          * @internal
          * @private
          */
-        public bool _SetColor(ColorTransform value)
+        internal bool _SetColor(ColorTransform value)
         {
             this._colorTransform.CopyFrom(value);
             this._colorDirty = true;
@@ -704,7 +704,7 @@ namespace DragonBones
          * @internal
          * @private
          */
-        public bool _SetDisplayList(List<object> value)
+        internal bool _SetDisplayList(List<object> value)
         {
             if (value != null && value.Count > 0)
             {
@@ -783,7 +783,7 @@ namespace DragonBones
          * @internal
          * @private
          */
-        public void Update(int cacheFrameIndex)
+        internal void Update(int cacheFrameIndex)
         {
             if (this._displayDirty)
             {

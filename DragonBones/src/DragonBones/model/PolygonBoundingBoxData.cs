@@ -8,13 +8,11 @@ namespace DragonBones
         /**
          * @private
          */
-        public static int PolygonIntersectsSegment(
-            float xA, float yA, float xB, float yB,
-            List<float> vertices,
-            Point intersectionPointA = null,
-            Point intersectionPointB = null,
-            Point normalRadians = null
-        )
+        public static int PolygonIntersectsSegment( float xA, float yA, float xB, float yB,
+                                                    List<float> vertices,
+                                                    Point intersectionPointA = null,
+                                                    Point intersectionPointB = null,
+                                                    Point normalRadians = null)
         {
             if (xA == xB)
             {
@@ -246,12 +244,10 @@ namespace DragonBones
         /**
          * @inherDoc
          */
-        public override int IntersectsSegment(
-            float xA, float yA, float xB, float yB,
-            Point intersectionPointA = null,
-            Point intersectionPointB = null,
-            Point normalRadians = null
-        )
+        public override int IntersectsSegment( float xA, float yA, float xB, float yB,
+                                                Point intersectionPointA = null,
+                                                Point intersectionPointB = null,
+                                                Point normalRadians = null )
         {
             var intersectionCount = 0;
             if (RectangleBoundingBoxData.RectangleIntersectsSegment(xA, yA, xB, yB, this.x, this.y, this.width, this.height, null, null, null) != 0)

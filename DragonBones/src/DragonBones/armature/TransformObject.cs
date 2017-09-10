@@ -71,12 +71,12 @@ namespace DragonBones
          * @internal
          * @private
          */
-        public Armature _armature;
+        internal Armature _armature;
         /**
          * @internal
          * @private
          */
-        public Bone _parent;
+        internal Bone _parent;
         /**
          * @private
          */

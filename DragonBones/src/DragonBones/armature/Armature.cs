@@ -68,14 +68,14 @@ namespace DragonBones
          * @internal
          * @private
          */
-        public DragonBones _dragonBones;
+        internal DragonBones _dragonBones;
         private WorldClock _clock = null; // Initial value.
 
         /**
          * @internal
          * @private
          */
-        public Slot _parent;
+        internal Slot _parent;
         /**
          * @private
          */

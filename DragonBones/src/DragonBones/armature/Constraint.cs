@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace DragonBones
 {
@@ -159,11 +156,12 @@ namespace DragonBones
                 this.bone.UpdateByConstraint();
                 this._ComputeA();
             }
-            else {
-            this.root.UpdateByConstraint();
-            this.bone.UpdateByConstraint();
-            this._ComputeB();
-        }
+            else
+            {
+                this.root.UpdateByConstraint();
+                this.bone.UpdateByConstraint();
+                this._ComputeB();
+            }
         }
     }
 }

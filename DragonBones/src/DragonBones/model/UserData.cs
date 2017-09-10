@@ -43,7 +43,7 @@ namespace DragonBones
          * @version DragonBones 5.0
          * @language zh_CN
          */
-        public int getInt(int index = 0)
+        public int GetInt(int index = 0)
         {
             return index >= 0 && index < this.ints.Count ? this.ints[index] : 0;
         }
@@ -52,7 +52,7 @@ namespace DragonBones
          * @version DragonBones 5.0
          * @language zh_CN
          */
-        public float getFloat(int index = 0)
+        public float GetFloat(int index = 0)
         {
             return index >= 0 && index < this.floats.Count ? this.floats[index] : 0.0f;
         }
@@ -61,7 +61,7 @@ namespace DragonBones
          * @version DragonBones 5.0
          * @language zh_CN
          */
-        public string getString(int index = 0)
+        public string GetString(int index = 0)
         {
             return index >= 0 && index < this.strings.Count ? this.strings[index] : string.Empty;
         }
@@ -70,7 +70,8 @@ namespace DragonBones
     public class ActionData : BaseObject
     {
         public ActionType type;
-        public string name; // Frame event name | Sound event name | Animation name
+        // Frame event name | Sound event name | Animation name
+        public string name; 
         public BoneData bone;
         public SlotData slot;
         public UserData data;
