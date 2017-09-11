@@ -9,7 +9,8 @@ public class ReplaceDisplayTextureTest : MonoBehaviour
 	public string replaceSlot;
 
 	// Use this for initialization
-	void Start () {
+	void Start ()
+    {
 		UnityArmatureComponent unityArmature = GetComponent<UnityArmatureComponent>();
 	
 		UnityFactory.factory.ReplaceSlotDisplay(
@@ -19,7 +20,8 @@ public class ReplaceDisplayTextureTest : MonoBehaviour
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void Update ()
+    {
 	
 	}
 }

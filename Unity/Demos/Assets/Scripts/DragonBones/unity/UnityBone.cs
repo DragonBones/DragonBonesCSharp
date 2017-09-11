@@ -4,13 +4,14 @@ using System.Collections;
 namespace DragonBones
 {
 	[DisallowMultipleComponent]
-	public class UnityBone :MonoBehaviour  {
-		
+	public class UnityBone :MonoBehaviour
+    {		
 		private static Vector3 _helpVector3 = new Vector3();
 		internal UnityArmatureComponent _proxy;
 		internal Bone _bone;
-		public Bone bone{
-			get{return _bone;}
+		public Bone bone
+        {
+			get{ return _bone; }
 		}
 
 		[SerializeField]
@@ -20,31 +21,50 @@ namespace DragonBones
 		 * 获取父骨骼
 		 * 
 		 */ 
-		public GameObject GetParentGameObject(){
-			if(_parent) return _parent;
-			if(_bone!=null && _bone.parent!=null){
-				for(int i=0;i<transform.parent.childCount;++i){
+		public GameObject GetParentGameObject()
+        {
+            if (_parent)
+            {
+                return _parent;
+            }
+
+			if(_bone != null && _bone.parent != null)
+            {
+				for(int i=0;i<transform.parent.childCount;++i)
+                {
 					UnityEngine.Transform child = transform.parent.GetChild(i);
-					if(child.name.Equals(_bone.parent.name)){
+					if(child.name.Equals(_bone.parent.name))
+                    {
 						_parent = child.gameObject;
 						break;
 					}
 				}
-				if(_proxy.boneHierarchy && _parent){
+
+				if(_proxy.boneHierarchy && _parent)
+                {
 					transform.SetParent(_parent.transform);
 				}
 			}
+
 			return _parent;
 		}
 
-		internal void _Update(){
-			if(_bone!=null && _proxy!=null && _proxy.armature!=null)
+		internal void _Update()
+        {
+			if(_bone!=null && _proxy != null && _proxy.armature != null)
 			{
 				GameObject parent = null;
-				if(_proxy.boneHierarchy){
+				if(_proxy.boneHierarchy)
+                {
 					parent = GetParentGameObject();
-					if(parent) transform.SetParent(_proxy.bonesRoot.transform);
-				}else if(transform.parent!=_proxy.bonesRoot){
+                    if (parent)
+                    {
+                        transform.SetParent(_proxy.bonesRoot.transform);
+                    }
+
+				}
+                else if(transform.parent != _proxy.bonesRoot)
+                {
 					transform.SetParent(_proxy.bonesRoot.transform);
 				}
 
@@ -87,7 +107,7 @@ namespace DragonBones
 					_helpVector3.y = 180.0f;
 				}
 
-				_helpVector3.z = -_bone.global.skewX*Mathf.Rad2Deg;
+				_helpVector3.z = -_bone.global.skew * Mathf.Rad2Deg;
 				transform.localEulerAngles = _helpVector3;
 
 				_helpVector3.x = scaleX >= 0.0f ? scaleX : -scaleX;
@@ -96,9 +116,11 @@ namespace DragonBones
 
 				transform.localScale = _helpVector3;
 
-				if(_proxy.boneHierarchy && parent) transform.SetParent(parent.transform);
+                if (_proxy.boneHierarchy && parent)
+                {
+                    transform.SetParent(parent.transform);
+                }
 			}
 		}
-
 	}
 }

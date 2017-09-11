@@ -1,119 +1,145 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace DragonBones
 {
     /**
-     * @language zh_CN
      * 基础变换对象。
      * @version DragonBones 4.5
+     * @language zh_CN
      */
     public abstract class TransformObject : BaseObject
     {
         /**
-         * @language zh_CN
+         * @private
+         */
+        protected static readonly Matrix _helpMatrix  = new Matrix();
+        /**
+         * @private
+         */
+        protected static readonly Transform _helpTransform  = new Transform();
+        /**
+         * @private
+         */
+        protected static readonly Point _helpPoint = new Point();
+        /**
          * 对象的名称。
-         * @readOnly
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public string name;
         /**
-         * @language zh_CN
          * 相对于骨架坐标系的矩阵。
-         * @readOnly
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public readonly Matrix globalTransformMatrix = new Matrix();
         /**
-         * @language zh_CN
          * 相对于骨架坐标系的变换。
-         * @readOnly
-         * @see DragonBones.Transform
+         * @see dragonBones.Transform
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public readonly Transform global = new Transform();
         /**
-         * @language zh_CN
          * 相对于骨架或父骨骼坐标系的偏移变换。
-         * @see DragonBones.Transform
+         * @see dragonBones.Transform
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public readonly Transform offset = new Transform();
         /**
-         * @language zh_CN
          * 相对于骨架或父骨骼坐标系的绑定变换。
-         * @readOnly
-         * @see DragonBones.Transform
+         * @see dragonBones.Transform
          * @version DragonBones 3.0
+         * @readOnly
+         * @language zh_CN
          */
         public Transform origin;
         /**
-         * @language zh_CN
          * 可以用于存储临时数据。
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public object userData;
         /**
          * @private
          */
+        protected bool _globalDirty;
+        /**
+         * @internal
+         * @private
+         */
         internal Armature _armature;
         /**
+         * @internal
          * @private
          */
         internal Bone _parent;
         /**
          * @private
          */
-        public TransformObject()
+        protected override void _OnClear()
         {
-        }
-        /**
-         * @private
-         */
-        protected override void _onClear()
-        {
-            name = null;
-            global.Identity();
-            offset.Identity();
-            globalTransformMatrix.Identity();
-            origin = null;
-            userData = null;
+            this.name = "";
+            this.globalTransformMatrix.Identity();
+            this.global.Identity();
+            this.offset.Identity();
+            this.origin = null; //
+            this.userData = null;
 
-            _armature = null;
-            _parent = null;
+            this._globalDirty = false;
+            this._armature = null; //
+            this._parent = null; //
+        }
+
+        /**
+         * @internal
+         * @private
+         */
+        internal virtual void _SetArmature(Armature value = null)
+        {
+            this._armature = value;
+        }
+        /**
+         * @internal
+         * @private
+         */
+        internal void _SetParent(Bone value = null)
+        {
+            this._parent = value;
         }
         /**
          * @private
          */
-        internal virtual void _setArmature(Armature value)
+        public void UpdateGlobalTransform()
         {
-            _armature = value;
+            if (this._globalDirty)
+            {
+                this._globalDirty = false;
+                this.global.FromMatrix(this.globalTransformMatrix);
+            }
         }
         /**
-         * @private
-         */
-        internal void _setParent(Bone value)
-        {
-            _parent = value;
-        }
-        /**
-         * @language zh_CN
          * 所属的骨架。
-         * @see DragonBones.Armature
+         * @see dragonBones.Armature
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public Armature armature
         {
-            get { return _armature; }
+            get{ return this._armature; }
         }
         /**
-         * @language zh_CN
          * 所属的父骨骼。
-         * @see DragonBones.Bone
+         * @see dragonBones.Bone
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public Bone parent
         {
-            get { return _parent; }
+            get { return this._parent; }
         }
     }
 }

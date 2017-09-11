@@ -29,9 +29,9 @@ namespace DragonBones
         /**
          * @private
          */
-        override protected void _onClear()
+        override protected void _OnClear()
         {
-            base._onClear();
+            base._OnClear();
 
             if (_disposeTexture && texture != null)
             {
@@ -50,6 +50,7 @@ namespace DragonBones
 				Object.Destroy(uiTexture);
 #endif
 			}
+
             _disposeTexture = false;
             texture = null;
 			uiTexture = null;
@@ -57,7 +58,7 @@ namespace DragonBones
         /**
          * @private
          */
-        override public TextureData GenerateTextureData()
+        override public TextureData CreateTexture()
         {
             return BaseObject.BorrowObject<UnityTextureData>();
         }

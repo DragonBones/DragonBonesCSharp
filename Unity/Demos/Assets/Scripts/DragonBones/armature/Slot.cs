@@ -4,26 +4,18 @@ using System.Collections.Generic;
 namespace DragonBones
 {
     /**
-     * @language zh_CN
      * 插槽，附着在骨骼上，控制显示对象的显示状态和属性。
      * 一个骨骼上可以包含多个插槽。
      * 一个插槽中可以包含多个显示对象，同一时间只能显示其中的一个显示对象，但可以在动画播放的过程中切换显示对象实现帧动画。
      * 显示对象可以是普通的图片纹理，也可以是子骨架的显示容器，网格显示对象，还可以是自定义的其他显示对象。
-     * @see DragonBones.Armature
-     * @see DragonBones.Bone
-     * @see DragonBones.SlotData
+     * @see dragonBones.Armature
+     * @see dragonBones.Bone
+     * @see dragonBones.SlotData
      * @version DragonBones 3.0
+     * @language zh_CN
      */
     public abstract class Slot : TransformObject
     {
-        /**
-         * @private
-         */
-        protected static readonly Point _helpPoint = new Point();
-        /**
-         * @private
-         */
-        protected static readonly Matrix _helpMatrix = new Matrix();
         /**
          * @language zh_CN
          * 显示对象受到控制的动画状态或混合组名称，设置为 null 则表示受所有的动画状态控制。
@@ -35,6 +27,10 @@ namespace DragonBones
          */
         public string displayController;
         /**
+         * @readonly
+         */
+        public SlotData slotData;
+        /**
          * @private
          */
         protected bool _displayDirty;
@@ -45,15 +41,21 @@ namespace DragonBones
         /**
          * @private
          */
+        protected bool _visibleDirty;
+        /**
+         * @private
+         */
         protected bool _blendModeDirty;
         /**
+         * @internal
          * @private
          */
         internal bool _colorDirty;
         /**
+         * @internal
          * @private
          */
-        protected bool _originalDirty;
+        internal bool _meshDirty;
         /**
          * @private
          */
@@ -61,11 +63,7 @@ namespace DragonBones
         /**
          * @private
          */
-        internal bool _meshDirty;
-        /**
-         * @private
-         */
-        protected int _updateState;
+        protected bool _visible;
         /**
          * @private
          */
@@ -77,19 +75,26 @@ namespace DragonBones
         /**
          * @private
          */
-        protected int _cachedFrameIndex;
+        protected int _animationDisplayIndex;
         /**
+         * @internal
          * @private
          */
         internal int _zOrder;
         /**
          * @private
          */
-        protected float _pivotX;
+        protected int _cachedFrameIndex;
         /**
+         * @internal
          * @private
          */
-        protected float _pivotY;
+        internal float _pivotX;
+        /**
+         * @internal
+         * @private
+         */
+        internal float _pivotY;
         /**
          * @private
          */
@@ -97,11 +102,15 @@ namespace DragonBones
         /**
          * @private
          */
-        internal readonly ColorTransform _colorTransform = new ColorTransform();
+        public readonly ColorTransform _colorTransform = new ColorTransform();
         /**
          * @private
          */
-        internal readonly List<float> _ffdVertices = new List<float>();
+        public readonly List<float> _ffdVertices = new List<float>();
+        /**
+         * @private
+         */
+        public readonly List<DisplayData> _displayDatas = new List<DisplayData>();
         /**
          * @private
          */
@@ -109,19 +118,12 @@ namespace DragonBones
         /**
          * @private
          */
-        internal readonly List<TextureData> _textureDatas = new List<TextureData>();
-        /**
-         * @private
-         */
-        internal readonly List<DisplayData> _replacedDisplayDatas = new List<DisplayData>();
-        /**
-         * @private
-         */
         protected readonly List<Bone> _meshBones = new List<Bone>();
         /**
+         * @internal
          * @private
          */
-        protected SkinSlotData _skinSlotData;
+        internal List<DisplayData> _rawDisplayDatas = new List<DisplayData>();
         /**
          * @private
          */
@@ -129,15 +131,12 @@ namespace DragonBones
         /**
          * @private
          */
-        protected DisplayData _replacedDisplayData;
-        /**
-         * @private
-         */
         protected TextureData _textureData;
         /**
+         * @internal
          * @private
          */
-        internal MeshData _meshData;
+        internal MeshDisplayData _meshData;
         /**
          * @private
          */
@@ -159,9 +158,10 @@ namespace DragonBones
          */
         protected Armature _childArmature;
         /**
+         * @internal
          * @private
          */
-        internal List<int> _cachedFrameIndices;
+        internal List<int> _cachedFrameIndices = new List<int>();
         /**
          * @private
          */
@@ -171,18 +171,13 @@ namespace DragonBones
         /**
          * @private
          */
-        protected override void _onClear()
+        protected override void _OnClear()
         {
-            base._onClear();
-
             var disposeDisplayList = new List<object>();
             for (int i = 0, l = _displayList.Count; i < l; ++i)
             {
                 var eachDisplay = _displayList[i];
-                if (
-                    eachDisplay != _rawDisplay && eachDisplay != _meshDisplay &&
-                    !disposeDisplayList.Contains(eachDisplay)
-                )
+                if ( eachDisplay != _rawDisplay && eachDisplay != _meshDisplay && !disposeDisplayList.Contains(eachDisplay))
                 {
                     disposeDisplayList.Add(eachDisplay);
                 }
@@ -197,115 +192,419 @@ namespace DragonBones
                 }
                 else
                 {
-                    _disposeDisplay(eachDisplay);
+                    _DisposeDisplay(eachDisplay);
                 }
             }
 
-            if (_meshDisplay != null && _meshDisplay != _rawDisplay) // May be _meshDisplay and _rawDisplay is the same one.
-            {
-                _disposeDisplay(_meshDisplay);
+            if (this._meshDisplay != null && this._meshDisplay != this._rawDisplay)
+            { 
+                // May be _meshDisplay and _rawDisplay is the same one.
+                this._DisposeDisplay(this._meshDisplay);
             }
 
-            if (_rawDisplay != null)
+            if (this._rawDisplay != null)
             {
-                _disposeDisplay(_rawDisplay);
+                this._DisposeDisplay(this._rawDisplay);
             }
-            
-            displayController = null;
 
-            _displayDirty = false;
-            _zOrderDirty = false;
-            _blendModeDirty = false;
-            _colorDirty = false;
-            _originalDirty = false;
-            _transformDirty = false;
-            _meshDirty = false;
-            _updateState = -1;
-            _blendMode = BlendMode.Normal;
-            _displayIndex = -1;
-            _cachedFrameIndex = -1;
-            _zOrder = -1;
-            _pivotX = 0.0f;
-            _pivotY = 0.0f;
-            _localMatrix.Identity();
-            _colorTransform.Identity();
-            _ffdVertices.Clear();
-            _displayList.Clear();
-            _textureDatas.Clear();
-            _replacedDisplayDatas.Clear();
-            _meshBones.Clear();
-            _skinSlotData = null;
-            _displayData = null;
-            _replacedDisplayData = null;
-            _textureData = null;
-            _meshData = null;
-            _boundingBoxData = null;
-            _rawDisplay = null;
-            _meshDisplay = null;
-            _display = null;
-            _childArmature = null;
-            _cachedFrameIndices = null;
+            this.displayController = null;
+            this.slotData = null; //
+
+            this._displayDirty = false;
+            this._zOrderDirty = false;
+            this._blendModeDirty = false;
+            this._colorDirty = false;
+            this._meshDirty = false;
+            this._transformDirty = false;
+            this._visible = true;
+            this._blendMode = BlendMode.Normal;
+            this._displayIndex = -1;
+            this._animationDisplayIndex = -1;
+            this._zOrder = 0;
+            this._cachedFrameIndex = -1;
+            this._pivotX = 0.0f;
+            this._pivotY = 0.0f;
+            this._localMatrix.Identity();
+            this._colorTransform.Identity();
+            this._ffdVertices.Clear();
+            this._displayList.Clear();
+            this._displayDatas.Clear();
+            this._meshBones.Clear();
+            this._rawDisplayDatas = null; //
+            this._displayData = null;
+            this._textureData = null;
+            this._meshData = null;
+            this._boundingBoxData = null;
+            this._rawDisplay = null;
+            this._meshDisplay = null;
+            this._display = null;
+            this._childArmature = null;
+            this._cachedFrameIndices = null;
         }
+
         /**
          * @private
          */
-        protected abstract void _initDisplay(object value);
+        protected abstract void _InitDisplay(object value);
         /**
          * @private
          */
-        protected abstract void _disposeDisplay(object value);
+        protected abstract void _DisposeDisplay(object value);
         /**
          * @private
          */
-        protected abstract void _onUpdateDisplay();
+        protected abstract void _OnUpdateDisplay();
         /**
          * @private
          */
-        protected abstract void _addDisplay();
+        protected abstract void _AddDisplay();
         /**
          * @private
          */
-        protected abstract void _replaceDisplay(object value);
+        protected abstract void _ReplaceDisplay(object value);
         /**
          * @private
          */
-        protected abstract void _removeDisplay();
+        protected abstract void _RemoveDisplay();
         /**
          * @private
          */
-        protected abstract void _updateZOrder();
+        protected abstract void _UpdateZOrder();
         /**
          * @private
          */
-        internal abstract void _updateVisible();
+        internal abstract void _UpdateVisible();
         /**
          * @private
          */
-        protected abstract void _updateBlendMode();
+        protected abstract void _UpdateBlendMode();
         /**
          * @private
          */
-        protected abstract void _updateColor();
+        protected abstract void _UpdateColor();
         /**
          * @private
          */
-        protected abstract void _updateFrame();
+        protected abstract void _UpdateFrame();
         /**
          * @private
          */
-        protected abstract void _updateMesh();
+        protected abstract void _UpdateMesh();
         /**
          * @private
          */
-        protected abstract void _updateTransform(bool isSkinnedMesh);
+        protected abstract void _UpdateTransform(bool isSkinnedMesh);
+
         /**
          * @private
          */
-        protected bool _isMeshBonesUpdate()
+        protected void _UpdateDisplayData()
         {
-            foreach (var bone in _meshBones)
+            var prevDisplayData = this._displayData;
+            var prevTextureData = this._textureData;
+            var prevMeshData = this._meshData;
+            var rawDisplayData = this._displayIndex >= 0 && this._displayIndex < this._rawDisplayDatas.Count ? this._rawDisplayDatas[this._displayIndex] : null;
+
+            if (this._displayIndex >= 0 && this._displayIndex < this._displayDatas.Count)
             {
-                if (bone._transformDirty != BoneTransformDirty.None)
+                this._displayData = this._displayDatas[this._displayIndex];
+            }
+            else
+            {
+                this._displayData = null;
+            }
+
+            // Update texture and mesh data.
+            if (this._displayData != null)
+            {
+                if (this._displayData.type == DisplayType.Image || this._displayData.type == DisplayType.Mesh)
+                {
+                    this._textureData = (this._displayData as ImageDisplayData).texture;
+                    if (this._displayData.type == DisplayType.Mesh)
+                    {
+                        this._meshData = this._displayData as MeshDisplayData;
+                    }
+                    else if (rawDisplayData != null && rawDisplayData.type == DisplayType.Mesh)
+                    {
+                        this._meshData = rawDisplayData as MeshDisplayData;
+                    }
+                    else
+                    {
+                        this._meshData = null;
+                    }
+                }
+                else
+                {
+                    this._textureData = null;
+                    this._meshData = null;
+                }
+            }
+            else
+            {
+                this._textureData = null;
+                this._meshData = null;
+            }
+
+            // Update bounding box data.
+            if (this._displayData != null && this._displayData.type == DisplayType.BoundingBox)
+            {
+                this._boundingBoxData = (this._displayData as BoundingBoxDisplayData).boundingBox;
+            }
+            else if (rawDisplayData != null && rawDisplayData.type == DisplayType.BoundingBox)
+            {
+                this._boundingBoxData = (rawDisplayData as BoundingBoxDisplayData).boundingBox;
+            }
+            else
+            {
+                this._boundingBoxData = null;
+            }
+
+            if (this._displayData != prevDisplayData || this._textureData != prevTextureData || this._meshData != prevMeshData)
+            {
+                // Update pivot offset.
+                if (this._meshData != null)
+                {
+                    this._pivotX = 0.0f;
+                    this._pivotY = 0.0f;
+                }
+                else if (this._textureData != null)
+                {
+                    var imageDisplayData = this._displayData as ImageDisplayData;
+                    var scale = this._armature.armatureData.scale;
+                    var frame = this._textureData.frame;
+
+                    this._pivotX = imageDisplayData.pivot.x;
+                    this._pivotY = imageDisplayData.pivot.y;
+
+                    var rect = frame != null ? frame : this._textureData.region;
+                    var width = rect.width * scale;
+                    var height = rect.height * scale;
+
+                    if (this._textureData.rotated && frame == null)
+                    {
+                        width = rect.height;
+                        height = rect.width;
+                    }
+
+                    this._pivotX *= width;
+                    this._pivotY *= height;
+
+                    if (frame != null)
+                    {
+                        this._pivotX += frame.x * scale;
+                        this._pivotY += frame.y * scale;
+                    }
+                }
+                else
+                {
+                    this._pivotX = 0.0f;
+                    this._pivotY = 0.0f;
+                }
+
+                // Update mesh bones and ffd vertices.
+                if (this._meshData != prevMeshData)
+                {
+                    if (this._meshData != null)// && this._meshData === this._displayData
+                    {
+                        if (this._meshData.weight != null)
+                        {
+                            this._ffdVertices.ResizeList(this._meshData.weight.count * 2);
+                            this._meshBones.ResizeList(this._meshData.weight.bones.Count);
+
+                            for (int i = 0, l = this._meshBones.Count; i < l; ++i)
+                            {
+                                this._meshBones[i] = this._armature.GetBone(this._meshData.weight.bones[i].name);
+                            }
+                        }
+                        else
+                        {
+                            var vertexCount = this._meshData.parent.parent.intArray[this._meshData.offset + (int)BinaryOffset.MeshVertexCount];
+                            this._ffdVertices.ResizeList(vertexCount * 2);
+                            this._meshBones.Clear();
+                        }
+
+                        for (int i = 0, l = this._ffdVertices.Count; i < l; ++i)
+                        {
+                            this._ffdVertices[i] = 0.0f;
+                        }
+
+                        this._meshDirty = true;
+                    }
+                    else
+                    {
+                        this._ffdVertices.Clear();
+                        this._meshBones.Clear();
+                    }
+                }
+                else if (this._meshData != null && this._textureData != prevTextureData)
+                {
+                    // Update mesh after update frame.
+                    this._meshDirty = true;
+                }
+
+                if (this._displayData != null && rawDisplayData != null && this._displayData != rawDisplayData && this._meshData == null)
+                {
+                    rawDisplayData.transform.ToMatrix(Slot._helpMatrix);
+                    Slot._helpMatrix.Invert();
+                    Slot._helpMatrix.TransformPoint(0.0f, 0.0f, Slot._helpPoint);
+                    this._pivotX -= Slot._helpPoint.x;
+                    this._pivotY -= Slot._helpPoint.y;
+
+                    this._displayData.transform.ToMatrix(Slot._helpMatrix);
+                    Slot._helpMatrix.Invert();
+                    Slot._helpMatrix.TransformPoint(0.0f, 0.0f, Slot._helpPoint);
+                    this._pivotX += Slot._helpPoint.x;
+                    this._pivotY += Slot._helpPoint.y;
+                }
+
+                // Update original transform.
+                if (rawDisplayData != null)
+                {
+                    this.origin = rawDisplayData.transform;
+                }
+                else if (this._displayData != null)
+                {
+                    this.origin = this._displayData.transform;
+                }
+
+                this._displayDirty = true;
+                this._transformDirty = true;
+            }
+        }
+
+        /**
+         * @private
+         */
+        protected void _UpdateDisplay()
+        {
+            var prevDisplay = this._display != null ? this._display : this._rawDisplay;
+            var prevChildArmature = this._childArmature;
+
+            // Update display and child armature.
+            if (this._displayIndex >= 0 && this._displayIndex < this._displayList.Count)
+            {
+                this._display = this._displayList[this._displayIndex];
+                if (this._display != null && this._display is Armature)
+                {
+                    this._childArmature = this._display as Armature;
+                    this._display = this._childArmature.display;
+                }
+                else
+                {
+                    this._childArmature = null;
+                }
+            }
+            else
+            {
+                this._display = null;
+                this._childArmature = null;
+            }
+
+            // Update display.
+            var currentDisplay = this._display != null ? this._display : this._rawDisplay;
+            if (currentDisplay != prevDisplay)
+            {
+                this._OnUpdateDisplay();
+                this._ReplaceDisplay(prevDisplay);
+
+                this._visibleDirty = true;
+                this._blendModeDirty = true;
+                this._colorDirty = true;
+            }
+
+            // Update frame.
+            if (currentDisplay == this._rawDisplay || currentDisplay == this._meshDisplay)
+            {
+                this._UpdateFrame();
+            }
+
+            // Update child armature.
+            if (this._childArmature != prevChildArmature)
+            {
+                if (prevChildArmature != null)
+                {
+                    // Update child armature parent.
+                    prevChildArmature._parent = null; 
+                    prevChildArmature.clock = null;
+                    if (prevChildArmature.inheritAnimation)
+                    {
+                        prevChildArmature.animation.Reset();
+                    }
+                }
+
+                if (this._childArmature != null)
+                {
+                    // Update child armature parent.
+                    this._childArmature._parent = this; 
+                    this._childArmature.clock = this._armature.clock;
+                    if (this._childArmature.inheritAnimation)
+                    {
+                        // Set child armature cache frameRate.
+                        if (this._childArmature.cacheFrameRate == 0)
+                        {
+                            var cacheFrameRate = this._armature.cacheFrameRate;
+                            if (cacheFrameRate != 0)
+                            {
+                                this._childArmature.cacheFrameRate = cacheFrameRate;
+                            }
+                        }
+
+                        // Child armature action.
+                        List<ActionData> actions = null;
+                        if (this._displayData != null && this._displayData.type == DisplayType.Armature)
+                        {
+                            actions = (this._displayData as ArmatureDisplayData).actions;
+                        }
+                        else
+                        {
+                            var rawDisplayData = this._displayIndex >= 0 && this._displayIndex < this._rawDisplayDatas.Count ? this._rawDisplayDatas[this._displayIndex] : null;
+                            if (rawDisplayData != null && rawDisplayData.type == DisplayType.Armature)
+                            {
+                                actions = (rawDisplayData as ArmatureDisplayData).actions;
+                            }
+                        }
+
+                        if (actions != null && actions.Count > 0)
+                        {
+                            foreach (var action in actions)
+                            {
+                                this._childArmature._BufferAction(action, false); // Make sure default action at the beginning.
+                            }
+                        }
+                        else
+                        {
+                            this._childArmature.animation.Play();
+                        }
+                    }
+                }
+            }
+        }
+
+        /**
+         * @private
+         */
+        protected void _UpdateGlobalTransformMatrix(bool isCache)
+        {
+            this.globalTransformMatrix.CopyFrom(this._localMatrix);
+            this.globalTransformMatrix.Concat(this._parent.globalTransformMatrix);
+            if (isCache)
+            {
+                this.global.FromMatrix(this.globalTransformMatrix);
+            }
+            else
+            {
+                this._globalDirty = true;
+            }
+        }
+
+        /**
+         * @private
+         */
+        protected bool _IsMeshBonesUpdate()
+        {
+            foreach (var bone in this._meshBones)
+            {
+                if (bone != null && bone._childrenTransformDirty)
                 {
                     return true;
                 }
@@ -314,624 +613,351 @@ namespace DragonBones
             return false;
         }
         /**
+         * @internal
          * @private
          */
-        protected void _updateDisplayData()
+        internal override void  _SetArmature(Armature value = null)
         {
-            var prevDisplayData = _displayData;
-            var prevReplaceDisplayData = _replacedDisplayData;
-            var prevTextureData = _textureData;
-            var prevMeshData = _meshData;
-            var currentDisplay = _displayIndex >= 0 && _displayIndex < _displayList.Count ? _displayList[_displayIndex] : null;
-
-            if (_displayIndex >= 0 && _displayIndex < _skinSlotData.displays.Count)
+            if (this._armature == value)
             {
-                _displayData = _skinSlotData.displays[_displayIndex];
+                return;
+             }
+
+            if (this._armature != null)
+            {
+                this._armature._RemoveSlotFromSlotList(this);
+            }
+
+            this._armature = value; //
+
+            this._OnUpdateDisplay();
+
+            if (this._armature != null)
+            {
+                this._armature._AddSlotToSlotList(this);
+                this._AddDisplay();
             }
             else
             {
-                _displayData = null;
+                this._RemoveDisplay();
             }
+        }
 
-            if (_displayIndex >= 0 && _displayIndex < _replacedDisplayDatas.Count)
+        /**
+         * @internal
+         * @private
+         */
+        internal bool _SetDisplayIndex(int value, bool isAnimation = false)
+        {
+            if (isAnimation)
             {
-                _replacedDisplayData = _replacedDisplayDatas[_displayIndex];
-            }
-            else
-            {
-                _replacedDisplayData = null;
-            }
-
-            if (_displayData != prevDisplayData || _replacedDisplayData != prevReplaceDisplayData || this._display != currentDisplay)
-            {
-                var currentDisplayData = _replacedDisplayData != null ? _replacedDisplayData : _displayData;
-                if (currentDisplayData != null && (currentDisplay == _rawDisplay || currentDisplay == _meshDisplay))
+                if (this._animationDisplayIndex == value)
                 {
-                    if (_replacedDisplayData != null)
-                    {
-                        _textureData = _replacedDisplayData.texture;
-                    }
-                    else if (_displayIndex < _textureDatas.Count && _textureDatas[_displayIndex] != null)
-                    {
-                        _textureData = _textureDatas[_displayIndex];
-                    }
-                    else
-                    {
-                        _textureData = _displayData.texture;
-                    }
+                    return false;
+                }
 
-                    if (currentDisplay == _meshDisplay)
-                    {
-                        if (_replacedDisplayData != null && _replacedDisplayData.mesh != null)
-                        {
-                            _meshData = _replacedDisplayData.mesh;
-                        }
-                        else
-                        {
-                            _meshData = _displayData.mesh;
-                        }
-                    }
-                    else
-                    {
-                        _meshData = null;
-                    }
+                this._animationDisplayIndex = value;
+            }
 
-                    // Update pivot offset.
-                    if (_meshData != null)
-                    {
-                        _pivotX = 0.0f;
-                        _pivotY = 0.0f;
-                    }
-                    else if (_textureData != null)
-                    {
-                        var scale = _armature.armatureData.scale;
-                        _pivotX = currentDisplayData.pivot.x;
-                        _pivotY = currentDisplayData.pivot.y;
+            if (this._displayIndex == value)
+            {
+                return false;
+            }
 
-                        if (currentDisplayData.isRelativePivot)
-                        {
-                            var rect = _textureData.frame != null ? _textureData.frame : _textureData.region;
-                            var width = rect.width * scale;
-                            var height = rect.height * scale;
+            this._displayIndex = value;
+            this._displayDirty = true;
 
-                            if (_textureData.rotated)
-                            {
-                                width = rect.height;
-                                height = rect.width;
-                            }
+            this._UpdateDisplayData();
 
-                            _pivotX *= width;
-                            _pivotY *= height;
-                        }
+            return this._displayDirty;
+        }
 
-                        if (_textureData.frame != null)
-                        {
-                            _pivotX += _textureData.frame.x * scale;
-                            _pivotY += _textureData.frame.y * scale;
-                        }
-                    }
-                    else
-                    {
-                        _pivotX = 0.0f;
-                        _pivotY = 0.0f;
-                    }
+        /**
+         * @internal
+         * @private
+         */
+        internal bool _SetZorder(int value)
+        {
+            if (this._zOrder == value)
+            {
+                //return false;
+            }
 
+            this._zOrder = value;
+            this._zOrderDirty = true;
+
+            return this._zOrderDirty;
+        }
+
+        /**
+         * @internal
+         * @private
+         */
+        internal bool _SetColor(ColorTransform value)
+        {
+            this._colorTransform.CopyFrom(value);
+            this._colorDirty = true;
+
+            return this._colorDirty;
+        }
+        /**
+         * @internal
+         * @private
+         */
+        internal bool _SetDisplayList(List<object> value)
+        {
+            if (value != null && value.Count > 0)
+            {
+                if (this._displayList.Count != value.Count)
+                {
+                    this._displayList.ResizeList(value.Count);
+                }
+
+                for (int i = 0, l = value.Count; i < l; ++i)
+                { 
+                    // Retain input render displays.
+                    var eachDisplay = value[i];
                     if (
-                        _displayData != null && currentDisplayData != _displayData &&
-                        (_meshData == null || _meshData != _displayData.mesh)
-                    )
+                        eachDisplay != null &&
+                        eachDisplay != this._rawDisplay &&
+                        eachDisplay != this._meshDisplay &&
+                        !(eachDisplay is Armature) &&
+                        this._displayList.IndexOf(eachDisplay) < 0)
                     {
-                        _displayData.transform.ToMatrix(_helpMatrix);
-                        _helpMatrix.Invert();
-                        _helpMatrix.TransformPoint(0.0f, 0.0f, _helpPoint);
-                        _pivotX -= _helpPoint.x;
-                        _pivotY -= _helpPoint.y;
-
-                        currentDisplayData.transform.ToMatrix(_helpMatrix);
-                        _helpMatrix.Invert();
-                        _helpMatrix.TransformPoint(0.0f, 0.0f, _helpPoint);
-                        _pivotX += _helpPoint.x;
-                        _pivotY += _helpPoint.y;
+                        this._InitDisplay(eachDisplay);
                     }
 
-                    if (_meshData != prevMeshData) // Update mesh bones and ffd vertices.
+                    this._displayList[i] = eachDisplay;
+                }
+            }
+            else if (this._displayList.Count > 0)
+            {
+                this._displayList.Clear();
+            }
+
+            if (this._displayIndex >= 0 && this._displayIndex < this._displayList.Count)
+            {
+                this._displayDirty = this._display != this._displayList[this._displayIndex];
+            }
+            else
+            {
+                this._displayDirty = this._display != null;
+            }
+
+            this._UpdateDisplayData();
+
+            return this._displayDirty;
+        }
+
+        /**
+         * @private
+         */
+        public void Init(SlotData slotData, List<DisplayData> displayDatas, object rawDisplay, object meshDisplay)
+        {
+            if (this.slotData != null)
+            {
+                return;
+            }
+
+            this.slotData = slotData;
+            this.name = this.slotData.name;
+
+            this._visibleDirty = true;
+            this._blendModeDirty = true;
+            this._colorDirty = true;
+            this._blendMode = this.slotData.blendMode;
+            this._zOrder = this.slotData.zOrder;
+            this._colorTransform.CopyFrom(this.slotData.color);
+            this._rawDisplayDatas = displayDatas;
+            this._rawDisplay = rawDisplay;
+            this._meshDisplay = meshDisplay;
+            
+            //???
+            this._displayDatas.ResizeList(this._rawDisplayDatas.Count);
+            for (int i = 0, l = this._displayDatas.Count; i < l; ++i)
+            {
+                this._displayDatas[i] = this._rawDisplayDatas[i];
+            }
+        }
+
+        /**
+         * @internal
+         * @private
+         */
+        internal void Update(int cacheFrameIndex)
+        {
+            if (this._displayDirty)
+            {
+                this._displayDirty = false;
+                this._UpdateDisplay();
+
+                if (this._transformDirty)
+                {
+                    // Update local matrix. (Only updated when both display and transform are dirty.)
+                    if (this.origin != null)
                     {
-                        if (_meshData != null && _displayData != null && _meshData == _displayData.mesh)
-                        {
-                            if (_meshData.skinned)
-                            {
-                                DragonBones.ResizeList(_meshBones, _meshData.bones.Count, null);
-
-                                for (int i = 0, l = _meshBones.Count; i < l; ++i)
-                                {
-                                    _meshBones[i] = _armature.GetBone(_meshData.bones[i].name);
-                                }
-
-                                int ffdVerticesCount = 0;
-                                for (int i = 0, l = _meshData.boneIndices.Count; i < l; ++i)
-                                {
-                                    ffdVerticesCount += _meshData.boneIndices[i].Length;
-                                }
-
-                                DragonBones.ResizeList(_ffdVertices, ffdVerticesCount * 2, 0.0f);
-                            }
-                            else
-                            {
-                                _meshBones.Clear();
-                                DragonBones.ResizeList(_ffdVertices, _meshData.vertices.Count, 0.0f);
-                            }
-
-                            for (int i = 0, l = _ffdVertices.Count; i < l; ++i)
-                            {
-                                _ffdVertices[i] = 0.0f;
-                            }
-
-                            _meshDirty = true;
-                        }
-                        else
-                        {
-                            _meshBones.Clear();
-                            _ffdVertices.Clear();
-                        }
+                        this.global.CopyFrom(this.origin).Add(this.offset).ToMatrix(this._localMatrix);
                     }
-                    else if (_textureData != prevTextureData)
+                    else
                     {
-                        _meshDirty = true;
+                        this.global.CopyFrom(this.offset).ToMatrix(this._localMatrix);
                     }
+                }
+            }
+
+            if (this._zOrderDirty)
+            {
+                this._zOrderDirty = false;
+                this._UpdateZOrder();
+            }
+
+            if (cacheFrameIndex >= 0 && this._cachedFrameIndices != null)
+            {
+                var cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex];
+
+                if (cachedFrameIndex >= 0 && this._cachedFrameIndex == cachedFrameIndex)
+                { 
+                    // Same cache.
+                    this._transformDirty = false;
+                }
+                else if (cachedFrameIndex >= 0)
+                { 
+                    // Has been Cached.
+                    this._transformDirty = true;
+                    this._cachedFrameIndex = cachedFrameIndex;
+                }
+                else if (this._transformDirty || this._parent._childrenTransformDirty)
+                { 
+                    // Dirty.
+                    this._transformDirty = true;
+                    this._cachedFrameIndex = -1;
+                }
+                else if (this._cachedFrameIndex >= 0)
+                { 
+                    // Same cache, but not set index yet.
+                    this._transformDirty = false;
+                    this._cachedFrameIndices[cacheFrameIndex] = this._cachedFrameIndex;
                 }
                 else
-                {
-                    _textureData = null;
-                    _meshData = null;
-                    _pivotX = 0.0f;
-                    _pivotY = 0.0f;
-                    _meshBones.Clear();
-                    _ffdVertices.Clear();
-                }
-
-                _displayDirty = true;
-                _originalDirty = true;
-
-                if (_displayData != null)
-                {
-                    origin = _displayData.transform;
-                }
-                else if (_replacedDisplayData != null)
-                {
-                    origin = _replacedDisplayData.transform;
+                { 
+                    // Dirty.
+                    this._transformDirty = true;
+                    this._cachedFrameIndex = -1;
                 }
             }
-
-            // Update bounding box data.
-            if (_replacedDisplayData != null)
-            {
-                _boundingBoxData = _replacedDisplayData.boundingBox;
-            }
-            else if (_displayData != null)
-            {
-                _boundingBoxData = _displayData.boundingBox;
-            }
-            else
-            {
-                _boundingBoxData = null;
-            }
-        }
-        /**
-         * @private
-         */
-        protected void _updateDisplay()
-        {
-            var prevDisplay = _display != null ? _display : _rawDisplay;
-            var prevChildArmature = _childArmature;
-
-            if (_displayIndex >= 0 && _displayIndex < _displayList.Count)
-            {
-                _display = _displayList[_displayIndex];
-                if (_display is Armature)
-                {
-                    _childArmature = (Armature)_display;
-                    _display = _childArmature.display;
-                }
-                else
-                {
-                    _childArmature = null;
-                }
-            }
-            else
-            {
-                _display = null;
-                _childArmature = null;
-            }
-
-            var currentDisplay = _display != null ? _display : _rawDisplay;
-            if (currentDisplay != prevDisplay)
-            {
-                _onUpdateDisplay();
-                _replaceDisplay(prevDisplay);
-
-                _blendModeDirty = true;
-                _colorDirty = true;
-            }
-
-            // Update frame.
-            if (currentDisplay == _rawDisplay || currentDisplay == _meshDisplay)
-            {
-                _updateFrame();
-            }
-
-            // Update child armature.
-            if (_childArmature != prevChildArmature)
-            {
-                if (prevChildArmature != null)
-                {
-                    prevChildArmature.clock = null;
-                    prevChildArmature._parent = null; // Update child armature parent.
-                    if (prevChildArmature.inheritAnimation)
-                    {
-                        prevChildArmature.animation.Reset();
-                    }
-                }
-
-                if (_childArmature != null)
-                {
-                    _childArmature.clock = _armature.clock;
-                    _childArmature._parent = this; // Update child armature parent.
-
-                    // Update child armature flip.
-                    _childArmature.flipX = _armature.flipX;
-                    _childArmature.flipY = _armature.flipY;
-
-                    if (_childArmature.inheritAnimation)
-                    {
-                        if (_childArmature.cacheFrameRate == 0) // Set child armature frameRate.
-                        {
-                            var cacheFrameRate = _armature.cacheFrameRate;
-                            if (cacheFrameRate != 0)
-                            {
-                                _childArmature.cacheFrameRate = cacheFrameRate;
-                            }
-                        }
-
-                        // Child armature action.                        
-                        var actions = _skinSlotData.slot.actions.Count > 0 ? _skinSlotData.slot.actions : _childArmature.armatureData.actions;
-                        if (actions.Count > 0)
-                        {
-                            foreach (var action in actions)
-                            {
-                                _childArmature._bufferAction(action);
-                            }
-                        }
-                        else
-                        {
-                            _childArmature.animation.Play();
-                        }
-                    }
-                }
-            }
-        }
-        /**
-         * @private
-         */
-        protected void _updateLocalTransformMatrix()
-        {
-            if (origin != null)
-            {
-                global.CopyFrom(origin).Add(offset).ToMatrix(_localMatrix);
-            }
-            else
-            {
-                global.CopyFrom(offset).ToMatrix(_localMatrix);
-            }
-
-        }
-        /**
-         * @private
-         */
-        protected void _updateGlobalTransformMatrix()
-        {
-            globalTransformMatrix.CopyFrom(_localMatrix);
-            globalTransformMatrix.Concat(_parent.globalTransformMatrix);
-            global.FromMatrix(globalTransformMatrix);
-        }
-        /**
-         * @private
-         */
-        internal void _init(SkinSlotData skinSlotData, object rawDisplay, object meshDisplay)
-        {
-            if (_skinSlotData != null)
-            {
-                return;
-            }
-
-            _skinSlotData = skinSlotData;
-
-            var slotData = _skinSlotData.slot;
-
-            name = slotData.name;
-
-            _zOrder = slotData.zOrder;
-            _blendMode = slotData.blendMode;
-            _colorTransform.CopyFrom(slotData.color);
-            _rawDisplay = rawDisplay;
-            _meshDisplay = meshDisplay;
-            DragonBones.ResizeList(_textureDatas, _skinSlotData.displays.Count, null);
-
-            _blendModeDirty = true;
-            _colorDirty = true;
-        }
-        /**
-         * @private
-         */
-        internal override void _setArmature(Armature value)
-        {
-            if (_armature == value)
-            {
-                return;
-            }
-
-            if (_armature != null)
-            {
-                _armature._removeSlotFromSlotList(this);
-            }
-
-            _armature = value;
-
-            _onUpdateDisplay();
-
-            if (_armature != null)
-            {
-                _armature._addSlotToSlotList(this);
-                _addDisplay();
-            }
-            else
-            {
-                _removeDisplay();
-            }
-        }
-        /**
-         * @private
-         */
-        internal void _update(int cacheFrameIndex)
-        {
-            _updateState = -1;
-
-            if (_displayDirty)
-            {
-                _displayDirty = false;
-                _updateDisplay();
-            }
-
-            if (_zOrderDirty)
-            {
-                _zOrderDirty = false;
-                _updateZOrder();
-            }
-
-            if (_display == null)
-            {
-                return;
-            }
-
-            if (_blendModeDirty)
-            {
-                _blendModeDirty = false;
-                _updateBlendMode();
-            }
-
-            if (_colorDirty)
-            {
-                _colorDirty = false;
-                _updateColor();
-            }
-
-            if (_originalDirty)
-            {
-                _originalDirty = false;
-                _transformDirty = true;
-                _updateLocalTransformMatrix();
-            }
-
-            if (cacheFrameIndex >= 0 && _cachedFrameIndices != null)
-            {
-                var cachedFrameIndex = _cachedFrameIndices[cacheFrameIndex];
-                if (_cachedFrameIndex >= 0 && _cachedFrameIndex == cachedFrameIndex) // Same cache.
-                {
-                    _transformDirty = false;
-                }
-                else if (cachedFrameIndex >= 0) // Has been Cached.
-                {
-                    _transformDirty = true;
-                    _cachedFrameIndex = cachedFrameIndex;
-                }
-                else if (_transformDirty || _parent._transformDirty != BoneTransformDirty.None) // Dirty.
-                {
-                    _transformDirty = true;
-                    _cachedFrameIndex = -1;
-                }
-                else if (_cachedFrameIndex >= 0) // Same cache but not cached yet.
-                {
-                    _transformDirty = false;
-                    _cachedFrameIndices[cacheFrameIndex] = _cachedFrameIndex;
-                }
-                else // Dirty.
-                {
-                    _transformDirty = true;
-                    _cachedFrameIndex = -1;
-                }
-            }
-            else if (_transformDirty || _parent._transformDirty != BoneTransformDirty.None) // Dirty.
-            {
+            else if (this._transformDirty || this._parent._childrenTransformDirty)
+            { 
+                // Dirty.
                 cacheFrameIndex = -1;
-                _transformDirty = true;
-                _cachedFrameIndex = -1;
+                this._transformDirty = true;
+                this._cachedFrameIndex = -1;
             }
 
-            if (_meshData != null && _displayData != null && _meshData == _displayData.mesh)
+            if (this._display == null)
             {
-                if (_meshDirty || (_meshData.skinned && _isMeshBonesUpdate()))
-                {
-                    _meshDirty = false;
+                return;
+            }
 
-                    _updateMesh();
+            if (this._visibleDirty)
+            {
+                this._visibleDirty = false;
+                this._UpdateVisible();
+            }
+
+            if (this._blendModeDirty)
+            {
+                this._blendModeDirty = false;
+                this._UpdateBlendMode();
+            }
+
+            if (this._colorDirty)
+            {
+                this._colorDirty = false;
+                this._UpdateColor();
+            }
+
+            if (this._meshData != null && this._display == this._meshDisplay)
+            {
+                var isSkinned = this._meshData.weight != null;
+
+                if (this._meshDirty || (isSkinned && this._IsMeshBonesUpdate()))
+                {
+                    this._meshDirty = false;
+                    this._UpdateMesh();
                 }
 
-                if (_meshData.skinned)
+                if (isSkinned)
                 {
-                    if (_transformDirty)
+                    if (this._transformDirty)
                     {
-                        _transformDirty = false;
-                        _updateTransform(true);
+                        this._transformDirty = false;
+                        this._UpdateTransform(true);
                     }
 
                     return;
                 }
             }
 
-            if (_transformDirty)
+            if (this._transformDirty)
             {
-                _transformDirty = false;
+                this._transformDirty = false;
 
-                if (_cachedFrameIndex < 0)
+                if (this._cachedFrameIndex < 0)
                 {
-                    _updateGlobalTransformMatrix();
+                    var isCache = cacheFrameIndex >= 0;
+                    this._UpdateGlobalTransformMatrix(isCache);
 
-                    if (cacheFrameIndex >= 0)
+                    if (isCache && this._cachedFrameIndices != null)
                     {
-                        _cachedFrameIndex = _cachedFrameIndices[cacheFrameIndex] = _armature._armatureData.SetCacheFrame(globalTransformMatrix, global);
+                        this._cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex] = this._armature.armatureData.SetCacheFrame(this.globalTransformMatrix, this.global);
                     }
                 }
                 else
                 {
-                    _armature._armatureData.GetCacheFrame(globalTransformMatrix, global, _cachedFrameIndex);
+                    this._armature.armatureData.GetCacheFrame(this.globalTransformMatrix, this.global, this._cachedFrameIndex);
                 }
 
-                _updateTransform(false);
-
-                _updateState = 0;
+                this._UpdateTransform(false);
             }
         }
+
         /**
          * @private
          */
-        internal void _updateTransformAndMatrix()
+        public void UpdateTransformAndMatrix()
         {
-            if (_updateState < 0)
+            if (this._transformDirty)
             {
-                _updateState = 0;
-                _updateLocalTransformMatrix();
-                _updateGlobalTransformMatrix();
+                this._transformDirty = false;
+                this._UpdateGlobalTransformMatrix(false);
             }
         }
+
         /**
-         * @private
-         */
-        internal bool _setDisplayList(List<object> value)
-        {
-            if (value != null && value.Count > 0)
-            {
-                if (_displayList.Count != value.Count)
-                {
-                    DragonBones.ResizeList(_displayList, value.Count, null);
-                }
-
-                for (int i = 0, l = value.Count; i < l; ++i) // Retain input render displays.
-                {
-                    var eachDisplay = value[i];
-                    if (
-                        eachDisplay != null && eachDisplay != _rawDisplay && eachDisplay != _meshDisplay &&
-                        !(eachDisplay is Armature) && !_displayList.Contains(eachDisplay)
-                    )
-                    {
-                        _initDisplay(eachDisplay);
-                    }
-
-                    _displayList[i] = eachDisplay;
-                }
-            }
-            else if (_displayList.Count > 0)
-            {
-                _displayList.Clear();
-            }
-
-            if (_displayIndex >= 0 && _displayIndex < _displayList.Count)
-            {
-                _displayDirty = _display != _displayList[_displayIndex];
-            }
-            else
-            {
-                _displayDirty = _display != null;
-            }
-
-            _updateDisplayData();
-
-            return _displayDirty;
-        }
-        /**
-         * @private
-         */
-        internal bool _setDisplayIndex(int value)
-        {
-            if (_displayIndex == value)
-            {
-                return false;
-            }
-
-            _displayIndex = value;
-            _displayDirty = true;
-
-            _updateDisplayData();
-
-            return true;
-        }
-        /**
-         * @private
-         */
-        internal bool _setZorder(int value)
-        {
-            if (_zOrder == value)
-            {
-                //return false;
-            }
-
-            _zOrder = value;
-            _zOrderDirty = true;
-
-            return true;
-        }
-        /**
-         * @private
-         */
-        internal bool _setColor(ColorTransform value)
-        {
-            _colorTransform.CopyFrom(value);
-            _colorDirty = true;
-
-            return true;
-        }
-        /**
-         * @language zh_CN
          * 判断指定的点是否在插槽的自定义包围盒内。
          * @param x 点的水平坐标。（骨架内坐标系）
          * @param y 点的垂直坐标。（骨架内坐标系）
+         * @param color 指定的包围盒颜色。 [0: 与所有包围盒进行判断, N: 仅当包围盒的颜色为 N 时才进行判断]
          * @version DragonBones 5.0
+         * @language zh_CN
          */
         public bool ContainsPoint(float x, float y)
         {
-            if (_boundingBoxData == null)
+            if (this._boundingBoxData == null)
             {
                 return false;
             }
 
-            _updateTransformAndMatrix();
+            this.UpdateTransformAndMatrix();
 
-            _helpMatrix.CopyFrom(globalTransformMatrix);
-            _helpMatrix.Invert();
-            _helpMatrix.TransformPoint(x, y, _helpPoint);
+            Slot._helpMatrix.CopyFrom(this.globalTransformMatrix);
+            Slot._helpMatrix.Invert();
+            Slot._helpMatrix.TransformPoint(x, y, Slot._helpPoint);
 
-            return _boundingBoxData.ContainsPoint(_helpPoint.x, _helpPoint.y);
+            return this._boundingBoxData.ContainsPoint(Slot._helpPoint.x, Slot._helpPoint.y);
         }
+
         /**
-         * @language zh_CN
          * 判断指定的线段与插槽的自定义包围盒是否相交。
          * @param xA 线段起点的水平坐标。（骨架内坐标系）
          * @param yA 线段起点的垂直坐标。（骨架内坐标系）
@@ -942,38 +968,37 @@ namespace DragonBones
          * @param normalRadians 碰撞点处包围盒切线的法线弧度。 [x: 第一个碰撞点处切线的法线弧度, y: 第二个碰撞点处切线的法线弧度]
          * @returns 相交的情况。 [-1: 不相交且线段在包围盒内, 0: 不相交, 1: 相交且有一个交点且终点在包围盒内, 2: 相交且有一个交点且起点在包围盒内, 3: 相交且有两个交点, N: 相交且有 N 个交点]
          * @version DragonBones 5.0
+         * @language zh_CN
          */
-        public int IntersectsSegment(
-            float xA, float yA, float xB, float yB,
-            Point intersectionPointA = null,
-            Point intersectionPointB = null,
-            Point normalRadians = null
-        )
+        public int IntersectsSegment(float xA, float yA, float xB, float yB,
+                                    Point intersectionPointA = null,
+                                    Point intersectionPointB = null,
+                                    Point normalRadians = null)
         {
-            if (_boundingBoxData == null)
+            if (this._boundingBoxData == null)
             {
                 return 0;
             }
 
-            _updateTransformAndMatrix();
+            this.UpdateTransformAndMatrix();
+            Slot._helpMatrix.CopyFrom(this.globalTransformMatrix);
+            Slot._helpMatrix.Invert();
+            Slot._helpMatrix.TransformPoint(xA, yA, Slot._helpPoint);
+            xA = Slot._helpPoint.x;
+            yA = Slot._helpPoint.y;
+            Slot._helpMatrix.TransformPoint(xB, yB, Slot._helpPoint);
+            xB = Slot._helpPoint.x;
+            yB = Slot._helpPoint.y;
 
-            _helpMatrix.CopyFrom(globalTransformMatrix);
-            _helpMatrix.Invert();
-            _helpMatrix.TransformPoint(xA, yA, _helpPoint);
-            xA = _helpPoint.x;
-            yA = _helpPoint.y;
-            _helpMatrix.TransformPoint(xB, yB, _helpPoint);
-            xB = _helpPoint.x;
-            yB = _helpPoint.y;
-
-            var intersectionCount = _boundingBoxData.IntersectsSegment(xA, yA, xB, yB, intersectionPointA, intersectionPointB, normalRadians);
+            var intersectionCount = this._boundingBoxData.IntersectsSegment(xA, yA, xB, yB, intersectionPointA, intersectionPointB, normalRadians);
             if (intersectionCount > 0)
             {
                 if (intersectionCount == 1 || intersectionCount == 2)
                 {
                     if (intersectionPointA != null)
                     {
-                        globalTransformMatrix.TransformPoint(intersectionPointA.x, intersectionPointA.y, intersectionPointA);
+                        this.globalTransformMatrix.TransformPoint(intersectionPointA.x, intersectionPointA.y, intersectionPointA);
+
                         if (intersectionPointB != null)
                         {
                             intersectionPointB.x = intersectionPointA.x;
@@ -982,199 +1007,189 @@ namespace DragonBones
                     }
                     else if (intersectionPointB != null)
                     {
-                        globalTransformMatrix.TransformPoint(intersectionPointB.x, intersectionPointB.y, intersectionPointB);
+                        this.globalTransformMatrix.TransformPoint(intersectionPointB.x, intersectionPointB.y, intersectionPointB);
                     }
                 }
                 else
                 {
                     if (intersectionPointA != null)
                     {
-                        globalTransformMatrix.TransformPoint(intersectionPointA.x, intersectionPointA.y, intersectionPointA);
+                        this.globalTransformMatrix.TransformPoint(intersectionPointA.x, intersectionPointA.y, intersectionPointA);
                     }
 
                     if (intersectionPointB != null)
                     {
-                        globalTransformMatrix.TransformPoint(intersectionPointB.x, intersectionPointB.y, intersectionPointB);
+                        this.globalTransformMatrix.TransformPoint(intersectionPointB.x, intersectionPointB.y, intersectionPointB);
                     }
                 }
 
                 if (normalRadians != null)
                 {
-                    globalTransformMatrix.TransformPoint((float)Math.Cos(normalRadians.x), (float)Math.Sin(normalRadians.x), _helpPoint, true);
-                    normalRadians.x = (float)Math.Atan2(_helpPoint.y, _helpPoint.x);
+                    this.globalTransformMatrix.TransformPoint((float)Math.Cos(normalRadians.x), (float)Math.Sin(normalRadians.x), Slot._helpPoint, true);
+                    normalRadians.x = (float)Math.Atan2(Slot._helpPoint.y, Slot._helpPoint.x);
 
-                    globalTransformMatrix.TransformPoint((float)Math.Cos(normalRadians.y), (float)Math.Sin(normalRadians.y), _helpPoint, true);
-                    normalRadians.y = (float)Math.Atan2(_helpPoint.y, _helpPoint.x);
+                    this.globalTransformMatrix.TransformPoint((float)Math.Cos(normalRadians.y), (float)Math.Sin(normalRadians.y), Slot._helpPoint, true);
+                    normalRadians.y = (float)Math.Atan2(Slot._helpPoint.y, Slot._helpPoint.x);
                 }
             }
 
             return intersectionCount;
         }
+
         /**
-         * @language zh_CN
          * 在下一帧更新显示对象的状态。
          * @version DragonBones 4.5
+         * @language zh_CN
          */
         public void InvalidUpdate()
         {
-            _displayDirty = true;
-            _transformDirty = true;
+            this._displayDirty = true;
+            this._transformDirty = true;
         }
         /**
-         * @private
-         */
-        public SkinSlotData skinSlotData
-        {
-            get
-            {
-                return _skinSlotData;
-            }
-        }
-        /**
-         * @private
-         */
-        public BoundingBoxData boundingBoxData
-        {
-            get
-            {
-                return _boundingBoxData;
-            }
-        }
-        /**
-         * @private
-         */
-        public object rawDisplay
-        {
-            get { return _rawDisplay; }
-        }
-        /**
-         * @private
-         */
-        public object meshDisplay
-        {
-            get { return _meshDisplay; }
-        }
-        /**
-         * @language zh_CN
          * 此时显示的显示对象在显示列表中的索引。
          * @version DragonBones 4.5
+         * @language zh_CN
          */
         public int displayIndex
         {
-            get { return _displayIndex; }
-
+            get { return this._displayIndex; }
             set
             {
-                if (_setDisplayIndex(value))
+                if (this._SetDisplayIndex(value))
                 {
-                    _update(-1);
+                    this.Update(-1);
                 }
             }
         }
+
         /**
-         * @language zh_CN
          * 包含显示对象或子骨架的显示列表。
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public List<object> displayList
         {
             get { return new List<object>(_displayList.ToArray()); }
-
             set
             {
                 var backupDisplayList = _displayList.ToArray(); // Copy.
                 var disposeDisplayList = new List<object>();
 
-                if (_setDisplayList(value))
+                if (this._SetDisplayList(value))
                 {
-                    _update(-1);
+                    this.Update(-1);
                 }
 
-                // Release replaced render displays.
-                for (int i = 0, l = backupDisplayList.Length; i < l; ++i)
+                // Release replaced displays.
+                foreach (var eachDisplay in backupDisplayList)
                 {
-                    var eachDisplay = backupDisplayList[i];
-                    if (
-                        eachDisplay != null && eachDisplay != _rawDisplay && eachDisplay != _meshDisplay &&
-                        !_displayList.Contains(eachDisplay) &&
-                        !disposeDisplayList.Contains(eachDisplay)
+                    if ( eachDisplay != null &&
+                        eachDisplay != this._rawDisplay &&
+                        eachDisplay != this._meshDisplay &&
+                        this._displayList.IndexOf(eachDisplay) < 0 &&
+                        disposeDisplayList.IndexOf(eachDisplay) < 0
                     )
                     {
                         disposeDisplayList.Add(eachDisplay);
                     }
                 }
 
-                for (int i = 0, l = disposeDisplayList.Count; i < l; ++i)
+                foreach (var eachDisplay in disposeDisplayList)
                 {
-                    var eachDisplay = disposeDisplayList[i];
                     if (eachDisplay is Armature)
                     {
                         (eachDisplay as Armature).Dispose();
                     }
                     else
                     {
-                        _disposeDisplay(eachDisplay);
+                        this._DisposeDisplay(eachDisplay);
                     }
                 }
             }
         }
         /**
+         * 插槽此时的自定义包围盒数据。
+         * @see dragonBones.Armature
+         * @version DragonBones 3.0
          * @language zh_CN
+         */
+        public BoundingBoxData boundingBoxData
+        {
+            get { return this._boundingBoxData; }
+        }
+        /**
+         * @private
+         */
+        public object rawDisplay
+        {
+            get { return this._rawDisplay; }
+        }
+
+        /**
+         * @private
+         */
+        public object meshDisplay
+        {
+            get { return this._meshDisplay; }
+        }
+        /**
          * 此时显示的显示对象。
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public object display
         {
-            get { return _display; }
+            get { return this._display; }
             set
             {
-                if (_display == value)
+                if (this._display == value)
                 {
                     return;
                 }
 
-                var displayListLength = _displayList.Count;
-                if (_displayIndex < 0 && displayListLength == 0) // Emprty.
-                {
-                    _displayIndex = 0;
+                var displayListLength = this._displayList.Count;
+                if (this._displayIndex < 0 && displayListLength == 0)
+                {  
+                    // Emprty.
+                    this._displayIndex = 0;
                 }
 
-                if (_displayIndex < 0)
+                if (this._displayIndex < 0)
                 {
                     return;
                 }
                 else
                 {
-                    var replaceDisplayList = displayList; // Copy.
-                    if (displayListLength <= _displayIndex)
+                    var replaceDisplayList = this.displayList; // Copy.
+                    if (displayListLength <= this._displayIndex)
                     {
-                        DragonBones.ResizeList(replaceDisplayList, _displayIndex + 1, null);
+                        replaceDisplayList.ResizeList(this._displayIndex + 1);
                     }
 
-                    replaceDisplayList[_displayIndex] = value;
-                    displayList = replaceDisplayList;
+                    replaceDisplayList[this._displayIndex] = value;
+                    this.displayList = replaceDisplayList;
                 }
             }
         }
         /**
-         * @language zh_CN
          * 此时显示的子骨架。
-         * @see DragonBones.Armature
+         * @see dragonBones.Armature
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public Armature childArmature
         {
-            get { return _childArmature; }
-
+            get { return this._childArmature; }
             set
             {
-                if (_childArmature == value)
+                if (this._childArmature == value)
                 {
                     return;
                 }
 
-                display = value;
+                this.display = value;
             }
         }
-    }
+}
 }
