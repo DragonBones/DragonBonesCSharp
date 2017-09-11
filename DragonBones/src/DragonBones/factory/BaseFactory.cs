@@ -577,7 +577,7 @@ namespace DragonBones
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public void RemoveDragonBonesData(string name, bool disposeData = true)
+        public virtual void RemoveDragonBonesData(string name, bool disposeData = true)
         {
             if (this._dragonBonesDataMap.ContainsKey(name))
             {
@@ -637,7 +637,7 @@ namespace DragonBones
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public void RemoveTextureAtlasData(string name, bool disposeData = true)
+        public virtual void RemoveTextureAtlasData(string name, bool disposeData = true)
         {
             if (this._textureAtlasDataMap.ContainsKey(name))
             {

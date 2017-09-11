@@ -38,6 +38,6 @@
          * @version DragonBones 4.5
          * @language zh_CN
          */
-         AnimationConfig animation { get; }
+         Animation animation { get; }
     }
 }
