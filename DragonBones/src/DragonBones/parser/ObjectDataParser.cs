@@ -2151,8 +2151,8 @@ namespace DragonBones
             }
 
             // Texture format.
-            textureAtlasData.width = ObjectDataParser._GetNumber(rawData, ObjectDataParser.WIDTH, 0);
-            textureAtlasData.height = ObjectDataParser._GetNumber(rawData, ObjectDataParser.HEIGHT, (uint)0);
+            textureAtlasData.width = ObjectDataParser._GetNumber(rawData, ObjectDataParser.WIDTH, uint.MinValue);
+            textureAtlasData.height = ObjectDataParser._GetNumber(rawData, ObjectDataParser.HEIGHT, uint.MinValue);
             textureAtlasData.name = ObjectDataParser._GetString(rawData, ObjectDataParser.NAME, "");
             textureAtlasData.imagePath = ObjectDataParser._GetString(rawData, ObjectDataParser.IMAGE_PATH, "");
 

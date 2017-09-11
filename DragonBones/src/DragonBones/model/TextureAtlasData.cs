@@ -19,7 +19,7 @@ namespace DragonBones
         /**
          * @private
          */
-        public float width;
+        public uint width;
         /**
          * @private
          */
