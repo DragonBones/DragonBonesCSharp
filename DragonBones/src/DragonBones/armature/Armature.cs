@@ -12,7 +12,7 @@ namespace DragonBones
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    public class Armature : BaseObject, IAnimateble
+    public class Armature : BaseObject, IAnimatable
     {
         private static int _OnSortSlots(Slot a, Slot b)
         {
@@ -332,7 +332,7 @@ namespace DragonBones
         /**
          * 更新骨架和动画。
          * @param passedTime 两帧之间的时间间隔。 (以秒为单位)
-         * @see dragonBones.IAnimateble
+         * @see dragonBones.IAnimatable
          * @see dragonBones.WorldClock
          * @version DragonBones 3.0
          * @language zh_CN

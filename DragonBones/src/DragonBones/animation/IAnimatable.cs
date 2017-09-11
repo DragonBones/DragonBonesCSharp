@@ -8,7 +8,7 @@
      * @see DragonBones.Armature
      * @version DragonBones 3.0
      */
-    public interface IAnimateble
+    public interface IAnimatable
     {
         /**
         * @language zh_CN

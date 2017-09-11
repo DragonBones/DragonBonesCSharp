@@ -5,12 +5,12 @@ namespace DragonBones
 {
     /**
      * WorldClock 提供时钟支持，为每个加入到时钟的 IAnimatable 对象更新时间。
-     * @see dragonBones.IAnimateble
+     * @see dragonBones.IAnimatable
      * @see dragonBones.Armature
      * @version DragonBones 3.0
      * @language zh_CN
      */
-    public class WorldClock : IAnimateble
+    public class WorldClock : IAnimatable
     {
         /**
          * 当前时间。 (以秒为单位)
@@ -26,12 +26,12 @@ namespace DragonBones
          * @language zh_CN
          */
         public float timeScale = 1.0f;
-        private readonly List<IAnimateble> _animatebles = new List<IAnimateble>();
+        private readonly List<IAnimatable> _animatebles = new List<IAnimatable>();
         private WorldClock _clock = null;
         /**
          * 创建一个新的 WorldClock 实例。
          * 通常并不需要单独创建 WorldClock 实例，可以直接使用 WorldClock.clock 静态实例。
-         * (创建更多独立的 WorldClock 实例可以更灵活的为需要更新的 IAnimateble 实例分组，用于控制不同组不同的播放速度)
+         * (创建更多独立的 WorldClock 实例可以更灵活的为需要更新的 IAnimatable 实例分组，用于控制不同组不同的播放速度)
          * @version DragonBones 3.0
          * @language zh_CN
          */
@@ -127,7 +127,7 @@ namespace DragonBones
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public bool Contains(IAnimateble value)
+        public bool Contains(IAnimatable value)
         {
             return _animatebles.Contains(value);
         }
@@ -137,7 +137,7 @@ namespace DragonBones
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public void Add(IAnimateble value)
+        public void Add(IAnimatable value)
         {
             if (value != null && !_animatebles.Contains(value))
             {
@@ -151,7 +151,7 @@ namespace DragonBones
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public void Remove(IAnimateble value)
+        public void Remove(IAnimatable value)
         {
             var index = _animatebles.IndexOf(value);
             if (index >= 0)
