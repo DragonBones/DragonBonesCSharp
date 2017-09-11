@@ -92,7 +92,7 @@ namespace DragonBones
         /**
          * @private
          */
-        public float fadeTotalTime;
+        internal float fadeTotalTime;
         /**
          * 动画名称。
          * @version DragonBones 3.0
@@ -352,7 +352,7 @@ namespace DragonBones
          * @private
          * @internal
          */
-        public void Init(Armature armature, AnimationData animationData, AnimationConfig animationConfig)
+        internal void Init(Armature armature, AnimationData animationData, AnimationConfig animationConfig)
         {
             if (this._armature != null)
             {

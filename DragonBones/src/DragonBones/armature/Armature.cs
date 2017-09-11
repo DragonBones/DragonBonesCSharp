@@ -232,7 +232,7 @@ namespace DragonBones
          * @internal
          * @private
          */
-        public void _AddBoneToBoneList(Bone value)
+        internal void _AddBoneToBoneList(Bone value)
         {
             if (!this._bones.Contains(value))
             {
