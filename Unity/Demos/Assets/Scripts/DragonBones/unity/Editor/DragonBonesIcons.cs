@@ -73,16 +73,18 @@ namespace DragonBones
 				return;
 			}
 
-			UnityBone ubone = go.GetComponent<UnityBone>();
-			if(ubone){
+			/*UnityBone ubone = go.GetComponent<UnityBone>();
+			if(ubone)
+            {
 				Texture2D icon = textureBone;
 				Bone bone = ubone.bone;
-				if(bone!=null && bone.ik!=null){
-					icon = textureIk;
+                if(bone!=null && bone.ik!=null){
+                {
+                    icon = textureIk;
 				}
 				GUI.Label(rect,icon);
 				return;
-			}
+			}*/
 		}
 	}
 

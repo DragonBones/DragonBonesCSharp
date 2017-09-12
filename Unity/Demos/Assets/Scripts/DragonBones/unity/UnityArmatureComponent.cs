@@ -361,9 +361,13 @@ namespace DragonBones
 						if (display != null)
 						{
 							display.transform.localPosition = new Vector3(display.transform.localPosition.x, display.transform.localPosition.y, -slot._zOrder * (_zSpace + 0.001f));
-							if(!isUGUI && sortingMode==SortingMode.SortByOrder){
+							if(!isUGUI && sortingMode==SortingMode.SortByOrder)
+                            {
 								UnitySlot us = slot as UnitySlot;
-								if(us.meshRenderer!=null) us.meshRenderer.sortingOrder = slot._zOrder;
+                                if (us.meshRenderer != null)
+                                {
+                                    us.meshRenderer.sortingOrder = slot._zOrder;
+                                }
 							}
 						}
 					}
@@ -474,7 +478,10 @@ namespace DragonBones
 						if(!isUGUI && sortingMode==SortingMode.SortByOrder)
                         {
 							UnitySlot us = slot as UnitySlot;
-							if(us.meshRenderer!=null) us.meshRenderer.sortingOrder = i;
+                            if (us.meshRenderer != null)
+                            {
+                                us.meshRenderer.sortingOrder = i;
+                            }
 						}
 					}
 				}

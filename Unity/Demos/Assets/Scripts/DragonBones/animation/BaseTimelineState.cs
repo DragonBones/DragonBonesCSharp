@@ -193,7 +193,8 @@ namespace DragonBones
 
                 this._frameCount = this._timelineArray[this._timelineData.offset + (int)BinaryOffset.TimelineKeyFrameCount];
                 this._frameValueOffset = this._timelineArray[this._timelineData.offset + (int)BinaryOffset.TimelineFrameValueOffset];
-                this._timeScale = 100.0f / this._timelineArray[this._timelineData.offset + (int)BinaryOffset.TimelineScale];
+                var timelineScale = this._timelineArray[this._timelineData.offset + (int)BinaryOffset.TimelineScale];
+                this._timeScale = 100.0f / (timelineScale == 0 ? 100.0f : timelineScale);
                 this._timeOffset = this._timelineArray[this._timelineData.offset + (int)BinaryOffset.TimelineOffset] * 0.01f;
             }
         }
@@ -204,7 +205,7 @@ namespace DragonBones
         }
 
         public virtual void Update(float passedTime)
-        {
+        {            
             if (this.playState <= 0 && this._SetCurrentTime(passedTime))
             {
                 if (this._frameCount > 1)

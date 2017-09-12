@@ -703,7 +703,7 @@ namespace DragonBones
                 this.UpdateTimelines();
             }
 
-            if (this.weight == 0.0)
+            if (this.weight == 0.0f)
             {
                 return;
             }

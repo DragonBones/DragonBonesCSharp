@@ -125,12 +125,16 @@ namespace DragonBones
             if (rawData.ContainsKey(key))
             {
                 var value = rawData[key];
+                var res = Convert.ToString(value);
                 if (value is string)
                 {
-                    return (string)value;
+                    res = (string)value;
                 }
 
-                return Convert.ToString(value);
+                if (!string.IsNullOrEmpty(res))
+                {
+                    return res;
+                }
             }
 
             return defaultValue;
@@ -631,10 +635,6 @@ namespace DragonBones
         {
             var skin = BaseObject.BorrowObject<SkinData>();
             skin.name = ObjectDataParser._GetString(rawData, ObjectDataParser.NAME, ObjectDataParser.DEFAULT_NAME);
-            if (skin.name.Length == 0)
-            {
-                skin.name = ObjectDataParser.DEFAULT_NAME;
-            }
 
             if (rawData.ContainsKey(ObjectDataParser.SLOT))
             {
@@ -996,7 +996,7 @@ namespace DragonBones
 
             animation.frameCount = (uint)Math.Max(ObjectDataParser._GetNumber(rawData, ObjectDataParser.DURATION, 1), 1);
             animation.playTimes = (uint)ObjectDataParser._GetNumber(rawData, ObjectDataParser.PLAY_TIMES, 1);
-            animation.duration = animation.frameCount / this._armature.frameRate;
+            animation.duration = (float)animation.frameCount / (float)this._armature.frameRate;
             animation.fadeInTime = ObjectDataParser._GetNumber(rawData, ObjectDataParser.FADE_IN_TIME, 0.0f);
             animation.scale = ObjectDataParser._GetNumber(rawData, ObjectDataParser.SCALE, 1.0f);
             animation.name = ObjectDataParser._GetString(rawData, ObjectDataParser.NAME, ObjectDataParser.DEFAULT_NAME);
@@ -2038,12 +2038,12 @@ namespace DragonBones
                 ms.Position = 0;
 
                 //ToRead
-                this._data.intArray = reader.ReadInt16s(0, l1);
-                this._data.floatArray = reader.ReadSingles(0, l2);
-                this._data.frameIntArray = reader.ReadInt16s(0, l3);
-                this._data.frameFloatArray = reader.ReadSingles(0, l4);
-                this._data.frameArray = reader.ReadInt16s(0, l5);
-                this._data.timelineArray = reader.ReadUInt16s(0, l6);
+                this._data.intArray = reader.ReadInt16s(0, this._intArray.Count);
+                this._data.floatArray = reader.ReadSingles(0, this._floatArray.Count);
+                this._data.frameIntArray = reader.ReadInt16s(0, this._frameIntArray.Count);
+                this._data.frameFloatArray = reader.ReadSingles(0, this._frameFloatArray.Count);
+                this._data.frameArray = reader.ReadInt16s(0, this._frameArray.Count);
+                this._data.timelineArray = reader.ReadUInt16s(0, this._timelineArray.Count);
 
                 ms.Close();
             }

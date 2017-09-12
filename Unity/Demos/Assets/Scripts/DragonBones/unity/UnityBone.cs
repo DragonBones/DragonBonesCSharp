@@ -1,9 +1,8 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 namespace DragonBones
 {
-	[DisallowMultipleComponent]
+    [DisallowMultipleComponent]
 	public class UnityBone :MonoBehaviour
     {		
 		private static Vector3 _helpVector3 = new Vector3();

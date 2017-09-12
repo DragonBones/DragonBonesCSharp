@@ -102,15 +102,15 @@ namespace DragonBones
         /**
          * @private
          */
-        public readonly ColorTransform _colorTransform = new ColorTransform();
+        internal readonly ColorTransform _colorTransform = new ColorTransform();
         /**
          * @private
          */
-        public readonly List<float> _ffdVertices = new List<float>();
+        internal readonly List<float> _ffdVertices = new List<float>();
         /**
          * @private
          */
-        public readonly List<DisplayData> _displayDatas = new List<DisplayData>();
+        internal readonly List<DisplayData> _displayDatas = new List<DisplayData>();
         /**
          * @private
          */

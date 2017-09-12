@@ -19,6 +19,7 @@ public class HelloDragonBones :MonoBehaviour
 
     void Start()
     {
+        UnityFactory.factory.autoSearch = true;
 		UnityFactory.factory.LoadData(dragonBoneData);
 
         var armatureComponent = UnityFactory.factory.BuildArmatureComponent("DragonBoy");

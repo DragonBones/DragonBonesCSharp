@@ -62,8 +62,8 @@ namespace coreElement
             // Get weapon childArmature.
             _weaponLeft = _armatureComponent.armature.GetSlot("weapon_l").childArmature;
             _weaponRight = _armatureComponent.armature.GetSlot("weapon_r").childArmature;
-            _weaponLeft.eventDispatcher.AddEventListener(EventObject.FRAME_EVENT, _frameEventHandler);
-            _weaponRight.eventDispatcher.AddEventListener(EventObject.FRAME_EVENT, _frameEventHandler);
+            _weaponLeft.proxy.AddEventListener(EventObject.FRAME_EVENT, _frameEventHandler);
+            _weaponRight.proxy.AddEventListener(EventObject.FRAME_EVENT, _frameEventHandler);
 
             _armatureComponent.animation.Reset();
 
@@ -203,12 +203,12 @@ namespace coreElement
                 _weaponLeftIndex = 0;
             }
 
-            _weaponLeft.eventDispatcher.RemoveEventListener(DragonBones.EventObject.FRAME_EVENT, _frameEventHandler);
+            _weaponLeft.proxy.RemoveEventListener(DragonBones.EventObject.FRAME_EVENT, _frameEventHandler);
 
             var weaponName = WEAPON_LEFT_LIST[_weaponLeftIndex];
             _weaponLeft = UnityFactory.factory.BuildArmature(weaponName);
             _armatureComponent.armature.GetSlot("weapon_l").childArmature = _weaponLeft;
-            _weaponLeft.eventDispatcher.AddEventListener(DragonBones.EventObject.FRAME_EVENT, _frameEventHandler);
+            _weaponLeft.proxy.AddEventListener(DragonBones.EventObject.FRAME_EVENT, _frameEventHandler);
         }
 
         private void _switchWeaponRight()
@@ -219,12 +219,12 @@ namespace coreElement
                 _weaponRightIndex = 0;
             }
 
-            _weaponRight.eventDispatcher.RemoveEventListener(EventObject.FRAME_EVENT, _frameEventHandler);
+            _weaponRight.proxy.RemoveEventListener(EventObject.FRAME_EVENT, _frameEventHandler);
 
             var weaponName = WEAPON_RIGHT_LIST[_weaponRightIndex];
             _weaponRight = UnityFactory.factory.BuildArmature(weaponName);
             _armatureComponent.armature.GetSlot("weapon_r").childArmature = _weaponRight;
-            _weaponRight.eventDispatcher.AddEventListener(EventObject.FRAME_EVENT, _frameEventHandler);
+            _weaponRight.proxy.AddEventListener(EventObject.FRAME_EVENT, _frameEventHandler);
         }
 
         private void _aim(float x, float y)
@@ -498,7 +498,7 @@ namespace coreElement
             _speed.y = -Mathf.Sin(radian) * speed * _armatureComponent.animation.timeScale;
 
             var rotation = this.transform.localEulerAngles;
-            rotation.z = -radian * DragonBones.DragonBones.RADIAN_TO_ANGLE;
+            rotation.z = -radian * DragonBones.Transform.RAD_DEG;
             this.transform.localEulerAngles = rotation;
             _armatureComponent.armature.animation.Play("idle");
 
@@ -508,7 +508,7 @@ namespace coreElement
 
                 var effectRotation = _effectComponent.transform.localEulerAngles;
                 var effectScale = _effectComponent.transform.localScale;
-                effectRotation.z = -radian * DragonBones.DragonBones.RADIAN_TO_ANGLE;
+                effectRotation.z = -radian * DragonBones.Transform.RAD_DEG;
                 if (Random.Range(0.0f, 1.0f) < 0.5)
                 {
                     effectRotation.x = 180.0f;

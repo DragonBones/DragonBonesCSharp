@@ -134,7 +134,8 @@ namespace DragonBones
             DragonBonesData dragonBonesData = null;
             ArmatureData armatureData = null;
 
-            if (dragonBonesName.Length > 0)
+            var isAvailableName = !string.IsNullOrEmpty(dragonBonesName);
+            if (isAvailableName)
             {
                 if (this._dragonBonesDataMap.ContainsKey(dragonBonesName))
                 {
@@ -143,13 +144,13 @@ namespace DragonBones
                 }
             }
 
-            if (armatureData == null && (dragonBonesName.Length == 0 || this.autoSearch))
+            if (armatureData == null && (!isAvailableName || this.autoSearch))
             {
                 // Will be search all data, if do not give a data name or the autoSearch is true.
                 foreach (var key in this._dragonBonesDataMap.Keys)
                 {
                     dragonBonesData = this._dragonBonesDataMap[key];
-                    if (dragonBonesName.Length == 0 || dragonBonesData.autoSearch)
+                    if (!isAvailableName || dragonBonesData.autoSearch)
                     {
                         armatureData = dragonBonesData.GetArmature(armatureName);
                         if (armatureData != null)
@@ -169,7 +170,7 @@ namespace DragonBones
                 dataPackage.armature = armatureData;
                 dataPackage.skin = null;
 
-                if (skinName.Length > 0)
+                if (!string.IsNullOrEmpty(skinName))
                 {
                     dataPackage.skin = armatureData.GetSkin(skinName);
                     if (dataPackage.skin == null && this.autoSearch)
@@ -321,7 +322,7 @@ namespace DragonBones
                     {
                         imageDisplayData.texture = this._GetTextureData(dataName, displayData.path);
                     }
-                    else if (dataPackage != null && dataPackage.textureAtlasName.Length > 0)
+                    else if (dataPackage != null && !string.IsNullOrEmpty(dataPackage.textureAtlasName))
                     {
                         imageDisplayData.texture = this._GetTextureData(dataPackage.textureAtlasName, displayData.path);
                     }
@@ -341,7 +342,7 @@ namespace DragonBones
                     {
                         meshDisplayData.texture = this._GetTextureData(dataName, meshDisplayData.path);
                     }
-                    else if (dataPackage != null && dataPackage.textureAtlasName.Length > 0)
+                    else if (dataPackage != null && !string.IsNullOrEmpty(dataPackage.textureAtlasName))
                     {
                         meshDisplayData.texture = this._GetTextureData(dataPackage.textureAtlasName, meshDisplayData.path);
                     }

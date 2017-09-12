@@ -13,7 +13,7 @@ namespace DragonBones
     {
         void Update()
         {
-            UnityFactory._clock.AdvanceTime(Time.deltaTime);
+            //UnityFactory._clock.AdvanceTime(Time.deltaTime);
         }
     }
     /**
@@ -93,8 +93,8 @@ namespace DragonBones
                 if (_gameObject == null)
                 {
                     _gameObject = new GameObject("DragonBones Object", typeof(ClockHandler));
-                    _gameObject.isStatic = true;
-                    _gameObject.hideFlags = HideFlags.HideInHierarchy;
+                    //_gameObject.isStatic = true;
+                    //_gameObject.hideFlags = HideFlags.HideInHierarchy;
                 }
 
                 if (_eventManager == null)
@@ -132,7 +132,7 @@ namespace DragonBones
 
             var armatureDisplay = armature.display as GameObject;
             var slotsRoot = armatureDisplay.GetComponent<UnityArmatureComponent>().slotsRoot.transform;
-            var transform = slotsRoot.Find(slot.name);
+            var transform = slotsRoot.Find(slotData.name);
             var gameObject = transform == null ? null : transform.gameObject;
             if (gameObject == null)
             {
@@ -508,49 +508,7 @@ namespace DragonBones
 
 			return dragonBonesData;
 		}
-
-
-        /**
-         * @language zh_CN
-         * 加载、解析并添加龙骨数据。
-         * @param path 龙骨数据在 Resources 中的路径。（其他形式的加载可自行扩展）
-         * @param name 为数据提供一个名称，以便可以通过这个名称获取数据，如果未设置，则使用数据中的名称。
-         * @param scale 为所有骨架设置一个缩放值。
-         * @returns 龙骨数据
-         * @see #ParseDragonBonesData()
-         * @see #GetDragonBonesData()
-         * @see #AddDragonBonesData()
-         * @see #RemoveDragonBonesData()
-         * @see DragonBones.DragonBonesData
-         */
-		[System.Obsolete("Use 'DragonBonesData LoadData(UnityDragonBonesData data)'")]
-        public DragonBonesData LoadDragonBonesData(string path, string name = null, float scale = 0.01f)
-        {
-            var index = path.LastIndexOf("Resources");
-            if (index > 0)
-            {
-                path = path.Substring(index + 10);
-            }
-
-            index = path.LastIndexOf(".");
-            if (index > 0)
-            {
-                path = path.Substring(0, index);
-            }
-
-            if (_pathDragonBonesDataMap.ContainsKey(path))
-            {
-                return _pathDragonBonesDataMap[path];
-            }
-
-            var dragonBonesData = LoadDragonBonesData(Resources.Load<TextAsset>(path), name);
-            if (dragonBonesData != null)
-            {
-				_pathDragonBonesDataMap[path] = dragonBonesData;
-            }
-
-            return dragonBonesData;
-        }
+        
         /**
          * @private
          */
@@ -573,7 +531,7 @@ namespace DragonBones
 			DragonBonesData data = ParseDragonBonesData((Dictionary<string, object>)MiniJSON.Json.Deserialize(dragonBonesJSON.text), name, scale); // Unity default Scale Factor.
 			name = dragonBonesJSON.name;
 			int index = name.LastIndexOf("_ske");
-			if(index>0)
+			if(index > 0)
             {
 				name = name.Substring(0,index);
 				data.name = name;
@@ -641,10 +599,16 @@ namespace DragonBones
 					if(!Application.isPlaying)
                     {
 						textureAtlasData.imagePath = AssetDatabase.GetAssetPath(textureAtlas.texture);
-						textureAtlasData.imagePath =textureAtlasData.imagePath.Substring(0,textureAtlasData.imagePath.Length-4);
+						textureAtlasData.imagePath = textureAtlasData.imagePath.Substring(0,textureAtlasData.imagePath.Length-4);
                         _RefreshTextureAtlas(textureAtlasData,isUGUI,true);
-						if(isUGUI) textureAtlas.uiMaterial = textureAtlasData.uiTexture;
-						else textureAtlas.material = textureAtlasData.texture;
+                        if (isUGUI)
+                        {
+                            textureAtlas.uiMaterial = textureAtlasData.uiTexture;
+                        }
+                        else
+                        {
+                            textureAtlas.material = textureAtlasData.texture;
+                        }
 					}
 					#endif
 
