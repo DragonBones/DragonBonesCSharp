@@ -273,7 +273,7 @@ namespace DragonBones
         /**
          * @private
          */
-        public abstract void _UpdateVisible();
+        internal abstract void _UpdateVisible();
         /**
          * @private
          */
