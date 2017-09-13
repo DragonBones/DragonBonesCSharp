@@ -12,7 +12,7 @@ namespace DragonBones
         /**
          * @private
          */
-        internal static readonly float PI = (float)Math.PI;
+        internal static readonly float PI = 3.141593f;
         /**
          * @private
          */
@@ -41,6 +41,7 @@ namespace DragonBones
         {
             value = (value + PI) % (PI * 2.0f);
 
+           
             value += value > 0.0f ? -PI : PI;
 
             return value;
@@ -170,13 +171,13 @@ namespace DragonBones
             this.scaleX = (this.rotation > -PI_Q && this.rotation < PI_Q) ? matrix.a / (float)Math.Cos(this.rotation) : matrix.b / (float)Math.Sin(this.rotation);
             this.scaleY = (skewX > -PI_Q && skewX < PI_Q) ? matrix.d / (float)Math.Cos(skewX) : -matrix.c / (float)Math.Sin(skewX);
 
-            if (backupScaleX >= 0.0 && this.scaleX < 0.0)
+            if (backupScaleX >= 0.0f && this.scaleX < 0.0f)
             {
                 this.scaleX = -this.scaleX;
                 this.rotation = this.rotation - PI;
             }
 
-            if (backupScaleY >= 0.0 && this.scaleY < 0.0)
+            if (backupScaleY >= 0.0f && this.scaleY < 0.0f)
             {
                 this.scaleY = -this.scaleY;
                 skewX = skewX - PI;
@@ -184,7 +185,11 @@ namespace DragonBones
 
             this.skew = skewX - this.rotation;
 
-            this.skew = NormalizeRadian(this.skew);
+            
+            if((int)(Math.Floor(Math.Abs(this.skew) * 100)) == (int)(Math.Floor(PI * 100)))
+            {
+                this.skew = 0.0f;
+            }
 
             return this;
         }
