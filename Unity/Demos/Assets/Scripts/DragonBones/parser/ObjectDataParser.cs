@@ -2030,7 +2030,7 @@ namespace DragonBones
                 //ToWrite
                 writer.Write(_intArray.ToArray());
                 writer.Write(_floatArray.ToArray());
-                writer.Write(_frameArray.ToArray());
+                writer.Write(_frameIntArray.ToArray());
                 writer.Write(_frameFloatArray.ToArray());
                 writer.Write(_frameArray.ToArray());
                 writer.Write(_timelineArray.ToArray());

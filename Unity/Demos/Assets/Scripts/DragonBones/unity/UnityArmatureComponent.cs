@@ -336,7 +336,7 @@ namespace DragonBones
 			}
 			zorderIsDirty = true;
 
-			if(unityData!=null && unityData.dragonBonesJSON!=null && unityData.textureAtlas!=null)
+			if(unityData!=null && unityData.dragonBonesJSON != null && unityData.textureAtlas != null)
             {
 				var dragonBonesData = UnityFactory.factory.LoadData(unityData,isUGUI);
 				if (dragonBonesData != null && !string.IsNullOrEmpty(armatureName))
@@ -418,7 +418,7 @@ namespace DragonBones
 							if(us.meshRenderer!=null)
                             {
 								us.meshRenderer.sortingLayerName = _sortingLayerName;
-								if(sortingMode==SortingMode.SortByOrder)
+								if(sortingMode == SortingMode.SortByOrder)
                                 {
 									us.meshRenderer.sortingOrder = slot._zOrder;
 								}

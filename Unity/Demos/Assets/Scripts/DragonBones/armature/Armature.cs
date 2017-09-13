@@ -306,6 +306,7 @@ namespace DragonBones
             if (this.armatureData != null)
             {
                 this._lockUpdate = true;
+
                 this._dragonBones.BufferObject(this);
             }
         }

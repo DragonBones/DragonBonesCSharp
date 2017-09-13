@@ -13,7 +13,7 @@ namespace DragonBones
     {
         void Update()
         {
-            //UnityFactory._clock.AdvanceTime(Time.deltaTime);
+            UnityFactory._clock.AdvanceTime(Time.deltaTime);
         }
     }
     /**
@@ -93,8 +93,10 @@ namespace DragonBones
                 if (_gameObject == null)
                 {
                     _gameObject = new GameObject("DragonBones Object", typeof(ClockHandler));
-                    //_gameObject.isStatic = true;
-                    //_gameObject.hideFlags = HideFlags.HideInHierarchy;
+                    _gameObject.isStatic = true;
+                    _gameObject.hideFlags = HideFlags.HideInHierarchy;
+
+                    DragonBones.yDown = false;
                 }
 
                 if (_eventManager == null)

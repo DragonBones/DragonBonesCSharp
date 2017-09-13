@@ -397,7 +397,8 @@ namespace DragonBones
                 if (this.constraints.Count > 0)
                 { 
                     // Update constraints.
-                    foreach (var constraint in this.constraints) {
+                    foreach (var constraint in this.constraints)
+                    {
                         constraint.Update();
                     }
                 }

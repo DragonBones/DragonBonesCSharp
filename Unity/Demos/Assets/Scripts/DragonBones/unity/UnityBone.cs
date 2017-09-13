@@ -81,10 +81,12 @@ namespace DragonBones
 				{
 					_helpVector3.x = -_helpVector3.x;
 				}
+
 				if (flipY)
 				{
 					_helpVector3.y = -_helpVector3.y;
 				}
+
 				_helpVector3.z = 0f;
 				transform.localPosition = _helpVector3;
 
@@ -106,8 +108,9 @@ namespace DragonBones
 					_helpVector3.y = 180.0f;
 				}
 
-				_helpVector3.z = -_bone.global.skew * Mathf.Rad2Deg;
-				transform.localEulerAngles = _helpVector3;
+                //_helpVector3.z = -_bone.global.skew * Mathf.Rad2Deg;
+                _helpVector3.z = _bone.global.rotation * Transform.RAD_DEG;
+                transform.localEulerAngles = _helpVector3;
 
 				_helpVector3.x = scaleX >= 0.0f ? scaleX : -scaleX;
 				_helpVector3.y = scaleY >= 0.0f ? scaleY : -scaleY;

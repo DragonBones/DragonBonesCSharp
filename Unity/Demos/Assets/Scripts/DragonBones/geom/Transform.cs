@@ -12,35 +12,36 @@ namespace DragonBones
         /**
          * @private
          */
-        public static readonly float PI = (float)Math.PI;
+        internal static readonly float PI = (float)Math.PI;
         /**
          * @private
          */
-        public static readonly float PI_D = PI * 2.0f;
+        internal static readonly float PI_D = PI * 2.0f;
         /**
          * @private
          */
-        public static readonly float PI_H = PI / 2.0f;
+        internal static readonly float PI_H = PI / 2.0f;
         /**
          * @private
          */
-        public static readonly float PI_Q = PI / 4.0f;
+        internal static readonly float PI_Q = PI / 4.0f;
         /**
          * @private
          */
-        public static readonly float RAD_DEG = 180.0f / PI;
+        internal static readonly float RAD_DEG = 180.0f / PI;
         /**
          * @private
          */
-        public static readonly float DEG_RAD = PI / 180.0f;
+        internal static readonly float DEG_RAD = PI / 180.0f;
 
         /**
          * @private
          */
-        public static float NormalizeRadian(float value)
+        internal static float NormalizeRadian(float value)
         {
             value = (value + PI) % (PI * 2.0f);
-            value += value > 0.0f ? - PI : PI;
+
+            value += value > 0.0f ? -PI : PI;
 
             return value;
         }
@@ -182,6 +183,8 @@ namespace DragonBones
             }
 
             this.skew = skewX - this.rotation;
+
+            this.skew = NormalizeRadian(this.skew);
 
             return this;
         }

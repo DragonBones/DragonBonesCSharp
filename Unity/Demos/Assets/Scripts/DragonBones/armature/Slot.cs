@@ -752,7 +752,7 @@ namespace DragonBones
         /**
          * @private
          */
-        public void Init(SlotData slotData, List<DisplayData> displayDatas, object rawDisplay, object meshDisplay)
+        internal void Init(SlotData slotData, List<DisplayData> displayDatas, object rawDisplay, object meshDisplay)
         {
             if (this.slotData != null)
             {
@@ -1088,8 +1088,7 @@ namespace DragonBones
                         eachDisplay != this._rawDisplay &&
                         eachDisplay != this._meshDisplay &&
                         this._displayList.IndexOf(eachDisplay) < 0 &&
-                        disposeDisplayList.IndexOf(eachDisplay) < 0
-                    )
+                        disposeDisplayList.IndexOf(eachDisplay) < 0)
                     {
                         disposeDisplayList.Add(eachDisplay);
                     }
