@@ -67,6 +67,8 @@ namespace DragonBones
 					transform.SetParent(_proxy.bonesRoot.transform);
 				}
 
+                _bone.UpdateGlobalTransform();
+
 				Armature armature = _proxy.armature;
 
 				var flipX = armature.flipX;
@@ -75,7 +77,7 @@ namespace DragonBones
 				var scaleY = flipY ? -_bone.global.scaleY : _bone.global.scaleY;
 
 				_helpVector3.x = _bone.globalTransformMatrix.tx;
-				_helpVector3.y = -_bone.globalTransformMatrix.ty;
+				_helpVector3.y = _bone.globalTransformMatrix.ty;
 
 				if (flipX)
 				{
@@ -109,7 +111,7 @@ namespace DragonBones
 				}
 
                 //_helpVector3.z = -_bone.global.skew * Mathf.Rad2Deg;
-                _helpVector3.z = _bone.global.rotation * Transform.RAD_DEG;
+                _helpVector3.z = -_bone.global.skew * Transform.RAD_DEG;
                 transform.localEulerAngles = _helpVector3;
 
 				_helpVector3.x = scaleX >= 0.0f ? scaleX : -scaleX;

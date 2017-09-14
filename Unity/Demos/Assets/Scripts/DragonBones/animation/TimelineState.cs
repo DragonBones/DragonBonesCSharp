@@ -58,7 +58,7 @@ namespace DragonBones
                         {
                             var eventObject = BaseObject.BorrowObject<EventObject>();
                             // eventObject.time = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
-                            eventObject.time = this._frameArray[frameOffset] / this._frameRate;
+                            eventObject.time = (float)this._frameArray[frameOffset] / (float)this._frameRate;
                             eventObject.type = eventType;
                             eventObject.name = action.name;
                             eventObject.data = action.data;
@@ -179,7 +179,7 @@ namespace DragonBones
                                 {
                                     var frameOffset = this._animationData.frameOffset + this._timelineArray[timelineData.offset + (int)BinaryOffset.TimelineFrameOffset + crossedFrameIndex];
                                     // const framePosition = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
-                                    var framePosition = (int)this._frameArray[frameOffset] / this._frameRate;
+                                    var framePosition = (float)this._frameArray[frameOffset] / (float)this._frameRate;
 
                                     if (this._position <= framePosition && framePosition <= this._position + this._duration)
                                     {
@@ -217,7 +217,7 @@ namespace DragonBones
                                     crossedFrameIndex = (int)this._frameIndices[timelineData.frameIndicesOffset + prevFrameIndex];
                                     var frameOffset = this._animationData.frameOffset + this._timelineArray[timelineData.offset + (int)BinaryOffset.TimelineFrameOffset + crossedFrameIndex];
                                     // const framePosition = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
-                                    var framePosition = this._frameArray[frameOffset] / this._frameRate;
+                                    var framePosition = (float)this._frameArray[frameOffset] / (float)this._frameRate;
                                     if (this.currentPlayTimes == prevPlayTimes)
                                     {
                                         // Start.
@@ -254,7 +254,7 @@ namespace DragonBones
 
                                     var frameOffset = this._animationData.frameOffset + this._timelineArray[timelineData.offset + (int)BinaryOffset.TimelineFrameOffset + crossedFrameIndex];
                                     // const framePosition = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
-                                    var framePosition = this._frameArray[frameOffset] / this._frameRate;
+                                    var framePosition = (float)this._frameArray[frameOffset] / (float)this._frameRate;
                                     if (this._position <= framePosition && framePosition <= this._position + this._duration)
                                     {
                                         // Support interval play.
@@ -284,7 +284,7 @@ namespace DragonBones
                     {
                         this._frameOffset = this._animationData.frameOffset + this._timelineArray[this._timelineData.offset + (int)BinaryOffset.TimelineFrameOffset];
                         // Arrive at frame.
-                        var framePosition = (int)this._frameArray[this._frameOffset] / this._frameRate;
+                        var framePosition = (float)this._frameArray[this._frameOffset] / (float)this._frameRate;
                         if (this.currentPlayTimes == prevPlayTimes)
                         { 
                             // Start.

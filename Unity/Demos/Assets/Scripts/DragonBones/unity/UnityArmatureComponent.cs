@@ -79,7 +79,7 @@ namespace DragonBones
         }
         public void DBInit(Armature armature)
         {
-
+            //this._armature = armature;
         }
 
         public void DBUpdate()

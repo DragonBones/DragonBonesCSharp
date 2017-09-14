@@ -19,6 +19,7 @@ namespace DragonBones
         private float[] _frameFloatArrayBuffer;
         private short[] _frameArrayBuffer;
         private ushort[] _timelineArrayBuffer;
+
         /**
          * @private
          */
@@ -248,7 +249,7 @@ namespace DragonBones
             var animation = BaseObject.BorrowObject<AnimationData>();
             animation.frameCount = (uint)Math.Max(ObjectDataParser._GetNumber(rawData, ObjectDataParser.DURATION, 1), 1);
             animation.playTimes = (uint)ObjectDataParser._GetNumber(rawData, ObjectDataParser.PLAY_TIMES, 1);
-            animation.duration = animation.frameCount / this._armature.frameRate;
+            animation.duration = (float)animation.frameCount / (float)this._armature.frameRate;//Must float
             animation.fadeInTime = ObjectDataParser._GetNumber(rawData, ObjectDataParser.FADE_IN_TIME, 0.0f);
             animation.scale = ObjectDataParser._GetNumber(rawData, ObjectDataParser.SCALE, 1.0f);
             animation.name = ObjectDataParser._GetString(rawData, ObjectDataParser.NAME, ObjectDataParser.DEFAULT_NAME);
@@ -258,10 +259,10 @@ namespace DragonBones
             }
 
             // Offsets.
-            var offsets = rawData[ObjectDataParser.OFFSET] as List<uint>;
-            animation.frameIntOffset = offsets[0];
-            animation.frameFloatOffset = offsets[1];
-            animation.frameOffset = offsets[2];
+            var offsets = rawData[ObjectDataParser.OFFSET] as List<object>;
+            animation.frameIntOffset = uint.Parse(offsets[0].ToString());
+            animation.frameFloatOffset = uint.Parse(offsets[1].ToString());
+            animation.frameOffset = uint.Parse(offsets[2].ToString());
 
             this._animation = animation;
 
@@ -280,7 +281,7 @@ namespace DragonBones
                 var rawTimeliness = rawData[ObjectDataParser.BONE] as Dictionary<string, object>;
                 foreach (var k in rawTimeliness.Keys)
                 {
-                    var rawTimelines = rawTimeliness[k] as List<int>;
+                    var rawTimelines = rawTimeliness[k] as List<object>;
 
                     var bone = this._armature.GetBone(k);
                     if (bone == null)
@@ -290,8 +291,8 @@ namespace DragonBones
 
                     for (int i = 0, l = rawTimelines.Count; i < l; i += 2)
                     {
-                        var timelineType = rawTimelines[i];
-                        var timelineOffset = rawTimelines[i + 1];
+                        var timelineType = int.Parse(rawTimelines[i].ToString());
+                        var timelineOffset = int.Parse(rawTimelines[i + 1].ToString());
                         var timeline = this._ParseBinaryTimeline((TimelineType)timelineType, (uint)timelineOffset);
                         this._animation.AddBoneTimeline(bone, timeline);
                     }
@@ -303,7 +304,7 @@ namespace DragonBones
                 var rawTimeliness = rawData[ObjectDataParser.SLOT] as Dictionary<string, object>;
                 foreach (var k in rawTimeliness.Keys)
                 {
-                    var rawTimelines = rawTimeliness[k] as List<int>;
+                    var rawTimelines = rawTimeliness[k] as List<object>;
 
                     var slot = this._armature.GetSlot(k);
                     if (slot == null)
@@ -313,8 +314,8 @@ namespace DragonBones
 
                     for (int i = 0, l = rawTimelines.Count; i < l; i += 2)
                     {
-                        var timelineType = rawTimelines[i];
-                        var timelineOffset = rawTimelines[i + 1];
+                        var timelineType = int.Parse(rawTimelines[i].ToString());
+                        var timelineOffset = int.Parse(rawTimelines[i + 1].ToString());
                         var timeline = this._ParseBinaryTimeline((TimelineType)timelineType, (uint)timelineOffset);
                         this._animation.AddSlotTimeline(slot, timeline);
                     }
@@ -330,7 +331,7 @@ namespace DragonBones
          */
         protected override void _ParseArray(Dictionary<string, object> rawData)
         {
-            var offsets = rawData[ObjectDataParser.OFFSET] as List<int>;
+            var offsets = rawData[ObjectDataParser.OFFSET] as List<object>;
 
             short[] intArray = { };
             float[] floatArray = { };
@@ -338,19 +339,21 @@ namespace DragonBones
             float[] frameFloatArray = { };
             short[] frameArray = { };
             ushort[] timelineArray = { };
-
-
-            using (MemoryStream ms = new MemoryStream(this._binary))
+            
+            using (MemoryStream ms = new MemoryStream(_binary))
             using (BinaryDataReader reader = new BinaryDataReader(ms))
             {
                 //ToRead
-                intArray = reader.ReadInt16s(this._binaryOffset + offsets[0], offsets[1] / Helper.INT16_SIZE);
-                floatArray = reader.ReadSingles(this._binaryOffset + offsets[2], offsets[3] / Helper.FLOAT_SIZE);
-                frameIntArray = reader.ReadInt16s(this._binaryOffset + offsets[4], offsets[5] / Helper.INT16_SIZE);
-                frameFloatArray = reader.ReadSingles(this._binaryOffset + offsets[6], offsets[7] / Helper.FLOAT_SIZE);
-                frameArray = reader.ReadInt16s(this._binaryOffset + offsets[8], offsets[9] / Helper.INT16_SIZE);
-                timelineArray = reader.ReadUInt16s(this._binaryOffset + offsets[10], offsets[11] / Helper.UINT16_SIZE);
+                reader.Seek(this._binaryOffset, SeekOrigin.Begin);
 
+                intArray = reader.ReadInt16s(int.Parse(offsets[0].ToString()), int.Parse(offsets[1].ToString()) / Helper.INT16_SIZE);
+                floatArray = reader.ReadSingles(0, int.Parse(offsets[3].ToString()) / Helper.FLOAT_SIZE);
+                frameIntArray = reader.ReadInt16s(0, int.Parse(offsets[5].ToString()) / Helper.INT16_SIZE);
+                frameFloatArray = reader.ReadSingles(0, int.Parse(offsets[7].ToString()) / Helper.FLOAT_SIZE);
+                frameArray = reader.ReadInt16s(0, int.Parse(offsets[9].ToString()) / Helper.INT16_SIZE);
+                timelineArray = reader.ReadUInt16s(0, int.Parse(offsets[11].ToString()) / Helper.UINT16_SIZE);
+
+                reader.Close();
                 ms.Close();
             }
 
@@ -369,16 +372,19 @@ namespace DragonBones
             Helper.Assert(rawObj != null  && rawObj is byte[], "Data error.");
 
             byte[] bytes = rawObj as byte[];
+            object header = null;
             using (MemoryStream ms = new MemoryStream(bytes))
             using (BinaryDataReader reader = new BinaryDataReader(ms))
             {
                 ms.Position = 0;
                 byte[] tag = reader.ReadBytes(8);
 
-                if ( tag[0] != Convert.ToByte("D") ||
-                     tag[1] != Convert.ToByte("B") ||
-                     tag[2] != Convert.ToByte("D") ||
-                     tag[3] != Convert.ToByte("T"))
+                byte[] array = System.Text.Encoding.ASCII.GetBytes("DBDT");
+
+                if ( tag[0] != array[0] ||
+                     tag[1] != array[1] ||
+                     tag[2] != array[2] ||
+                     tag[3] != array[3])
                 {
                     Helper.Assert(false, "Nonsupport data.");
                     return null;
@@ -386,16 +392,19 @@ namespace DragonBones
 
                 var headerLength = (int)reader.ReadUInt32();
                 var headerBytes = reader.ReadBytes(headerLength);
-                //var headerString = this._DecodeUTF8(headerBytes);
                 var headerString = System.Text.Encoding.UTF8.GetString(headerBytes);
-                var header = jsonParseDelegate != null ? jsonParseDelegate(headerString) : string.Empty;
+                header = jsonParseDelegate != null ? jsonParseDelegate(headerString) : string.Empty;
+
+                reader.Close();
+                ms.Dispose();
 
                 this._binary = bytes;
                 this._binaryOffset = 8 + 4 + headerLength;
             }
-            
 
-            return base.ParseDragonBonesData(null, scale);
+            jsonParseDelegate = null;
+
+            return base.ParseDragonBonesData(header, scale);
         }
 
         private string _GetUTF16Key(string value)

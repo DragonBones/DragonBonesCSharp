@@ -17,7 +17,8 @@ namespace DragonBones
 
 		public string dataName;
 		public TextAsset dragonBonesJSON;
-		public TextureAtlas[] textureAtlas;
+        public TextAsset dragonBonesBinary;
+        public TextureAtlas[] textureAtlas;
 
 		/**
          * @language zh_CN

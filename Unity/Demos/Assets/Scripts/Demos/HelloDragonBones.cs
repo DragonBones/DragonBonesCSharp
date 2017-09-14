@@ -23,6 +23,8 @@ public class HelloDragonBones :MonoBehaviour
         UnityFactory.factory.autoSearch = true;
 		UnityFactory.factory.LoadData(dragonBoneData);
 
+        //UnityFactory.factory.load
+
         armatureComponent = UnityFactory.factory.BuildArmatureComponent("DragonBoy");
         armatureComponent.animation.Play("walk");
 
@@ -30,31 +32,7 @@ public class HelloDragonBones :MonoBehaviour
         armatureComponent.transform.localPosition = new Vector3(0.0f, 0.0f, 1.0f);
 
         // Set flip.
-        //armatureComponent.armature.flipX = false;
-
-        TestBones();
-
-        TestSlots();
-    }
-
-    private void TestBones()
-    {
-        var bones = armatureComponent.armature.GetBones();
-
-        foreach (var bone in bones)
-        {
-            Debug.Log(string.Format("boneName:{0}  -x:{1}  -y:{2}", bone.name, bone.origin.x, bone.origin.y));
-        }
-    }
-
-    private void TestSlots()
-    {
-        var slots = armatureComponent.armature.GetSlots();
-
-        foreach (UnitySlot slot in slots)
-        {
-            Debug.Log(string.Format("slotName:{0} -x:{1} -y:{2}", slot.name, slot.renderDisplay.transform.position.x, slot.renderDisplay.transform.position.y));
-        }
+        //armatureComponent.armature.flipY = true;
     }
     
 }

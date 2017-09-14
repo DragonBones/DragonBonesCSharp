@@ -11,9 +11,14 @@ namespace DragonBones
      */
     internal class ClockHandler : MonoBehaviour
     {
+        private bool isStarted;
         void Update()
         {
-            UnityFactory._clock.AdvanceTime(Time.deltaTime);
+            if (!isStarted)
+            {
+                UnityFactory._clock.AdvanceTime(Time.deltaTime);
+                //isStarted = true;
+            }
         }
     }
     /**
@@ -450,6 +455,12 @@ namespace DragonBones
             get { return _eventManager; }
         }
 
+        public DragonBonesData LoadData(TextAsset text, float textScale = 0.01f)
+        {
+
+            return null;
+        }
+
 		/**
          * @language zh_CN
          * 解析龙骨数据。
@@ -462,11 +473,12 @@ namespace DragonBones
 		{
 			DragonBonesData dragonBonesData = null;
 
-			if (data.dragonBonesJSON != null)
+			if (data.dragonBonesJSON != null || data.dragonBonesBinary != null)
 			{
-				dragonBonesData = LoadDragonBonesData(data.dragonBonesJSON,data.dataName);
+                dragonBonesData = LoadDragonBonesData(data.dragonBonesJSON, data.dragonBonesBinary, data.dataName);
 
-				if (!string.IsNullOrEmpty(data.dataName) && dragonBonesData != null && data.textureAtlas != null)
+
+                if (!string.IsNullOrEmpty(data.dataName) && dragonBonesData != null && data.textureAtlas != null)
 				{
 					#if UNITY_EDITOR
 					bool isDirty = false;
@@ -514,9 +526,9 @@ namespace DragonBones
         /**
          * @private
          */
-		protected DragonBonesData LoadDragonBonesData(TextAsset dragonBonesJSON, string name = null, float scale = 0.01f)
+		protected DragonBonesData LoadDragonBonesData(TextAsset dragonBonesJSON, TextAsset dragonBonesBinary = null, string name = null, float scale = 0.01f)
         {
-            if (dragonBonesJSON == null)
+            if (dragonBonesJSON == null && dragonBonesBinary == null)
             {
                 return null;
             }
@@ -530,8 +542,20 @@ namespace DragonBones
                 }
             }
 
-			DragonBonesData data = ParseDragonBonesData((Dictionary<string, object>)MiniJSON.Json.Deserialize(dragonBonesJSON.text), name, scale); // Unity default Scale Factor.
-			name = dragonBonesJSON.name;
+            DragonBonesData data = null;
+            if (dragonBonesJSON != null)
+            {
+                data = ParseDragonBonesData((Dictionary<string, object>)MiniJSON.Json.Deserialize(dragonBonesJSON.text), name, scale); // Unity default Scale Factor.
+
+                name = dragonBonesJSON.name;
+            }
+            else
+            {
+                BinaryDataParser.jsonParseDelegate = MiniJSON.Json.Deserialize;
+                data = ParseDragonBonesData(dragonBonesBinary.bytes, name, scale); // Unity default Scale Factor.
+                name = dragonBonesBinary.name;
+            }
+
 			int index = name.LastIndexOf("_ske");
 			if(index > 0)
             {

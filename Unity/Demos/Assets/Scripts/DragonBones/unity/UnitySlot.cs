@@ -583,6 +583,11 @@ namespace DragonBones
                     _helpVector3.y = -_helpVector3.y;
                 }
 
+                if (float.IsNaN(_helpVector3.x))
+                {
+                    int i = 0;
+                }
+
                 transform.localPosition = _helpVector3;
 
                 if (scaleY >= 0.0f || _childArmature != null)
