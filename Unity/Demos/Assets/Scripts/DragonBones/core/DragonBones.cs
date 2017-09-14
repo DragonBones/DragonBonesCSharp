@@ -225,6 +225,13 @@ namespace DragonBones
                 }
             }
         }
+
+        public static bool FloatEqual(float f0, float f1)
+        {
+            float f = Math.Abs(f0 -f1);
+
+            return (f < 0.000000001f);
+        }
     }
 
     public class DragonBones

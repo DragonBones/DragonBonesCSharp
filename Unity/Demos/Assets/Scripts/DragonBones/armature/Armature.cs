@@ -307,7 +307,10 @@ namespace DragonBones
             {
                 this._lockUpdate = true;
 
-                this._dragonBones.BufferObject(this);
+                if (this._dragonBones != null)
+                {
+                    this._dragonBones.BufferObject(this);
+                }
             }
         }
         /**
