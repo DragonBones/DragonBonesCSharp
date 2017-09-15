@@ -106,7 +106,7 @@ namespace DragonBones
          * @private
          */
         private void _UpdateGlobalTransformMatrix(bool isCache)
-        {
+        {            
             var flipX = this._armature.flipX;
             var flipY = this._armature.flipY == DragonBones.yDown;
             var global = this.global;
@@ -238,7 +238,7 @@ namespace DragonBones
                 }
             }
             else
-            {
+            {                
                 if (flipX || flipY)
                 {
                     if (flipX)
@@ -342,7 +342,7 @@ namespace DragonBones
          * @internal
          * @private
          */
-        public void Update(int cacheFrameIndex)
+        internal void Update(int cacheFrameIndex)
         {
             this._blendDirty = false;
 

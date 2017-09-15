@@ -100,14 +100,19 @@ namespace DragonBones
                     _gameObject = new GameObject("DragonBones Object", typeof(ClockHandler));
                     _gameObject.isStatic = true;
                     _gameObject.hideFlags = HideFlags.HideInHierarchy;
-
-                    DragonBones.yDown = false;
                 }
 
                 if (_eventManager == null)
                 {
                     _eventManager = _gameObject.AddComponent<UnityArmatureComponent>();
                     (_eventManager as UnityArmatureComponent).isUGUI = _isUGUI;
+                }
+
+                if (_dragonBones == null)
+                {
+                    _dragonBones = new DragonBones(_eventManager);
+
+                    DragonBones.yDown = false;
                 }
             }
 
@@ -259,8 +264,16 @@ namespace DragonBones
 					material = new Material(shader);
 					material.name = textureAtlas.name+"_UI_Mat";
 					material.mainTexture = textureAtlas;
-					if(textureAtlasData.width<2) textureAtlasData.width = (uint)textureAtlas.width;
-					if(textureAtlasData.height<2) textureAtlasData.height = (uint)textureAtlas.height;
+                    if (textureAtlasData.width < 2)
+                    {
+                        textureAtlasData.width = (uint)textureAtlas.width;
+                    }
+
+                    if (textureAtlasData.height < 2)
+                    {
+                        textureAtlasData.height = (uint)textureAtlas.height;
+                    }
+
 					textureAtlasData._disposeTexture = true;
 					#if UNITY_EDITOR
 					if(!Application.isPlaying)
@@ -310,8 +323,16 @@ namespace DragonBones
 					material = new Material(shader);
 					material.name = textureAtlas.name + "_Mat";
 					material.mainTexture = textureAtlas;
-					if(textureAtlasData.width<2) textureAtlasData.width = (uint)textureAtlas.width;
-					if(textureAtlasData.height<2) textureAtlasData.height = (uint)textureAtlas.height;
+                    if (textureAtlasData.width < 2)
+                    {
+                        textureAtlasData.width = (uint)textureAtlas.width;
+                    }
+
+                    if (textureAtlasData.height < 2)
+                    {
+                        textureAtlasData.height = (uint)textureAtlas.height;
+                    }
+
 					textureAtlasData._disposeTexture = true;
 					#if UNITY_EDITOR
 					if(!Application.isPlaying)
@@ -455,12 +476,6 @@ namespace DragonBones
             get { return _eventManager; }
         }
 
-        public DragonBonesData LoadData(TextAsset text, float textScale = 0.01f)
-        {
-
-            return null;
-        }
-
 		/**
          * @language zh_CN
          * 解析龙骨数据。
@@ -476,7 +491,6 @@ namespace DragonBones
 			if (data.dragonBonesJSON != null || data.dragonBonesBinary != null)
 			{
                 dragonBonesData = LoadDragonBonesData(data.dragonBonesJSON, data.dragonBonesBinary, data.dataName);
-
 
                 if (!string.IsNullOrEmpty(data.dataName) && dragonBonesData != null && data.textureAtlas != null)
 				{

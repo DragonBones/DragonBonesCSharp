@@ -20,6 +20,8 @@ namespace DragonBones
         public TextAsset dragonBonesBinary;
         public TextureAtlas[] textureAtlas;
 
+        
+
 		/**
          * @language zh_CN
          * 从UnityFactory中移除。

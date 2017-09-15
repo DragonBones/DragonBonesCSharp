@@ -7,17 +7,24 @@ using System.IO;
 namespace DragonBones
 {
 	[InitializeOnLoad]
-	public class DragonBonesIcons : Editor {
+	public class DragonBonesIcons : Editor
+    {
 
 		static Texture2D textureBone,textureArmature,textureImg,textureMesh,textureIk;
 		static string editorPath="";
 		static string editorGUIPath=  "";
 		static bool isInited = false;
-		static DragonBonesIcons(){
+		static DragonBonesIcons()
+        {
 			Initialize();
 		}
-		static void Initialize(){
-			if(isInited) return;
+
+		static void Initialize()
+        {
+            if (isInited)
+            {
+                return;
+            }
 
 			DirectoryInfo rootDir = new DirectoryInfo(Application.dataPath);
 			FileInfo[] files = rootDir.GetFiles("DragonBonesIcons.cs", SearchOption.AllDirectories); 
@@ -35,9 +42,13 @@ namespace DragonBones
 			isInited = true;
 		}
 
-		static void HierarchyIconsOnGUI (int instanceId, Rect selectionRect) {
-			GameObject go = (GameObject)EditorUtility.InstanceIDToObject(instanceId); 
-			if(!go) return;
+		static void HierarchyIconsOnGUI (int instanceId, Rect selectionRect)
+        {
+			GameObject go = (GameObject)EditorUtility.InstanceIDToObject(instanceId);
+            if (!go)
+            {
+                return;
+            }
 
 			Rect rect = new Rect(selectionRect.x-25f, selectionRect.y+2, 15f, 15f);
 
@@ -51,9 +62,12 @@ namespace DragonBones
 			UnityUGUIDisplay ugui = go.GetComponent<UnityUGUIDisplay>();
 			if(ugui && ugui.sharedMesh)
 			{
-				if(ugui.sharedMesh.vertexCount==4){
+				if(ugui.sharedMesh.vertexCount==4)
+                {
 					GUI.Label(rect,textureImg);
-				}else{
+				}
+                else
+                {
 					GUI.Label(rect,textureMesh);
 				}
 				return;
@@ -65,9 +79,12 @@ namespace DragonBones
 				mf.transform.parent.parent!=null &&
 				mf.transform.parent.parent.GetComponent<UnityArmatureComponent>()!=null)
 			{
-				if(mf.sharedMesh.vertexCount==4){
+				if(mf.sharedMesh.vertexCount==4)
+                {
 					GUI.Label(rect,textureImg);
-				}else{
+				}
+                else
+                {
 					GUI.Label(rect,textureMesh);
 				}
 				return;

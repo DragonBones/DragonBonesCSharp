@@ -960,15 +960,15 @@ namespace DragonBones
                         {
                             if (i < this._valueOffset)
                             {
-                                result[i] += (frameFloatArray[this._frameFloatOffset + i] - result[i]) * fadeProgress;
+                                this.slot._ffdVertices[i] += (frameFloatArray[this._frameFloatOffset + i] - this.slot._ffdVertices[i]) * fadeProgress;
                             }
                             else if (i < this._valueOffset + this._valueCount)
                             {
-                                result[i] += (this._result[i - this._valueOffset] - result[i]) * fadeProgress;
+                                this.slot._ffdVertices[i] += (this._result[i - this._valueOffset] - this.slot._ffdVertices[i]) * fadeProgress;
                             }
                             else
                             {
-                                result[i] += (frameFloatArray[this._frameFloatOffset + i - this._valueCount] - result[i]) * fadeProgress;
+                                this.slot._ffdVertices[i] += (frameFloatArray[this._frameFloatOffset + i - this._valueCount] - this.slot._ffdVertices[i]) * fadeProgress;
                             }
                         }
 
@@ -982,15 +982,15 @@ namespace DragonBones
                         {
                             if (i < this._valueOffset)
                             {
-                                result[i] = frameFloatArray[this._frameFloatOffset + i];
+                                this.slot._ffdVertices[i] = frameFloatArray[this._frameFloatOffset + i];
                             }
                             else if (i < this._valueOffset + this._valueCount)
                             {
-                                result[i] = this._result[i - this._valueOffset];
+                                this.slot._ffdVertices[i] = this._result[i - this._valueOffset];
                             }
                             else
                             {
-                                result[i] = frameFloatArray[this._frameFloatOffset + i - this._valueCount];
+                                this.slot._ffdVertices[i] = frameFloatArray[this._frameFloatOffset + i - this._valueCount];
                             }
                         }
 
@@ -999,13 +999,13 @@ namespace DragonBones
                 }
                 else
                 {
-                    this._ffdCount = result.Count; //
+                    this._ffdCount = this.slot._ffdVertices.Count; //
                     if (this._animationState._fadeState != 0 || this._animationState._subFadeState != 0)
                     {
                         var fadeProgress = (float)Math.Pow(this._animationState._fadeProgress, 2);
                         for (var i = 0; i < this._ffdCount; ++i)
                         {
-                            result[i] += (0.0f - result[i]) * fadeProgress;
+                            this.slot._ffdVertices[i] += (0.0f - this.slot._ffdVertices[i]) * fadeProgress;
                         }
 
                         this.slot._meshDirty = true;
@@ -1016,12 +1016,13 @@ namespace DragonBones
 
                         for (var i = 0; i < this._ffdCount; ++i)
                         {
-                            result[i] = 0.0f;
+                            this.slot._ffdVertices[i] = 0.0f;
                         }
 
                         this.slot._meshDirty = true;
                     }
                 }
+                
             }
         }
     }

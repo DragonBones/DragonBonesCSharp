@@ -334,12 +334,12 @@ namespace DragonBones
 
                         for (int i = 0, iV = verticesOffset, iU = uvOffset, l = vertexCount; i < l; ++i)
                         {
-                            this._vertices[i].x = floatArray[iV++];
-                            this._vertices[i].y = floatArray[iV++];
+                            this._vertices[i].x = floatArray[iV++] * 0.01f;
+                            this._vertices[i].y = floatArray[iV++] * 0.01f;
 
                             this._uvs[i].x = (currentTextureData.region.x + floatArray[iU++] * currentTextureData.region.width) / textureAtlasWidth;
-                            this._uvs[i].y = (currentTextureData.region.y + floatArray[iU++] * currentTextureData.region.height) / textureAtlasHeight;
-
+                            this._uvs[i].y = 1.0f - (currentTextureData.region.y + floatArray[iU++] * currentTextureData.region.height) / textureAtlasHeight;
+                            
                             this._vertices2[i] = this._vertices[i];
                         }
 
@@ -457,7 +457,7 @@ namespace DragonBones
 
             //
             var hasFFD = this._ffdVertices.Count > 0;
-            var meshData = this._meshData as MeshDisplayData;
+            var meshData = this._meshData;
             var weightData = meshData.weight;
             var meshDisplay = this._mesh;
 
@@ -465,10 +465,10 @@ namespace DragonBones
             var intArray = data.intArray;
             var floatArray = data.floatArray;
             var vertextCount = intArray[meshData.offset + (int)BinaryOffset.MeshVertexCount];
-            var weightFloatOffset = intArray[weightData.offset + (int)BinaryOffset.MeshWeightOffset];
 
             if (weightData != null)
             {
+                var weightFloatOffset = intArray[weightData.offset + 1/*(int)BinaryOffset.MeshWeightOffset*/];
                 int iD = 0, iB = weightData.offset + (int)BinaryOffset.WeigthBoneIndices + weightData.bones.Count, iV = weightFloatOffset, iF = 0;
                 Vector3[] vertices = new Vector3[vertextCount];
                 for (int i = 0; i < vertextCount; ++i)
@@ -502,6 +502,7 @@ namespace DragonBones
                 }
 
                 meshDisplay.vertices = vertices;
+                _vertices2 = vertices;
 
                 if (_renderer && _renderer.enabled)
                 {
@@ -513,10 +514,11 @@ namespace DragonBones
                 var vertexOffset = intArray[meshData.offset + (int)BinaryOffset.MeshFloatOffset];
 
                 Vector3[] vertices = new Vector3[vertextCount];
-                for (int i = 0, iV = vertexOffset, l = vertextCount; i < l; ++i)
+                for (int i = 0, iV = 0, iF = 0, l = vertextCount; i < l; ++i)
                 {
-                    vertices[i].x = floatArray[iV++] + this._ffdVertices[iV];
-                    vertices[i].y = floatArray[iV++] + this._ffdVertices[iV];
+
+                    vertices[i].x = (floatArray[vertexOffset + (iV++)] + this._ffdVertices[iF++]) * 0.01f;
+                    vertices[i].y = - (floatArray[vertexOffset + (iV++)] + this._ffdVertices[iF++]) * 0.01f;
                 }
 
                 meshDisplay.vertices = vertices;
@@ -527,11 +529,169 @@ namespace DragonBones
                 }
             }
         }
-        
+
+        protected override void _UpdateTransform(bool isSkinnedMesh)
+        {
+            if (isSkinnedMesh) // Identity transform.
+            {
+                this.UpdateGlobalTransform(); // Update transform.
+
+                if (_armature.flipX)
+                {
+                    _helpVector3.y = 180.0f;
+                }
+                else
+                {
+                    _helpVector3.y = 0.0f;
+                }
+
+                if (_armature.flipY)
+                {
+                    _helpVector3.x = 180.0f;
+                }
+                else
+                {
+                    _helpVector3.x = 0.0f;
+                }
+
+                _helpVector3.z = 0.0f;
+
+                _renderDisplay.transform.localPosition = new Vector3(0.0f, 0.0f, _renderDisplay.transform.localPosition.z);
+                _renderDisplay.transform.localEulerAngles = _helpVector3;
+                _renderDisplay.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+            }
+            else
+            {
+                this.UpdateGlobalTransform(); // Update transform.
+
+                var flipX = _armature.flipX;
+                var flipY = _armature.flipY;
+                var scaleX = flipX ? global.scaleX : -global.scaleX;
+                var scaleY = flipY ? global.scaleY : -global.scaleY;
+                var transform = _renderDisplay.transform;
+
+                _helpVector3.x = global.x;
+                _helpVector3.y = global.y;
+                _helpVector3.z = transform.localPosition.z;
+
+                /*if (flipX)
+                {
+                    _helpVector3.x = -_helpVector3.x;
+                }
+
+                if (flipY)
+                {
+                    _helpVector3.y = -_helpVector3.y;
+                }*/
+
+                transform.localPosition = _helpVector3;
+
+                /*if (scaleY >= 0.0f || _childArmature != null)
+                {
+                    _helpVector3.x = 0.0f;
+                }
+                else
+                {
+                    _helpVector3.x = 180.0f;
+                }
+
+                if (scaleX >= 0.0f || _childArmature != null)
+                {
+                    _helpVector3.y = 0.0f;
+                }
+                else
+                {
+                    _helpVector3.y = 180.0f;
+                }*/
+
+                if (flipY)
+                {
+                    _helpVector3.x = 180.0f;
+                }
+                else
+                {
+                    _helpVector3.x = 0.0f;
+                }
+
+                if (flipX)
+                {
+                    _helpVector3.y = 180.0f;
+                }
+                else
+                {
+                    _helpVector3.y = 0.0f;
+                }
+
+                _helpVector3.z = global.rotation * Transform.RAD_DEG;
+
+                if (flipX != flipY && _childArmature != null)
+                {
+                    _helpVector3.z = -_helpVector3.z;
+                }
+
+                transform.localEulerAngles = _helpVector3;
+
+                // Modify mesh skew. // TODO child armature skew.
+                if ((_display == _rawDisplay || _display == _meshDisplay) && _mesh != null)
+                {
+                    var dSkew = global.skew;
+                    var skewed = dSkew < -0.01f || 0.01f < dSkew;
+                    if (_skewed || skewed)
+                    {
+                        _skewed = skewed;
+
+                        var isPositive = global.scaleX >= 0.0f;
+                        var cos = Mathf.Cos(dSkew);
+                        var sin = Mathf.Sin(dSkew);
+
+                        for (int i = 0, l = _vertices.Length; i < l; ++i)
+                        {
+                            var x = _vertices[i].x;
+                            var y = _vertices[i].y;
+
+                            if (isPositive)
+                            {
+                                _vertices2[i].x = x + y * sin;
+                            }
+                            else
+                            {
+                                _vertices2[i].x = -x + y * sin;
+                            }
+
+                            _vertices2[i].y = y * cos;
+                        }
+
+                        _mesh.vertices = _vertices2;
+                        if (_renderer && _renderer.enabled)
+                        {
+                            _mesh.RecalculateBounds();
+                        }
+                    }
+                }
+
+                _helpVector3.x = scaleX >= 0.0f ? scaleX : -scaleX;
+                _helpVector3.y = scaleY >= 0.0f ? scaleY : -scaleY;
+                //_helpVector3.x = scaleX;
+                //_helpVector3.y = scaleY;
+                _helpVector3.z = 1.0f;
+
+                transform.localScale = _helpVector3;
+            }
+
+            if (childArmature != null)
+            {
+                childArmature.flipX = _proxy.armature.flipX;
+                childArmature.flipY = _proxy.armature.flipY;
+                UnityArmatureComponent unityArmature = (childArmature.proxy as UnityArmatureComponent);
+                unityArmature.addNormal = _proxy.addNormal;
+                unityArmature.boneHierarchy = _proxy.boneHierarchy;
+            }
+        }
+
         /**
         * @private
         */
-        override protected void _UpdateTransform(bool isSkinnedMesh)
+        protected void _UpdateTransform2(bool isSkinnedMesh)
         {
             if (isSkinnedMesh) // Identity transform.
             {
@@ -581,11 +741,6 @@ namespace DragonBones
                 if (flipY)
                 {
                     _helpVector3.y = -_helpVector3.y;
-                }
-
-                if (float.IsNaN(_helpVector3.x))
-                {
-                    int i = 0;
                 }
 
                 transform.localPosition = _helpVector3;
@@ -671,7 +826,7 @@ namespace DragonBones
 				unityArmature.boneHierarchy = _proxy.boneHierarchy;
 			}
 
-			UpdateNormal();
+			//UpdateNormal();
         }
 
 		public void UpdateNormal()

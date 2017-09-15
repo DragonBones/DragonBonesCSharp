@@ -642,7 +642,7 @@ namespace DragonBones
         {
             if (!string.IsNullOrEmpty(slotName) && value != null && !string.IsNullOrEmpty(value.name))
             {
-                if (!this.displays.ContainsKey(value.name))
+                if (!this.displays.ContainsKey(slotName))
                 {
                     this.displays[slotName] = new List<DisplayData>();
                 }

@@ -164,9 +164,9 @@ namespace DragonBones
             foreach (var bone in this.parent.sortedBones)
             {
                 var indices = new List<int>(cacheFrameCount);
-                for (int i = 0, l = indices.Count; i < l; ++i)
+                for (int i = 0, l = indices.Capacity; i < l; ++i)
                 {
-                    indices[i] = -1;
+                    indices.Add(-1);
                 }
 
                 this.boneCachedFrameIndices[bone.name] = indices;
@@ -175,9 +175,9 @@ namespace DragonBones
             foreach (var slot in this.parent.sortedSlots)
             {
                 var indices = new List<int>(cacheFrameCount);
-                for (int i = 0, l = indices.Count; i < l; ++i)
+                for (int i = 0, l = indices.Capacity; i < l; ++i)
                 {
-                    indices[i] = -1;
+                    indices.Add(-1);
                 }
 
                 this.slotCachedFrameIndices[slot.name] = indices;

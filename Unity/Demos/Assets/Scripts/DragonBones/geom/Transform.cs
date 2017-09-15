@@ -185,8 +185,12 @@ namespace DragonBones
 
             this.skew = skewX - this.rotation;
 
-            
-            if((int)(Math.Floor(Math.Abs(this.skew) * 100)) == (int)(Math.Floor(PI * 100)))
+            if ((int)(Math.Floor(Math.Abs(this.rotation) * 100)) == (int)(Math.Floor(PI * 100)))
+            {
+                this.rotation = 0.0f;
+            }
+
+            if ((int)(Math.Floor(Math.Abs(this.skew) * 100)) == (int)(Math.Floor(PI * 100)))
             {
                 this.skew = 0.0f;
             }

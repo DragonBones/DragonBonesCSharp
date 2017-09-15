@@ -794,9 +794,9 @@ namespace DragonBones
          */
         protected virtual void _ParseMesh(Dictionary<string, object> rawData, MeshDisplayData mesh)
         {
-            var rawVertices = rawData[ObjectDataParser.VERTICES] as List<object>;//float
-            var rawUVs = rawData[ObjectDataParser.UVS] as List<object>;//float
-            var rawTriangles = rawData[ObjectDataParser.TRIANGLES] as List<object>;//uint
+            var rawVertices = (rawData[ObjectDataParser.VERTICES] as List<object>).ConvertAll<float>(Convert.ToSingle);//float
+            var rawUVs = (rawData[ObjectDataParser.UVS] as List<object>).ConvertAll<float>(Convert.ToSingle);//float
+            var rawTriangles = (rawData[ObjectDataParser.TRIANGLES] as List<object>).ConvertAll<short>(Convert.ToInt16);//uint
             var vertexCount = (rawVertices.Count / 2); // uint
             var triangleCount = (rawTriangles.Count / 3); // uint
             var vertexOffset = this._floatArray.Count;
@@ -810,21 +810,21 @@ namespace DragonBones
 
             for (int i = 0, l = triangleCount * 3; i < l; ++i)
             {
-                this._intArray[mesh.offset + (int)BinaryOffset.MeshVertexIndices + i] = (short)rawTriangles[i];
+                this._intArray[mesh.offset + (int)BinaryOffset.MeshVertexIndices + i] = rawTriangles[i];
             }
 
             this._floatArray.ResizeList(this._floatArray.Count + vertexCount * 2 + vertexCount * 2, 0.0f);
             for (int i = 0, l = vertexCount * 2; i < l; ++i)
             {
-                this._floatArray[vertexOffset + i] = (float)rawVertices[i];
-                this._floatArray[uvOffset + i] = (float)rawUVs[i];
+                this._floatArray[vertexOffset + i] = rawVertices[i];
+                this._floatArray[uvOffset + i] = rawUVs[i];
             }
 
             if (rawData.ContainsKey(ObjectDataParser.WEIGHTS))
             {
-                var rawWeights = rawData[ObjectDataParser.WEIGHTS] as List<float>;
-                var rawSlotPose = rawData[ObjectDataParser.SLOT_POSE] as List<float>;
-                var rawBonePoses = rawData[ObjectDataParser.BONE_POSE] as List<float>;
+                var rawWeights = (rawData[ObjectDataParser.WEIGHTS] as List<object>).ConvertAll<float>(Convert.ToSingle); // float;
+                var rawSlotPose = (rawData[ObjectDataParser.SLOT_POSE] as List<object>).ConvertAll<float>(Convert.ToSingle); // float;
+                var rawBonePoses = (rawData[ObjectDataParser.BONE_POSE] as List<object>).ConvertAll<float>(Convert.ToSingle); //float ;
                 var weightBoneIndices = new List<uint>();
                 var weightBoneCount = rawBonePoses.Count / 7; // uint
                 var floatOffset = this._floatArray.Count;
@@ -847,7 +847,7 @@ namespace DragonBones
 
                     this._intArray[weight.offset + (int)BinaryOffset.WeigthBoneIndices + i] = (short)this._armature.sortedBones.IndexOf(bone);
                 }
-
+                
                 this._floatArray.ResizeList(this._floatArray.Count + weight.count * 3, 0.0f);
                 this._helpMatrixA.CopyFromArray(rawSlotPose, 0);
 
@@ -855,7 +855,7 @@ namespace DragonBones
                 for (int i = 0, iW = 0, iB = weight.offset + (int)BinaryOffset.WeigthBoneIndices + weightBoneCount, iV = floatOffset; i < vertexCount; ++i)
                 {
                     var iD = i * 2;
-                    var vertexBoneCount = this._intArray[iB++] = (short)rawWeights[iW++]; // uint
+                    var vertexBoneCount = this._intArray[iB++] = short.Parse(rawWeights[iW++].ToString()); // uint
 
                     var x = this._floatArray[vertexOffset + iD];
                     var y = this._floatArray[vertexOffset + iD + 1];

@@ -18,9 +18,9 @@ namespace performanceTest
             {
                 for (var x = 0; x < lX; ++x)
                 {
-					var armatureComponent = UnityFactory.factory.BuildArmatureComponent("centaur/charactor","skeleton");
-                    armatureComponent.armature.cacheFrameRate = 30; // Cache animation.
-                    armatureComponent.animation.Play("run");
+					var armatureComponent = UnityFactory.factory.BuildArmatureComponent("DragonBoy");
+                    armatureComponent.armature.cacheFrameRate = 24; // Cache animation.
+                    armatureComponent.animation.Play("walk");
                     armatureComponent.transform.localPosition = new Vector3((x - lX * 0.5f) * 1.0f, (y - lY * 0.5f) * 1.0f, x + lX * y * 0.01f);
                 }
             }
