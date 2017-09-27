@@ -4,12 +4,12 @@ using UnityEditor;
 using UnityEditorInternal;
 using System.Reflection;
 using UnityEditor.SceneManagement;
-using System.Text.RegularExpressions;
 
 namespace DragonBones
 {
-	[CustomEditor(typeof(UnityArmatureComponent))]
-	public class UnityArmatureEditor : Editor {
+    [CustomEditor(typeof(UnityArmatureComponent))]
+	public class UnityArmatureEditor : Editor
+    {
 		
 		private int _armatureIndex = -1;
 		private int _animationIndex = -1;
@@ -168,7 +168,7 @@ namespace DragonBones
 				if (_animationNames != null && _animationNames.Count > 0)
 				{
 					EditorGUILayout.BeginHorizontal();
-					List<string> anims=new List<string>(_animationNames);
+					List<string> anims = new List<string>(_animationNames);
 					anims.Insert(0,"<None>");
 					var animationIndex = EditorGUILayout.Popup("Animation", _animationIndex+1, anims.ToArray())-1;
 					if (animationIndex != _animationIndex)
@@ -185,7 +185,9 @@ namespace DragonBones
 							_armatureComponent.animationName = null;
 							_armatureComponent.animation.Stop();
 						}
+
 						EditorUtility.SetDirty(_armatureComponent);
+
 						if (!Application.isPlaying && !_IsPrefab())
                         {
 							EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
@@ -239,6 +241,7 @@ namespace DragonBones
 								EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
 							}
 						}
+
 						if(_armatureComponent.sortingMode ==  SortingMode.SortByZ)
                         {
 							// Sorting Order
@@ -276,7 +279,7 @@ namespace DragonBones
 				_armatureComponent.flipY = GUILayout.Toggle(_armatureComponent.flipY, "Y",GUILayout.Width(30));
 				_armatureComponent.armature.flipX = _armatureComponent.flipX;
 				_armatureComponent.armature.flipY = _armatureComponent.flipY;
-				if(_armatureComponent.flipX!=flipX || _armatureComponent.flipY!=flipY)
+				if(_armatureComponent.flipX != flipX || _armatureComponent.flipY != flipY)
                 {
 					EditorUtility.SetDirty(_armatureComponent);
 					if (!Application.isPlaying && !_IsPrefab())
@@ -359,7 +362,7 @@ namespace DragonBones
 		{
 			if (_armatureComponent.armature != null)
 			{
-				if(_armatureComponent.armature.armatureData.parent!=null)
+				if(_armatureComponent.armature.armatureData.parent != null)
 				{
 					_armatureNames = _armatureComponent.armature.armatureData.parent.armatureNames;
 					_animationNames = _armatureComponent.armature.armatureData.animationNames;

@@ -17,7 +17,7 @@ namespace DragonBones
         /**
          * @private
          */
-        public OffsetMode offsetMode;
+        internal OffsetMode offsetMode;
         /**
          * @internal
          * @private
@@ -71,7 +71,7 @@ namespace DragonBones
          * @internal
          * @private
          */
-        public List<int> _cachedFrameIndices = new List<int>();
+        internal List<int> _cachedFrameIndices = new List<int>();
         /**
          * @private
          */
@@ -327,7 +327,7 @@ namespace DragonBones
          * @internal
          * @private
          */
-        public void Init(BoneData boneData)
+        internal void Init(BoneData boneData)
         {
             if (this.boneData != null)
             {

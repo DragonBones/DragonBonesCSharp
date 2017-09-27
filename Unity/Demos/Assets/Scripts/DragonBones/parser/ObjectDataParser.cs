@@ -205,13 +205,13 @@ namespace DragonBones
         /**
          * @private
          */
-        private void _SamplingEasingCurve(float[] curve, float[] samples)
+        private void _SamplingEasingCurve(float[] curve, List<float> samples)
         {
             var curveCount = curve.Length;
             var stepIndex = -2;
-            for (int i = 0, l = samples.Length; i < l; ++i)
+            for (int i = 0, l = samples.Count; i < l; ++i)
             {
-                var t = (i + 1) / (l + 1);
+                var t = ((float)i + 1.0f) / ((float)l + 1.0f);
                 while ((stepIndex + 6 < curveCount ? curve[stepIndex + 6] : 1) < t)
                 {
                     // stepIndex + 3 * 2
@@ -938,7 +938,7 @@ namespace DragonBones
 
             if (rawData.ContainsKey(ObjectDataParser.VERTICES))
             {
-                var rawVertices = rawData[ObjectDataParser.VERTICES] as List<float>;
+                var rawVertices = (rawData[ObjectDataParser.VERTICES] as List<object>).ConvertAll<float>(Convert.ToSingle);
 
                 polygonBoundingBox.vertices.ResizeList(rawVertices.Count, 0.0f);
 
@@ -1089,7 +1089,7 @@ namespace DragonBones
 
             if (this._actionFrames.Count > 0)
             {
-                this._actionFrames.Sort();
+                this._actionFrames.Sort(this._SortActionFrame);
 
                 var timeline = this._animation.actionTimeline = BaseObject.BorrowObject<TimelineData>();
                 var keyFrameCount = this._actionFrames.Count;
@@ -1409,7 +1409,7 @@ namespace DragonBones
                     {
                         curve[i] = Convert.ToSingle(rawCurve[i]);
                     }
-                    this._SamplingEasingCurve(curve, this._helpArray.ToArray());
+                    this._SamplingEasingCurve(curve, this._helpArray);
 
                     this._frameArray.ResizeList(this._frameArray.Count + 1 + 1 + this._helpArray.Count, (short)0);
                     this._frameArray[frameOffset + (int)BinaryOffset.FrameTweenType] = (int)TweenType.Curve;
@@ -1475,7 +1475,7 @@ namespace DragonBones
 
             if (rawData.ContainsKey(ObjectDataParser.Z_ORDER))
             {
-                var rawZOrder = rawData[ObjectDataParser.Z_ORDER] as List<int>;
+                var rawZOrder = (rawData[ObjectDataParser.Z_ORDER] as List<object>).ConvertAll<int>(Convert.ToInt32);
 
                 if (rawZOrder.Count > 0)
                 {
@@ -1737,7 +1737,7 @@ namespace DragonBones
         {
             var frameFloatOffset = this._frameFloatArray.Count;
             var frameOffset = this._ParseTweenFrame(rawData, frameStart, frameCount);
-            var rawVertices = rawData.ContainsKey(ObjectDataParser.VERTICES) ? rawData[ObjectDataParser.VERTICES] as List<float> : null;
+            var rawVertices = rawData.ContainsKey(ObjectDataParser.VERTICES) ? (rawData[ObjectDataParser.VERTICES] as List<object>).ConvertAll<float>(Convert.ToSingle) : null;
             var offset = ObjectDataParser._GetNumber(rawData, ObjectDataParser.OFFSET, 0); // uint
             var vertexCount = this._intArray[this._mesh.offset + (int)BinaryOffset.MeshVertexCount];
 
@@ -1750,12 +1750,12 @@ namespace DragonBones
             {
                 var rawSlotPose = this._weightSlotPose[this._mesh.name];
                 this._helpMatrixA.CopyFromArray(rawSlotPose, 0);
-                this._frameFloatArray.ResizeList(this._frameFloatArray.Count + this._mesh.weight.count * 2);
+                this._frameFloatArray.ResizeList(this._frameFloatArray.Count + (this._mesh.weight.count * 2));
                 iB = this._mesh.weight.offset + (int)BinaryOffset.WeigthBoneIndices + this._mesh.weight.bones.Count;
             }
             else
             {
-                this._frameFloatArray.ResizeList(this._frameFloatArray.Count + vertexCount * 2);
+                this._frameFloatArray.ResizeList(this._frameFloatArray.Count + (vertexCount * 2));
             }
 
             for ( var i = 0; i < vertexCount * 2; i += 2 )
@@ -1900,7 +1900,7 @@ namespace DragonBones
                             action.data = BaseObject.BorrowObject<UserData>();
                         }
 
-                        var rawInts = rawAction[ObjectDataParser.INTS] as List<int>;
+                        var rawInts = (rawAction[ObjectDataParser.INTS] as List<object>).ConvertAll<int>(Convert.ToInt32);
                         foreach (var rawValue in rawInts)
                         {
                             action.data.ints.Add(rawValue);
@@ -1914,7 +1914,7 @@ namespace DragonBones
                             action.data = BaseObject.BorrowObject<UserData>();
                         }
 
-                        var rawFloats = rawAction[ObjectDataParser.FLOATS] as List<float>;
+                        var rawFloats = (rawAction[ObjectDataParser.FLOATS] as List<object>).ConvertAll<float>(Convert.ToSingle);
                         foreach (var rawValue in rawFloats)
                         {
                             action.data.floats.Add(rawValue);

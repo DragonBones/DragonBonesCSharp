@@ -16,7 +16,8 @@ namespace DragonBones
         {
             if (!isStarted)
             {
-                UnityFactory._clock.AdvanceTime(Time.deltaTime);
+                //UnityFactory._clock.AdvanceTime(Time.deltaTime);
+                UnityFactory.factory._dragonBones.AdvanceTime(Time.deltaTime);
                 //isStarted = true;
             }
         }
@@ -28,12 +29,14 @@ namespace DragonBones
      */
     public class UnityFactory : BaseFactory
     {
-        private static IEventDispatcher<EventObject> _eventManager = null;
-        private static GameObject _gameObject = null;
         /**
-         * @private
+         * @language zh_CN
+         * 创建材质时默认使用的 shader。
+         * @version DragonBones 4.7
          */
-        internal static readonly WorldClock _clock = new WorldClock();
+        public const string defaultShaderName = "Sprites/Default";
+        public const string defaultUIShaderName = "UI/Default";
+
         /**
          * @language zh_CN
          * 一个可以直接使用的全局工厂实例。
@@ -41,16 +44,15 @@ namespace DragonBones
          */
         public static readonly UnityFactory factory = new UnityFactory();
         /**
-         * @language zh_CN
-         * 创建材质时默认使用的 shader。
-         * @version DragonBones 4.7
+         * @private
          */
-        public string defaultShaderName = "Sprites/Default";
-        public string defaultUIShaderName = "UI/Default";
-
-        private string _textureAtlasPath = null;
+        internal static readonly WorldClock _clock = new WorldClock();
+        private GameObject _gameObject = null;
+        private IEventDispatcher<EventObject> _eventManager = null;        
+        
         private GameObject _armatureGameObject = null;
         private bool _isUGUI = false;
+
         private readonly Dictionary<string, DragonBonesData> _pathDragonBonesDataMap = new Dictionary<string, DragonBonesData>();
         private readonly Dictionary<string, TextureAtlasData> _pathTextureAtlasDataMap = new Dictionary<string, TextureAtlasData>();
         /**
@@ -61,6 +63,30 @@ namespace DragonBones
          */
         public UnityFactory(DataParser dataParser = null) : base(dataParser)
         {
+            Init();
+        }
+
+        private void Init()
+        {
+            if (_gameObject == null)
+            {
+                _gameObject = new GameObject("DragonBones Object", typeof(ClockHandler));
+                _gameObject.isStatic = true;
+                //_gameObject.hideFlags = HideFlags.HideInHierarchy;
+            }
+
+            if (_eventManager == null)
+            {
+                //_eventManager = _gameObject.AddComponent<UnityArmatureComponent>();
+                _eventManager = _gameObject.AddComponent<DragonBoneEventDispatcher>();
+                //(_eventManager as UnityArmatureComponent).isUGUI = _isUGUI;
+            }
+
+            if (_dragonBones == null)
+            {
+                _dragonBones = new DragonBones(_eventManager);
+                DragonBones.yDown = false;
+            }
         }
         /**
          * @private
@@ -95,14 +121,20 @@ namespace DragonBones
         {
             if (Application.isPlaying) //
             {
-                if (_gameObject == null)
+                //Init();
+                /*if (_gameObject == null)
                 {
                     _gameObject = new GameObject("DragonBones Object", typeof(ClockHandler));
                     _gameObject.isStatic = true;
                     _gameObject.hideFlags = HideFlags.HideInHierarchy;
-                }
+                }*/
 
-                if (_eventManager == null)
+                /*if (_eventManager != null)
+                {
+                    (_eventManager as UnityArmatureComponent).isUGUI = _isUGUI;
+                }*/
+
+                /*if (_eventManager == null)
                 {
                     _eventManager = _gameObject.AddComponent<UnityArmatureComponent>();
                     (_eventManager as UnityArmatureComponent).isUGUI = _isUGUI;
@@ -113,7 +145,7 @@ namespace DragonBones
                     _dragonBones = new DragonBones(_eventManager);
 
                     DragonBones.yDown = false;
-                }
+                }*/
             }
 
             var armature = BaseObject.BorrowObject<Armature>();
@@ -150,7 +182,7 @@ namespace DragonBones
             {
                 gameObject = new GameObject(slotData.name);
             }
-
+            
             slot.Init(slotData, displays, gameObject, gameObject);
 
             for (int i = 0, l = displays.Count; i < l; ++i)
@@ -401,6 +433,9 @@ namespace DragonBones
         public override void Clear(bool disposeData = true)
         {
             base.Clear(disposeData);
+            
+            _armatureGameObject = null;
+            _isUGUI = false;
 
             _pathDragonBonesDataMap.Clear();
             _pathTextureAtlasDataMap.Clear();
@@ -416,14 +451,15 @@ namespace DragonBones
          * @see DragonBones.UnityArmatureComponent
          * @version DragonBones 4.5
          */
-		public UnityArmatureComponent BuildArmatureComponent(string armatureName, string dragonBonesName = null, string skinName = null, string textureAtlasName = null, GameObject gameObject = null,bool isUGUI=false)
+		public UnityArmatureComponent BuildArmatureComponent(string armatureName, string dragonBonesName = null, string skinName = null, string textureAtlasName = null, GameObject gameObject = null,bool isUGUI = false)
         {
             _armatureGameObject = gameObject;
 			_isUGUI = isUGUI;
             var armature = BuildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
             if (armature != null)
             {
-                _clock.Add(armature);
+                _dragonBones.clock.Add(armature);
+                //_clock.Add(armature);
 
                 var armatureDisplay = armature.display as GameObject;
                 var armatureComponent = armatureDisplay.GetComponent<UnityArmatureComponent>();
@@ -712,7 +748,8 @@ namespace DragonBones
                     }
                 }
 
-                if (prevDispalyData == null || prevDispalyData.type != DisplayType.Image || prevDispalyData.type != DisplayType.Mesh)
+                //QQQ
+                if (prevDispalyData == null || !(prevDispalyData is ImageDisplayData))
                 {
                     return;
                 }
@@ -741,11 +778,12 @@ namespace DragonBones
 
                 material.mainTexture = texture;
 
-                ImageDisplayData newDisplayData = prevDispalyData is ImageDisplayData ? new ImageDisplayData() : new MeshDisplayData();
+                ImageDisplayData newDisplayData = prevDispalyData is MeshDisplayData ? new MeshDisplayData() : new ImageDisplayData();
                 newDisplayData.type = prevDispalyData.type;
                 newDisplayData.name = prevDispalyData.name;
                 newDisplayData.path = prevDispalyData.path;
                 newDisplayData.transform.CopyFrom(prevDispalyData.transform);
+                newDisplayData.parent = prevDispalyData.parent;
                 newDisplayData.pivot.CopyFrom((prevDispalyData as ImageDisplayData).pivot);
                 newDisplayData.texture = newTextureData;
 

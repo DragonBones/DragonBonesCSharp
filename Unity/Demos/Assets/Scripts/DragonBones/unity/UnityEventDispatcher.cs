@@ -85,4 +85,9 @@ namespace DragonBones
             }
         }
     }
+
+    public class DragonBoneEventDispatcher : UnityEventDispatcher<EventObject>
+    {
+
+    }
 }

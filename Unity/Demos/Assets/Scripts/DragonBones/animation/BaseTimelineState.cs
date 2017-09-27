@@ -282,9 +282,10 @@ namespace DragonBones
             var segmentCount = count + 1; // + 2 - 1
             var valueIndex = (int)Math.Floor(progress * segmentCount);
             var fromValue = valueIndex == 0 ? 0.0f : samples[offset + valueIndex - 1];
+
             var toValue = (valueIndex == segmentCount - 1) ? 10000.0f : samples[offset + valueIndex];
 
-            return (fromValue + (toValue - fromValue) * (progress* segmentCount - valueIndex)) * 0.0001f;
+            return (fromValue + (toValue - fromValue) * (progress * segmentCount - valueIndex)) * 0.0001f;
         }
 
         protected TweenType _tweenType;
@@ -393,5 +394,5 @@ namespace DragonBones
 
             this.slot = null; //
         }
-}
+    }
 }

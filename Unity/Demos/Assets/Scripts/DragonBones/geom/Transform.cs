@@ -94,13 +94,13 @@ namespace DragonBones
          */
         public override string ToString()
         {
-            return "[object dragonBones.Transform] x:" + this.x + " y:" + this.y + " skewX:" + this.skew* 180.0 / PI + " skewY:" + this.rotation* 180.0 / PI + " scaleX:" + this.scaleX + " scaleY:" + this.scaleY;
+            return "[object dragonBones.Transform] x:" + this.x + " y:" + this.y + " skew:" + this.skew* 180.0 / PI + " rotation:" + this.rotation* 180.0 / PI + " scaleX:" + this.scaleX + " scaleY:" + this.scaleY;
         }
 
         /**
          * @private
          */
-        public Transform CopyFrom(Transform value)
+        internal Transform CopyFrom(Transform value)
         {
             this.x = value.x;
             this.y = value.y;
@@ -115,7 +115,7 @@ namespace DragonBones
         /**
          * @private
          */
-        public Transform Identity()
+        internal Transform Identity()
         {
             this.x = this.y = 0.0f;
             this.skew = this.rotation = 0.0f;
@@ -127,7 +127,7 @@ namespace DragonBones
         /**
          * @private
          */
-        public Transform Add(Transform value)
+        internal Transform Add(Transform value)
         {
             this.x += value.x;
             this.y += value.y;
@@ -142,7 +142,7 @@ namespace DragonBones
         /**
          * @private
          */
-        public Transform Minus(Transform value)
+        internal Transform Minus(Transform value)
         {
             this.x -= value.x;
             this.y -= value.y;
@@ -157,19 +157,19 @@ namespace DragonBones
         /**
          * @private
          */
-        public Transform FromMatrix(Matrix matrix)
+        internal Transform FromMatrix(Matrix matrix)
         {
             var backupScaleX = this.scaleX;
             var backupScaleY = this.scaleY;
-            var PI_Q = Transform.PI_Q;
 
             this.x = matrix.tx;
             this.y = matrix.ty;
-            this.rotation = (float)Math.Atan(matrix.b / matrix.a);
-            var skewX = (float)Math.Atan(-matrix.c / matrix.d);
 
-            this.scaleX = (this.rotation > -PI_Q && this.rotation < PI_Q) ? matrix.a / (float)Math.Cos(this.rotation) : matrix.b / (float)Math.Sin(this.rotation);
-            this.scaleY = (skewX > -PI_Q && skewX < PI_Q) ? matrix.d / (float)Math.Cos(skewX) : -matrix.c / (float)Math.Sin(skewX);
+            var skewX = (float)Math.Atan(-matrix.c / matrix.d);
+            this.rotation = (float)Math.Atan(matrix.b / matrix.a);
+
+            this.scaleX = (float)((this.rotation > -PI_Q && this.rotation < PI_Q) ? matrix.a / Math.Cos(this.rotation) : matrix.b / Math.Sin(this.rotation));
+            this.scaleY = (float)((skewX > -PI_Q && skewX < PI_Q) ? matrix.d / Math.Cos(skewX) : -matrix.c / Math.Sin(skewX));
 
             if (backupScaleX >= 0.0f && this.scaleX < 0.0f)
             {
@@ -185,15 +185,18 @@ namespace DragonBones
 
             this.skew = skewX - this.rotation;
 
-            if ((int)(Math.Floor(Math.Abs(this.rotation) * 100)) == (int)(Math.Floor(PI * 100)))
+            if ((int)(Math.Floor(Math.Abs(this.rotation) * 100)) % (int)(Math.Floor(PI * 100)) == 0)
             {
-                this.rotation = 0.0f;
+                //this.rotation = 0.0f;
             }
 
-            if ((int)(Math.Floor(Math.Abs(this.skew) * 100)) == (int)(Math.Floor(PI * 100)))
+            if ((int)(Math.Floor(Math.Abs(this.skew) * 100)) % (int)(Math.Floor(PI * 100)) == 0)
             {
                 this.skew = 0.0f;
             }
+
+            this.rotation = NormalizeRadian(this.rotation);
+            this.skew = NormalizeRadian(this.skew);
 
             return this;
         }

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
-using System.Collections;
 using DragonBones;
+
 public class ReplaceDisplayTextureTest : MonoBehaviour 
 {
 	public string dragonBonesName,armatureName,slotName,displayName;

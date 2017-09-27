@@ -3,7 +3,7 @@
 namespace DragonBones
 {
     [DisallowMultipleComponent]
-	public class UnityBone :MonoBehaviour
+	public class UnityBone : MonoBehaviour
     {		
 		private static Vector3 _helpVector3 = new Vector3();
 		internal UnityArmatureComponent _proxy;

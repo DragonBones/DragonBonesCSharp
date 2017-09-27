@@ -173,6 +173,8 @@ namespace DragonBones
          */
         protected override void _OnClear()
         {
+            base._OnClear();
+
             var disposeDisplayList = new List<object>();
             for (int i = 0, l = _displayList.Count; i < l; ++i)
             {
@@ -621,7 +623,7 @@ namespace DragonBones
             if (this._armature == value)
             {
                 return;
-             }
+            }
 
             if (this._armature != null)
             {
@@ -717,12 +719,10 @@ namespace DragonBones
                 { 
                     // Retain input render displays.
                     var eachDisplay = value[i];
-                    if (
-                        eachDisplay != null &&
+                    if (eachDisplay != null &&
                         eachDisplay != this._rawDisplay &&
                         eachDisplay != this._meshDisplay &&
-                        !(eachDisplay is Armature) &&
-                        this._displayList.IndexOf(eachDisplay) < 0)
+                        !(eachDisplay is Armature) && this._displayList.IndexOf(eachDisplay) < 0)
                     {
                         this._InitDisplay(eachDisplay);
                     }

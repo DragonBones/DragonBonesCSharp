@@ -25,6 +25,14 @@ namespace DragonBones
     public abstract class BaseFactory
     {
         /**
+         * @private
+         */
+        protected static ObjectDataParser _objectParser = null;
+        /**
+         * @private
+         */
+        protected static BinaryDataParser _binaryParser = null;
+        /**
          * 是否开启共享搜索。
          * 如果开启，创建一个骨架时，可以从多个龙骨数据中寻找骨架数据，或贴图集数据中寻找贴图数据。 (通常在有共享导出的数据时开启)
          * @see dragonBones.DragonBonesData#autoSearch
@@ -36,14 +44,6 @@ namespace DragonBones
         /**
          * @private
          */
-        protected static ObjectDataParser _objectParser = null;
-        /**
-         * @private
-         */
-        protected static BinaryDataParser _binaryParser = null;
-        /**
-         * @private
-         */
         protected readonly Dictionary<string, DragonBonesData> _dragonBonesDataMap = new Dictionary<string, DragonBonesData>();
         /**
          * @private
@@ -52,7 +52,7 @@ namespace DragonBones
         /** 
          * @private 
          */
-        protected DragonBones _dragonBones = null;
+        internal DragonBones _dragonBones = null;
         /**
          * @private
          */

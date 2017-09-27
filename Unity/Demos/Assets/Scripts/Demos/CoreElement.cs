@@ -4,8 +4,7 @@ using DragonBones;
 
 namespace coreElement
 {
-    [RequireComponent(typeof(UnityArmatureComponent))]
-    class CoreElement : MonoBehaviour
+    public class CoreElement : MonoBehaviour
     {
         private const string NORMAL_ANIMATION_GROUP = "normal";
         private const string AIM_ANIMATION_GROUP = "aim";
@@ -17,8 +16,8 @@ namespace coreElement
         private const float NORMALIZE_MOVE_SPEED = 0.03f;
         private const float MAX_MOVE_SPEED_FRONT = NORMALIZE_MOVE_SPEED * 1.4f;
         private const float MAX_MOVE_SPEED_BACK = NORMALIZE_MOVE_SPEED * 1.0f;
-        private static readonly string[] WEAPON_LEFT_LIST = { "weapon_1502b_l", "weapon_1005", "weapon_1005b", "weapon_1005c", "weapon_1005d" };
-        private static readonly string[] WEAPON_RIGHT_LIST = { "weapon_1502b_r", "weapon_1005", "weapon_1005b", "weapon_1005c", "weapon_1005d", "weapon_1005e" };
+        private static readonly string[] WEAPON_LEFT_LIST = { "weapon_1502b_l", "weapon_1005", "weapon_1005b", "weapon_1005c", "weapon_1005d", "weapon_1005e" };
+        private static readonly string[] WEAPON_RIGHT_LIST = { "weapon_1502b_r", "weapon_1005", "weapon_1005b", "weapon_1005c", "weapon_1005d" };
         
         public KeyCode left = KeyCode.A;
         public KeyCode right = KeyCode.D;
@@ -49,23 +48,41 @@ namespace coreElement
         private Vector2 _speed = new Vector2();
         private Vector2 _target = new Vector2();
 
+        //
+        [SerializeField]
+        private UnityDragonBonesData dragonBoneData;
+        [SerializeField]
+        private UnityDragonBonesData skinData;
+        [SerializeField]
+        private UnityDragonBonesData weaponData;
+
         void Start()
         {
-            _armatureComponent = this.gameObject.GetComponent<UnityArmatureComponent>();
+            UnityFactory.factory.autoSearch = true;
+            UnityFactory.factory.LoadData(skinData);
+            UnityFactory.factory.LoadData(weaponData);
+            UnityFactory.factory.LoadData(dragonBoneData);
+
+            _armatureComponent = UnityFactory.factory.BuildArmatureComponent("mecha_1502b");
+
             _armatureComponent.AddEventListener(EventObject.FADE_IN_COMPLETE, _animationEventHandler);
             _armatureComponent.AddEventListener(EventObject.FADE_OUT_COMPLETE, _animationEventHandler);
             
             // Effects only controled by normalAnimation.
-            _armatureComponent.armature.GetSlot("effects_1").displayController = NORMAL_ANIMATION_GROUP;
-            _armatureComponent.armature.GetSlot("effects_2").displayController = NORMAL_ANIMATION_GROUP;
+            //_armatureComponent.armature.GetSlot("effects_1").displayController = NORMAL_ANIMATION_GROUP;
+            //_armatureComponent.armature.GetSlot("effects_2").displayController = NORMAL_ANIMATION_GROUP;
 
             // Get weapon childArmature.
             _weaponLeft = _armatureComponent.armature.GetSlot("weapon_l").childArmature;
             _weaponRight = _armatureComponent.armature.GetSlot("weapon_r").childArmature;
+
             _weaponLeft.proxy.AddEventListener(EventObject.FRAME_EVENT, _frameEventHandler);
             _weaponRight.proxy.AddEventListener(EventObject.FRAME_EVENT, _frameEventHandler);
 
             _armatureComponent.animation.Reset();
+            _armatureComponent.animation.Play("idle");
+            //_armatureComponent.animation.timeScale = 0.01f;
+            _armatureComponent.armature.flipX = true;
 
             _updateAnimation();
         }
@@ -152,12 +169,12 @@ namespace coreElement
 
         private void _frameEventHandler(string type, EventObject eventObject)
         {
-            if (eventObject.name == "onFire")
+            if (eventObject.name == "fire")
             {
-                var firePointBone = eventObject.armature.GetBone("firePoint");
-                var localPoint = new Vector3(eventObject.armature.flipX ? -firePointBone.global.x : firePointBone.global.x, -firePointBone.global.y, 0.0f);
-                var globalPoint = (eventObject.armature.display as GameObject).transform.worldToLocalMatrix.inverse.MultiplyPoint(localPoint);
-                _fire(globalPoint);
+                var transform = (eventObject.armature.display as GameObject).transform;
+                var localPoint = new Vector3(eventObject.bone.global.x, -eventObject.bone.global.y, 0.0f);
+                var globalPoint = transform.worldToLocalMatrix.inverse.MultiplyPoint(localPoint);
+                this._fire(globalPoint);
             }
         }
 
@@ -259,7 +276,7 @@ namespace coreElement
             var radian = _faceDir < 0 ? Mathf.PI - _aimRadian : _aimRadian;
             bulletArmatureComonponnet.animation.timeScale = _armatureComponent.animation.timeScale;
             bulletComonponnet.transform.position = firePoint;
-            bulletComonponnet.Init("fireEffect_01", radian + Random.Range(-0.01f, 0.01f), 0.4f);
+            bulletComonponnet.Init("fire_effect_01", radian + Random.Range(-0.01f, 0.01f), 0.4f);
         }
 
         private void _updateAnimation()
@@ -288,24 +305,25 @@ namespace coreElement
                 if (_walkState == null)
                 {
                     _walkState = _armatureComponent.animation.FadeIn("walk", -1.0f, -1, 0, NORMAL_ANIMATION_GROUP);
+                    this._walkState.resetToPose = false;
                 }
-
-                if (_moveDir * _faceDir > 0.0f)
+                
+                if (this._moveDir * this._faceDir > 0.0f)
                 {
-                    _walkState.timeScale = MAX_MOVE_SPEED_FRONT / NORMALIZE_MOVE_SPEED;
-                }
-                else
-                {
-                    _walkState.timeScale = -MAX_MOVE_SPEED_BACK / NORMALIZE_MOVE_SPEED;
-                }
-
-                if (_moveDir * _faceDir > 0.0f)
-                {
-                    _speed.x = MAX_MOVE_SPEED_FRONT * _faceDir;
+                    this._walkState.timeScale = MAX_MOVE_SPEED_FRONT / NORMALIZE_MOVE_SPEED;
                 }
                 else
                 {
-                    _speed.x = -MAX_MOVE_SPEED_BACK * _faceDir;
+                    this._walkState.timeScale = -MAX_MOVE_SPEED_BACK / NORMALIZE_MOVE_SPEED;
+                }
+
+                if (this._moveDir * this._faceDir > 0.0f)
+                {
+                    _speed.x = MAX_MOVE_SPEED_FRONT * this._faceDir;
+                }
+                else
+                {
+                    _speed.x = -MAX_MOVE_SPEED_BACK * this._faceDir;
                 }
             }
         }
@@ -317,7 +335,8 @@ namespace coreElement
                 return;
             }
 
-            var position = this.transform.localPosition;
+            var position = this._armatureComponent.transform.localPosition;
+            //var position = this.transform.localPosition;
             
             if (_speed.x != 0.0f)
             {
@@ -359,7 +378,8 @@ namespace coreElement
                 }
             }
 
-            this.transform.localPosition = position;
+            this._armatureComponent.transform.localPosition = position;
+            //this.transform.localPosition = position;
         }
 
         private void _updateAim()
@@ -369,7 +389,8 @@ namespace coreElement
                 return;
             }
 
-            var position = this.transform.localPosition;
+            var position = this._armatureComponent.transform.localPosition;
+            //var position = this.transform.localPosition;
             _faceDir = _target.x > position.x ? 1 : -1;
 
             if (_faceDir < 0.0f ? !_armatureComponent.armature.flipX : _armatureComponent.armature.flipX)
@@ -386,17 +407,17 @@ namespace coreElement
 
             if (_faceDir > 0)
             {
-                _aimRadian = Mathf.Atan2(-(_target.y - position.y) - aimOffsetY, _target.x - position.x);
+                _aimRadian = Mathf.Atan2(-(_target.y - position.y - aimOffsetY), _target.x - position.x);
             }
             else
             {
-                _aimRadian = Mathf.PI - Mathf.Atan2(-(_target.y - position.y) - aimOffsetY, _target.x - position.x);
+                _aimRadian = Mathf.PI - Mathf.Atan2(-(_target.y - position.y - aimOffsetY), _target.x - position.x);
                 if (_aimRadian > Mathf.PI)
                 {
                     _aimRadian -= Mathf.PI * 2.0f;
                 }
             }
-
+            
             int aimDir = 0;
             if (_aimRadian > 0.0f)
             {
@@ -415,14 +436,14 @@ namespace coreElement
                 if (_aimDir >= 0)
                 {
                     _aimState = _armatureComponent.animation.FadeIn(
-                        "aimUp", 0.01f, 1,
+                        "aim_up", 0.01f, 1,
                         0, AIM_ANIMATION_GROUP, AnimationFadeOutMode.SameGroup
                     );
                 }
                 else
                 {
                     _aimState = _armatureComponent.animation.FadeIn(
-                        "aimDown", 0.01f, 1,
+                        "aim_down", 0.01f, 1,
                         0, AIM_ANIMATION_GROUP, AnimationFadeOutMode.SameGroup
                     );
                 }
@@ -478,10 +499,8 @@ namespace coreElement
 
             this.transform.localPosition += _speed;
 
-            if (
-                this.transform.localPosition.x < -7.0f || this.transform.localPosition.x > 7.0f ||
-                this.transform.localPosition.y < -7.0f || this.transform.localPosition.y > 7.0f
-            )
+            if (this.transform.localPosition.x < -7.0f || this.transform.localPosition.x > 7.0f ||
+                this.transform.localPosition.y < -7.0f || this.transform.localPosition.y > 7.0f )
             {
                 _armatureComponent.armature.Dispose();
 
@@ -514,6 +533,7 @@ namespace coreElement
                     effectRotation.x = 180.0f;
                     effectRotation.z = -effectRotation.z;
                 }
+
                 effectScale.x = Random.Range(1.0f, 2.0f);
                 effectScale.y = Random.Range(1.0f, 1.5f);
 
