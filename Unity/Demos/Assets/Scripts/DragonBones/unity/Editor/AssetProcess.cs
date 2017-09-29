@@ -66,7 +66,9 @@ namespace DragonBones
 					}
 					break;
 				case ".bytes":
-					skeletonPaths.Add(str);
+					if (IsValidDragonBonesData((TextAsset)AssetDatabase.LoadAssetAtPath(str, typeof(TextAsset)))){
+						skeletonPaths.Add(str);
+					}
 					break;
 				}
 			}
@@ -93,17 +95,23 @@ namespace DragonBones
 			}
 		}
 
-		static bool IsValidDragonBonesData (TextAsset asset)
+		public static bool IsValidDragonBonesData (TextAsset asset)
         {
             if (asset.name.Contains("_ske"))
             {
                 return true;
             }
 
+			if(asset.text == "DBDT"){
+				return true;
+			}
+
 			if (asset.text.IndexOf("\"armature\":") > 0)
 			{
 				return true;
 			}
+
+
 			return false;
 		}
 
