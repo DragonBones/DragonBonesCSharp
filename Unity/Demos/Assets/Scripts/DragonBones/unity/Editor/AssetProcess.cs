@@ -57,6 +57,19 @@ namespace DragonBones
                         atlasPaths.Add(str);
                     }
 					break;
+				case ".dbbin":
+					if (File.Exists(str)){
+						string bytesPath = Path.GetDirectoryName(str) + "/" + Path.GetFileNameWithoutExtension(str) + ".bytes";
+						File.Move(str,bytesPath);
+						AssetDatabase.Refresh();
+						skeletonPaths.Add(bytesPath);
+					}
+					break;
+				case ".bytes":
+					if (IsValidDragonBonesData((TextAsset)AssetDatabase.LoadAssetAtPath(str, typeof(TextAsset)))){
+						skeletonPaths.Add(str);
+					}
+					break;
 				}
 			}
             if (skeletonPaths.Count == 0)
@@ -79,21 +92,26 @@ namespace DragonBones
 				}
 
 				ProcessTextureAtlasData(atlPaths);
-				ProcessTexture(imgPaths);
 			}
 		}
 
-		static bool IsValidDragonBonesData (TextAsset asset)
+		public static bool IsValidDragonBonesData (TextAsset asset)
         {
             if (asset.name.Contains("_ske"))
             {
                 return true;
             }
 
+			if(asset.text == "DBDT"){
+				return true;
+			}
+
 			if (asset.text.IndexOf("\"armature\":") > 0)
 			{
 				return true;
 			}
+
+
 			return false;
 		}
 
@@ -140,33 +158,6 @@ namespace DragonBones
 				tex.LoadImage(fileData);
 			}
 			return tex;
-		}
-
-		static void ProcessTexture(List<string> imagePaths)
-        {
-			foreach(string texturePath in imagePaths)
-            {
-				TextureImporter texImporter = (TextureImporter)TextureImporter.GetAtPath(texturePath);
-				if(texImporter!=null)
-                {
-					texImporter.textureType = TextureImporterType.Default;
-					#if UNITY_5_5_OR_NEWER
-					texImporter.textureCompression = TextureImporterCompression.Uncompressed;
-					#else
-					texImporter.textureFormat = TextureImporterFormat.AutomaticTruecolor;
-					#endif
-					texImporter.mipmapEnabled = false;
-					texImporter.alphaIsTransparency = true;
-					texImporter.spriteImportMode = SpriteImportMode.None;
-					texImporter.anisoLevel = 0;
-					texImporter.wrapMode = TextureWrapMode.Clamp;
-					texImporter.maxTextureSize = 2048;
-
-					EditorUtility.SetDirty(texImporter);
-					AssetDatabase.ImportAsset(texturePath);
-					AssetDatabase.SaveAssets();
-				}
-			}
 		}
 	}
 }
