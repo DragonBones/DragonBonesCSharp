@@ -18,7 +18,7 @@ namespace DragonBones
             {
                 //UnityFactory._clock.AdvanceTime(Time.deltaTime);
                 UnityFactory.factory._dragonBones.AdvanceTime(Time.deltaTime);
-                //isStarted = true;
+                isStarted = true;
             }
         }
     }
@@ -70,16 +70,23 @@ namespace DragonBones
         {
             if (_gameObject == null)
             {
-                _gameObject = new GameObject("DragonBones Object", typeof(ClockHandler));
+                _gameObject = GameObject.Find("DragonBones Object");
+                if (_gameObject == null)
+                {
+                    _gameObject = new GameObject("DragonBones Object", typeof(ClockHandler));
+                }
+                
                 _gameObject.isStatic = true;
                 //_gameObject.hideFlags = HideFlags.HideInHierarchy;
             }
 
             if (_eventManager == null)
             {
-                //_eventManager = _gameObject.AddComponent<UnityArmatureComponent>();
-                _eventManager = _gameObject.AddComponent<DragonBoneEventDispatcher>();
-                //(_eventManager as UnityArmatureComponent).isUGUI = _isUGUI;
+                _eventManager = _gameObject.GetComponent<DragonBoneEventDispatcher>();
+                if (_eventManager == null)
+                {
+                    _eventManager = _gameObject.AddComponent<DragonBoneEventDispatcher>();
+                }
             }
 
             if (_dragonBones == null)

@@ -26,7 +26,7 @@ public class HelloDragonBones :MonoBehaviour
     
     void Start()
     {
-        //TestCoreElement();
+        TestHello();
     }
 
     private void TestCoreElement()
@@ -41,7 +41,7 @@ public class HelloDragonBones :MonoBehaviour
 
         armatureComponent.armature.flipX = true;
 
-        StartCoroutine(DestroySele(armatureComponent));
+        //StartCoroutine(DestroySele(armatureComponent));
     }
 
     private IEnumerator DestroySele(UnityArmatureComponent com)
@@ -56,7 +56,7 @@ public class HelloDragonBones :MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            TestHello();
+            //TestHello();
 
             Debug.Log("TestHello");
         }
@@ -69,13 +69,13 @@ public class HelloDragonBones :MonoBehaviour
         UnityFactory.factory.autoSearch = true;
         UnityFactory.factory.LoadData(dragonBoneData);
 
-        var armatureComponent = UnityFactory.factory.BuildArmatureComponent("DragonFlip");
-        //armatureComponent.animation.Play("idle");
+        var armatureComponent = UnityFactory.factory.BuildArmatureComponent("armatureName");
+        armatureComponent.animation.Play("stand");
 
         // Set position.
         armatureComponent.transform.localPosition = new Vector3(0.0f, -2.0f, 1.0f);
 
-        StartCoroutine(DestroySele(armatureComponent));
+        //StartCoroutine(DestroySele(armatureComponent));
 
         //
         //Bone bone = armatureComponent.armature.GetBone("body");

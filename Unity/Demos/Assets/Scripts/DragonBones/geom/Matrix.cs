@@ -88,15 +88,13 @@ namespace DragonBones
             var dA = this.d * value.d;
             var txA = this.tx * value.a + value.tx;
             var tyA = this.ty * value.d + value.ty;
-
             if (this.b != 0.0f || this.c != 0.0f)
             {
                 aA += this.b * value.c;
-                dA += this.c * value.b;
                 bA += this.b * value.d;
                 cA += this.c * value.a;
+                dA += this.c * value.b;
             }
-
             if (value.b != 0.0f || value.c != 0.0f)
             {
                 bA += this.a * value.b;
@@ -104,14 +102,12 @@ namespace DragonBones
                 txA += this.ty * value.c;
                 tyA += this.tx * value.b;
             }
-
             this.a = aA;
             this.b = bA;
             this.c = cA;
             this.d = dA;
             this.tx = txA;
             this.ty = tyA;
-
             return this;
         }
         /**

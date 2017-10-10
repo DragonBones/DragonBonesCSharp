@@ -146,7 +146,12 @@ namespace DragonBones
 
             dR = (ikRadianB - global.rotation) * this.weight;
             global.rotation += dR;
-            global.ToMatrix(globalTransformMatrix);
+            global.ToMatrix(this.bone.globalTransformMatrix);
+
+            //QQ
+            //UnityEngine.Debug.Log("-----------------------------" + "bone name:" + this.bone.name + "-----------------------------");
+            //UnityEngine.Debug.Log(string.Format("px:{0} py:{1} protation:{2}", parentGlobal.x, parentGlobal.y, parentGlobal.rotation));
+            //UnityEngine.Debug.Log(string.Format("x:{0} y:{1} rotation:{2}", global.x, global.y, global.rotation));
         }
 
         public override void Update()

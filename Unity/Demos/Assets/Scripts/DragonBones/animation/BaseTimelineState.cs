@@ -96,7 +96,7 @@ namespace DragonBones
             {
                 var playTimes = this._animationState.playTimes;
                 var totalTime = playTimes * this._duration;
-
+                
                 passedTime *= this._timeScale;
                 if (this._timeOffset != 0.0f)
                 {
@@ -205,12 +205,13 @@ namespace DragonBones
         }
 
         public virtual void Update(float passedTime)
-        {            
+        {
             if (this.playState <= 0 && this._SetCurrentTime(passedTime))
             {
                 if (this._frameCount > 1)
                 {
                     uint timelineFrameIndex = (uint)Math.Floor(this.currentTime * this._frameRate); // uint
+                    //QQ
                     var frameIndex = this._frameIndices[(this._timelineData as TimelineData).frameIndicesOffset + timelineFrameIndex];
                     if (this._frameIndex != frameIndex)
                     {

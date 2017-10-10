@@ -81,7 +81,6 @@ namespace coreElement
 
             _armatureComponent.animation.Reset();
             _armatureComponent.animation.Play("idle");
-            //_armatureComponent.animation.timeScale = 0.01f;
             _armatureComponent.armature.flipX = true;
 
             _updateAnimation();

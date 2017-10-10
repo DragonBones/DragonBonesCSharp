@@ -195,8 +195,8 @@ namespace DragonBones
                 this.skew = 0.0f;
             }
 
-            this.rotation = NormalizeRadian(this.rotation);
-            this.skew = NormalizeRadian(this.skew);
+            //this.rotation = NormalizeRadian(this.rotation);
+            //this.skew = NormalizeRadian(this.skew);
 
             return this;
         }

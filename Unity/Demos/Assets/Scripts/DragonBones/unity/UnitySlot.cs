@@ -10,6 +10,8 @@ namespace DragonBones
     [DisallowMultipleComponent]
     public class UnitySlot : Slot
     {
+        public const float pixelsPerUnit = 0.01f;
+
         private static readonly int[] TRIANGLES = { 0, 1, 2, 0, 2, 3 };
         private static Vector3 _helpVector3 = new Vector3();
         private static readonly Vector2[] _helpVector2s = { new Vector2(), new Vector2(), new Vector2(), new Vector2() };
@@ -335,8 +337,8 @@ namespace DragonBones
 
                         for (int i = 0, iV = verticesOffset, iU = uvOffset, l = vertexCount; i < l; ++i)
                         {
-                            this._vertices[i].x = floatArray[iV++] * 0.01f;
-                            this._vertices[i].y = floatArray[iV++] * 0.01f;
+                            this._vertices[i].x = floatArray[iV++] * pixelsPerUnit;
+                            this._vertices[i].y = floatArray[iV++] * pixelsPerUnit;
 
                             this._uvs[i].x = (currentTextureData.region.x + floatArray[iU++] * currentTextureData.region.width) / textureAtlasWidth;
                             this._uvs[i].y = 1.0f - (currentTextureData.region.y + floatArray[iU++] * currentTextureData.region.height) / textureAtlasHeight;
@@ -395,9 +397,9 @@ namespace DragonBones
                             const float s = 0.01f;
                             _helpVector2s[i].x = (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasWidth;
                             _helpVector2s[i].y = 1.0f - (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasHeight;
-                            _vertices[i].x = (u * currentTextureData.region.width) * 0.01f - _pivotX;
-                            _vertices[i].y = (1.0f - v) * currentTextureData.region.height * 0.01f - _pivotY;
-                            _vertices[i].z = 0.0f * 0.01f;
+                            _vertices[i].x = (u * currentTextureData.region.width) * pixelsPerUnit - _pivotX;
+                            _vertices[i].y = (1.0f - v) * currentTextureData.region.height * pixelsPerUnit - _pivotY;
+                            _vertices[i].z = 0.0f;
                             _vertices2[i] = _vertices[i];
                         }
 
@@ -492,13 +494,13 @@ namespace DragonBones
                                 yL += this._ffdVertices[iF++];
                             }
 
-                            xG += (matrix.a * xL + matrix.c * yL + matrix.tx * 100.0f) * weight;
-                            yG += (matrix.b * xL + matrix.d * yL + matrix.ty * 100.0f) * weight;
+                            xG += (matrix.a * xL + matrix.c * yL + matrix.tx * (1.0f / pixelsPerUnit)) * weight;
+                            yG += (matrix.b * xL + matrix.d * yL + matrix.ty * (1.0f / pixelsPerUnit)) * weight;
                         }
                     }
 
-                    _vertices[i].x = xG * 0.01f;
-                    _vertices[i].y = yG * 0.01f;
+                    _vertices[i].x = xG * pixelsPerUnit;
+                    _vertices[i].y = yG * pixelsPerUnit;
                     _vertices2[i].x = _vertices[i].x;
                     _vertices2[i].y = _vertices[i].y;
                 }
@@ -517,8 +519,8 @@ namespace DragonBones
                 Vector3[] vertices = new Vector3[vertextCount];
                 for (int i = 0, iV = 0, iF = 0, l = vertextCount; i < l; ++i)
                 {
-                    _vertices[i].x = (floatArray[vertexOffset + (iV++)] + this._ffdVertices[iF++]) * 0.01f;
-                    _vertices[i].y = - (floatArray[vertexOffset + (iV++)] + this._ffdVertices[iF++]) * 0.01f;
+                    _vertices[i].x = (floatArray[vertexOffset + (iV++)] + this._ffdVertices[iF++]) * pixelsPerUnit;
+                    _vertices[i].y = - (floatArray[vertexOffset + (iV++)] + this._ffdVertices[iF++]) * pixelsPerUnit;
                     _vertices2[i].x = _vertices[i].x;
                     _vertices2[i].y = _vertices[i].y;
                 }
@@ -534,8 +536,6 @@ namespace DragonBones
 
         protected override void _UpdateTransform(bool isSkinnedMesh)
         {
-            this.UpdateGlobalTransform(); // Update transform.
-
             if (isSkinnedMesh)
             {
                 // Identity transform.
@@ -551,15 +551,22 @@ namespace DragonBones
             }
             else
             {
+                this.UpdateGlobalTransform(); // Update transform.
+
                 var flipX = _armature.flipX;
                 var flipY = _armature.flipY;
                 var scaleX = flipX ? global.scaleX : -global.scaleX;
                 var scaleY = flipY ? global.scaleY : -global.scaleY;
                 var transform = _renderDisplay.transform;
 
+                //QQ
                 _helpVector3.x = global.x;
                 _helpVector3.y = global.y;
                 _helpVector3.z = transform.localPosition.z;
+
+                //_helpVector3.x = globalTransformMatrix.tx;
+                //_helpVector3.y = globalTransformMatrix.ty;
+                //_helpVector3.z = transform.localPosition.z;
 
                 transform.localPosition = _helpVector3;
 
@@ -572,7 +579,7 @@ namespace DragonBones
                     _helpVector3.z = -_helpVector3.z;
                 }
 
-                if (flipX && _helpVector3.z != 0.0f)
+                if ((flipX || flipY) && _helpVector3.z != 0.0f)
                 {
                     _helpVector3.z += 180.0f;
                 }
@@ -591,6 +598,10 @@ namespace DragonBones
                 }
 
                 transform.localEulerAngles = _helpVector3;
+
+                //QQ
+                //UnityEngine.Debug.Log("---------------------" + "bone name:" + this.name + "---------------------");
+                //UnityEngine.Debug.Log(string.Format("x:{0} y:{1} rotation:{2}", global.x, global.y, global.rotation));
 
                 // Modify mesh skew. // TODO child armature skew.
                 if ((_display == _rawDisplay || _display == _meshDisplay) && _mesh != null)
