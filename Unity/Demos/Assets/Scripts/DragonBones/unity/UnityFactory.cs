@@ -18,10 +18,37 @@ namespace DragonBones
             {
                 //UnityFactory._clock.AdvanceTime(Time.deltaTime);
                 UnityFactory.factory._dragonBones.AdvanceTime(Time.deltaTime);
-                isStarted = true;
+                //isStarted = true;
             }
         }
     }
+
+    /// <summary>
+    /// UnityFactory 辅助类
+    /// </summary>
+    internal static class UnityFactoryHelper
+    {
+        /// <summary>
+        /// 生成一个材质球
+        /// </summary>
+        /// <param name="shaderName"></param>
+        /// <param name="materialName"></param>
+        /// <param name="texture"></param>
+        /// <returns></returns>
+        internal static Material GenerateMaterial(string shaderName, string materialName, Texture texture)
+        {
+            //创建材质球
+            Shader shader = Shader.Find(shaderName);
+            Material material = new Material(shader);
+            //material.name = texture2D.name + "_Mat";
+            material.name = materialName;
+            material.mainTexture = texture;
+
+            return material;
+        }
+    }
+
+
     /**
      * @language zh_CN
      * Unity 工厂。
@@ -76,6 +103,7 @@ namespace DragonBones
                     _gameObject = new GameObject("DragonBones Object", typeof(ClockHandler));
                 }
                 
+                //QQ
                 _gameObject.isStatic = true;
                 //_gameObject.hideFlags = HideFlags.HideInHierarchy;
             }
@@ -282,7 +310,8 @@ namespace DragonBones
                 {
 					material = Resources.Load<Material>(textureAtlasData.imagePath+"_UI_Mat");
 				}
-				if(material==null)
+
+				if(material == null)
                 {
 					Texture2D textureAtlas = null;
 					if(isEditor)
@@ -579,11 +608,79 @@ namespace DragonBones
 
 			return dragonBonesData;
 		}
-        
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dragonBonesJSONPath"></param>
+        public DragonBonesData LoadDragonBonesData(string dragonBonesJSONPath, string name = null, float scale = 0.01f)
+        {
+            TextAsset jsonAsset = Resources.Load<TextAsset>(dragonBonesJSONPath);
+
+            return LoadDragonBonesData(jsonAsset, null, name, scale);
+        }
+
+        /// <summary>
+        /// sdf
+        /// </summary>
+        /// <param name="textureAtlasJSONPath"></param>
+        /// <param name="textureAtlasPath"></param>
+        /// <param name="name"></param>
+        /// <param name="scale"></param>
+        /// <returns></returns>
+        public UnityTextureAtlasData LoadTextureAtlasData(string textureAtlasJSONPath, string name = null, float scale = 0.0f)
+        {
+            //
+            TextAsset textureAtlasJSONAsset = Resources.Load<TextAsset>(textureAtlasJSONPath);
+
+            string texture2DPath = textureAtlasJSONPath;
+
+            Texture2D texture2D = Resources.Load<Texture2D>(texture2DPath);
+
+            string textureAtlasDataKey = name + texture2D.name;
+            //
+            UnityTextureAtlasData textureAtlasData = null;
+            if (_pathTextureAtlasDataMap.ContainsKey(textureAtlasDataKey))
+            {
+                textureAtlasData = _pathTextureAtlasDataMap[textureAtlasDataKey] as UnityTextureAtlasData;
+
+                _RefreshTextureAtlas(textureAtlasData, false, true);
+
+                //textureAtlas.material = textureAtlasData.texture;
+            }
+            else
+            {
+                Dictionary<string, object> textureJSONData = (Dictionary<string, object>)MiniJSON.Json.Deserialize(textureAtlasJSONAsset.text);
+                textureAtlasData = ParseTextureAtlasData(textureJSONData, null, name, scale) as UnityTextureAtlasData;
+
+                if (textureJSONData.ContainsKey("width"))
+                {
+                    textureAtlasData.width = uint.Parse(textureJSONData["width"].ToString());
+                }
+                if (textureJSONData.ContainsKey("height"))
+                {
+                    textureAtlasData.height = uint.Parse(textureJSONData["height"].ToString());
+                }
+
+                if (textureAtlasData != null)
+                {
+                    //生成材质球
+                    Material material = UnityFactoryHelper.GenerateMaterial(defaultShaderName, texture2D.name + "_Mat", texture2D);
+
+                    textureAtlasData.texture = material;
+
+                    textureAtlasData.name = name;
+                    _pathTextureAtlasDataMap[textureAtlasDataKey] = textureAtlasData;
+                }
+            }
+
+            return textureAtlasData;
+        }
+
         /**
          * @private
          */
-		protected DragonBonesData LoadDragonBonesData(TextAsset dragonBonesJSON, TextAsset dragonBonesBinary = null, string name = null, float scale = 0.01f)
+        protected DragonBonesData LoadDragonBonesData(TextAsset dragonBonesJSON, TextAsset dragonBonesBinary = null, string name = null, float scale = 0.01f)
         {
             if (dragonBonesJSON == null && dragonBonesBinary == null)
             {

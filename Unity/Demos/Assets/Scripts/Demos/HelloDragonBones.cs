@@ -26,7 +26,20 @@ public class HelloDragonBones :MonoBehaviour
     
     void Start()
     {
-        TestHello();
+        //TestHello();
+        TestLoadDemo();
+    }
+
+    private void TestLoadDemo()
+    {
+        UnityFactory.factory.LoadDragonBonesData("NewDragon/NewDragon_ske");
+        UnityFactory.factory.LoadTextureAtlasData("NewDragon/NewDragon_tex");
+
+        var armatureComponent = UnityFactory.factory.BuildArmatureComponent("armatureName");
+        armatureComponent.animation.Play("stand");
+
+        // Set position.
+        armatureComponent.transform.localPosition = new Vector3(0.0f, -2.0f, 1.0f);
     }
 
     private void TestCoreElement()

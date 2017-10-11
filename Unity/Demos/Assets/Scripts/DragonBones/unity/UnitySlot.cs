@@ -551,6 +551,12 @@ namespace DragonBones
             }
             else
             {
+                //QQ
+                if (this.name == "dabiR")
+                {
+                    int i = 0;
+                }
+
                 this.UpdateGlobalTransform(); // Update transform.
 
                 var flipX = _armature.flipX;
@@ -600,8 +606,12 @@ namespace DragonBones
                 transform.localEulerAngles = _helpVector3;
 
                 //QQ
-                //UnityEngine.Debug.Log("---------------------" + "bone name:" + this.name + "---------------------");
-                //UnityEngine.Debug.Log(string.Format("x:{0} y:{1} rotation:{2}", global.x, global.y, global.rotation));
+                if (this.name == "dabiR")
+                {
+                    //UnityEngine.Debug.Log("---------------------" + "solt name:" + this.name + "---------------------");
+                    //UnityEngine.Debug.Log(string.Format("x:{0} y:{1} rotation:{2}", global.x, global.y, global.rotation));
+                }
+
 
                 // Modify mesh skew. // TODO child armature skew.
                 if ((_display == _rawDisplay || _display == _meshDisplay) && _mesh != null)
