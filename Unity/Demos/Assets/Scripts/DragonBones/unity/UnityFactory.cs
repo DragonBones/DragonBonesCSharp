@@ -46,6 +46,86 @@ namespace DragonBones
 
             return material;
         }
+
+        /// <summary>
+        /// 检查路径合法性
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        internal static string CheckResourecdPath(string path)
+        {
+            var index = path.LastIndexOf("Resources");
+            if (index > 0)
+            {
+                path = path.Substring(index + 10);
+            }
+
+            index = path.LastIndexOf(".");
+            if (index > 0)
+            {
+                path = path.Substring(0, index);
+            }
+
+            return path;
+        }
+
+        /// <summary>
+        /// 根据贴图JSON文件的路径和JSON文件中贴图名称获得贴图路径
+        /// </summary>
+        /// <param name="textureAtlasJSONPath">贴图JSON文件路径:NewDragon/NewDragon_tex</param>
+        /// <param name="textureAtlasImageName">贴图名称:NewDragon.png</param>
+        /// <returns></returns>
+        internal static string GetTextureAtlasImagePath(string textureAtlasJSONPath, string textureAtlasImageName)
+        {
+            var index = textureAtlasJSONPath.LastIndexOf("Resources");
+            if (index > 0)
+            {
+                textureAtlasJSONPath = textureAtlasJSONPath.Substring(index + 10);
+            }
+
+            index = textureAtlasJSONPath.LastIndexOf("/");
+
+            string textureAtlasImagePath = textureAtlasImageName;
+            if (index > 0)
+            {
+                textureAtlasImagePath = textureAtlasJSONPath.Substring(0, index + 1) + textureAtlasImageName;
+            }
+
+            index = textureAtlasImagePath.LastIndexOf(".");
+            if (index > 0)
+            {
+                textureAtlasImagePath = textureAtlasImagePath.Substring(0, index);
+            }
+
+            return textureAtlasImagePath;
+        }
+
+        /// <summary>
+        /// 根据贴图路径获得贴图名称
+        /// </summary>
+        /// <param name="textureAtlasJSONPath"></param>
+        /// <returns></returns>
+        internal static string GetTextureAtlasNameByPath(string textureAtlasJSONPath)
+        {
+            string name = string.Empty;
+            int index = textureAtlasJSONPath.LastIndexOf("/") + 1;
+            int lastIdx = textureAtlasJSONPath.LastIndexOf("_tex");
+            if (lastIdx > -1)
+            {
+                if (lastIdx > index)
+                {
+                    name = textureAtlasJSONPath.Substring(index, lastIdx - index);
+                }
+                else
+                {
+                    name = textureAtlasJSONPath.Substring(index);
+                }
+            }
+
+            return name;
+        }
+
+
     }
 
 
@@ -328,10 +408,7 @@ namespace DragonBones
 						textureAtlas = Resources.Load<Texture2D>(textureAtlasData.imagePath);
 					}
 
-					Shader shader = Shader.Find(defaultUIShaderName);
-					material = new Material(shader);
-					material.name = textureAtlas.name+"_UI_Mat";
-					material.mainTexture = textureAtlas;
+                    material = UnityFactoryHelper.GenerateMaterial(defaultUIShaderName, textureAtlas.name + "_UI_Mat", textureAtlas);
                     if (textureAtlasData.width < 2)
                     {
                         textureAtlasData.width = (uint)textureAtlas.width;
@@ -387,10 +464,7 @@ namespace DragonBones
 						textureAtlas = Resources.Load<Texture2D>(textureAtlasData.imagePath);
 					}
 
-					Shader shader = Shader.Find(defaultShaderName);
-					material = new Material(shader);
-					material.name = textureAtlas.name + "_Mat";
-					material.mainTexture = textureAtlas;
+                    material = UnityFactoryHelper.GenerateMaterial(defaultShaderName, textureAtlas.name + "_Mat", textureAtlas);
                     if (textureAtlasData.width < 2)
                     {
                         textureAtlasData.width = (uint)textureAtlas.width;
@@ -407,7 +481,7 @@ namespace DragonBones
                     {
 						string path = AssetDatabase.GetAssetPath(textureAtlas);
 						path = path.Substring(0,path.Length-4);
-						AssetDatabase.CreateAsset(material,path+"_Mat.mat");
+						AssetDatabase.CreateAsset(material, path+"_Mat.mat");
 						AssetDatabase.SaveAssets();
 					}
 					#endif
@@ -495,7 +569,6 @@ namespace DragonBones
             if (armature != null)
             {
                 _dragonBones.clock.Add(armature);
-                //_clock.Add(armature);
 
                 var armatureDisplay = armature.display as GameObject;
                 var armatureComponent = armatureDisplay.GetComponent<UnityArmatureComponent>();
@@ -593,7 +666,7 @@ namespace DragonBones
 					#endif
 					for(int i=0;i<data.textureAtlas.Length;++i)
 					{
-						LoadTextureAtlasData(data.textureAtlas[i],data.dataName,texScale,isUGUI);
+                        _LoadTextureAtlasData(data.textureAtlas[i],data.dataName,texScale,isUGUI);
 					}
 					#if UNITY_EDITOR
 					if(isDirty)
@@ -609,72 +682,35 @@ namespace DragonBones
 			return dragonBonesData;
 		}
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dragonBonesJSONPath"></param>
+        /**
+        * @language zh_CN
+        * 加载、解析并添加龙骨数据。
+        * @param path 龙骨数据在 Resources 中的路径。（其他形式的加载可自行扩展）
+        * @param name 为数据提供一个名称，以便可以通过这个名称获取数据，如果未设置，则使用数据中的名称。
+        * @param scale 为所有骨架设置一个缩放值。
+        * @returns 龙骨数据
+        * @see #ParseDragonBonesData()
+        * @see #GetDragonBonesData()
+        * @see #AddDragonBonesData()
+        * @see #RemoveDragonBonesData()
+        * @see DragonBones.DragonBonesData
+        */
         public DragonBonesData LoadDragonBonesData(string dragonBonesJSONPath, string name = null, float scale = 0.01f)
         {
-            TextAsset jsonAsset = Resources.Load<TextAsset>(dragonBonesJSONPath);
+            dragonBonesJSONPath = UnityFactoryHelper.CheckResourecdPath(dragonBonesJSONPath);
 
-            return LoadDragonBonesData(jsonAsset, null, name, scale);
-        }
-
-        /// <summary>
-        /// sdf
-        /// </summary>
-        /// <param name="textureAtlasJSONPath"></param>
-        /// <param name="textureAtlasPath"></param>
-        /// <param name="name"></param>
-        /// <param name="scale"></param>
-        /// <returns></returns>
-        public UnityTextureAtlasData LoadTextureAtlasData(string textureAtlasJSONPath, string name = null, float scale = 0.0f)
-        {
-            //
-            TextAsset textureAtlasJSONAsset = Resources.Load<TextAsset>(textureAtlasJSONPath);
-
-            string texture2DPath = textureAtlasJSONPath;
-
-            Texture2D texture2D = Resources.Load<Texture2D>(texture2DPath);
-
-            string textureAtlasDataKey = name + texture2D.name;
-            //
-            UnityTextureAtlasData textureAtlasData = null;
-            if (_pathTextureAtlasDataMap.ContainsKey(textureAtlasDataKey))
+            if (_pathDragonBonesDataMap.ContainsKey(dragonBonesJSONPath))
             {
-                textureAtlasData = _pathTextureAtlasDataMap[textureAtlasDataKey] as UnityTextureAtlasData;
-
-                _RefreshTextureAtlas(textureAtlasData, false, true);
-
-                //textureAtlas.material = textureAtlasData.texture;
-            }
-            else
-            {
-                Dictionary<string, object> textureJSONData = (Dictionary<string, object>)MiniJSON.Json.Deserialize(textureAtlasJSONAsset.text);
-                textureAtlasData = ParseTextureAtlasData(textureJSONData, null, name, scale) as UnityTextureAtlasData;
-
-                if (textureJSONData.ContainsKey("width"))
-                {
-                    textureAtlasData.width = uint.Parse(textureJSONData["width"].ToString());
-                }
-                if (textureJSONData.ContainsKey("height"))
-                {
-                    textureAtlasData.height = uint.Parse(textureJSONData["height"].ToString());
-                }
-
-                if (textureAtlasData != null)
-                {
-                    //生成材质球
-                    Material material = UnityFactoryHelper.GenerateMaterial(defaultShaderName, texture2D.name + "_Mat", texture2D);
-
-                    textureAtlasData.texture = material;
-
-                    textureAtlasData.name = name;
-                    _pathTextureAtlasDataMap[textureAtlasDataKey] = textureAtlasData;
-                }
+                return _pathDragonBonesDataMap[dragonBonesJSONPath];
             }
 
-            return textureAtlasData;
+            var dragonBonesData = LoadDragonBonesData(Resources.Load<TextAsset>(dragonBonesJSONPath), null, name);
+            if (dragonBonesData != null)
+            {
+                _pathDragonBonesDataMap[dragonBonesJSONPath] = dragonBonesData;
+            }
+
+            return dragonBonesData;
         }
 
         /**
@@ -710,16 +746,69 @@ namespace DragonBones
                 name = dragonBonesBinary.name;
             }
 
-			int index = name.LastIndexOf("_ske");
-			if(index > 0)
+            int index = name.LastIndexOf("_ske");
+            if (index > 0)
             {
-				name = name.Substring(0,index);
-				data.name = name;
-			}
+                name = name.Substring(0, index);
+                data.name = name;
+            }
 
-			_dragonBonesDataMap[name] = data;
-			return data;
-		}
+            _dragonBonesDataMap[name] = data;
+            return data;
+        }
+
+        /**
+         * @language zh_CN
+         * 加载、解析并添加贴图集数据。
+         * @param path 贴图集数据在 Resources 中的路径。（其他形式的加载可自行扩展，使用 factory.ParseTextureAtlasData(JSONObject, Material)）
+         * @param name 为数据指定一个名称，以便可以通过这个名称获取数据，如果未设置，则使用数据中的名称。
+         * @param scale 为贴图集设置一个缩放值。
+         * @returns 贴图集数据
+         * @see #ParseTextureAtlasData()
+         * @see #GetTextureAtlasData()
+         * @see #AddTextureAtlasData()
+         * @see #RemoveTextureAtlasData()
+         * @see DragonBones.UnityTextureAtlasData
+         */
+        public UnityTextureAtlasData LoadTextureAtlasData(string textureAtlasJSONPath, string name = null, float scale = 0.0f, bool isUGUI = false)
+        {
+            textureAtlasJSONPath = UnityFactoryHelper.CheckResourecdPath(textureAtlasJSONPath);
+
+            UnityTextureAtlasData textureAtlasData = null;
+
+            if (_pathTextureAtlasDataMap.ContainsKey(textureAtlasJSONPath))
+            {
+                textureAtlasData = _pathTextureAtlasDataMap[textureAtlasJSONPath] as UnityTextureAtlasData;
+                _RefreshTextureAtlas(textureAtlasData, isUGUI);
+            }
+            else
+            {
+                name = UnityFactoryHelper.GetTextureAtlasNameByPath(textureAtlasJSONPath);
+
+                TextAsset textureAtlasJSON = Resources.Load<TextAsset>(textureAtlasJSONPath);
+                if (textureAtlasJSON != null)
+                {
+                    Dictionary<string, object> textureJSONData = (Dictionary<string, object>)MiniJSON.Json.Deserialize(textureAtlasJSON.text);
+                    textureAtlasData = ParseTextureAtlasData(textureJSONData, null, name, scale) as UnityTextureAtlasData;
+
+                    if (textureAtlasData != null)
+                    {
+                        if (!string.IsNullOrEmpty(name))
+                        {
+                            textureAtlasData.name = name;
+                        }
+
+                        textureAtlasData.imagePath = UnityFactoryHelper.GetTextureAtlasImagePath(textureAtlasJSONPath, textureAtlasData.imagePath);
+
+                        _RefreshTextureAtlas(textureAtlasData, isUGUI);
+
+                        _pathTextureAtlasDataMap[textureAtlasJSONPath] = textureAtlasData;
+                    }
+                }
+            }
+
+            return textureAtlasData;
+        }        
 
 		/**
          * @language zh_CN
@@ -734,7 +823,7 @@ namespace DragonBones
          * @see #RemoveTextureAtlasData()
          * @see DragonBones.UnityTextureAtlasData
          */
-		protected UnityTextureAtlasData LoadTextureAtlasData(UnityDragonBonesData.TextureAtlas textureAtlas, string name , float scale = 0.0f,bool isUGUI=false)
+		protected UnityTextureAtlasData _LoadTextureAtlasData(UnityDragonBonesData.TextureAtlas textureAtlas, string name , float scale = 0.0f,bool isUGUI=false)
 		{
 			UnityTextureAtlasData textureAtlasData = null;
 			if (_pathTextureAtlasDataMap.ContainsKey(name+textureAtlas.texture.name))

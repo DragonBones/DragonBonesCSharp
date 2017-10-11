@@ -66,7 +66,7 @@ namespace DragonBones
     /**
      * @private
      */
-    public class UnityTextureData : TextureData
+    internal class UnityTextureData : TextureData
     {
         public UnityTextureData()
         {
