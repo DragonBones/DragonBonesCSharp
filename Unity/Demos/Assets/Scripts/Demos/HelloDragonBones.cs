@@ -40,16 +40,14 @@ public class HelloDragonBones :MonoBehaviour
         armatureComponent.animation.Play("stand");
 
         // Set position.
-        armatureComponent.transform.localPosition = new Vector3(0.0f, -2.0f, 1.0f);
-
-        var slot = armatureComponent.armature.GetSlot("zui");
-        
+        armatureComponent.transform.localPosition = new Vector3(0.0f, -2.0f, 1.0f);        
     }
 
     private void TestDragon()
     {
+        UnityFactory.factory.autoSearch = true;
         UnityFactory.factory.LoadDragonBonesData("Dragon/dragon_boy_ske");
-        UnityFactory.factory.LoadTextureAtlasData("Dragon/dragon_boy_tex");
+        UnityFactory.factory.LoadTextureAtlasData("Dragon/dragon_boy_tex").autoSearch = true;
 
         var armatureComponent = UnityFactory.factory.BuildArmatureComponent("DragonBoy");
         armatureComponent.animation.Play("walk");
@@ -93,12 +91,10 @@ public class HelloDragonBones :MonoBehaviour
 
     private void TestHello()
     {
-        var PI = DragonBones.Transform.PI;
-
         UnityFactory.factory.autoSearch = true;
         UnityFactory.factory.LoadData(dragonBoneData);
 
-        var armatureComponent = UnityFactory.factory.BuildArmatureComponent("armatureName");
+        var armatureComponent = UnityFactory.factory.BuildArmatureComponent("DragonBoy");
         armatureComponent.animation.Play("stand");
 
         // Set position.

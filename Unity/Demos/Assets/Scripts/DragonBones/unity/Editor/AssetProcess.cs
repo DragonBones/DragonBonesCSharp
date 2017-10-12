@@ -102,7 +102,8 @@ namespace DragonBones
                 return true;
             }
 
-			if(asset.text == "DBDT"){
+			if(asset.text == "DBDT")
+            {
 				return true;
 			}
 

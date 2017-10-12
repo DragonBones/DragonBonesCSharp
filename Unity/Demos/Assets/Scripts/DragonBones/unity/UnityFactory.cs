@@ -681,7 +681,18 @@ namespace DragonBones
                 return _pathDragonBonesDataMap[dragonBonesJSONPath];
             }
 
-            var dragonBonesData = LoadDragonBonesData(Resources.Load<TextAsset>(dragonBonesJSONPath), null, name);
+            TextAsset dragonBonesJSON = Resources.Load<TextAsset>(dragonBonesJSONPath);
+
+            DragonBonesData dragonBonesData = null;
+            if (dragonBonesJSON.text == "DBDT")
+            {
+                dragonBonesData = LoadDragonBonesData(null, dragonBonesJSON, name);
+            }
+            else
+            {
+                dragonBonesData = LoadDragonBonesData(dragonBonesJSON, null, name);
+            }
+            
             if (dragonBonesData != null)
             {
                 _pathDragonBonesDataMap[dragonBonesJSONPath] = dragonBonesData;

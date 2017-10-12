@@ -202,12 +202,6 @@ namespace DragonBones
          */
         override protected void _UpdateColor()
         {
-            //QQ
-            if (this.name == "zui")
-            {
-                int i = 0;
-            }
-
             if (_mesh != null)
             {
                 if (_colors == null || _colors.Length != _mesh.vertexCount)
@@ -223,22 +217,6 @@ namespace DragonBones
                     _colors[i].a = (byte)(_colorTransform.alphaMultiplier * 255);
                 }
                 _mesh.colors32 = _colors;
-            }
-            else
-            {
-                var renderer = _renderDisplay.GetComponent<Renderer>();
-                if (renderer != null)
-                {
-                    //QQ
-                    renderer.material.color = new Color(_colorTransform.redMultiplier, _colorTransform.greenMultiplier, _colorTransform.blueMultiplier, _colorTransform.alphaMultiplier);
-                    //if (this.name == "zui")
-                    //{
-                    //    Color c = Color.red;
-                    //    c.a = 0.5f;
-                       
-                    //    renderer.material.color = c;
-                    //}
-                }
             }
         }
         /**
