@@ -173,6 +173,7 @@ namespace DragonBones
 
         private void Init()
         {
+            //一个factory创建一个DragonBones环境
             if (_gameObject == null)
             {
                 _gameObject = GameObject.Find("DragonBones Object");
@@ -183,7 +184,7 @@ namespace DragonBones
                 
                 //QQ
                 _gameObject.isStatic = true;
-                //_gameObject.hideFlags = HideFlags.HideInHierarchy;
+                _gameObject.hideFlags = HideFlags.HideInHierarchy;
             }
 
             if (_eventManager == null)
@@ -198,6 +199,8 @@ namespace DragonBones
             if (_dragonBones == null)
             {
                 _dragonBones = new DragonBones(_eventManager);
+
+                //
                 DragonBones.yDown = false;
             }
         }
@@ -235,30 +238,6 @@ namespace DragonBones
             if (Application.isPlaying) //
             {
                 //Init();
-                /*if (_gameObject == null)
-                {
-                    _gameObject = new GameObject("DragonBones Object", typeof(ClockHandler));
-                    _gameObject.isStatic = true;
-                    _gameObject.hideFlags = HideFlags.HideInHierarchy;
-                }*/
-
-                /*if (_eventManager != null)
-                {
-                    (_eventManager as UnityArmatureComponent).isUGUI = _isUGUI;
-                }*/
-
-                /*if (_eventManager == null)
-                {
-                    _eventManager = _gameObject.AddComponent<UnityArmatureComponent>();
-                    (_eventManager as UnityArmatureComponent).isUGUI = _isUGUI;
-                }
-
-                if (_dragonBones == null)
-                {
-                    _dragonBones = new DragonBones(_eventManager);
-
-                    DragonBones.yDown = false;
-                }*/
             }
 
             var armature = BaseObject.BorrowObject<Armature>();

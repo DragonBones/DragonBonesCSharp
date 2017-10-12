@@ -4,10 +4,14 @@ using System.Collections.Generic;
 
 namespace DragonBones
 {
+    /// <summary>
+    /// JSON数据拾取，为UnityArmatureComponent创建UnityDragonBonesData
+    /// </summary>
     public class PickJsonDataWindow : EditorWindow
     {
         private const string ObjectSelectorUpdated = "ObjectSelectorUpdated";
         private const string ObjectSelectorClosed = "ObjectSelectorClosed";
+        private const string PickFileFileter = "_ske t:TextAsset";
 
 
         private UnityArmatureComponent _armatureComp;
@@ -19,6 +23,12 @@ namespace DragonBones
         //
         public static void OpenWindow(UnityArmatureComponent armatureComp)
         {
+            if (armatureComp == null)
+            {
+                return;
+            }
+
+            //
             var win = GetWindow<PickJsonDataWindow>();
             win._armatureComp = armatureComp;
         }
@@ -56,14 +66,14 @@ namespace DragonBones
             else if (commandName == ObjectSelectorClosed)
             {
                 //根据选择的JSON数据设置DragonBonesData
+
+                //这里不仅创建了DragonBonesData,并且更新了场景中的显示对象
                 //UnityEditor.ChangeDragonBonesData(_armatureComp, _dragonBoneJSONData);
 
-                List<string> textureAtlasJSONs = new List<string>();
-                UnityEditor.GetTextureAtlasConfigs(textureAtlasJSONs, AssetDatabase.GetAssetPath(_dragonBoneJSONData.GetInstanceID()));
-                UnityDragonBonesData.TextureAtlas[] textureAtlas = UnityEditor.GetTextureAtlasByJSONs(textureAtlasJSONs);
-
-                UnityDragonBonesData data = UnityEditor.CreateUnityDragonBonesData(_dragonBoneJSONData, textureAtlas);
-                _armatureComp.unityData = data;
+                if (_dragonBoneJSONData != null)
+                {
+                    SetUnityDragonBonesData();
+                }
 
                 Repaint();
 
@@ -79,10 +89,19 @@ namespace DragonBones
             }
 
             _controlID = EditorGUIUtility.GetControlID(FocusType.Passive);
-            string filters = "_ske t:TextAsset";
-            EditorGUIUtility.ShowObjectPicker<TextAsset>(null, false, filters, _controlID);
+            EditorGUIUtility.ShowObjectPicker<TextAsset>(null, false, PickFileFileter, _controlID);
 
             _isOpenPickWindow = true;
+        }
+
+        private void SetUnityDragonBonesData()
+        {
+            List<string> textureAtlasJSONs = new List<string>();
+            UnityEditor.GetTextureAtlasConfigs(textureAtlasJSONs, AssetDatabase.GetAssetPath(_dragonBoneJSONData.GetInstanceID()));
+            UnityDragonBonesData.TextureAtlas[] textureAtlas = UnityEditor.GetTextureAtlasByJSONs(textureAtlasJSONs);
+
+            UnityDragonBonesData data = UnityEditor.CreateUnityDragonBonesData(_dragonBoneJSONData, textureAtlas);
+            _armatureComp.unityData = data;
         }
     }
 }

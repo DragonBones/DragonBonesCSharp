@@ -202,33 +202,44 @@ namespace DragonBones
          */
         override protected void _UpdateColor()
         {
-            // TODO
-            /*var renderer = _renderDisplay.GetComponent<SpriteRenderer>();
-            if (renderer != null)
+            //QQ
+            if (this.name == "zui")
             {
-                _helpColor.r = _colorTransform.redMultiplier;
-                _helpColor.g = _colorTransform.greenMultiplier;
-                _helpColor.b = _colorTransform.blueMultiplier;
-                _helpColor.a = _colorTransform.alphaMultiplier;
+                int i = 0;
+            }
 
-                renderer.color = _helpColor;
-            }*/
-			if(_mesh != null)
-			{
-				if(_colors == null || _colors.Length != _mesh.vertexCount)
+            if (_mesh != null)
+            {
+                if (_colors == null || _colors.Length != _mesh.vertexCount)
                 {
-					_colors = new Color32[_mesh.vertexCount];
-				}
+                    _colors = new Color32[_mesh.vertexCount];
+                }
 
-				for (int i = 0, l = _mesh.vertexCount; i < l; ++i)
-				{
-					_colors[i].r = (byte)(_colorTransform.redMultiplier * 255);
-					_colors[i].g = (byte)(_colorTransform.greenMultiplier * 255);
-					_colors[i].b = (byte)(_colorTransform.blueMultiplier * 255);
-					_colors[i].a = (byte)(_colorTransform.alphaMultiplier * 255);
-				}
-				_mesh.colors32 = _colors;
-			}
+                for (int i = 0, l = _mesh.vertexCount; i < l; ++i)
+                {
+                    _colors[i].r = (byte)(_colorTransform.redMultiplier * 255);
+                    _colors[i].g = (byte)(_colorTransform.greenMultiplier * 255);
+                    _colors[i].b = (byte)(_colorTransform.blueMultiplier * 255);
+                    _colors[i].a = (byte)(_colorTransform.alphaMultiplier * 255);
+                }
+                _mesh.colors32 = _colors;
+            }
+            else
+            {
+                var renderer = _renderDisplay.GetComponent<Renderer>();
+                if (renderer != null)
+                {
+                    //QQ
+                    renderer.material.color = new Color(_colorTransform.redMultiplier, _colorTransform.greenMultiplier, _colorTransform.blueMultiplier, _colorTransform.alphaMultiplier);
+                    //if (this.name == "zui")
+                    //{
+                    //    Color c = Color.red;
+                    //    c.a = 0.5f;
+                       
+                    //    renderer.material.color = c;
+                    //}
+                }
+            }
         }
         /**
          * @private
