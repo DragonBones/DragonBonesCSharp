@@ -148,7 +148,7 @@ namespace coreElement
                     {
                         _isJumpingB = true;
                         _speed.y = -JUMP_SPEED;
-                        _armatureComponent.animation.FadeIn("jump_2", -1, -1, 0, NORMAL_ANIMATION_GROUP);
+                        _armatureComponent.animation.FadeIn("jump_2", -1, -1, 0, NORMAL_ANIMATION_GROUP).resetToPose = false;
                     }
                     else if (eventObject.animationState.name == "jump_4")
                     {
@@ -196,7 +196,7 @@ namespace coreElement
             }
 
             _isJumpingA = true;
-            _armatureComponent.animation.FadeIn("jump_1", -1.0f, -1, 0, NORMAL_ANIMATION_GROUP);
+            _armatureComponent.animation.FadeIn("jump_1", -1.0f, -1, 0, NORMAL_ANIMATION_GROUP).resetToPose = false ;
             _walkState = null;
         }
 
@@ -288,7 +288,7 @@ namespace coreElement
             if (_isSquating)
             {
                 _speed.x = 0.0f;
-                _armatureComponent.animation.FadeIn("squat", -1.0f, -1, 0, NORMAL_ANIMATION_GROUP);
+                _armatureComponent.animation.FadeIn("squat", -1.0f, -1, 0, NORMAL_ANIMATION_GROUP).resetToPose = false;
                 _walkState = null;
                 return;
             }
@@ -296,7 +296,7 @@ namespace coreElement
             if (_moveDir == 0.0f)
             {
                 _speed.x = 0.0f;
-                _armatureComponent.animation.FadeIn("idle", -1.0f, -1, 0, NORMAL_ANIMATION_GROUP);
+                _armatureComponent.animation.FadeIn("idle", -1.0f, -1, 0, NORMAL_ANIMATION_GROUP).resetToPose = false;
                 _walkState = null;
             }
             else
@@ -355,7 +355,7 @@ namespace coreElement
             {
                 if (_speed.y > -0.05f && _speed.y + G <= -0.05f)
                 {
-                    _armatureComponent.animation.FadeIn("jump_3", -1.0f, -1, 0, NORMAL_ANIMATION_GROUP);
+                    _armatureComponent.animation.FadeIn("jump_3", -1.0f, -1, 0, NORMAL_ANIMATION_GROUP).resetToPose = false;
                 }
 
                 _speed.y += G * _armatureComponent.animation.timeScale;
@@ -368,7 +368,7 @@ namespace coreElement
                     _isJumpingB = false;
                     _speed.x = 0.0f;
                     _speed.y = 0.0f;
-                    _armatureComponent.animation.FadeIn("jump_4", -1.0f, -1, 0, NORMAL_ANIMATION_GROUP);
+                    _armatureComponent.animation.FadeIn("jump_4", -1.0f, -1, 0, NORMAL_ANIMATION_GROUP).resetToPose = false;
 
                     if (_isSquating || _moveDir != 0.0f)
                     {
@@ -435,18 +435,19 @@ namespace coreElement
                 if (_aimDir >= 0)
                 {
                     _aimState = _armatureComponent.animation.FadeIn(
-                        "aim_up", 0.01f, 1,
+                        "aim_up", -1.0f, 1,
                         0, AIM_ANIMATION_GROUP, AnimationFadeOutMode.SameGroup
                     );
                 }
                 else
                 {
                     _aimState = _armatureComponent.animation.FadeIn(
-                        "aim_down", 0.01f, 1,
+                        "aim_down", -1.0f, 1,
                         0, AIM_ANIMATION_GROUP, AnimationFadeOutMode.SameGroup
                     );
                 }
 
+                _aimState.resetToPose = false;
                 // Add bone mask.
                 //_aimState.addBoneMask("pelvis");
             }
@@ -472,6 +473,7 @@ namespace coreElement
                 0, ATTACK_ANIMATION_GROUP, AnimationFadeOutMode.SameGroup
             );
 
+            _attackState.resetToPose = false;
             _attackState.autoFadeOutTime = _attackState.fadeTotalTime;
             _attackState.AddBoneMask("pelvis");
         }
