@@ -115,17 +115,37 @@ namespace DragonBones
 			}
 		}
 
+        public static UnityDragonBonesData.TextureAtlas[] GetTextureAtlasByJSONs(List<string> textureAtlasJSONs)
+        {
+            UnityDragonBonesData.TextureAtlas[] textureAtlas = new UnityDragonBonesData.TextureAtlas[textureAtlasJSONs.Count];
+
+            for (int i = 0; i < textureAtlasJSONs.Count; ++i)
+            {
+                string path = textureAtlasJSONs[i];
+                //load textureAtlas data
+                UnityDragonBonesData.TextureAtlas ta = new UnityDragonBonesData.TextureAtlas();
+                ta.textureAtlasJSON = AssetDatabase.LoadAssetAtPath<TextAsset>(path);
+                //load texture
+                path = path.Substring(0, path.LastIndexOf(".json"));
+                ta.texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path + ".png");
+                //load material
+                ta.material = AssetDatabase.LoadAssetAtPath<Material>(path + "_Mat.mat");
+                ta.uiMaterial = AssetDatabase.LoadAssetAtPath<Material>(path + "_UI_Mat.mat");
+                textureAtlas[i] = ta;
+            }
+
+            return textureAtlas;
+        }
 
 
-
-		public static bool ChangeDragonBonesData(UnityArmatureComponent _armatureComponent, TextAsset dragonBoneJSON)
+        public static bool ChangeDragonBonesData(UnityArmatureComponent _armatureComponent, TextAsset dragonBoneJSON)
 		{
 			if (dragonBoneJSON != null)
 			{
 				var textureAtlasJSONs = new List<string>();
 				UnityEditor.GetTextureAtlasConfigs(textureAtlasJSONs, AssetDatabase.GetAssetPath(dragonBoneJSON.GetInstanceID()));
-				UnityDragonBonesData.TextureAtlas[] textureAtlas = new UnityDragonBonesData.TextureAtlas[textureAtlasJSONs.Count];
-				for(int i=0;i<textureAtlasJSONs.Count;++i)
+                /*UnityDragonBonesData.TextureAtlas[] textureAtlas = new UnityDragonBonesData.TextureAtlas[textureAtlasJSONs.Count];
+				for(int i = 0;i < textureAtlasJSONs.Count; ++i)
                 {
 					string path = textureAtlasJSONs[i];
 					//load textureAtlas data
@@ -138,9 +158,11 @@ namespace DragonBones
 					ta.material = AssetDatabase.LoadAssetAtPath<Material>(path+"_Mat.mat");
 					ta.uiMaterial = AssetDatabase.LoadAssetAtPath<Material>(path+"_UI_Mat.mat");
 					textureAtlas[i] = ta;
-				}
+				}*/
 
-				UnityDragonBonesData data = UnityEditor.CreateUnityDragonBonesData(dragonBoneJSON,textureAtlas);
+                UnityDragonBonesData.TextureAtlas[] textureAtlas = UnityEditor.GetTextureAtlasByJSONs(textureAtlasJSONs);
+
+                UnityDragonBonesData data = UnityEditor.CreateUnityDragonBonesData(dragonBoneJSON,textureAtlas);
 				_armatureComponent.unityData = data;
 
 				var dragonBonesData = UnityFactory.factory.LoadData(data,_armatureComponent.isUGUI);
@@ -284,51 +306,63 @@ namespace DragonBones
 		}
 
 		public static UnityDragonBonesData CreateUnityDragonBonesData(TextAsset dragonBonesAsset,UnityDragonBonesData.TextureAtlas[] textureAtlas){
-			if(dragonBonesAsset){
+			if(dragonBonesAsset != null)
+            {
 				bool isDirty = false;
 				string path = AssetDatabase.GetAssetPath(dragonBonesAsset);
 				path = path.Substring(0,path.Length-5);
 				int index = path.LastIndexOf("_ske");
-				if(index>0){
+				if(index>0)
+                {
 					path = path.Substring(0,index);
 				}
 				string dataPath = path+"_Data.asset";
 				UnityDragonBonesData data = AssetDatabase.LoadAssetAtPath<UnityDragonBonesData>(dataPath);
-				if(data==null){
+				if(data == null)
+                {
 					data = UnityDragonBonesData.CreateInstance<UnityDragonBonesData>();
 					AssetDatabase.CreateAsset(data,dataPath);
 					isDirty = true;
 				}
 				string name = path.Substring(path.LastIndexOf("/")+1);
-				if(string.IsNullOrEmpty(data.dataName) || !data.dataName.Equals(name)){
+				if(string.IsNullOrEmpty(data.dataName) || !data.dataName.Equals(name))
+                {
 					data.dataName = name;
 					isDirty = true;
 				}
 				if(dragonBonesAsset.text=="DBDT")
 				{
-					if(data.dragonBonesBinary!=dragonBonesAsset){
+					if(data.dragonBonesBinary!=dragonBonesAsset)
+                    {
 						data.dragonBonesBinary = dragonBonesAsset;
 						isDirty = true;
 					}
 				}
 				else
 				{
-					if(data.dragonBonesJSON!=dragonBonesAsset){
+					if(data.dragonBonesJSON!=dragonBonesAsset)
+                    {
 						data.dragonBonesJSON = dragonBonesAsset;
 						isDirty = true;
 					}
 				}
 
-				if(textureAtlas!=null && textureAtlas.Length>0 && textureAtlas[0]!=null && textureAtlas[0].texture!=null){
-					if(data.textureAtlas == null || data.textureAtlas.Length!=textureAtlas.Length){
+				if(textureAtlas!=null && textureAtlas.Length>0 && textureAtlas[0]!=null && textureAtlas[0].texture!=null)
+                {
+					if(data.textureAtlas == null || data.textureAtlas.Length!=textureAtlas.Length)
+                    {
 						isDirty = true;
-					}else{
-						for(int i=0;i<textureAtlas.Length;++i){
+					}
+                    else
+                    {
+						for(int i=0;i<textureAtlas.Length;++i)
+                        {
 							if(textureAtlas[i].material!=data.textureAtlas[i].material || 
 								textureAtlas[i].uiMaterial!=data.textureAtlas[i].uiMaterial || 
 								textureAtlas[i].texture!=data.textureAtlas[i].texture || 
 								textureAtlas[i].textureAtlasJSON!=data.textureAtlas[i].textureAtlasJSON
-							){
+							)
+                            {
 								isDirty = true;
 								break;
 							}
@@ -336,10 +370,12 @@ namespace DragonBones
 					}
 					data.textureAtlas = textureAtlas;
 				}
-				if(isDirty){
+				if(isDirty)
+                {
 					AssetDatabase.Refresh();
 					EditorUtility.SetDirty(data);
 				}
+
 				AssetDatabase.SaveAssets();
 				return data;
 			}

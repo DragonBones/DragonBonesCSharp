@@ -124,8 +124,6 @@ namespace DragonBones
 
             return name;
         }
-
-
     }
 
 

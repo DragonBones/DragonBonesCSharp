@@ -10,7 +10,6 @@ namespace DragonBones
     [CustomEditor(typeof(UnityArmatureComponent))]
 	public class UnityArmatureEditor : Editor
     {
-		
 		private int _armatureIndex = -1;
 		private int _animationIndex = -1;
 		private int _sortingLayerIndex = -1;
@@ -93,29 +92,37 @@ namespace DragonBones
 			_armatureComponent.unityData = EditorGUILayout.ObjectField("DragonBones Data", _armatureComponent.unityData, typeof(UnityDragonBonesData), false) as UnityDragonBonesData;
 
 			var created = false;
-			if (_armatureComponent.unityData != null)
-			{
-				if (_armatureComponent.armature == null)
-				{
-					if (GUILayout.Button("Create"))
-					{
-						created = true;
-					}
-				}
-				else
-				{
-					if (GUILayout.Button("Reload"))
-					{
-						if(EditorUtility.DisplayDialog("DragonBones Alert", "Are you sure you want to reload data", "Yes", "No"))
+            if (_armatureComponent.unityData != null)
+            {
+                if (_armatureComponent.armature == null)
+                {
+                    if (GUILayout.Button("Create"))
+                    {
+                        created = true;
+                    }
+                }
+                else
+                {
+                    if (GUILayout.Button("Reload"))
+                    {
+                        if (EditorUtility.DisplayDialog("DragonBones Alert", "Are you sure you want to reload data", "Yes", "No"))
                         {
-							created = true;
-						}
-					}
-				}
-			}
+                            created = true;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                //UnityDragonBonesData没有设置时，可以选择一个骨骼JSON文件，以此创建
+                if (GUILayout.Button("JSON"))
+                {
+                    PickJsonDataWindow.OpenWindow(_armatureComponent);
+                }
+            }
 
 			if (created)
-			{	
+			{
 				//clear cache
 				UnityFactory.factory.Clear(true);
 				_armatureNames = null;

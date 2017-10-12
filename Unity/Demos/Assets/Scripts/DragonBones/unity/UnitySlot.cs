@@ -550,13 +550,7 @@ namespace DragonBones
                 transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
             }
             else
-            {
-                //QQ
-                if (this.name == "dabiR")
-                {
-                    int i = 0;
-                }
-
+            {                
                 this.UpdateGlobalTransform(); // Update transform.
 
                 var flipX = _armature.flipX;

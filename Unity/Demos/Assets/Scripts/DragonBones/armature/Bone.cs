@@ -277,8 +277,8 @@ namespace DragonBones
             }
 
             //QQ
-            UnityEngine.Debug.Log("---------------------" + "bone name:" + this.name + "---------------------");
-            UnityEngine.Debug.Log(string.Format("x:{0} y:{1} rotation:{2} skew:{3}", global.x, global.y, global.rotation, global.skew));
+            //UnityEngine.Debug.Log("---------------------" + "bone name:" + this.name + "---------------------");
+            //UnityEngine.Debug.Log(string.Format("x:{0} y:{1} rotation:{2} skew:{3}", global.x, global.y, global.rotation, global.skew));
         }
 
         /**
@@ -352,12 +352,6 @@ namespace DragonBones
          */
         internal void Update(int cacheFrameIndex)
         {
-            //QQ
-            if (this.name == "dabiR")
-            {
-                int i = 0;
-            }
-
             this._blendDirty = false;
 
             if (cacheFrameIndex >= 0 && this._cachedFrameIndices != null)
