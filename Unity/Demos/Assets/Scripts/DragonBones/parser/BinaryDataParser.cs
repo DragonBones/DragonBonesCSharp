@@ -222,22 +222,22 @@ namespace DragonBones
                 var boneCount = this._intArrayBuffer[weightOffset + (int)BinaryOffset.WeigthBoneCount];
                 weight.offset = weightOffset;
                 
-                weight.bones.ResizeList(boneCount);
-
                 for (var i = 0; i < boneCount; ++i)
                 {
                     var boneIndex = this._intArrayBuffer[weightOffset + (int)BinaryOffset.WeigthBoneIndices + i];
-                    weight.bones[i] = this._rawBones[boneIndex];
+                    weight.AddBone(this._rawBones[boneIndex]);
                 }
 
                 var boneIndicesOffset = weightOffset + (short)BinaryOffset.WeigthBoneIndices + boneCount;
+                var weightCount = 0;
                 for (int i = 0, l = vertexCount; i < l; ++i)
                 {
                     var vertexBoneCount = this._intArrayBuffer[boneIndicesOffset++];
-                    weight.count += vertexBoneCount;
+                    weightCount += vertexBoneCount;
                     boneIndicesOffset += vertexBoneCount;
                 }
 
+                weight.count = weightCount;
                 mesh.weight = weight;
             }
         }
@@ -333,6 +333,14 @@ namespace DragonBones
         {
             var offsets = rawData[ObjectDataParser.OFFSET] as List<object>;
 
+            int l0 = int.Parse(offsets[0].ToString());
+            int l1 = int.Parse(offsets[1].ToString());
+            int l2 = int.Parse(offsets[3].ToString());
+            int l3 = int.Parse(offsets[5].ToString());
+            int l4 = int.Parse(offsets[7].ToString());
+            int l5 = int.Parse(offsets[9].ToString());
+            int l6 = int.Parse(offsets[11].ToString());
+
             short[] intArray = { };
             float[] floatArray = { };
             short[] frameIntArray = { };
@@ -346,17 +354,18 @@ namespace DragonBones
                 //ToRead
                 reader.Seek(this._binaryOffset, SeekOrigin.Begin);
 
-                intArray = reader.ReadInt16s(int.Parse(offsets[0].ToString()), int.Parse(offsets[1].ToString()) / Helper.INT16_SIZE);
-                floatArray = reader.ReadSingles(0, int.Parse(offsets[3].ToString()) / Helper.FLOAT_SIZE);
-                frameIntArray = reader.ReadInt16s(0, int.Parse(offsets[5].ToString()) / Helper.INT16_SIZE);
-                frameFloatArray = reader.ReadSingles(0, int.Parse(offsets[7].ToString()) / Helper.FLOAT_SIZE);
-                frameArray = reader.ReadInt16s(0, int.Parse(offsets[9].ToString()) / Helper.INT16_SIZE);
-                timelineArray = reader.ReadUInt16s(0, int.Parse(offsets[11].ToString()) / Helper.UINT16_SIZE);
+                intArray = reader.ReadInt16s(l0, l1 / Helper.INT16_SIZE);
+                floatArray = reader.ReadSingles(0, l2 / Helper.FLOAT_SIZE);
+                frameIntArray = reader.ReadInt16s(0, l3 / Helper.INT16_SIZE);
+                frameFloatArray = reader.ReadSingles(0, l4 / Helper.FLOAT_SIZE);
+                frameArray = reader.ReadInt16s(0, l5 / Helper.INT16_SIZE);
+                timelineArray = reader.ReadUInt16s(0, l6 / Helper.UINT16_SIZE);
 
                 reader.Close();
                 ms.Close();
             }
 
+            this._data.binary = this._binary;
             this._data.intArray = this._intArrayBuffer = intArray;
             this._data.floatArray = this._floatArrayBuffer = floatArray;
             this._data.frameIntArray = this._frameIntArrayBuffer = frameIntArray;

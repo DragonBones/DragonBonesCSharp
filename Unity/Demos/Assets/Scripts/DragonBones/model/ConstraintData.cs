@@ -6,6 +6,7 @@
     public abstract class ConstraintData : BaseObject
     {
         public int order;
+        public string name;
         public BoneData target;
         public BoneData bone;
         public BoneData root = null;
@@ -13,6 +14,7 @@
         protected override void _OnClear()
         {
             this.order = 0;
+            this.name = string.Empty;
             this.target = null; 
             this.bone = null; 
             this.root = null;

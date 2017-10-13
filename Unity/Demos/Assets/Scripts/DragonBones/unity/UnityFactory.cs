@@ -23,110 +23,6 @@ namespace DragonBones
         }
     }
 
-    /// <summary>
-    /// UnityFactory 辅助类
-    /// </summary>
-    internal static class UnityFactoryHelper
-    {
-        /// <summary>
-        /// 生成一个材质球
-        /// </summary>
-        /// <param name="shaderName"></param>
-        /// <param name="materialName"></param>
-        /// <param name="texture"></param>
-        /// <returns></returns>
-        internal static Material GenerateMaterial(string shaderName, string materialName, Texture texture)
-        {
-            //创建材质球
-            Shader shader = Shader.Find(shaderName);
-            Material material = new Material(shader);
-            //material.name = texture2D.name + "_Mat";
-            material.name = materialName;
-            material.mainTexture = texture;
-
-            return material;
-        }
-
-        /// <summary>
-        /// 检查路径合法性
-        /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
-        internal static string CheckResourecdPath(string path)
-        {
-            var index = path.LastIndexOf("Resources");
-            if (index > 0)
-            {
-                path = path.Substring(index + 10);
-            }
-
-            index = path.LastIndexOf(".");
-            if (index > 0)
-            {
-                path = path.Substring(0, index);
-            }
-
-            return path;
-        }
-
-        /// <summary>
-        /// 根据贴图JSON文件的路径和JSON文件中贴图名称获得贴图路径
-        /// </summary>
-        /// <param name="textureAtlasJSONPath">贴图JSON文件路径:NewDragon/NewDragon_tex</param>
-        /// <param name="textureAtlasImageName">贴图名称:NewDragon.png</param>
-        /// <returns></returns>
-        internal static string GetTextureAtlasImagePath(string textureAtlasJSONPath, string textureAtlasImageName)
-        {
-            var index = textureAtlasJSONPath.LastIndexOf("Resources");
-            if (index > 0)
-            {
-                textureAtlasJSONPath = textureAtlasJSONPath.Substring(index + 10);
-            }
-
-            index = textureAtlasJSONPath.LastIndexOf("/");
-
-            string textureAtlasImagePath = textureAtlasImageName;
-            if (index > 0)
-            {
-                textureAtlasImagePath = textureAtlasJSONPath.Substring(0, index + 1) + textureAtlasImageName;
-            }
-
-            index = textureAtlasImagePath.LastIndexOf(".");
-            if (index > 0)
-            {
-                textureAtlasImagePath = textureAtlasImagePath.Substring(0, index);
-            }
-
-            return textureAtlasImagePath;
-        }
-
-        /// <summary>
-        /// 根据贴图路径获得贴图名称
-        /// </summary>
-        /// <param name="textureAtlasJSONPath"></param>
-        /// <returns></returns>
-        internal static string GetTextureAtlasNameByPath(string textureAtlasJSONPath)
-        {
-            string name = string.Empty;
-            int index = textureAtlasJSONPath.LastIndexOf("/") + 1;
-            int lastIdx = textureAtlasJSONPath.LastIndexOf("_tex");
-            if (lastIdx > -1)
-            {
-                if (lastIdx > index)
-                {
-                    name = textureAtlasJSONPath.Substring(index, lastIdx - index);
-                }
-                else
-                {
-                    name = textureAtlasJSONPath.Substring(index);
-                }
-            }
-
-            return name;
-        }
-    }
-
-
     /**
      * @language zh_CN
      * Unity 工厂。
@@ -396,7 +292,7 @@ namespace DragonBones
                         textureAtlasData.height = (uint)textureAtlas.height;
                     }
 
-					textureAtlasData._disposeTexture = true;
+					textureAtlasData._disposeEnabled = true;
 					#if UNITY_EDITOR
 					if(!Application.isPlaying)
                     {
@@ -452,7 +348,7 @@ namespace DragonBones
                         textureAtlasData.height = (uint)textureAtlas.height;
                     }
 
-					textureAtlasData._disposeTexture = true;
+					textureAtlasData._disposeEnabled = true;
 					#if UNITY_EDITOR
 					if(!Application.isPlaying)
                     {
@@ -979,5 +875,108 @@ namespace DragonBones
                 
             }
 		}
+    }
+
+    /// <summary>
+    /// UnityFactory 辅助类
+    /// </summary>
+    internal static class UnityFactoryHelper
+    {
+        /// <summary>
+        /// 生成一个材质球
+        /// </summary>
+        /// <param name="shaderName"></param>
+        /// <param name="materialName"></param>
+        /// <param name="texture"></param>
+        /// <returns></returns>
+        internal static Material GenerateMaterial(string shaderName, string materialName, Texture texture)
+        {
+            //创建材质球
+            Shader shader = Shader.Find(shaderName);
+            Material material = new Material(shader);
+            //material.name = texture2D.name + "_Mat";
+            material.name = materialName;
+            material.mainTexture = texture;
+
+            return material;
+        }
+
+        /// <summary>
+        /// 检查路径合法性
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        internal static string CheckResourecdPath(string path)
+        {
+            var index = path.LastIndexOf("Resources");
+            if (index > 0)
+            {
+                path = path.Substring(index + 10);
+            }
+
+            index = path.LastIndexOf(".");
+            if (index > 0)
+            {
+                path = path.Substring(0, index);
+            }
+
+            return path;
+        }
+
+        /// <summary>
+        /// 根据贴图JSON文件的路径和JSON文件中贴图名称获得贴图路径
+        /// </summary>
+        /// <param name="textureAtlasJSONPath">贴图JSON文件路径:NewDragon/NewDragon_tex</param>
+        /// <param name="textureAtlasImageName">贴图名称:NewDragon.png</param>
+        /// <returns></returns>
+        internal static string GetTextureAtlasImagePath(string textureAtlasJSONPath, string textureAtlasImageName)
+        {
+            var index = textureAtlasJSONPath.LastIndexOf("Resources");
+            if (index > 0)
+            {
+                textureAtlasJSONPath = textureAtlasJSONPath.Substring(index + 10);
+            }
+
+            index = textureAtlasJSONPath.LastIndexOf("/");
+
+            string textureAtlasImagePath = textureAtlasImageName;
+            if (index > 0)
+            {
+                textureAtlasImagePath = textureAtlasJSONPath.Substring(0, index + 1) + textureAtlasImageName;
+            }
+
+            index = textureAtlasImagePath.LastIndexOf(".");
+            if (index > 0)
+            {
+                textureAtlasImagePath = textureAtlasImagePath.Substring(0, index);
+            }
+
+            return textureAtlasImagePath;
+        }
+
+        /// <summary>
+        /// 根据贴图路径获得贴图名称
+        /// </summary>
+        /// <param name="textureAtlasJSONPath"></param>
+        /// <returns></returns>
+        internal static string GetTextureAtlasNameByPath(string textureAtlasJSONPath)
+        {
+            string name = string.Empty;
+            int index = textureAtlasJSONPath.LastIndexOf("/") + 1;
+            int lastIdx = textureAtlasJSONPath.LastIndexOf("_tex");
+            if (lastIdx > -1)
+            {
+                if (lastIdx > index)
+                {
+                    name = textureAtlasJSONPath.Substring(index, lastIdx - index);
+                }
+                else
+                {
+                    name = textureAtlasJSONPath.Substring(index);
+                }
+            }
+
+            return name;
+        }
     }
 }

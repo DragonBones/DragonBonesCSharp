@@ -308,8 +308,13 @@ namespace DragonBones
                         var floatArray = data.floatArray;
                         var vertexCount = intArray[meshData.offset + (int)BinaryOffset.MeshVertexCount];
                         var triangleCount = intArray[meshData.offset + (int)BinaryOffset.MeshTriangleCount];
-                        var verticesOffset = intArray[meshData.offset + (int)BinaryOffset.MeshFloatOffset];
-                        var uvOffset = verticesOffset + vertexCount * 2;
+                        int vertexOffset = intArray[meshData.offset + (int)BinaryOffset.MeshFloatOffset];
+                        if (vertexOffset < 0)
+                        {
+                            vertexOffset += 65536; // Fixed out of bouds bug. 
+                        }
+
+                        var uvOffset = vertexOffset + vertexCount * 2;
 
                         if (this._uvs == null || this._uvs.Length != vertexCount)
                         {
@@ -324,7 +329,7 @@ namespace DragonBones
                         
                         int[] triangles = new int[triangleCount * 3];
 
-                        for (int i = 0, iV = verticesOffset, iU = uvOffset, l = vertexCount; i < l; ++i)
+                        for (int i = 0, iV = vertexOffset, iU = uvOffset, l = vertexCount; i < l; ++i)
                         {
                             this._vertices[i].x = floatArray[iV++] * pixelsPerUnit;
                             this._vertices[i].y = floatArray[iV++] * pixelsPerUnit;
@@ -460,7 +465,12 @@ namespace DragonBones
 
             if (weightData != null)
             {
-                var weightFloatOffset = intArray[weightData.offset + 1/*(int)BinaryOffset.MeshWeightOffset*/];
+                int weightFloatOffset = intArray[weightData.offset + 1/*(int)BinaryOffset.MeshWeightOffset*/];
+                if (weightFloatOffset < 0)
+                {
+                    weightFloatOffset += 65536; // Fixed out of bouds bug. 
+                }
+
                 int iB = weightData.offset + (int)BinaryOffset.WeigthBoneIndices + weightData.bones.Count, iV = weightFloatOffset, iF = 0;
                 for (int i = 0; i < vertextCount; ++i)
                 {
@@ -503,7 +513,11 @@ namespace DragonBones
             }
             else if (hasFFD)
             {
-                var vertexOffset = intArray[meshData.offset + (int)BinaryOffset.MeshFloatOffset];
+                int vertexOffset = intArray[meshData.offset + (int)BinaryOffset.MeshFloatOffset];
+                if (vertexOffset < 0)
+                {
+                    vertexOffset += 65536; // Fixed out of bouds bug. 
+                }
 
                 Vector3[] vertices = new Vector3[vertextCount];
                 for (int i = 0, iV = 0, iF = 0, l = vertextCount; i < l; ++i)

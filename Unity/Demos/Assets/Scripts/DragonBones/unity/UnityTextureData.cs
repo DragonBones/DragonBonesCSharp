@@ -12,7 +12,7 @@ namespace DragonBones
         /**
          * @private
          */
-        internal bool _disposeTexture;
+        internal bool _disposeEnabled;
         /**
          * @language zh_CN
          * Unity 贴图。
@@ -33,7 +33,7 @@ namespace DragonBones
         {
             base._OnClear();
 
-            if (_disposeTexture && texture != null)
+            if (_disposeEnabled && texture != null)
             {
 #if UNITY_EDITOR
                 //Object.DestroyImmediate(texture);
@@ -42,7 +42,7 @@ namespace DragonBones
 #endif
             }
 
-			if (_disposeTexture && uiTexture != null)
+			if (_disposeEnabled && uiTexture != null)
 			{
 #if UNITY_EDITOR
 				//Object.DestroyImmediate(uiTexture);
@@ -51,7 +51,7 @@ namespace DragonBones
 #endif
 			}
 
-            _disposeTexture = false;
+            _disposeEnabled = false;
             texture = null;
 			uiTexture = null;
         }

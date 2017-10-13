@@ -1086,7 +1086,7 @@ namespace DragonBones
                     this._mesh = null; //
                 }
             }
-
+         
             if (this._actionFrames.Count > 0)
             {
                 this._actionFrames.Sort(this._SortActionFrame);

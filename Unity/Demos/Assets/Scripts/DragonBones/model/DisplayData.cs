@@ -62,7 +62,15 @@ namespace DragonBones
             this.actions.Clear();
             this.armature = null;
         }
-    }
+
+        /**
+         * @private
+         */
+        internal void AddAction(ActionData value)
+        {
+            this.actions.Add(value);
+        }
+}
 
     /**
      * @private
@@ -71,7 +79,7 @@ namespace DragonBones
     {
         public bool inheritAnimation;
         public int offset; // IntArray.
-        public WeightData weight = null; // Initial value.
+        internal WeightData weight = null; // Initial value.
 
         protected override void _OnClear()
         {
@@ -124,6 +132,11 @@ namespace DragonBones
             this.count = 0;
             this.offset = 0;
             this.bones.Clear();
+        }
+
+        internal void AddBone(BoneData value)
+        {
+            this.bones.Add(value);
         }
     }
 }

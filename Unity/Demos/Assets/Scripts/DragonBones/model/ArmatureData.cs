@@ -405,6 +405,21 @@ namespace DragonBones
             }
         }
         /**
+         * @private
+         */
+        internal void AddAction(ActionData value, bool isDefault)
+        {
+            if (isDefault)
+            {
+                this.defaultActions.Add(value);
+            }
+            else
+            {
+                this.actions.Add(value);
+            }
+        }
+
+        /**
          * 获取骨骼数据。
          * @param name 数据名称。
          * @version DragonBones 3.0
@@ -527,6 +542,14 @@ namespace DragonBones
             this.constraints.Clear();
             this.userData = null;
             this.parent = null;
+        }
+
+        /**
+         * @private
+         */
+        internal void AddConstraint(ConstraintData value)
+        {
+            this.constraints.Add(value);
         }
     }
 

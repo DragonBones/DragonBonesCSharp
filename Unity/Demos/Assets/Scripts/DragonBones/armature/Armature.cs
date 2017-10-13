@@ -668,12 +668,12 @@ namespace DragonBones
         /**
          * @deprecated
          */
-        public void AddBone(Bone value, string parentName = null)
+        public void AddBone(Bone value, string parentName)
         {
             Helper.Assert(value != null, "add bone is null");
 
             value._SetArmature(this);
-            value._SetParent(parentName != null ? this.GetBone(parentName) : null);
+            value._SetParent(!string.IsNullOrEmpty(parentName) ? this.GetBone(parentName) : null);
         }
         /**
          * @deprecated

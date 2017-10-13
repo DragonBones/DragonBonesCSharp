@@ -335,7 +335,16 @@ namespace DragonBones
                 else
                 {
                     var nextFrameOffset = this._animationData.frameOffset + this._timelineArray[(this._timelineData as TimelineData).offset + (int)BinaryOffset.TimelineFrameOffset + this._frameIndex + 1];
-                    this._frameDurationR = 1.0f / (this._frameArray[nextFrameOffset] * this._frameRateR - this._framePosition);
+                    var frameDuration = this._frameArray[nextFrameOffset] * this._frameRateR - this._framePosition;
+
+                    if (frameDuration > 0.0f)
+                    {
+                        this._frameDurationR = 1.0f / frameDuration;
+                    }
+                    else
+                    {
+                        this._frameDurationR = 0.0f;
+                    }
                 }
             }
             else

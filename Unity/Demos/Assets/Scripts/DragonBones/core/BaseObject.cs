@@ -62,20 +62,19 @@ namespace DragonBones
             else
             {
                 _defaultMaxCount = maxCount;
-                foreach (var pair in _poolsMap)
-                {
-                    if (!_maxCountMap.ContainsKey(pair.Key))
-                    {
-                        continue;
-                    }
 
-                    var pool = _poolsMap[pair.Key];
+                foreach (var key in _poolsMap.Keys)
+                {
+                    var pool = _poolsMap[key];
                     if (pool.Count > maxCount)
                     {
                         pool.ResizeList((int)maxCount, null);
                     }
 
-                    _maxCountMap[pair.Key] = maxCount;
+                    if (_maxCountMap.ContainsKey(key))
+                    {
+                        _maxCountMap[key] = maxCount;
+                    }
                 }
             }
         }

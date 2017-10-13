@@ -145,6 +145,15 @@ namespace DragonBones
 
                         dR = this._parent.global.rotation; //
                         global.rotation -= dR;
+
+                        if (DragonBones.yDown)
+                        {
+                            global.rotation -= dR;
+                        }
+                        else
+                        {
+                            global.rotation += dR;
+                        }
                     }
 
                     global.ToMatrix(globalTransformMatrix);
