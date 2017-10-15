@@ -610,10 +610,14 @@ namespace DragonBones
                 }
 
 
-                // Modify mesh skew. // TODO child armature skew.
+                //Modify mesh skew. // TODO child armature skew.
                 if ((_display == _rawDisplay || _display == _meshDisplay) && _mesh != null)
                 {
                     var dSkew = global.skew;
+                    if ((int)(System.Math.Floor(System.Math.Abs(dSkew) * 100)) % (int)(System.Math.Floor(Transform.PI * 100)) == 0)
+                    {
+                        dSkew = 0.0f;
+                    }
                     var skewed = dSkew < -0.01f || 0.01f < dSkew;
                     if (_skewed || skewed)
                     {
@@ -657,8 +661,8 @@ namespace DragonBones
 
             if (childArmature != null)
             {
-                childArmature.flipX = _proxy.armature.flipX;
-                childArmature.flipY = _proxy.armature.flipY;
+                //childArmature.flipX = _proxy.armature.flipX;
+                //childArmature.flipY = _proxy.armature.flipY;
                 UnityArmatureComponent unityArmature = (childArmature.proxy as UnityArmatureComponent);
                 unityArmature.addNormal = _proxy.addNormal;
                 unityArmature.boneHierarchy = _proxy.boneHierarchy;

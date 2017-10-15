@@ -40,7 +40,7 @@ public class HelloDragonBones :MonoBehaviour
         armatureComponent.animation.Play("stand");
 
         // Set position.
-        armatureComponent.transform.localPosition = new Vector3(0.0f, -2.0f, 1.0f);        
+        armatureComponent.transform.localPosition = new Vector3(0.0f, -2.0f, 1.0f);      
     }
 
     private void TestDragon()
