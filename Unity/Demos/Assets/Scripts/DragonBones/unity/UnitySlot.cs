@@ -603,21 +603,21 @@ namespace DragonBones
                 transform.localEulerAngles = _helpVector3;
 
                 //QQ
-                if (this.name == "dabiR")
-                {
-                    //UnityEngine.Debug.Log("---------------------" + "solt name:" + this.name + "---------------------");
-                    //UnityEngine.Debug.Log(string.Format("x:{0} y:{1} rotation:{2}", global.x, global.y, global.rotation));
-                }
+                //if (this.name == "dabiR")
+                //{
+                //    UnityEngine.Debug.Log("---------------------" + "solt name:" + this.name + "---------------------");
+                //    UnityEngine.Debug.Log(string.Format("x:{0} y:{1} rotation:{2} skew:{3}", global.x, global.y, global.rotation, global.skew));
+                //}
 
 
                 //Modify mesh skew. // TODO child armature skew.
                 if ((_display == _rawDisplay || _display == _meshDisplay) && _mesh != null)
                 {
                     var dSkew = global.skew;
-                    if ((int)(System.Math.Floor(System.Math.Abs(dSkew) * 100)) % (int)(System.Math.Floor(Transform.PI * 100)) == 0)
-                    {
-                        dSkew = 0.0f;
-                    }
+
+                    dSkew = Mathf.RoundToInt(dSkew * 100) % Mathf.RoundToInt(Transform.PI * 100);
+                    dSkew = dSkew / 100.0f;
+
                     var skewed = dSkew < -0.01f || 0.01f < dSkew;
                     if (_skewed || skewed)
                     {

@@ -38,6 +38,7 @@ public class HelloDragonBones :MonoBehaviour
 
         var armatureComponent = UnityFactory.factory.BuildArmatureComponent("armatureName");
         armatureComponent.animation.Play("stand");
+        armatureComponent.armature.flipX = true;
 
         // Set position.
         armatureComponent.transform.localPosition = new Vector3(0.0f, -2.0f, 1.0f);      
@@ -51,6 +52,7 @@ public class HelloDragonBones :MonoBehaviour
 
         var armatureComponent = UnityFactory.factory.BuildArmatureComponent("DragonBoy");
         armatureComponent.animation.Play("walk");
+        armatureComponent.armature.flipX = true;
 
         // Set position.
         armatureComponent.transform.localPosition = new Vector3(0.0f, -2.0f, 1.0f);
