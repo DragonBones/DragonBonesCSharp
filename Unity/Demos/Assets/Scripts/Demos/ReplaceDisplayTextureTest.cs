@@ -12,7 +12,8 @@ public class ReplaceDisplayTextureTest : MonoBehaviour
 	void Start ()
     {
 		UnityArmatureComponent unityArmature = GetComponent<UnityArmatureComponent>();
-	
+
+        UnityFactory.factory.autoSearch = true;
 		UnityFactory.factory.ReplaceSlotDisplay(
 			dragonBonesName,armatureName,slotName,displayName,unityArmature.armature.GetSlot(replaceSlot),
 			replaceTex,new Material(Shader.Find("Sprites/Default"))

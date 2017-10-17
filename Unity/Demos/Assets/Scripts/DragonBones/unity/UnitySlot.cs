@@ -572,7 +572,15 @@ namespace DragonBones
                 transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
             }
             else
-            {                
+            {
+
+                //QQ
+                //if (this.name == "a27")
+                //{
+                //    UnityEngine.Debug.Log("---------------------" + "solt name:" + this.name + "---------------------");
+                //    UnityEngine.Debug.Log(string.Format("x:{0} y:{1} rotation:{2} skew:{3}", global.x, global.y, global.rotation, global.skew));
+                //}
+
                 this.UpdateGlobalTransform(); // Update transform.
 
                 var flipX = _armature.flipX;
@@ -621,14 +629,6 @@ namespace DragonBones
                 
                 transform.localEulerAngles = _helpVector3;
 
-                //QQ
-                //if (this.name == "weapon")
-                //{
-                //    UnityEngine.Debug.Log("---------------------" + "solt name:" + this.name + "---------------------");
-                //    UnityEngine.Debug.Log(string.Format("x:{0} y:{1} rotation:{2} skew:{3}", global.x, global.y, global.rotation, global.skew));
-                //}
-
-
                 //Modify mesh skew. // TODO child armature skew.
                 if ((_display == _rawDisplay || _display == _meshDisplay) && _mesh != null)
                 {
@@ -638,37 +638,44 @@ namespace DragonBones
                     dSkew = dSkew / 100.0f;
 
                     var skewed = dSkew < -0.01f || 0.01f < dSkew;
-                    if (_skewed || skewed)
+                    if (skewed)
                     {
-                        _skewed = skewed;
-
-                        var isPositive = global.scaleX >= 0.0f;
-                        var cos = Mathf.Cos(dSkew);
-                        var sin = Mathf.Sin(dSkew);
-
-                        for (int i = 0, l = _vertices.Length; i < l; ++i)
-                        {
-                            var x = _vertices[i].x;
-                            var y = _vertices[i].y;
-
-                            if (isPositive)
-                            {
-                                _vertices2[i].x = x + y * sin;
-                            }
-                            else
-                            {
-                                _vertices2[i].x = -x + y * sin;
-                            }
-
-                            _vertices2[i].y = y * cos;
-                        }
-
-                        _mesh.vertices = _vertices2;
-                        if (_renderer && _renderer.enabled)
-                        {
-                            _mesh.RecalculateBounds();
-                        }
+                        skewed = Transform.PI - Mathf.Abs(dSkew) > 0.01f;
                     }
+
+                    //_skewed = false;
+                    //skewed = false;
+                    //if (_skewed || skewed)
+                    //{
+                    //    _skewed = skewed;
+
+                    //    var isPositive = global.scaleX >= 0.0f;
+                    //    var cos = Mathf.Cos(dSkew);
+                    //    var sin = Mathf.Sin(dSkew);
+
+                    //    for (int i = 0, l = _vertices.Length; i < l; ++i)
+                    //    {
+                    //        var x = _vertices[i].x;
+                    //        var y = _vertices[i].y;
+
+                    //        if (isPositive)
+                    //        {
+                    //            _vertices2[i].x = x + y * sin;
+                    //        }
+                    //        else
+                    //        {
+                    //            _vertices2[i].x = -x + y * sin;
+                    //        }
+
+                    //        _vertices2[i].y = y * cos;
+                    //    }
+
+                    //    _mesh.vertices = _vertices2;
+                    //    if (_renderer && _renderer.enabled)
+                    //    {
+                    //        _mesh.RecalculateBounds();
+                    //    }
+                    //}
                 }
 
                 _helpVector3.x = scaleX >= 0.0f ? scaleX : -scaleX;

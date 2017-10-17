@@ -30,7 +30,22 @@ public class HelloDragonBones :MonoBehaviour
         //TestDragon();
         //TestLoadDemo();
         //TestZhangFei();
-        TestCoreElement();
+        //TestCoreElement();
+        TestRotation();
+    }
+
+    private void TestRotation()
+    {
+        UnityFactory.factory.autoSearch = true;
+        UnityFactory.factory.LoadDragonBonesData("temp/zhu_def_ske");
+        UnityFactory.factory.LoadTextureAtlasData("temp/zhu_def_tex");
+
+        var armatureComponent = UnityFactory.factory.BuildArmatureComponent("zhu_def", "zhu_def");
+        armatureComponent.animation.Play("idle");
+        //armatureComponent.armature.flipX = true;
+
+        // Set position.
+        armatureComponent.transform.localPosition = new Vector3(0.0f, -2.0f, 1.0f);
     }
 
     private void TestLoadDemo()

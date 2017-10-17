@@ -677,19 +677,21 @@ namespace DragonBones
             {
                 data = ParseDragonBonesData((Dictionary<string, object>)MiniJSON.Json.Deserialize(dragonBonesJSON.text), name, scale); // Unity default Scale Factor.
 
-                if (string.IsNullOrEmpty(name))
-                {
+                //
+                //if (string.IsNullOrEmpty(name))
+                //{
                     name = dragonBonesJSON.name;
-                }
+                //}
             }
             else
             {
                 BinaryDataParser.jsonParseDelegate = MiniJSON.Json.Deserialize;
                 data = ParseDragonBonesData(dragonBonesBinary.bytes, name, scale); // Unity default Scale Factor.
-                if (string.IsNullOrEmpty(name))
-                {
+                //
+                //if (string.IsNullOrEmpty(name))
+                //{
                     name = dragonBonesBinary.name;
-                }
+                //}
             }
 
             int index = name.LastIndexOf("_ske");
