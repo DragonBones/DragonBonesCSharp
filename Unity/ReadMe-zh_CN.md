@@ -1,15 +1,20 @@
 # DragonBones Unity Library
 
-## How to use [Demos](./Demos/)
+<p align="center">
+<h2 align="center"><a href="./README.md">English</a>          中文版</h2>
+</p>
 
-1. Create a Unity project and import [Demos files](./Demos/) to override the project files.
-2. Import the [DragonBones common source code](../DragonBones/src/) to project Assets/Scripts.
-3. Import the [DragonBones Unity source code](./src/) to project Assets/Scripts.
-4. Import the [3rdParty source code](../3rdParty/) to project Assets/Scripts.
-5. Run project and have fun.
 
-*Notice*
-* Maker sure project structure like this:
+## [Demos](./Demos/) 使用方法
+
+1. 创建一个Unity项目，导入[Demos files](./Demos/)
+2. 复制[DragonBones common source code](../DragonBones/src/)中的DragonBones目录到项目中的Assets/Scripts目录下。
+3. 复制[DragonBones Unity source code](./src/)中的DragonBones目录替换覆盖到项目中的Assets/Scripts目录下。
+4. 复制[3rdParty source code](../3rdParty/)中的rapidjson目录到项目的Assets/Scripts目录下。
+5. 运行就行了。
+
+*注意事项*
+* 确保项目的结构如下:
 ```
 project
     |-- Assets
@@ -30,13 +35,13 @@ project
     |-- ...
 ```
 
-## How to create a new Unity project with DragonBones animation
+## 如何创建一个可以使用龙骨动画的Untiy新项目
 
-1. Create a new project in Unity.
-2. Import DragonBones [core library](../DragonBones/src/) and [unity library](./src/) into your project "[Project]/Assets/Scripts/".
-3. Import the [3rdParty source code](../3rdParty/) to your project "[Project]/Assets/Scripts/".
-4. Export DB animation files with DragonBones Pro to your project "[Project]/Assets/Resources/".
-5. Create a new C# script like following:
+1. 在Unity中新建一个项目。
+2. 复制[DragonBones core library](../DragonBones/src/)中的DragonBones目录和[unity library](./src/)中的DragonBones目录到项目的/Assets/Scripts/目录下。
+3. 复制[3rdParty source code](../3rdParty/)中的rapidjson目录到项目的Assets/Scripts目录下。
+4. 在DragonBones Pro制作动画，并导出DragonBones json格式（当前只支持到5.0的数据格式），复制导出的三个文件（两个json和一个png）到项目的/Assets/Resources/目录下。
+5. 新建一个 C# 脚本，例如：
 ```
 public class HelloDragonBones :MonoBehaviour
 {
