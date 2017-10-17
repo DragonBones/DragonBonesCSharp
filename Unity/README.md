@@ -1,4 +1,7 @@
 # DragonBones Unity Library
+<p align="center">
+<h2 align="center">English          <a href="./ReadMe-zh_CN.md">中文版</a></h2>
+</p>
 
 ## How to use [Demos](./Demos/)
 
