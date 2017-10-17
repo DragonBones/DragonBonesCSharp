@@ -1480,10 +1480,10 @@ namespace DragonBones
                 if (rawZOrder.Count > 0)
                 {
                     int slotCount = this._armature.sortedSlots.Count;
-                    List<int> unchanged = new List<int>(slotCount - rawZOrder.Count / 2);
-                    List<int> zOrders = new List<int>(slotCount);
+                    int[] unchanged = new int[slotCount - rawZOrder.Count / 2];
+                    int[] zOrders = new int[slotCount];
 
-                    for (var i = 0; i < unchanged.Count; ++i)
+                    for (var i = 0; i < unchanged.Length; ++i)
                     {
                         unchanged[i] = 0;
                     }
@@ -1506,7 +1506,15 @@ namespace DragonBones
                             unchanged[unchangedIndex++] = originalIndex++;
                         }
 
-                        zOrders[originalIndex + zOrderOffset] = originalIndex++;
+                        //兼容错误格式zorder索引负值
+                        if (originalIndex + zOrderOffset >= 0)
+                        {
+                            zOrders[originalIndex + zOrderOffset] = originalIndex++;
+                        }
+                        else
+                        {
+                            originalIndex++;
+                        }
                     }
 
                     while (originalIndex < slotCount)
@@ -1514,7 +1522,7 @@ namespace DragonBones
                         unchanged[unchangedIndex++] = originalIndex++;
                     }
                     
-                    this._frameArray.ResizeList(this._frameArray.Count + 1);
+                    this._frameArray.ResizeList(this._frameArray.Count + 1 + slotCount);
                     this._frameArray[frameOffset + 1] = (short)slotCount;
 
                     var index = slotCount;
@@ -1523,7 +1531,11 @@ namespace DragonBones
                         var value = 0;
                         if (zOrders[index] == -1)
                         {
-                            value = unchanged[--unchangedIndex];
+                            if (unchangedIndex > 0)
+                            {
+                                value = unchanged[--unchangedIndex];
+                            }
+                            
                             this._frameArray[frameOffset + 2 + index] = (short)(value > 0 ? value : 0);
                         }
                         else

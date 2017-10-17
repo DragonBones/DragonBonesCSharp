@@ -27,8 +27,8 @@ public class HelloDragonBones :MonoBehaviour
     void Start()
     {
         //TestHello();
-        TestDragon();
-        //TestLoadDemo();
+        //TestDragon();
+        TestLoadDemo();
     }
 
     private void TestLoadDemo()

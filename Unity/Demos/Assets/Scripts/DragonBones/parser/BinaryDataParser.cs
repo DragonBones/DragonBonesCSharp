@@ -210,7 +210,8 @@ namespace DragonBones
          */
         protected override void _ParseMesh(Dictionary<string, object> rawData, MeshDisplayData mesh)
         {
-            mesh.offset = (int)rawData[ObjectDataParser.OFFSET];
+            //mesh.offset = (int)rawData[ObjectDataParser.OFFSET];
+            mesh.offset = int.Parse(rawData[ObjectDataParser.OFFSET].ToString());
 
             var weightOffset = this._intArrayBuffer[mesh.offset + (int)BinaryOffset.MeshWeightOffset];
 
@@ -268,12 +269,12 @@ namespace DragonBones
 
             if (rawData.ContainsKey(ObjectDataParser.ACTION))
             {
-                animation.actionTimeline = this._ParseBinaryTimeline(TimelineType.Action, (uint)rawData[ObjectDataParser.ACTION]);
+                animation.actionTimeline = this._ParseBinaryTimeline(TimelineType.Action, uint.Parse(rawData[ObjectDataParser.ACTION].ToString()));
             }
 
             if (rawData.ContainsKey(ObjectDataParser.Z_ORDER))
             {
-                animation.zOrderTimeline = this._ParseBinaryTimeline(TimelineType.ZOrder, (uint)rawData[ObjectDataParser.Z_ORDER]);
+                animation.zOrderTimeline = this._ParseBinaryTimeline(TimelineType.ZOrder, uint.Parse(rawData[ObjectDataParser.Z_ORDER].ToString()));
             }
 
             if (rawData.ContainsKey(ObjectDataParser.BONE))

@@ -160,7 +160,10 @@ namespace DragonBones
         {
             var slot = BaseObject.BorrowObject<UnitySlot>();
             var displayList = new List<object>();
-            displayList.ResizeList(displays.Count);
+            if (displays != null)
+            {
+                displayList.ResizeList(displays.Count);
+            }
 
             var armatureDisplay = armature.display as GameObject;
             var slotsRoot = armatureDisplay.GetComponent<UnityArmatureComponent>().slotsRoot.transform;
@@ -173,68 +176,71 @@ namespace DragonBones
             
             slot.Init(slotData, displays, gameObject, gameObject);
 
-            for (int i = 0, l = displays.Count; i < l; ++i)
+            if (displays != null)
             {
-                var displayData = displays[i];
-                switch (displayData.type)
+                for (int i = 0, l = displays.Count; i < l; ++i)
                 {
-                    case DisplayType.Image:
-                    case DisplayType.Mesh:
-                        var imageDisplayData = displayData as ImageDisplayData;
-                        if (imageDisplayData.texture == null)
-                        {
-                            imageDisplayData.texture = _GetTextureData(dataPackage.dataName, displayData.path);
-                        }
-
-                        if (!string.IsNullOrEmpty(dataPackage.textureAtlasName))
-                        {
-                            slot._displayDatas[i] = displayData;
-                        }
-
-                        displayList[i] = slot.rawDisplay;
-                        break;
-                    case DisplayType.Armature:
-                        var armatureDisplayData = displayData as ArmatureDisplayData;
-                        var childDisplayName = slotData.name + " (" + armatureDisplayData.path + ")"; //
-                        var childTransform = slotsRoot.Find(childDisplayName);
-                        var childArmature = childTransform == null ?
-                            BuildArmature(armatureDisplayData.path, dataPackage.dataName) :
-                            BuildArmatureComponent(armatureDisplayData.path, dataPackage.dataName, null, dataPackage.textureAtlasName, childTransform.gameObject).armature;
-
-                        if (childArmature != null)
-                        {
-                            childArmature.inheritAnimation = armatureDisplayData.inheritAnimation;
-                            if (!childArmature.inheritAnimation)
+                    var displayData = displays[i];
+                    switch (displayData.type)
+                    {
+                        case DisplayType.Image:
+                        case DisplayType.Mesh:
+                            var imageDisplayData = displayData as ImageDisplayData;
+                            if (imageDisplayData.texture == null)
                             {
-                                var actions = childArmature.armatureData.actions;
-                                if (actions.Count > 0)
-                                {
-                                    foreach (var actionData in actions)
-                                    {
-                                        childArmature._BufferAction(actionData, true);
-                                    }
-                                }
-                                else
-                                {
-                                    childArmature.animation.Play();
-                                }
+                                imageDisplayData.texture = _GetTextureData(dataPackage.dataName, displayData.path);
                             }
 
-                            armatureDisplayData.armature = childArmature.armatureData; // 
+                            if (!string.IsNullOrEmpty(dataPackage.textureAtlasName))
+                            {
+                                slot._displayDatas[i] = displayData;
+                            }
 
-                            // Hide
-                            var childArmatureDisplay = childArmature.display as GameObject;
-                            childArmatureDisplay.GetComponent<UnityArmatureComponent>().isUGUI = armatureDisplay.GetComponent<UnityArmatureComponent>().isUGUI;
-                            childArmatureDisplay.name = childDisplayName;
-                            childArmatureDisplay.gameObject.hideFlags = HideFlags.HideInHierarchy;
-                            childArmatureDisplay.SetActive(false);
-                        }
+                            displayList[i] = slot.rawDisplay;
+                            break;
+                        case DisplayType.Armature:
+                            var armatureDisplayData = displayData as ArmatureDisplayData;
+                            var childDisplayName = slotData.name + " (" + armatureDisplayData.path + ")"; //
+                            var childTransform = slotsRoot.Find(childDisplayName);
+                            var childArmature = childTransform == null ?
+                                BuildArmature(armatureDisplayData.path, dataPackage.dataName) :
+                                BuildArmatureComponent(armatureDisplayData.path, dataPackage.dataName, null, dataPackage.textureAtlasName, childTransform.gameObject).armature;
 
-                        displayList[i] = childArmature;
-                        break;
-                    default:
-                        displayList[i] = null;
-                        break;
+                            if (childArmature != null)
+                            {
+                                childArmature.inheritAnimation = armatureDisplayData.inheritAnimation;
+                                if (!childArmature.inheritAnimation)
+                                {
+                                    var actions = childArmature.armatureData.actions;
+                                    if (actions.Count > 0)
+                                    {
+                                        foreach (var actionData in actions)
+                                        {
+                                            childArmature._BufferAction(actionData, true);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        childArmature.animation.Play();
+                                    }
+                                }
+
+                                armatureDisplayData.armature = childArmature.armatureData; // 
+
+                                // Hide
+                                var childArmatureDisplay = childArmature.display as GameObject;
+                                childArmatureDisplay.GetComponent<UnityArmatureComponent>().isUGUI = armatureDisplay.GetComponent<UnityArmatureComponent>().isUGUI;
+                                childArmatureDisplay.name = childDisplayName;
+                                childArmatureDisplay.gameObject.hideFlags = HideFlags.HideInHierarchy;
+                                childArmatureDisplay.SetActive(false);
+                            }
+
+                            displayList[i] = childArmature;
+                            break;
+                        default:
+                            displayList[i] = null;
+                            break;
+                    }
                 }
             }
 
@@ -320,6 +326,7 @@ namespace DragonBones
                 {
 					material = Resources.Load<Material>(textureAtlasData.imagePath+"_Mat");
 				}
+
 				if(material == null)
 				{
 					Texture2D textureAtlas = null;
@@ -964,6 +971,7 @@ namespace DragonBones
             string name = string.Empty;
             int index = textureAtlasJSONPath.LastIndexOf("/") + 1;
             int lastIdx = textureAtlasJSONPath.LastIndexOf("_tex");
+
             if (lastIdx > -1)
             {
                 if (lastIdx > index)
@@ -974,6 +982,14 @@ namespace DragonBones
                 {
                     name = textureAtlasJSONPath.Substring(index);
                 }
+            }
+            else
+            {
+                if (index > -1)
+                {
+                    name = textureAtlasJSONPath.Substring(index);
+                }
+
             }
 
             return name;
