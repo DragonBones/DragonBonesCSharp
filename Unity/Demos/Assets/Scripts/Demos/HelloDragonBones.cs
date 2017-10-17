@@ -28,7 +28,9 @@ public class HelloDragonBones :MonoBehaviour
     {
         //TestHello();
         //TestDragon();
-        TestLoadDemo();
+        //TestLoadDemo();
+        //TestZhangFei();
+        TestCoreElement();
     }
 
     private void TestLoadDemo()
@@ -37,8 +39,8 @@ public class HelloDragonBones :MonoBehaviour
         UnityFactory.factory.LoadTextureAtlasData("NewDragon/NewDragon_tex");
 
         var armatureComponent = UnityFactory.factory.BuildArmatureComponent("armatureName");
-        armatureComponent.animation.Play("stand");
-        armatureComponent.armature.flipX = true;
+        armatureComponent.animation.Play("walk");
+        //armatureComponent.armature.flipX = true;
 
         // Set position.
         armatureComponent.transform.localPosition = new Vector3(0.0f, -2.0f, 1.0f);      
@@ -47,12 +49,33 @@ public class HelloDragonBones :MonoBehaviour
     private void TestDragon()
     {
         UnityFactory.factory.autoSearch = true;
-        UnityFactory.factory.LoadDragonBonesData("Dragon/dragon_boy_ske");
-        UnityFactory.factory.LoadTextureAtlasData("Dragon/dragon_boy_tex").autoSearch = true;
+        UnityFactory.factory.LoadDragonBonesData("tt/Dragon_ske");
+        UnityFactory.factory.LoadTextureAtlasData("tt/Dragon_tex").autoSearch = true;
 
-        var armatureComponent = UnityFactory.factory.BuildArmatureComponent("DragonBoy");
+        var armatureComponent = UnityFactory.factory.BuildArmatureComponent("Dragon");
         armatureComponent.animation.Play("walk");
-        armatureComponent.armature.flipX = true;
+        //armatureComponent.armature.flipX = true;
+
+        // Set position.
+        armatureComponent.transform.localPosition = new Vector3(0.0f, -2.0f, 1.0f);
+    }
+
+    private void TestZhangFei()
+    {
+        UnityFactory.factory.autoSearch = true;
+        //UnityFactory.factory.LoadDragonBonesData("temp/c/003/zhangfei_skeleton");
+        //UnityFactory.factory.LoadTextureAtlasData("temp/c/003/zhangfei_texture").autoSearch = true;
+
+        //var armatureComponent = UnityFactory.factory.BuildArmatureComponent("zhangfei");
+        //var state = armatureComponent.animation.Play("cheer");
+
+        UnityFactory.factory.LoadDragonBonesData("temp/c/008/boss");
+        UnityFactory.factory.LoadTextureAtlasData("temp/c/008/boss_texture").autoSearch = true;
+
+        var armatureComponent = UnityFactory.factory.BuildArmatureComponent("die");
+        //var state = armatureComponent.animation.Play("cheer");
+        //state.playTimes = 1;
+        //armatureComponent.armature.flipX = true;
 
         // Set position.
         armatureComponent.transform.localPosition = new Vector3(0.0f, -2.0f, 1.0f);

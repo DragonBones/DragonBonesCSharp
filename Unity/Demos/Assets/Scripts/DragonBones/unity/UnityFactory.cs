@@ -153,6 +153,54 @@ namespace DragonBones
 
             return armature;
         }
+
+        public override Armature BuildArmature(string armatureName, string dragonBonesName = null, string skinName = null, string textureAtlasName = null)
+        {
+            var armature = base.BuildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
+
+            var armatureDisplay = armature.display as GameObject;
+            //替换子骨架显示对象的名字
+            var allSlots = armature.GetSlots();
+            foreach (var slot in allSlots)
+            {
+                var displayDatas = slot._displayDatas;
+                var displayList = slot.displayList;
+                for (int i = 0; i < displayDatas.Count; i++)
+                {
+                    var displayData = displayDatas[i];
+                    if (displayData.type == DisplayType.Armature)
+                    {
+                        //displayDatas和displayList应该是一一对应的，不应该出现找不到的问题
+                        if (i >= displayList.Count)
+                        {
+                            break;
+                        }
+
+                        var armatureDisplayData = displayData as ArmatureDisplayData;
+                        var childDisplayName = slot.slotData.name + " (" + armatureDisplayData.path + ")"; //
+
+                        //找到了子骨架
+                        var display = displayList[i] as Armature;
+                        
+                        var childArmatureDisplay = display.display as GameObject;
+                        childArmatureDisplay.GetComponent<UnityArmatureComponent>().isUGUI = armatureDisplay.GetComponent<UnityArmatureComponent>().isUGUI;
+                        childArmatureDisplay.name = childDisplayName;
+
+                        if (childArmatureDisplay != slot.display)
+                        {
+                            childArmatureDisplay.gameObject.hideFlags = HideFlags.HideInHierarchy;
+                            childArmatureDisplay.SetActive(false);
+                        }
+                        //QQ
+                        //childArmatureDisplay.gameObject.hideFlags = HideFlags.HideInHierarchy;
+                        //childArmatureDisplay.SetActive(false);
+                    }
+                }
+            }
+
+            return armature;
+        }
+
         /**
          * @private
          */
@@ -176,7 +224,7 @@ namespace DragonBones
             
             slot.Init(slotData, displays, gameObject, gameObject);
 
-            if (displays != null)
+            /*if (displays != null)
             {
                 for (int i = 0, l = displays.Count; i < l; ++i)
                 {
@@ -230,9 +278,10 @@ namespace DragonBones
                                 // Hide
                                 var childArmatureDisplay = childArmature.display as GameObject;
                                 childArmatureDisplay.GetComponent<UnityArmatureComponent>().isUGUI = armatureDisplay.GetComponent<UnityArmatureComponent>().isUGUI;
-                                childArmatureDisplay.name = childDisplayName;
-                                childArmatureDisplay.gameObject.hideFlags = HideFlags.HideInHierarchy;
-                                childArmatureDisplay.SetActive(false);
+                                childArmatureDisplay.name = childDisplayName;     
+                                //QQ
+                                //childArmatureDisplay.gameObject.hideFlags = HideFlags.HideInHierarchy;
+                                //childArmatureDisplay.SetActive(false);
                             }
 
                             displayList[i] = childArmature;
@@ -244,7 +293,7 @@ namespace DragonBones
                 }
             }
 
-            slot._SetDisplayList(displayList);
+            slot._SetDisplayList(displayList);*/
 
             return slot;
         }
@@ -628,17 +677,24 @@ namespace DragonBones
             {
                 data = ParseDragonBonesData((Dictionary<string, object>)MiniJSON.Json.Deserialize(dragonBonesJSON.text), name, scale); // Unity default Scale Factor.
 
-                name = dragonBonesJSON.name;
+                if (string.IsNullOrEmpty(name))
+                {
+                    name = dragonBonesJSON.name;
+                }
             }
             else
             {
                 BinaryDataParser.jsonParseDelegate = MiniJSON.Json.Deserialize;
                 data = ParseDragonBonesData(dragonBonesBinary.bytes, name, scale); // Unity default Scale Factor.
-                name = dragonBonesBinary.name;
+                if (string.IsNullOrEmpty(name))
+                {
+                    name = dragonBonesBinary.name;
+                }
             }
 
             int index = name.LastIndexOf("_ske");
-            if (index > 0)
+            //有并且在最后
+            if (index > 0 && index == name.Length - 4)
             {
                 name = name.Substring(0, index);
                 data.name = name;
@@ -674,7 +730,10 @@ namespace DragonBones
             }
             else
             {
-                name = UnityFactoryHelper.GetTextureAtlasNameByPath(textureAtlasJSONPath);
+                if (string.IsNullOrEmpty(name))
+                {
+                    name = UnityFactoryHelper.GetTextureAtlasNameByPath(textureAtlasJSONPath);
+                }
 
                 TextAsset textureAtlasJSON = Resources.Load<TextAsset>(textureAtlasJSONPath);
                 if (textureAtlasJSON != null)

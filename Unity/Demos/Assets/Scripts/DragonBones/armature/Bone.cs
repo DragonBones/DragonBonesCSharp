@@ -144,7 +144,6 @@ namespace DragonBones
                         this._parent.UpdateGlobalTransform();
 
                         dR = this._parent.global.rotation; //
-                        global.rotation -= dR;
 
                         if (DragonBones.yDown)
                         {

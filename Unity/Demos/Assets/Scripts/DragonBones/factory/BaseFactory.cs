@@ -720,7 +720,7 @@ namespace DragonBones
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public Armature BuildArmature(string armatureName, string dragonBonesName = null, string skinName = null, string textureAtlasName = null)
+        public virtual Armature BuildArmature(string armatureName, string dragonBonesName = null, string skinName = null, string textureAtlasName = null)
         {
             var dataPackage = new BuildArmaturePackage();
             if (!this._FillBuildArmaturePackage(dataPackage, dragonBonesName, armatureName, skinName, textureAtlasName))

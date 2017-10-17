@@ -105,6 +105,16 @@ namespace DragonBones
          */
         override protected void _DisposeDisplay(object value)
         {
+            if (this._childArmature != null)
+            {
+#if UNITY_EDITOR
+                //Object.DestroyImmediate(_mesh);
+#else
+                //Object.Destroy(_mesh);
+#endif
+                //this._childArmature.Dispose();
+            }
+
             var gameObject = value as GameObject;
 #if UNITY_EDITOR
             Object.DestroyImmediate(gameObject);
@@ -143,14 +153,18 @@ namespace DragonBones
             var prevDisplay = value as GameObject;
 			int index = prevDisplay.transform.GetSiblingIndex();
             prevDisplay.hideFlags = HideFlags.HideInHierarchy;
+            //QQ
 			prevDisplay.transform.SetParent(null);
             prevDisplay.SetActive(false);
 
             _renderDisplay.hideFlags = HideFlags.None;
-			_renderDisplay.transform.SetParent(container.transform);
+            _renderDisplay.transform.SetParent(container.transform);
             _renderDisplay.transform.localPosition = prevDisplay.transform.localPosition;
 			_renderDisplay.transform.SetSiblingIndex(index);
             _renderDisplay.SetActive(true);
+
+            //子骨架设置名称
+
         }
         /**
          * @private
@@ -224,6 +238,11 @@ namespace DragonBones
          */
         protected override void _UpdateFrame()
         {
+            //QQ
+            if (this.name == "b-standingstar")
+            {
+                int i = 0;
+            }
             var meshData = this._display == this._meshDisplay ? this._meshData : null;
             var currentTextureData = this._textureData as UnityTextureData;
 
@@ -392,7 +411,7 @@ namespace DragonBones
                             _helpVector2s[i].x = (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasWidth;
                             _helpVector2s[i].y = 1.0f - (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasHeight;
                             _vertices[i].x = (u * currentTextureData.region.width) * pixelsPerUnit - _pivotX;
-                            _vertices[i].y = (1.0f - v) * currentTextureData.region.height * pixelsPerUnit - _pivotY;
+                            _vertices[i].y = (1.0f - v) * currentTextureData.region.height * pixelsPerUnit - pivotY;
                             _vertices[i].z = 0.0f;
                             _vertices2[i] = _vertices[i];
                         }
@@ -599,11 +618,11 @@ namespace DragonBones
                     _childArmature.flipX = flipX;
                     _childArmature.flipY = flipY;
                 }
-
+                
                 transform.localEulerAngles = _helpVector3;
 
                 //QQ
-                //if (this.name == "dabiR")
+                //if (this.name == "weapon")
                 //{
                 //    UnityEngine.Debug.Log("---------------------" + "solt name:" + this.name + "---------------------");
                 //    UnityEngine.Debug.Log(string.Format("x:{0} y:{1} rotation:{2} skew:{3}", global.x, global.y, global.rotation, global.skew));

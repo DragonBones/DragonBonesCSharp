@@ -2066,14 +2066,13 @@ namespace DragonBones
                 ms.Position = 0;
 
                 //ToRead
+                this._data.binary = ms.GetBuffer();
                 this._data.intArray = reader.ReadInt16s(0, this._intArray.Count);
                 this._data.floatArray = reader.ReadSingles(0, this._floatArray.Count);
                 this._data.frameIntArray = reader.ReadInt16s(0, this._frameIntArray.Count);
                 this._data.frameFloatArray = reader.ReadSingles(0, this._frameFloatArray.Count);
                 this._data.frameArray = reader.ReadInt16s(0, this._frameArray.Count);
                 this._data.timelineArray = reader.ReadUInt16s(0, this._timelineArray.Count);
-                ms.Position = 0;
-                this._data.binary = reader.ReadBytes(lTotal);
 
                 ms.Close();
             }
