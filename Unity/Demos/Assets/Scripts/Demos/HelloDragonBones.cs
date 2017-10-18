@@ -29,9 +29,9 @@ public class HelloDragonBones :MonoBehaviour
         //TestHello();
         //TestDragon();
         //TestLoadDemo();
-        //TestZhangFei();
+        TestZorder();
         //TestCoreElement();
-        TestRotation();
+        //TestRotation();
     }
 
     private void TestRotation()
@@ -75,7 +75,7 @@ public class HelloDragonBones :MonoBehaviour
         armatureComponent.transform.localPosition = new Vector3(0.0f, -2.0f, 1.0f);
     }
 
-    private void TestZhangFei()
+    private void TestZorder()
     {
         UnityFactory.factory.autoSearch = true;
         //UnityFactory.factory.LoadDragonBonesData("temp/c/003/zhangfei_skeleton");
@@ -88,7 +88,7 @@ public class HelloDragonBones :MonoBehaviour
         UnityFactory.factory.LoadTextureAtlasData("temp/c/008/boss_texture").autoSearch = true;
 
         var armatureComponent = UnityFactory.factory.BuildArmatureComponent("die");
-        //var state = armatureComponent.animation.Play("cheer");
+        var state = armatureComponent.animation.Play("run01");
         //state.playTimes = 1;
         //armatureComponent.armature.flipX = true;
 

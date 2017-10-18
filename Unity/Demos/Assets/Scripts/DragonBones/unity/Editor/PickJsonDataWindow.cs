@@ -11,7 +11,8 @@ namespace DragonBones
     {
         private const string ObjectSelectorUpdated = "ObjectSelectorUpdated";
         private const string ObjectSelectorClosed = "ObjectSelectorClosed";
-        private const string PickFileFileter = "_ske t:TextAsset";
+        //private const string PickFileFileter = "_ske t:TextAsset";
+        private const string PickFileFileter = "t:TextAsset";
 
 
         private UnityArmatureComponent _armatureComp;

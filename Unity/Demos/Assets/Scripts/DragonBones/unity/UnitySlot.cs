@@ -141,6 +141,7 @@ namespace DragonBones
                 _renderDisplay.transform.SetParent(container.transform);
 
                 _helpVector3.Set(0.0f, 0.0f, -_zOrder * (_proxy.zSpace + 0.001f));
+
                 _renderDisplay.transform.localPosition = _helpVector3;
             }
         }
@@ -149,22 +150,23 @@ namespace DragonBones
          */
         override protected void _ReplaceDisplay(object value)
         {
-			var container = _proxy.slotsRoot;
+            var container = _proxy.slotsRoot;
             var prevDisplay = value as GameObject;
+
+            //savePosition before SetParent(null)
+            var savePosition = prevDisplay.transform.localPosition;
+
 			int index = prevDisplay.transform.GetSiblingIndex();
             prevDisplay.hideFlags = HideFlags.HideInHierarchy;
-            //QQ
-			prevDisplay.transform.SetParent(null);
+            //prevDisplay.transform.SetParent(null, false);
+            prevDisplay.transform.SetParent(null);
             prevDisplay.SetActive(false);
 
             _renderDisplay.hideFlags = HideFlags.None;
             _renderDisplay.transform.SetParent(container.transform);
-            _renderDisplay.transform.localPosition = prevDisplay.transform.localPosition;
-			_renderDisplay.transform.SetSiblingIndex(index);
+            _renderDisplay.transform.localPosition = savePosition;
             _renderDisplay.SetActive(true);
-
-            //子骨架设置名称
-
+            _renderDisplay.transform.SetSiblingIndex(index);
         }
         /**
          * @private
@@ -238,11 +240,6 @@ namespace DragonBones
          */
         protected override void _UpdateFrame()
         {
-            //QQ
-            if (this.name == "b-standingstar")
-            {
-                int i = 0;
-            }
             var meshData = this._display == this._meshDisplay ? this._meshData : null;
             var currentTextureData = this._textureData as UnityTextureData;
 
@@ -573,14 +570,6 @@ namespace DragonBones
             }
             else
             {
-
-                //QQ
-                //if (this.name == "a27")
-                //{
-                //    UnityEngine.Debug.Log("---------------------" + "solt name:" + this.name + "---------------------");
-                //    UnityEngine.Debug.Log(string.Format("x:{0} y:{1} rotation:{2} skew:{3}", global.x, global.y, global.rotation, global.skew));
-                //}
-
                 this.UpdateGlobalTransform(); // Update transform.
 
                 var flipX = _armature.flipX;
@@ -589,10 +578,15 @@ namespace DragonBones
                 var scaleY = flipY ? global.scaleY : -global.scaleY;
                 var transform = _renderDisplay.transform;
 
-                //QQ
                 _helpVector3.x = global.x;
                 _helpVector3.y = global.y;
                 _helpVector3.z = transform.localPosition.z;
+                //QQ
+                //if (this.name.Contains("down"))
+                //{
+                //    UnityEngine.Debug.Log("---------------------" + "solt name:" + this.name + "---------------------");
+                //    UnityEngine.Debug.Log("---------------------" + "solt z:" + _helpVector3.z + "---------------------");
+                //}                
 
                 //_helpVector3.x = globalTransformMatrix.tx;
                 //_helpVector3.y = globalTransformMatrix.ty;

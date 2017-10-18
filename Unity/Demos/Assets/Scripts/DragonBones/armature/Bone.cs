@@ -177,10 +177,6 @@ namespace DragonBones
                     {
                         this._globalDirty = true;
                     }
-
-                    //QQ
-                    //UnityEngine.Debug.Log("---------------------" + "bone name:" + this.name + "---------------------");
-                    //UnityEngine.Debug.Log(string.Format("x:{0} y:{1} rotation:{2} skew:{3}", global.x, global.y, global.rotation, global.skew));
                 }
                 else
                 {
@@ -457,13 +453,6 @@ namespace DragonBones
             }
 
             this._localDirty = true;
-
-            //QQ
-            if (this.name == "dabiR")
-            {
-                //UnityEngine.Debug.Log("---------------------" + "bone name:" + this.name + "---------------------");
-                //UnityEngine.Debug.Log(string.Format("x:{0} y:{1} rotation:{2}", global.x, global.y, global.rotation));
-            }
         }
         /**
          * @internal

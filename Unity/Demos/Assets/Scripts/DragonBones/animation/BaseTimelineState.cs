@@ -211,7 +211,6 @@ namespace DragonBones
                 if (this._frameCount > 1)
                 {
                     uint timelineFrameIndex = (uint)Math.Floor(this.currentTime * this._frameRate); // uint
-                    //QQ
                     var frameIndex = this._frameIndices[(this._timelineData as TimelineData).frameIndicesOffset + timelineFrameIndex];
                     if (this._frameIndex != frameIndex)
                     {
