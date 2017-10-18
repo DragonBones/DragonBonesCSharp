@@ -436,6 +436,8 @@ namespace DragonBones
                         _renderer.sharedMaterial = currentTextureAtlas;
                     }
 
+                    this._blendModeDirty = true;
+                    this._colorDirty = true;// Relpace texture will override blendMode and color.
                     this._visibleDirty = true;
                     return;
                 }

@@ -29,9 +29,10 @@ public class HelloDragonBones :MonoBehaviour
         //TestHello();
         //TestDragon();
         //TestLoadDemo();
-        TestZorder();
+        //TestZorder();
         //TestCoreElement();
         //TestRotation();
+        TestAlpha();
     }
 
     private void TestRotation()
@@ -42,6 +43,21 @@ public class HelloDragonBones :MonoBehaviour
 
         var armatureComponent = UnityFactory.factory.BuildArmatureComponent("zhu_def", "zhu_def");
         armatureComponent.animation.Play("idle");
+        //armatureComponent.armature.flipX = true;
+
+        // Set position.
+        armatureComponent.transform.localPosition = new Vector3(0.0f, -2.0f, 1.0f);
+    }
+
+    private void TestAlpha()
+    {
+        UnityFactory.factory.autoSearch = true;
+        UnityFactory.factory.LoadDragonBonesData("temp/buttoneffect_ske");
+        UnityFactory.factory.LoadTextureAtlasData("temp/buttoneffect_tex");
+
+        var armatureComponent = UnityFactory.factory.BuildArmatureComponent("buttoneffect");
+        var state = armatureComponent.animation.Play("stand");
+        state.playTimes = 2;
         //armatureComponent.armature.flipX = true;
 
         // Set position.

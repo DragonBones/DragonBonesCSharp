@@ -791,10 +791,10 @@ namespace DragonBones
                         result.redMultiplier != this._result[1] ||
                         result.greenMultiplier != this._result[2] ||
                         result.blueMultiplier != this._result[3] ||
-                        result.alphaOffset != this._result[4] ||
-                        result.redOffset != this._result[5] ||
-                        result.greenOffset != this._result[6] ||
-                        result.blueOffset != this._result[7])
+                        result.alphaOffset != (int)this._result[4] ||
+                        result.redOffset != (int)this._result[5] ||
+                        result.greenOffset != (int)this._result[6] ||
+                        result.blueOffset != (int)this._result[7])
                     {
                         result.alphaMultiplier = this._result[0];
                         result.redMultiplier = this._result[1];
