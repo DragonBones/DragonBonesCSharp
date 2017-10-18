@@ -105,16 +105,6 @@ namespace DragonBones
          */
         override protected void _DisposeDisplay(object value)
         {
-            if (this._childArmature != null)
-            {
-#if UNITY_EDITOR
-                //Object.DestroyImmediate(_mesh);
-#else
-                //Object.Destroy(_mesh);
-#endif
-                //this._childArmature.Dispose();
-            }
-
             var gameObject = value as GameObject;
 #if UNITY_EDITOR
             Object.DestroyImmediate(gameObject);

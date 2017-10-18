@@ -432,13 +432,7 @@ namespace DragonBones
             _armatureGameObject = gameObject;
 			_isUGUI = isUGUI;
             var armature = BuildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
-
-            //QQ
-            var slots = armature.GetSlots();
-            foreach (var slot in slots)
-            {
-                Debug.Log("slot name:" + slot.name + " zorder:" + slot._zOrder);
-            }
+            
             if (armature != null)
             {
                 _dragonBones.clock.Add(armature);
