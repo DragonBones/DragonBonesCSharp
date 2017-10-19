@@ -250,7 +250,7 @@ namespace DragonBones
                     var display = slot.display as GameObject;
                     if (display != null)
                     {
-                        display.transform.localPosition = new Vector3(display.transform.localPosition.x, display.transform.localPosition.y, -slot._zOrder * (_zSpace + 0.001f));
+                        display.transform.localPosition = new Vector3(display.transform.localPosition.x, display.transform.localPosition.y, -slot._zOrder * (zSpace + 0.001f));
 						if(!isUGUI)
                         {
 							UnitySlot us = slot as UnitySlot;
@@ -384,7 +384,7 @@ namespace DragonBones
 						var display = slot.display as GameObject;
 						if (display != null)
 						{
-							display.transform.localPosition = new Vector3(display.transform.localPosition.x, display.transform.localPosition.y, -slot._zOrder * (_zSpace + 0.001f));
+                            display.transform.localPosition = new Vector3(display.transform.localPosition.x, display.transform.localPosition.y, -slot._zOrder * (zSpace + 0.001f));
 							if(!isUGUI && sortingMode==SortingMode.SortByOrder)
                             {
 								UnitySlot us = slot as UnitySlot;
@@ -435,7 +435,7 @@ namespace DragonBones
 					var display = slot.display as GameObject;
 					if (display != null)
 					{
-						display.transform.localPosition = new Vector3(display.transform.localPosition.x, display.transform.localPosition.y, -slot._zOrder * (_zSpace + 0.001f));
+                        display.transform.localPosition = new Vector3(display.transform.localPosition.x, display.transform.localPosition.y, -slot._zOrder * (zSpace + 0.001f));
 						if(!isUGUI)
                         {
 							UnitySlot us = slot as UnitySlot;

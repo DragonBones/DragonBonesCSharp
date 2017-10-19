@@ -128,13 +128,7 @@ namespace DragonBones
             {
                 _renderDisplay.transform.SetParent(container.transform);
 
-                var zOrder = 0.0f;
-                if (_proxy.sortingMode == SortingMode.SortByZ)
-                {
-                    zOrder = -_zOrder * (_proxy.zSpace + 0.001f);
-                }
-
-                _helpVector3.Set(0.0f, 0.0f, zOrder);
+                _helpVector3.Set(0.0f, 0.0f, -_zOrder * (_proxy.zSpace + 0.001f));
 
                 _renderDisplay.transform.localPosition = _helpVector3;
             }
@@ -174,7 +168,13 @@ namespace DragonBones
          */
         override protected void _UpdateZOrder()
         {
-            _helpVector3.Set(_renderDisplay.transform.localPosition.x, _renderDisplay.transform.localPosition.y, -_zOrder * (_proxy.zSpace + 0.001f));
+            var zOrder = 0.0f;
+            if (_proxy.sortingMode == SortingMode.SortByZ)
+            {
+                zOrder = -_zOrder * (_proxy.zSpace + 0.001f);
+            }
+
+            _helpVector3.Set(_renderDisplay.transform.localPosition.x, _renderDisplay.transform.localPosition.y, zOrder);
 			if(_renderDisplay.transform.localPosition.z != _helpVector3.z)
             {
 				_proxy.zorderIsDirty = true;

@@ -29,9 +29,9 @@ public class HelloDragonBones :MonoBehaviour
         //TestHello();
         //TestDragon();
         //TestLoadDemo();
-        //TestZorder();
+        TestZorder();
         //TestCoreElement();
-        TestRotation();
+        //TestRotation();
         //TestAlpha();
     }
 
@@ -100,11 +100,11 @@ public class HelloDragonBones :MonoBehaviour
         //var armatureComponent = UnityFactory.factory.BuildArmatureComponent("zhangfei");
         //var state = armatureComponent.animation.Play("cheer");
 
-        UnityFactory.factory.LoadDragonBonesData("temp/c/008/boss");
-        UnityFactory.factory.LoadTextureAtlasData("temp/c/008/boss_texture").autoSearch = true;
+        UnityFactory.factory.LoadDragonBonesData("temp/c/002/taidiyounian");
+        UnityFactory.factory.LoadTextureAtlasData("temp/c/002/texture").autoSearch = true;
 
-        var armatureComponent = UnityFactory.factory.BuildArmatureComponent("die");
-        var state = armatureComponent.animation.Play("run01");
+        var armatureComponent = UnityFactory.factory.BuildArmatureComponent("armatureName", "taidiyounian");
+        var state = armatureComponent.animation.Play("Run");
         //state.playTimes = 1;
         //armatureComponent.armature.flipX = true;
 
