@@ -289,7 +289,7 @@ namespace DragonBones
 
                     currentTextureData = currentTextureAtlasData.GetTexture(currentTextureData.name) as UnityTextureData;
                 }
-
+                
                 var currentTextureAtlas = _proxy.isUGUI ? currentTextureAtlasData.uiTexture : currentTextureAtlasData.texture;
                 if (currentTextureAtlas != null)
                 {
@@ -607,11 +607,11 @@ namespace DragonBones
                 _helpVector3.y = global.y;
                 _helpVector3.z = transform.localPosition.z;
                 //QQ
-                //if (this.name.Contains("a27"))
-                //{
-                //    UnityEngine.Debug.Log("---------------------" + "solt name:" + this.name + "---------------------");
-                //    UnityEngine.Debug.Log("---------------------" + "solt skew:" + global.skew + "---------------------");
-                //}                
+                if (this.name.Contains("C01_left_leg08"))
+                {
+                    UnityEngine.Debug.Log("---------------------" + "solt name:" + this.name + "---------------------");
+                    UnityEngine.Debug.Log("slot rotation:" + global.rotation + " solt skew:" + global.skew);
+                }
 
                 //_helpVector3.x = globalTransformMatrix.tx;
                 //_helpVector3.y = globalTransformMatrix.ty;

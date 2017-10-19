@@ -29,20 +29,20 @@ public class HelloDragonBones :MonoBehaviour
         //TestHello();
         //TestDragon();
         //TestLoadDemo();
-        TestZorder();
+        //TestZorder();
         //TestCoreElement();
-        //TestRotation();
+        TestRotation();
         //TestAlpha();
     }
 
     private void TestRotation()
     {
         UnityFactory.factory.autoSearch = true;
-        UnityFactory.factory.LoadDragonBonesData("temp/zhu_def_ske");
-        UnityFactory.factory.LoadTextureAtlasData("temp/zhu_def_tex");
+        UnityFactory.factory.LoadDragonBonesData("temp/c/008/boss");
+        UnityFactory.factory.LoadTextureAtlasData("temp/c/008/boss_texture");
 
-        var armatureComponent = UnityFactory.factory.BuildArmatureComponent("zhu_def", "zhu_def");
-        armatureComponent.animation.Play("idle");
+        var armatureComponent = UnityFactory.factory.BuildArmatureComponent("right");
+        //armatureComponent.animation.Play("attack");
         //armatureComponent.armature.flipX = true;
 
         // Set position.
