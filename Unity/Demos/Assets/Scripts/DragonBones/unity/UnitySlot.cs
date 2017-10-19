@@ -10,8 +10,6 @@ namespace DragonBones
     [DisallowMultipleComponent]
     public class UnitySlot : Slot
     {
-        public const float pixelsPerUnit = 0.01f;
-
         private static readonly int[] TRIANGLES = { 0, 1, 2, 0, 2, 3 };
         private static Vector3 _helpVector3 = new Vector3();
         private static readonly Vector2[] _helpVector2s = { new Vector2(), new Vector2(), new Vector2(), new Vector2() };
@@ -130,7 +128,13 @@ namespace DragonBones
             {
                 _renderDisplay.transform.SetParent(container.transform);
 
-                _helpVector3.Set(0.0f, 0.0f, -_zOrder * (_proxy.zSpace + 0.001f));
+                var zOrder = 0.0f;
+                if (_proxy.sortingMode == SortingMode.SortByZ)
+                {
+                    zOrder = -_zOrder * (_proxy.zSpace + 0.001f);
+                }
+
+                _helpVector3.Set(0.0f, 0.0f, zOrder);
 
                 _renderDisplay.transform.localPosition = _helpVector3;
             }
@@ -307,6 +311,12 @@ namespace DragonBones
                     meshDisplay.triangles = null;
                     meshDisplay.colors32 = null;
 
+                    var textureScale = _armature.armatureData.scale * currentTextureData.parent.scale;
+                    var sourceX = currentTextureData.region.x;
+                    var sourceY = currentTextureData.region.y;
+                    var sourceWidth = currentTextureData.region.width;
+                    var sourceHeight = currentTextureData.region.height;
+
                     if (meshData != null)
                     {
                         var data = meshData.parent.parent;
@@ -337,11 +347,11 @@ namespace DragonBones
 
                         for (int i = 0, iV = vertexOffset, iU = uvOffset, l = vertexCount; i < l; ++i)
                         {
-                            this._vertices[i].x = floatArray[iV++] * pixelsPerUnit;
-                            this._vertices[i].y = floatArray[iV++] * pixelsPerUnit;
+                            this._vertices[i].x = floatArray[iV++] * textureScale;
+                            this._vertices[i].y = floatArray[iV++] * textureScale;
 
-                            this._uvs[i].x = (currentTextureData.region.x + floatArray[iU++] * currentTextureData.region.width) / textureAtlasWidth;
-                            this._uvs[i].y = 1.0f - (currentTextureData.region.y + floatArray[iU++] * currentTextureData.region.height) / textureAtlasHeight;
+                            this._uvs[i].x = (sourceX + floatArray[iU++] * sourceWidth) / textureAtlasWidth;
+                            this._uvs[i].y = 1.0f - (sourceY + floatArray[iU++] * sourceHeight) / textureAtlasHeight;
                             
                             this._vertices2[i] = this._vertices[i];
                         }
@@ -358,15 +368,13 @@ namespace DragonBones
                     }
                     else
                     {
-                        // Normal texture.
-                        var pivotY = currentTextureData.region.height * _armature.armatureData.scale - _pivotY;
-
                         if (_vertices == null || _vertices.Length != 4)
                         {
                             _vertices = new Vector3[4];
                             _vertices2 = new Vector3[4];
                         }
 
+                        // Normal texture.                        
                         for (int i = 0, l = 4; i < l; ++i)
                         {
                             var u = 0.0f;
@@ -394,11 +402,35 @@ namespace DragonBones
                                     break;
                             }
 
-                            const float s = 0.01f;
-                            _helpVector2s[i].x = (currentTextureData.region.x + u * currentTextureData.region.width) / textureAtlasWidth;
-                            _helpVector2s[i].y = 1.0f - (currentTextureData.region.y + v * currentTextureData.region.height) / textureAtlasHeight;
-                            _vertices[i].x = (u * currentTextureData.region.width) * pixelsPerUnit - _pivotX;
-                            _vertices[i].y = (1.0f - v) * currentTextureData.region.height * pixelsPerUnit - pivotY;
+                            var scaleWidth = sourceWidth * textureScale;
+                            var scaleHeight = sourceHeight * textureScale;
+                            var pivotX = _pivotX;
+                            var pivotY = scaleHeight - _pivotY;
+
+                            if (currentTextureData.rotated)
+                            {
+                                var temp = scaleWidth;
+                                scaleWidth = scaleHeight;
+                                scaleHeight = temp;
+
+                                pivotX = scaleWidth - _pivotX;
+                                pivotY = scaleHeight - _pivotY;
+
+                                //uv
+                                _helpVector2s[i].x = (sourceX + (1.0f - v) * sourceWidth) / textureAtlasWidth;
+                                _helpVector2s[i].y = 1.0f - (sourceY + u * sourceHeight) / textureAtlasHeight;
+                            }
+                            else
+                            {
+                                //uv
+                                _helpVector2s[i].x = (sourceX + u * sourceWidth) / textureAtlasWidth;
+                                _helpVector2s[i].y = 1.0f - (sourceY + v * sourceHeight) / textureAtlasHeight;
+                            }
+
+                            //vertices
+                            _vertices[i].x = (u * scaleWidth) - pivotX;
+                            _vertices[i].y = (1.0f - v) * scaleHeight - pivotY;
+
                             _vertices[i].z = 0.0f;
                             _vertices2[i] = _vertices[i];
                         }
@@ -462,6 +494,7 @@ namespace DragonBones
 
             //
             var hasFFD = this._ffdVertices.Count > 0;
+            var scale = _armature.armatureData.scale;
             var meshData = this._meshData;
             var weightData = meshData.weight;
             var meshDisplay = this._mesh;
@@ -501,13 +534,13 @@ namespace DragonBones
                                 yL += this._ffdVertices[iF++];
                             }
 
-                            xG += (matrix.a * xL + matrix.c * yL + matrix.tx * (1.0f / pixelsPerUnit)) * weight;
-                            yG += (matrix.b * xL + matrix.d * yL + matrix.ty * (1.0f / pixelsPerUnit)) * weight;
+                            xG += (matrix.a * xL + matrix.c * yL + matrix.tx * (1.0f / scale)) * weight;
+                            yG += (matrix.b * xL + matrix.d * yL + matrix.ty * (1.0f / scale)) * weight;
                         }
                     }
 
-                    _vertices[i].x = xG * pixelsPerUnit;
-                    _vertices[i].y = yG * pixelsPerUnit;
+                    _vertices[i].x = xG * scale;
+                    _vertices[i].y = yG * scale;
                     _vertices2[i].x = _vertices[i].x;
                     _vertices2[i].y = _vertices[i].y;
                 }
@@ -530,8 +563,8 @@ namespace DragonBones
                 Vector3[] vertices = new Vector3[vertextCount];
                 for (int i = 0, iV = 0, iF = 0, l = vertextCount; i < l; ++i)
                 {
-                    _vertices[i].x = (floatArray[vertexOffset + (iV++)] + this._ffdVertices[iF++]) * pixelsPerUnit;
-                    _vertices[i].y = - (floatArray[vertexOffset + (iV++)] + this._ffdVertices[iF++]) * pixelsPerUnit;
+                    _vertices[i].x = (floatArray[vertexOffset + (iV++)] + this._ffdVertices[iF++]) * scale;
+                    _vertices[i].y = - (floatArray[vertexOffset + (iV++)] + this._ffdVertices[iF++]) * scale;
                     _vertices2[i].x = _vertices[i].x;
                     _vertices2[i].y = _vertices[i].y;
                 }
@@ -574,10 +607,10 @@ namespace DragonBones
                 _helpVector3.y = global.y;
                 _helpVector3.z = transform.localPosition.z;
                 //QQ
-                //if (this.name.Contains("down"))
+                //if (this.name.Contains("a27"))
                 //{
                 //    UnityEngine.Debug.Log("---------------------" + "solt name:" + this.name + "---------------------");
-                //    UnityEngine.Debug.Log("---------------------" + "solt z:" + _helpVector3.z + "---------------------");
+                //    UnityEngine.Debug.Log("---------------------" + "solt skew:" + global.skew + "---------------------");
                 //}                
 
                 //_helpVector3.x = globalTransformMatrix.tx;

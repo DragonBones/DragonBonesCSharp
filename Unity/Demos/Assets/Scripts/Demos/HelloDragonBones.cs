@@ -31,8 +31,8 @@ public class HelloDragonBones :MonoBehaviour
         //TestLoadDemo();
         //TestZorder();
         //TestCoreElement();
-        //TestRotation();
-        TestAlpha();
+        TestRotation();
+        //TestAlpha();
     }
 
     private void TestRotation()
