@@ -317,3 +317,5 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
+/Unity/Demos/Assets/Resources/temp
+/Unity/Demos/Assets/Resources/base_test.res.json
