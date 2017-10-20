@@ -1,13 +1,14 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 namespace DragonBones
 {
-	[System.Serializable]
-	public class UnityDragonBonesData:ScriptableObject {
+    [System.Serializable]
+	public class UnityDragonBonesData:ScriptableObject
+    {
 
 		[System.Serializable]
-		public class TextureAtlas{
+		public class TextureAtlas
+        {
 			public TextAsset textureAtlasJSON; 
 			public Texture2D texture;
 			public Material material;
@@ -16,7 +17,10 @@ namespace DragonBones
 
 		public string dataName;
 		public TextAsset dragonBonesJSON;
-		public TextureAtlas[] textureAtlas;
+        public TextAsset dragonBonesBinary;
+        public TextureAtlas[] textureAtlas;
+
+        
 
 		/**
          * @language zh_CN
@@ -26,9 +30,12 @@ namespace DragonBones
 		public void RemoveFromFactory(bool disposeData=true)
 		{
 			UnityFactory.factory.RemoveDragonBonesData(dataName,disposeData);
-			if(textureAtlas!=null){
-				foreach(TextureAtlas ta in textureAtlas){
-					if(ta!=null && ta.texture!=null){
+			if(textureAtlas != null)
+            {
+				foreach(TextureAtlas ta in textureAtlas)
+                {
+					if(ta != null && ta.texture != null)
+                    {
 						UnityFactory.factory.RemoveTextureAtlasData(dataName+ta.texture.name,disposeData);
 					}
 				}
