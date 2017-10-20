@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace DragonBones
 {
@@ -127,7 +128,7 @@ namespace DragonBones
             if (_renderDisplay.transform.parent != container.transform)
             {
                 _renderDisplay.transform.SetParent(container.transform);
-
+                
                 _helpVector3.Set(0.0f, 0.0f, -_zOrder * (_proxy.zSpace + 0.001f));
 
                 _renderDisplay.transform.localPosition = _helpVector3;
@@ -176,6 +177,28 @@ namespace DragonBones
 
 			_renderDisplay.transform.localPosition = _helpVector3;
         }
+
+        private void _SetZorder()
+        {
+#if UNITY_5_6_OR_NEWER
+            var armatureComp = _armature.proxy as UnityArmatureComponent;
+            var sortingGroup = armatureComp.GetComponent<SortingGroup>();
+            if (sortingGroup == null)
+            {
+                sortingGroup = armatureComp.GetComponent<SortingGroup>();
+            }
+
+            //sortingGroup.sortingOrder = _zOrder;
+#endif
+
+            _helpVector3.Set(_renderDisplay.transform.localPosition.x, _renderDisplay.transform.localPosition.y, -_zOrder * (_proxy.zSpace + 0.001f));
+            _renderDisplay.transform.localPosition = _helpVector3;
+            if (_renderer != null)
+            {
+                _renderer.sortingOrder = _zOrder;
+            }
+        }
+
         /**
          * @private
          */
