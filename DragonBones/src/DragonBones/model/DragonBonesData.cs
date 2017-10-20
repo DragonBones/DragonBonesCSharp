@@ -41,6 +41,10 @@ namespace DragonBones
         /**
          * @private
          */
+        public ArmatureData stage;
+        /**
+         * @private
+         */
         public readonly List<uint> frameIndices = new List<uint>();
         /**
          * @private
@@ -61,33 +65,37 @@ namespace DragonBones
          */
         public readonly Dictionary<string, ArmatureData> armatures = new Dictionary<string, ArmatureData>();
         /**
-         * @private
-         */
-        public short[] intArray;
+        * @private
+        */
+        internal byte[] binary;
         /**
          * @private
          */
-        public float[] floatArray;
+        internal short[] intArray;
         /**
          * @private
          */
-        public short[] frameIntArray;
+        internal float[] floatArray;
         /**
          * @private
          */
-        public float[] frameFloatArray;
+        internal short[] frameIntArray;
         /**
          * @private
          */
-        public short[] frameArray;
+        internal float[] frameFloatArray;
         /**
          * @private
          */
-        public ushort[] timelineArray;
+        internal short[] frameArray;
         /**
          * @private
          */
-        public UserData userData = null; // Initial value.
+        internal ushort[] timelineArray;
+        /**
+         * @private
+         */
+        internal UserData userData = null; // Initial value.
 
         protected override void _OnClear()
         {
@@ -105,10 +113,12 @@ namespace DragonBones
             this.frameRate = 0;
             this.version = "";
             this.name = "";
+            this.stage = null;
             this.frameIndices.Clear();
             this.cachedFrames.Clear();
             this.armatureNames.Clear();
             this.armatures.Clear();
+            this.binary = null;
             this.intArray = null; //
             this.floatArray = null; //
             this.frameIntArray = null; //

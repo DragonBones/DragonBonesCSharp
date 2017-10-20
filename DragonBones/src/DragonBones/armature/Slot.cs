@@ -102,15 +102,15 @@ namespace DragonBones
         /**
          * @private
          */
-        public readonly ColorTransform _colorTransform = new ColorTransform();
+        internal readonly ColorTransform _colorTransform = new ColorTransform();
         /**
          * @private
          */
-        public readonly List<float> _ffdVertices = new List<float>();
+        internal readonly List<float> _ffdVertices = new List<float>();
         /**
          * @private
          */
-        public readonly List<DisplayData> _displayDatas = new List<DisplayData>();
+        internal readonly List<DisplayData> _displayDatas = new List<DisplayData>();
         /**
          * @private
          */
@@ -120,10 +120,9 @@ namespace DragonBones
          */
         protected readonly List<Bone> _meshBones = new List<Bone>();
         /**
-         * @internal
          * @private
          */
-        internal List<DisplayData> _rawDisplayDatas = new List<DisplayData>();
+        protected List<DisplayData> _rawDisplayDatas;
         /**
          * @private
          */
@@ -173,6 +172,8 @@ namespace DragonBones
          */
         protected override void _OnClear()
         {
+            base._OnClear();
+
             var disposeDisplayList = new List<object>();
             for (int i = 0, l = _displayList.Count; i < l; ++i)
             {
@@ -303,7 +304,7 @@ namespace DragonBones
             var prevDisplayData = this._displayData;
             var prevTextureData = this._textureData;
             var prevMeshData = this._meshData;
-            var rawDisplayData = this._displayIndex >= 0 && this._displayIndex < this._rawDisplayDatas.Count ? this._rawDisplayDatas[this._displayIndex] : null;
+            var rawDisplayData = this._displayIndex >= 0 && this._rawDisplayDatas != null && this._displayIndex < this._rawDisplayDatas.Count ? this._rawDisplayDatas[this._displayIndex] : null;
 
             if (this._displayIndex >= 0 && this._displayIndex < this._displayDatas.Count)
             {
@@ -370,15 +371,15 @@ namespace DragonBones
                 else if (this._textureData != null)
                 {
                     var imageDisplayData = this._displayData as ImageDisplayData;
-                    var scale = this._armature.armatureData.scale;
+                    var scale = this._textureData.parent.scale * this._armature.armatureData.scale;
                     var frame = this._textureData.frame;
 
                     this._pivotX = imageDisplayData.pivot.x;
                     this._pivotY = imageDisplayData.pivot.y;
 
                     var rect = frame != null ? frame : this._textureData.region;
-                    var width = rect.width * scale;
-                    var height = rect.height * scale;
+                    var width = rect.width;
+                    var height = rect.height;
 
                     if (this._textureData.rotated && frame == null)
                     {
@@ -386,8 +387,8 @@ namespace DragonBones
                         height = rect.width;
                     }
 
-                    this._pivotX *= width;
-                    this._pivotY *= height;
+                    this._pivotX *= width * scale;
+                    this._pivotY *= height * scale;
 
                     if (frame != null)
                     {
@@ -418,7 +419,7 @@ namespace DragonBones
                         }
                         else
                         {
-                            var vertexCount = this._meshData.parent.parent.intArray[this._meshData.offset + (int)BinaryOffset.MeshVertexCount];
+                            var vertexCount = this._meshData.parent.parent.parent.intArray[this._meshData.offset + (int)BinaryOffset.MeshVertexCount];
                             this._ffdVertices.ResizeList(vertexCount * 2);
                             this._meshBones.Clear();
                         }
@@ -557,7 +558,7 @@ namespace DragonBones
                         }
                         else
                         {
-                            var rawDisplayData = this._displayIndex >= 0 && this._displayIndex < this._rawDisplayDatas.Count ? this._rawDisplayDatas[this._displayIndex] : null;
+                            var rawDisplayData = this._displayIndex >= 0 && this._rawDisplayDatas != null && this._displayIndex < this._rawDisplayDatas.Count ? this._rawDisplayDatas[this._displayIndex] : null;
                             if (rawDisplayData != null && rawDisplayData.type == DisplayType.Armature)
                             {
                                 actions = (rawDisplayData as ArmatureDisplayData).actions;
@@ -621,7 +622,7 @@ namespace DragonBones
             if (this._armature == value)
             {
                 return;
-             }
+            }
 
             if (this._armature != null)
             {
@@ -717,12 +718,10 @@ namespace DragonBones
                 { 
                     // Retain input render displays.
                     var eachDisplay = value[i];
-                    if (
-                        eachDisplay != null &&
+                    if (eachDisplay != null &&
                         eachDisplay != this._rawDisplay &&
                         eachDisplay != this._meshDisplay &&
-                        !(eachDisplay is Armature) &&
-                        this._displayList.IndexOf(eachDisplay) < 0)
+                        !(eachDisplay is Armature) && this._displayList.IndexOf(eachDisplay) < 0)
                     {
                         this._InitDisplay(eachDisplay);
                     }
@@ -752,7 +751,7 @@ namespace DragonBones
         /**
          * @private
          */
-        public void Init(SlotData slotData, List<DisplayData> displayDatas, object rawDisplay, object meshDisplay)
+        internal void Init(SlotData slotData, List<DisplayData> displayDatas, object rawDisplay, object meshDisplay)
         {
             if (this.slotData != null)
             {
@@ -768,15 +767,10 @@ namespace DragonBones
             this._blendMode = this.slotData.blendMode;
             this._zOrder = this.slotData.zOrder;
             this._colorTransform.CopyFrom(this.slotData.color);
-            this._rawDisplayDatas = displayDatas;
             this._rawDisplay = rawDisplay;
             this._meshDisplay = meshDisplay;
-            
-            this._displayDatas.ResizeList(this._rawDisplayDatas.Count);
-            for (int i = 0, l = this._displayDatas.Count; i < l; ++i)
-            {
-                this._displayDatas[i] = this._rawDisplayDatas[i];
-            }
+
+            this.rawDisplayDatas = displayDatas;
         }
 
         /**
@@ -930,6 +924,37 @@ namespace DragonBones
                 this._transformDirty = false;
                 this._UpdateGlobalTransformMatrix(false);
             }
+        }
+
+        /**
+         * @private
+         */
+        internal void ReplaceDisplayData(DisplayData value, int displayIndex = -1)
+        {
+            if (displayIndex< 0)
+            {
+                if (this._displayIndex < 0)
+                {
+                    displayIndex = 0;
+                }
+                else
+                {
+                    displayIndex = this._displayIndex;
+                }
+            }
+
+            if (this._displayDatas.Count <= displayIndex)
+            {
+                this._displayDatas.ResizeList(displayIndex + 1);
+
+                for (int i = 0, l = this._displayDatas.Count; i < l; ++i)
+                {
+                    // Clean undefined.
+                    this._displayDatas[i] = null;
+                }
+            }
+
+            this._displayDatas [displayIndex] = value;
         }
 
         /**
@@ -1087,8 +1112,7 @@ namespace DragonBones
                         eachDisplay != this._rawDisplay &&
                         eachDisplay != this._meshDisplay &&
                         this._displayList.IndexOf(eachDisplay) < 0 &&
-                        disposeDisplayList.IndexOf(eachDisplay) < 0
-                    )
+                        disposeDisplayList.IndexOf(eachDisplay) < 0)
                     {
                         disposeDisplayList.Add(eachDisplay);
                     }
@@ -1104,6 +1128,33 @@ namespace DragonBones
                     {
                         this._DisposeDisplay(eachDisplay);
                     }
+                }
+            }
+        }
+        public List<DisplayData> rawDisplayDatas
+        {
+            get { return this._rawDisplayDatas; }
+            set
+            {
+                if (this._rawDisplayDatas == value)
+                {
+                    return;
+                }
+
+                this._displayDirty = true;
+                this._rawDisplayDatas = value;
+
+                if (this._rawDisplayDatas != null)
+                {
+                    this._displayDatas.ResizeList(this._rawDisplayDatas.Count);
+                    for (int i = 0, l = this._displayDatas.Count; i < l; ++i)
+                    {
+                        this._displayDatas[i] = this._rawDisplayDatas[i];
+                    }
+                }
+                else
+                {
+                    this._displayDatas.Clear();
                 }
             }
         }

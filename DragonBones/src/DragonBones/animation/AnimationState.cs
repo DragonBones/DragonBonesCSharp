@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace DragonBones
 {
@@ -648,14 +646,24 @@ namespace DragonBones
                             this._slotTimelines.Add(timeline);
                         }
 
-                        foreach (var displayData in slot._rawDisplayDatas)
+                        if (slot.rawDisplayDatas != null)
                         {
-                            if (displayData != null && displayData.type == DisplayType.Mesh && ffdFlags.IndexOf((displayData as MeshDisplayData).offset) < 0)
+                            foreach (var displayData in slot.rawDisplayDatas)
                             {
-                                var timeline = BaseObject.BorrowObject<SlotFFDTimelineState>();
-                                timeline.slot = slot;
-                                timeline.Init(this._armature, this, null);
-                                this._slotTimelines.Add(timeline);
+                                uint meshOffset = 0;
+                                if (displayData is MeshDisplayData)
+                                {
+                                    meshOffset = (uint)(displayData as MeshDisplayData).offset;
+                                }
+
+                                if (displayData != null && displayData.type == DisplayType.Mesh && ffdFlags.IndexOf((displayData as MeshDisplayData).offset) < 0)
+                                {
+                                    var timeline = BaseObject.BorrowObject<SlotFFDTimelineState>();
+                                    timeline.meshOffset = (uint)meshOffset;
+                                    timeline.slot = slot;
+                                    timeline.Init(this._armature, this, null);
+                                    this._slotTimelines.Add(timeline);
+                                }
                             }
                         }
                     }
@@ -703,7 +711,7 @@ namespace DragonBones
                 this.UpdateTimelines();
             }
 
-            if (this.weight == 0.0)
+            if (this.weight == 0.0f)
             {
                 return;
             }

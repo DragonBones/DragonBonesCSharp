@@ -146,7 +146,7 @@ namespace DragonBones
 
             dR = (ikRadianB - global.rotation) * this.weight;
             global.rotation += dR;
-            global.ToMatrix(globalTransformMatrix);
+            global.ToMatrix(this.bone.globalTransformMatrix);
         }
 
         public override void Update()

@@ -39,6 +39,28 @@ namespace DragonBones
         }
 
         /**
+         * @private
+         */
+        internal void AddInt(int value)
+        {
+            this.ints.Add(value);
+        }
+        /**
+         * @private
+         */
+        internal void AddFloat(float value)
+        {
+            this.floats.Add(value);
+        }
+        /**
+         * @private
+         */
+        internal void AddString(string value)
+        {
+            this.strings.Add(value);
+        }
+
+        /**
          * 获取自定义整数。
          * @version DragonBones 5.0
          * @language zh_CN

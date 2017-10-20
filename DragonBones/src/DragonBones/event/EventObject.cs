@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DragonBones
+﻿namespace DragonBones
 {
     public class EventObject : BaseObject
     {
@@ -11,55 +7,55 @@ namespace DragonBones
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        public static readonly string START = "start";
+        public const string START = "start";
         /**
          * 动画循环播放一次完成。
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        public static readonly string LOOP_COMPLETE = "loopComplete";
+        public const string LOOP_COMPLETE = "loopComplete";
         /**
          * 动画播放完成。
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        public static readonly string COMPLETE = "complete";
+        public const string COMPLETE = "complete";
         /**
          * 动画淡入开始。
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        public static readonly string FADE_IN = "fadeIn";
+        public const string FADE_IN = "fadeIn";
         /**
          * 动画淡入完成。
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        public static readonly string FADE_IN_COMPLETE = "fadeInComplete";
+        public const string FADE_IN_COMPLETE = "fadeInComplete";
         /**
          * 动画淡出开始。
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        public static readonly string FADE_OUT = "fadeOut";
+        public const string FADE_OUT = "fadeOut";
         /**
          * 动画淡出完成。
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        public static readonly string FADE_OUT_COMPLETE = "fadeOutComplete";
+        public const string FADE_OUT_COMPLETE = "fadeOutComplete";
         /**
          * 动画帧事件。
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        public static readonly string FRAME_EVENT = "frameEvent";
+        public const string FRAME_EVENT = "frameEvent";
         /**
          * 动画声音事件。
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        public static readonly string SOUND_EVENT = "soundEvent";
+        public const string SOUND_EVENT = "soundEvent";
 
         /**
          * @private

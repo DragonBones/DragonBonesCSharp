@@ -375,6 +375,7 @@ namespace DragonBones
                     this.skins[value.name].ReturnToPool();
                 }
 
+                value.parent = this;
                 this.skins[value.name] = value;
                 if (this.defaultSkin == null)
                 {
@@ -404,6 +405,21 @@ namespace DragonBones
                 }
             }
         }
+        /**
+         * @private
+         */
+        internal void AddAction(ActionData value, bool isDefault)
+        {
+            if (isDefault)
+            {
+                this.defaultActions.Add(value);
+            }
+            else
+            {
+                this.actions.Add(value);
+            }
+        }
+
         /**
          * 获取骨骼数据。
          * @param name 数据名称。
@@ -528,6 +544,14 @@ namespace DragonBones
             this.userData = null;
             this.parent = null;
         }
+
+        /**
+         * @private
+         */
+        internal void AddConstraint(ConstraintData value)
+        {
+            this.constraints.Add(value);
+        }
     }
 
     /**
@@ -620,6 +644,10 @@ namespace DragonBones
          * @private
          */
         public readonly Dictionary<string, List<DisplayData>> displays = new Dictionary<string, List<DisplayData>>();
+        /**
+         * @private
+         */
+        public ArmatureData parent;
 
         protected override void _OnClear()
         {
@@ -633,6 +661,7 @@ namespace DragonBones
 
             this.name = "";
             this.displays.Clear();
+            this.parent = null;
         }
 
         /**
@@ -642,9 +671,14 @@ namespace DragonBones
         {
             if (!string.IsNullOrEmpty(slotName) && value != null && !string.IsNullOrEmpty(value.name))
             {
-                if (!this.displays.ContainsKey(value.name))
+                if (!this.displays.ContainsKey(slotName))
                 {
                     this.displays[slotName] = new List<DisplayData>();
+                }
+
+                if (value != null)
+                {
+                    value.parent = this;
                 }
 
                 var slotDisplays = this.displays[slotName]; // TODO clear prev

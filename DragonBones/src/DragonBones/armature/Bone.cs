@@ -17,7 +17,7 @@ namespace DragonBones
         /**
          * @private
          */
-        public OffsetMode offsetMode;
+        internal OffsetMode offsetMode;
         /**
          * @internal
          * @private
@@ -71,7 +71,7 @@ namespace DragonBones
          * @internal
          * @private
          */
-        public List<int> _cachedFrameIndices = new List<int>();
+        internal List<int> _cachedFrameIndices = new List<int>();
         /**
          * @private
          */
@@ -106,7 +106,7 @@ namespace DragonBones
          * @private
          */
         private void _UpdateGlobalTransformMatrix(bool isCache)
-        {
+        {            
             var flipX = this._armature.flipX;
             var flipY = this._armature.flipY == DragonBones.yDown;
             var global = this.global;
@@ -144,7 +144,15 @@ namespace DragonBones
                         this._parent.UpdateGlobalTransform();
 
                         dR = this._parent.global.rotation; //
-                        global.rotation -= dR;
+
+                        if (DragonBones.yDown)
+                        {
+                            global.rotation -= dR;
+                        }
+                        else
+                        {
+                            global.rotation += dR;
+                        }
                     }
 
                     global.ToMatrix(globalTransformMatrix);
@@ -160,7 +168,7 @@ namespace DragonBones
                         globalTransformMatrix.tx = global.x;
                         globalTransformMatrix.ty = global.y;
                     }
-
+                    
                     if (isCache)
                     {
                         global.FromMatrix(globalTransformMatrix);
@@ -238,7 +246,7 @@ namespace DragonBones
                 }
             }
             else
-            {
+            {                
                 if (flipX || flipY)
                 {
                     if (flipX)
@@ -271,6 +279,10 @@ namespace DragonBones
 
                 global.ToMatrix(globalTransformMatrix);
             }
+
+            //QQ
+            //UnityEngine.Debug.Log("---------------------" + "bone name:" + this.name + "---------------------");
+            //UnityEngine.Debug.Log(string.Format("x:{0} y:{1} rotation:{2} skew:{3}", global.x, global.y, global.rotation, global.skew));
         }
 
         /**
@@ -327,7 +339,7 @@ namespace DragonBones
          * @internal
          * @private
          */
-        public void Init(BoneData boneData)
+        internal void Init(BoneData boneData)
         {
             if (this.boneData != null)
             {
@@ -342,7 +354,7 @@ namespace DragonBones
          * @internal
          * @private
          */
-        public void Update(int cacheFrameIndex)
+        internal void Update(int cacheFrameIndex)
         {
             this._blendDirty = false;
 
@@ -397,7 +409,8 @@ namespace DragonBones
                 if (this.constraints.Count > 0)
                 { 
                     // Update constraints.
-                    foreach (var constraint in this.constraints) {
+                    foreach (var constraint in this.constraints)
+                    {
                         constraint.Update();
                     }
                 }

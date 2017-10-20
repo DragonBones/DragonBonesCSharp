@@ -197,7 +197,7 @@ namespace DragonBones
         /**
          * @private
          */
-        public static void Assert(bool condition, string message)
+        internal static void Assert(bool condition, string message)
         {
             Debug.Assert(condition, message);
         }
@@ -205,7 +205,7 @@ namespace DragonBones
         /**
          * @private
          */
-        public static void ResizeList<T>(this List<T> list, int count, T value = default(T))
+        internal static void ResizeList<T>(this List<T> list, int count, T value = default(T))
         {
             if (list.Count == count)
             {
@@ -224,6 +224,29 @@ namespace DragonBones
                     list.Add(value);
                 }
             }
+        }
+
+        /**
+         * @private
+         */
+        internal static List<float> Convert(this List<object> list)
+        {
+            List<float> res = new List<float>();
+            
+            for (int i = 0; i < list.Count; i++)
+            {
+                res[i] = float.Parse(list[i].ToString());
+            }
+
+            return res;
+        }
+
+
+        internal static bool FloatEqual(float f0, float f1)
+        {
+            float f = Math.Abs(f0 -f1);
+
+            return (f < 0.000000001f);
         }
     }
 

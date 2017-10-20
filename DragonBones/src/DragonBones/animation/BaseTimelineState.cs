@@ -96,7 +96,7 @@ namespace DragonBones
             {
                 var playTimes = this._animationState.playTimes;
                 var totalTime = playTimes * this._duration;
-
+                
                 passedTime *= this._timeScale;
                 if (this._timeOffset != 0.0f)
                 {
@@ -193,7 +193,8 @@ namespace DragonBones
 
                 this._frameCount = this._timelineArray[this._timelineData.offset + (int)BinaryOffset.TimelineKeyFrameCount];
                 this._frameValueOffset = this._timelineArray[this._timelineData.offset + (int)BinaryOffset.TimelineFrameValueOffset];
-                this._timeScale = 100.0f / this._timelineArray[this._timelineData.offset + (int)BinaryOffset.TimelineScale];
+                var timelineScale = this._timelineArray[this._timelineData.offset + (int)BinaryOffset.TimelineScale];
+                this._timeScale = 100.0f / (timelineScale == 0 ? 100.0f : timelineScale);
                 this._timeOffset = this._timelineArray[this._timelineData.offset + (int)BinaryOffset.TimelineOffset] * 0.01f;
             }
         }
@@ -281,9 +282,10 @@ namespace DragonBones
             var segmentCount = count + 1; // + 2 - 1
             var valueIndex = (int)Math.Floor(progress * segmentCount);
             var fromValue = valueIndex == 0 ? 0.0f : samples[offset + valueIndex - 1];
+
             var toValue = (valueIndex == segmentCount - 1) ? 10000.0f : samples[offset + valueIndex];
 
-            return (fromValue + (toValue - fromValue) * (progress* segmentCount - valueIndex)) * 0.0001f;
+            return (fromValue + (toValue - fromValue) * (progress * segmentCount - valueIndex)) * 0.0001f;
         }
 
         protected TweenType _tweenType;
@@ -332,7 +334,16 @@ namespace DragonBones
                 else
                 {
                     var nextFrameOffset = this._animationData.frameOffset + this._timelineArray[(this._timelineData as TimelineData).offset + (int)BinaryOffset.TimelineFrameOffset + this._frameIndex + 1];
-                    this._frameDurationR = 1.0f / (this._frameArray[nextFrameOffset] * this._frameRateR - this._framePosition);
+                    var frameDuration = this._frameArray[nextFrameOffset] * this._frameRateR - this._framePosition;
+
+                    if (frameDuration > 0.0f)
+                    {
+                        this._frameDurationR = 1.0f / frameDuration;
+                    }
+                    else
+                    {
+                        this._frameDurationR = 0.0f;
+                    }
                 }
             }
             else
@@ -392,5 +403,5 @@ namespace DragonBones
 
             this.slot = null; //
         }
-}
+    }
 }
