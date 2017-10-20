@@ -36,7 +36,6 @@ namespace DragonBones
          * @private
          */
         public string animationName = null;
-
         [SerializeField]
         internal string _sortingLayerName = "Default";
         [SerializeField]

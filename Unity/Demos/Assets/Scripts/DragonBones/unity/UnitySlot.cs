@@ -155,12 +155,6 @@ namespace DragonBones
             _renderDisplay.transform.localPosition = savePosition;
             _renderDisplay.SetActive(true);
             _renderDisplay.transform.SetSiblingIndex(index);
-
-            var prevRender = prevDisplay.GetComponent<Renderer>();
-            if (prevRender != null && _renderer != null)
-            {
-                _renderer.sortingOrder = prevRender.sortingOrder;
-            }
         }
         /**
          * @private
@@ -174,13 +168,7 @@ namespace DragonBones
          */
         override protected void _UpdateZOrder()
         {
-            var zOrder = 0.0f;
-            if (_proxy.sortingMode == SortingMode.SortByZ)
-            {
-                zOrder = -_zOrder * (_proxy.zSpace + 0.001f);
-            }
-
-            _helpVector3.Set(_renderDisplay.transform.localPosition.x, _renderDisplay.transform.localPosition.y, zOrder);
+            _helpVector3.Set(_renderDisplay.transform.localPosition.x, _renderDisplay.transform.localPosition.y, -_zOrder * (_proxy.zSpace + 0.001f));
 			if(_renderDisplay.transform.localPosition.z != _helpVector3.z)
             {
 				_proxy.zorderIsDirty = true;
