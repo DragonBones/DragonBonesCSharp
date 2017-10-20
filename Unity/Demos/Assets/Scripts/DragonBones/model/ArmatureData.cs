@@ -375,6 +375,7 @@ namespace DragonBones
                     this.skins[value.name].ReturnToPool();
                 }
 
+                value.parent = this;
                 this.skins[value.name] = value;
                 if (this.defaultSkin == null)
                 {
@@ -643,6 +644,10 @@ namespace DragonBones
          * @private
          */
         public readonly Dictionary<string, List<DisplayData>> displays = new Dictionary<string, List<DisplayData>>();
+        /**
+         * @private
+         */
+        public ArmatureData parent;
 
         protected override void _OnClear()
         {
@@ -656,6 +661,7 @@ namespace DragonBones
 
             this.name = "";
             this.displays.Clear();
+            this.parent = null;
         }
 
         /**
@@ -668,6 +674,11 @@ namespace DragonBones
                 if (!this.displays.ContainsKey(slotName))
                 {
                     this.displays[slotName] = new List<DisplayData>();
+                }
+
+                if (value != null)
+                {
+                    value.parent = this;
                 }
 
                 var slotDisplays = this.displays[slotName]; // TODO clear prev

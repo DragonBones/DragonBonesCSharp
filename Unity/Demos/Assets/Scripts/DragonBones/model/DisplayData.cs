@@ -11,7 +11,7 @@ namespace DragonBones
         public string name;
         public string path;
         public readonly Transform transform = new Transform();
-        public ArmatureData parent;
+        public SkinData parent;
 
         protected override void _OnClear()
         {

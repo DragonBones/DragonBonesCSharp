@@ -28,11 +28,11 @@ public class HelloDragonBones :MonoBehaviour
     {
         //TestHello();
         //TestDragon();
-        TestLoadDemo();
+        //TestLoadDemo();
         //TestZorder();
         //TestCoreElement();
         //TestRotation();
-        //TestAlpha();
+        TestAlpha();
     }
 
     private void TestRotation()

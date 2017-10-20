@@ -371,7 +371,7 @@ namespace DragonBones
                 else if (this._textureData != null)
                 {
                     var imageDisplayData = this._displayData as ImageDisplayData;
-                    var scale = this._armature.armatureData.scale;
+                    var scale = this._textureData.parent.scale * this._armature.armatureData.scale;
                     var frame = this._textureData.frame;
 
                     this._pivotX = imageDisplayData.pivot.x;
@@ -419,7 +419,7 @@ namespace DragonBones
                         }
                         else
                         {
-                            var vertexCount = this._meshData.parent.parent.intArray[this._meshData.offset + (int)BinaryOffset.MeshVertexCount];
+                            var vertexCount = this._meshData.parent.parent.parent.intArray[this._meshData.offset + (int)BinaryOffset.MeshVertexCount];
                             this._ffdVertices.ResizeList(vertexCount * 2);
                             this._meshBones.Clear();
                         }

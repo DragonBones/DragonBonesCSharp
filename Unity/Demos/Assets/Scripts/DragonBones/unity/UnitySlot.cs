@@ -326,7 +326,7 @@ namespace DragonBones
 
                     if (meshData != null)
                     {
-                        var data = meshData.parent.parent;
+                        var data = meshData.parent.parent.parent;
                         var intArray = data.intArray;
                         var floatArray = data.floatArray;
                         var vertexCount = intArray[meshData.offset + (int)BinaryOffset.MeshVertexCount];
@@ -506,7 +506,7 @@ namespace DragonBones
             var weightData = meshData.weight;
             var meshDisplay = this._mesh;
 
-            var data = meshData.parent.parent;
+            var data = meshData.parent.parent.parent;
             var intArray = data.intArray;
             var floatArray = data.floatArray;
             var vertextCount = intArray[meshData.offset + (int)BinaryOffset.MeshVertexCount];
@@ -532,22 +532,22 @@ namespace DragonBones
                         {
                             var matrix = bone.globalTransformMatrix;
                             var weight = floatArray[iV++];
-                            var xL = floatArray[iV++];
-                            var yL = floatArray[iV++];
+                            var xL = floatArray[iV++] * scale;
+                            var yL = floatArray[iV++] * scale;
 
                             if (hasFFD)
                             {
-                                xL += this._ffdVertices[iF++];
-                                yL += this._ffdVertices[iF++];
+                                xL += this._ffdVertices[iF++] * scale;
+                                yL += this._ffdVertices[iF++] * scale;
                             }
 
-                            xG += (matrix.a * xL + matrix.c * yL + matrix.tx * (1.0f / scale)) * weight;
-                            yG += (matrix.b * xL + matrix.d * yL + matrix.ty * (1.0f / scale)) * weight;
+                            xG += (matrix.a * xL + matrix.c * yL + matrix.tx) * weight; /** (1.0f / scale)) * weight;*/
+                            yG += (matrix.b * xL + matrix.d * yL + matrix.ty) * weight; /** (1.0f / scale)) * weight;*/
                         }
                     }
 
-                    _vertices[i].x = xG * scale;
-                    _vertices[i].y = yG * scale;
+                    _vertices[i].x = xG;
+                    _vertices[i].y = yG;
                     _vertices2[i].x = _vertices[i].x;
                     _vertices2[i].y = _vertices[i].y;
                 }
@@ -570,8 +570,8 @@ namespace DragonBones
                 Vector3[] vertices = new Vector3[vertextCount];
                 for (int i = 0, iV = 0, iF = 0, l = vertextCount; i < l; ++i)
                 {
-                    _vertices[i].x = (floatArray[vertexOffset + (iV++)] + this._ffdVertices[iF++]) * scale;
-                    _vertices[i].y = - (floatArray[vertexOffset + (iV++)] + this._ffdVertices[iF++]) * scale;
+                    _vertices[i].x = (floatArray[vertexOffset + (iV++)] * scale + this._ffdVertices[iF++])/* * scale*/;
+                    _vertices[i].y = - (floatArray[vertexOffset + (iV++)] * scale + this._ffdVertices[iF++])/* * scale*/;
                     _vertices2[i].x = _vertices[i].x;
                     _vertices2[i].y = _vertices[i].y;
                 }
@@ -669,7 +669,7 @@ namespace DragonBones
 
                     //_skewed = false;
                     //skewed = false;
-                    var skewed = !flipX && !flipY && dSkew == 0.0f && global.rotation != 0.0f;
+                    var skewed = !flipX && !flipY && (dSkew > -0.01f && 0.01f > dSkew) && global.rotation != 0.0f;
                     if (_skewed || skewed)
                     {
                         _skewed = skewed;

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace DragonBones
 {
@@ -652,9 +650,16 @@ namespace DragonBones
                         {
                             foreach (var displayData in slot.rawDisplayDatas)
                             {
+                                uint meshOffset = 0;
+                                if (displayData is MeshDisplayData)
+                                {
+                                    meshOffset = (uint)(displayData as MeshDisplayData).offset;
+                                }
+
                                 if (displayData != null && displayData.type == DisplayType.Mesh && ffdFlags.IndexOf((displayData as MeshDisplayData).offset) < 0)
                                 {
                                     var timeline = BaseObject.BorrowObject<SlotFFDTimelineState>();
+                                    timeline.meshOffset = (uint)meshOffset;
                                     timeline.slot = slot;
                                     timeline.Init(this._armature, this, null);
                                     this._slotTimelines.Add(timeline);

@@ -316,7 +316,7 @@ namespace DragonBones
          */
         protected object _GetSlotDisplay(BuildArmaturePackage dataPackage, DisplayData displayData, DisplayData rawDisplayData, Slot slot)
         {
-            var dataName = dataPackage != null ? dataPackage.dataName : displayData.parent.parent.name;
+            var dataName = dataPackage != null ? dataPackage.dataName : displayData.parent.parent.parent.name;
             object display = null;
             switch (displayData.type)
             {
@@ -508,7 +508,7 @@ namespace DragonBones
          * @version DragonBones 4.5
          * @language zh_CN
          */
-        public TextureAtlasData ParseTextureAtlasData(Dictionary<string, object>  rawData, object textureAtlas, string name = null, float scale = 0.0f)
+        public TextureAtlasData ParseTextureAtlasData(Dictionary<string, object>  rawData, object textureAtlas, string name = null, float scale = 1.0f)
         {
             var textureAtlasData = this._BuildTextureAtlasData(null, null);
             this._dataParser.ParseTextureAtlasData(rawData, textureAtlasData, scale);
