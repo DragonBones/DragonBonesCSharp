@@ -146,10 +146,10 @@ namespace DragonBones
 #if UNITY_5_6_OR_NEWER
                 if (armatureDisplay.GetComponent<SortingGroup>() == null)
                 {
-                    armatureDisplay.AddComponent<SortingGroup>();
+                    //armatureDisplay.AddComponent<SortingGroup>();
                 }
                 
-                armatureComponent.sortingMode = SortingMode.SortByOrder;
+                //armatureComponent.sortingMode = SortingMode.SortByOrder;
 #else
                 armatureComponent.sortingMode = SortingMode.SortByZ;
 #endif
