@@ -258,7 +258,7 @@ namespace DragonBones
                 if (_renderer == null)
                 {
                     _renderer = _renderDisplay.AddComponent<MeshRenderer>();
-                    _renderer.sortingOrder = _zOrder;
+                    //_renderer.sortingOrder = _zOrder;
                 }
 
                 _meshFilter = _renderDisplay.GetComponent<MeshFilter>();
