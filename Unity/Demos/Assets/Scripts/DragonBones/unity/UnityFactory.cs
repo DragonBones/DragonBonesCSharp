@@ -17,7 +17,6 @@ namespace DragonBones
         {
             if (!isStarted)
             {
-                //UnityFactory._clock.AdvanceTime(Time.deltaTime);
                 UnityFactory.factory._dragonBones.AdvanceTime(Time.deltaTime);
                 //isStarted = true;
             }
