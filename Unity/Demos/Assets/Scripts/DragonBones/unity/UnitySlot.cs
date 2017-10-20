@@ -155,6 +155,12 @@ namespace DragonBones
             _renderDisplay.transform.localPosition = savePosition;
             _renderDisplay.SetActive(true);
             _renderDisplay.transform.SetSiblingIndex(index);
+
+            var prevRender = prevDisplay.GetComponent<Renderer>();
+            if (prevRender != null && _renderer != null)
+            {
+                _renderer.sortingOrder = prevRender.sortingOrder;
+            }
         }
         /**
          * @private
@@ -252,6 +258,7 @@ namespace DragonBones
                 if (_renderer == null)
                 {
                     _renderer = _renderDisplay.AddComponent<MeshRenderer>();
+                    _renderer.sortingOrder = _zOrder;
                 }
 
                 _meshFilter = _renderDisplay.GetComponent<MeshFilter>();
@@ -596,22 +603,20 @@ namespace DragonBones
             else
             {
                 this.UpdateGlobalTransform(); // Update transform.
+                //QQ
+                //if (this.name.Contains("C01_left_leg08"))
+                //{
+                //    UnityEngine.Debug.Log("---------------------" + "solt name:" + this.name + "---------------------");
+                //    UnityEngine.Debug.Log("slot rotation:" + global.rotation + " solt skew:" + global.skew);
+                //}
 
                 var flipX = _armature.flipX;
                 var flipY = _armature.flipY;
-                var scaleX = flipX ? global.scaleX : -global.scaleX;
-                var scaleY = flipY ? global.scaleY : -global.scaleY;
                 var transform = _renderDisplay.transform;
 
                 _helpVector3.x = global.x;
                 _helpVector3.y = global.y;
                 _helpVector3.z = transform.localPosition.z;
-                //QQ
-                if (this.name.Contains("C01_left_leg08"))
-                {
-                    UnityEngine.Debug.Log("---------------------" + "solt name:" + this.name + "---------------------");
-                    UnityEngine.Debug.Log("slot rotation:" + global.rotation + " solt skew:" + global.skew);
-                }
 
                 //_helpVector3.x = globalTransformMatrix.tx;
                 //_helpVector3.y = globalTransformMatrix.ty;
@@ -653,52 +658,54 @@ namespace DragonBones
                 {
                     var dSkew = global.skew;
 
-                    dSkew = Mathf.RoundToInt(dSkew * 100) % Mathf.RoundToInt(Transform.PI * 100);
-                    dSkew = dSkew / 100.0f;
+                    //dSkew = Mathf.RoundToInt(dSkew * 100) % Mathf.RoundToInt(Transform.PI * 100);
+                    //dSkew = dSkew / 100.0f;
 
-                    var skewed = dSkew < -0.01f || 0.01f < dSkew;
-                    if (skewed)
-                    {
-                        skewed = Transform.PI - Mathf.Abs(dSkew) > 0.01f;
-                    }
+                    //var skewed = dSkew < -0.01f || 0.01f < dSkew;
+                    //if (skewed)
+                    //{
+                    //    skewed = Transform.PI - Mathf.Abs(dSkew) > 0.01f;
+                    //}
 
                     //_skewed = false;
                     //skewed = false;
-                    //if (_skewed || skewed)
-                    //{
-                    //    _skewed = skewed;
+                    var skewed = !flipX && !flipY && dSkew == 0.0f && global.rotation != 0.0f;
+                    if (_skewed || skewed)
+                    {
+                        _skewed = skewed;
+                        dSkew = global.skew - global.rotation;
 
-                    //    var isPositive = global.scaleX >= 0.0f;
-                    //    var cos = Mathf.Cos(dSkew);
-                    //    var sin = Mathf.Sin(dSkew);
+                        var isPositive = global.scaleX >= 0.0f;
+                        var cos = Mathf.Cos(dSkew);
+                        var sin = Mathf.Sin(dSkew);
 
-                    //    for (int i = 0, l = _vertices.Length; i < l; ++i)
-                    //    {
-                    //        var x = _vertices[i].x;
-                    //        var y = _vertices[i].y;
+                        for (int i = 0, l = _vertices.Length; i < l; ++i)
+                        {
+                            var x = _vertices[i].x;
+                            var y = _vertices[i].y;
 
-                    //        if (isPositive)
-                    //        {
-                    //            _vertices2[i].x = x + y * sin;
-                    //        }
-                    //        else
-                    //        {
-                    //            _vertices2[i].x = -x + y * sin;
-                    //        }
+                            if (isPositive)
+                            {
+                                _vertices2[i].x = x + y * sin;
+                            }
+                            else
+                            {
+                                _vertices2[i].x = -x + y * sin;
+                            }
 
-                    //        _vertices2[i].y = y * cos;
-                    //    }
+                            _vertices2[i].y = y * cos;
+                        }
 
-                    //    _mesh.vertices = _vertices2;
-                    //    if (_renderer && _renderer.enabled)
-                    //    {
-                    //        _mesh.RecalculateBounds();
-                    //    }
-                    //}
+                        _mesh.vertices = _vertices2;
+                        if (_renderer && _renderer.enabled)
+                        {
+                            _mesh.RecalculateBounds();
+                        }
+                    }
                 }
-
-                _helpVector3.x = scaleX >= 0.0f ? scaleX : -scaleX;
-                _helpVector3.y = scaleY >= 0.0f ? scaleY : -scaleY;
+                
+                _helpVector3.x = global.scaleX;
+                _helpVector3.y = global.scaleY;
                 _helpVector3.z = 1.0f;
 
                 transform.localScale = _helpVector3;

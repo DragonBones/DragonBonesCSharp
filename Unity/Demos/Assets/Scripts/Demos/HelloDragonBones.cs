@@ -28,10 +28,10 @@ public class HelloDragonBones :MonoBehaviour
     {
         //TestHello();
         //TestDragon();
-        //TestLoadDemo();
+        TestLoadDemo();
         //TestZorder();
         //TestCoreElement();
-        TestRotation();
+        //TestRotation();
         //TestAlpha();
     }
 
@@ -44,6 +44,7 @@ public class HelloDragonBones :MonoBehaviour
         var armatureComponent = UnityFactory.factory.BuildArmatureComponent("right");
         //armatureComponent.animation.Play("attack");
         //armatureComponent.armature.flipX = true;
+        armatureComponent.armature.flipY = true;
 
         // Set position.
         armatureComponent.transform.localPosition = new Vector3(0.0f, -2.0f, 1.0f);
@@ -71,7 +72,8 @@ public class HelloDragonBones :MonoBehaviour
 
         var armatureComponent = UnityFactory.factory.BuildArmatureComponent("armatureName");
         armatureComponent.animation.Play("walk");
-        //armatureComponent.armature.flipX = true;
+        armatureComponent.armature.flipX = true;
+        armatureComponent.armature.flipY = true;
 
         // Set position.
         armatureComponent.transform.localPosition = new Vector3(0.0f, -2.0f, 1.0f);      
@@ -100,13 +102,17 @@ public class HelloDragonBones :MonoBehaviour
         //var armatureComponent = UnityFactory.factory.BuildArmatureComponent("zhangfei");
         //var state = armatureComponent.animation.Play("cheer");
 
-        UnityFactory.factory.LoadDragonBonesData("temp/c/002/taidiyounian");
-        UnityFactory.factory.LoadTextureAtlasData("temp/c/002/texture").autoSearch = true;
+        //UnityFactory.factory.LoadDragonBonesData("temp/c/002/taidiyounian");
+        //UnityFactory.factory.LoadTextureAtlasData("temp/c/002/texture").autoSearch = true;
 
-        var armatureComponent = UnityFactory.factory.BuildArmatureComponent("armatureName", "taidiyounian");
-        var state = armatureComponent.animation.Play("Run");
+        UnityFactory.factory.LoadDragonBonesData("temp/zhu_epic_ske");
+        UnityFactory.factory.LoadTextureAtlasData("temp/zhu_epic_tex").autoSearch = true;
+
+        var armatureComponent = UnityFactory.factory.BuildArmatureComponent("zhu_epic");
+        //var state = armatureComponent.animation.Play("jump");
         //state.playTimes = 1;
         //armatureComponent.armature.flipX = true;
+        //armatureComponent.armature.flipY = true;
 
         // Set position.
         armatureComponent.transform.localPosition = new Vector3(0.0f, -2.0f, 1.0f);
