@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -144,9 +143,9 @@ namespace DragonBones
                 armatureComponent = armatureDisplay.AddComponent<UnityArmatureComponent>();
                 armatureComponent.isUGUI = _isUGUI;
 #if UNITY_5_6_OR_NEWER
-                if (armatureDisplay.GetComponent<SortingGroup>() == null)
+                if (armatureDisplay.GetComponent<UnityEngine.Rendering.SortingGroup>() == null)
                 {
-                    armatureDisplay.AddComponent<SortingGroup>();
+                    armatureDisplay.AddComponent<UnityEngine.Rendering.SortingGroup>();
                 }
                 
                 //armatureComponent.sortingMode = SortingMode.SortByOrder;
