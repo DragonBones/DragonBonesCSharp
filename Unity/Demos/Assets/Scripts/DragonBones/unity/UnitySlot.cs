@@ -626,12 +626,6 @@ namespace DragonBones
             else
             {
                 this.UpdateGlobalTransform(); // Update transform.
-                //QQ
-                //if (this.name.Contains("C01_left_leg08"))
-                //{
-                //    UnityEngine.Debug.Log("---------------------" + "solt name:" + this.name + "---------------------");
-                //    UnityEngine.Debug.Log("slot rotation:" + global.rotation + " solt skew:" + global.skew);
-                //}
 
                 var flipX = _armature.flipX;
                 var flipY = _armature.flipY;
@@ -646,19 +640,25 @@ namespace DragonBones
                 _helpVector3.x = 0.0f;
                 _helpVector3.y = 0.0f;
                 _helpVector3.z = global.rotation * Transform.RAD_DEG;
-
-                if (flipX != flipY)
+                if (flipX || flipY)
                 {
-                    _helpVector3.z = -_helpVector3.z;
-                    if (flipX)
+                    if (flipX && flipY)
                     {
-                        _helpVector3.y = 180.0f;
-                        _helpVector3.z -= 180.0f;
+                        //_helpVector3.z += 180.0f;
                     }
-
-                    if (flipY)
+                    else
                     {
-                        _helpVector3.x = 180.0f;
+                        _helpVector3.z = -_helpVector3.z;
+                        if (flipX)
+                        {
+                            _helpVector3.y = 180.0f;
+                            _helpVector3.z -= 180.0f;
+                        }
+
+                        if (flipY)
+                        {
+                            _helpVector3.x = 180.0f;
+                        }
                     }
                 }
                 
@@ -667,30 +667,52 @@ namespace DragonBones
                 //Modify mesh skew. // TODO child armature skew.
                 if ((_display == _rawDisplay || _display == _meshDisplay) && _mesh != null)
                 {
-                    //var dSkew = global.skew;
+                    var skew = global.skew;
+                    
+                    var rotation = _helpVector3.z * Transform.DEG_RAD;
+
+                    var dSkew = global.skew;
+                    if (flipX || flipY)
+                    {
+                        if (flipX != flipY)
+                        {
+                            if (flipX)
+                            {
+                                dSkew -= Transform.PI;
+                            }
+
+                            if (flipY)
+                            {
+                                dSkew += Transform.PI;
+                            }
+                        }
+                        else
+                        {
+                            rotation += Transform.PI;
+                        }
+                    }
 
                     //dSkew = Mathf.RoundToInt(dSkew * 100) % Mathf.RoundToInt(Transform.PI * 100);
                     //dSkew = dSkew / 100.0f;
-
-                    //var skewed = dSkew < -0.01f || 0.01f < dSkew;
-                    //if (skewed)
-                    //{
-                    //    skewed = Transform.PI - Mathf.Abs(dSkew) > 0.01f;
-                    //}
-
-                    //_skewed = false;
-                    //skewed = false;
-                    //var skewed = (dSkew > -0.01f && 0.01f > dSkew) && global.rotation != 0.0f;
-
-                    var dSkew = global.skew - global.rotation;
-                    var skewed = dSkew < -0.01f || 0.01f < dSkew;
+                    var skewed = dSkew > -0.01f && 0.01f > dSkew;
                     var isSkewed = _skewed || skewed;
+
+                    //QQ senbei_head
+                    if (this.name.Contains("C01_left_hand02") || this.name.Contains("tailTip") || this.name.Contains("senbei_head"))
+                    {
+                        var rx = _helpVector3.x * Transform.DEG_RAD;
+                        var ry = _helpVector3.y * Transform.DEG_RAD;
+                        //UnityEngine.Debug.Log(flipX + "----------------" + "solt name:" + this.name + "----------------" + flipY);
+                        //UnityEngine.Debug.Log("rotation:" + global.rotation + " skew:" + dSkew + " z:" + rotation);
+                        //UnityEngine.Debug.Log("rotation:" + global.rotation + " skew:" + global.skew + " dSkew:" + dSkew);
+                        //UnityEngine.Debug.Log("x:" + rx + " y:" + ry + " rotation:" + global.rotation + " skew:" + global.skew + " z:" + rotation);
+                    }
                     //TODO
-                    isSkewed = false;
+                    //isSkewed = true;
                     if (isSkewed)
                     {
                         _skewed = skewed;
-                        //dSkew = global.skew - global.rotation;
+                        dSkew = dSkew - rotation;
 
                         var isPositive = global.scaleX >= 0.0f;
                         var cos = Mathf.Cos(dSkew);
