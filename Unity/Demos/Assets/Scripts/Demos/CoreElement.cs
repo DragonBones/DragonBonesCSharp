@@ -18,12 +18,13 @@ namespace coreElement
         private const float MAX_MOVE_SPEED_BACK = NORMALIZE_MOVE_SPEED * 1.0f;
         private static readonly string[] WEAPON_LEFT_LIST = { "weapon_1502b_l", "weapon_1005", "weapon_1005b", "weapon_1005c", "weapon_1005d", "weapon_1005e" };
         private static readonly string[] WEAPON_RIGHT_LIST = { "weapon_1502b_r", "weapon_1005", "weapon_1005b", "weapon_1005c", "weapon_1005d" };
+        private static readonly string[] SKINS = { "mecha_1502b", "skin_a", "skin_b", "skin_c" };
         
         public KeyCode left = KeyCode.A;
         public KeyCode right = KeyCode.D;
         public KeyCode up = KeyCode.W;
         public KeyCode down = KeyCode.S;
-        public KeyCode switchWeapon = KeyCode.Space;
+        public KeyCode switchSkin = KeyCode.Space;
         public KeyCode switchLeftWeapon = KeyCode.Q;
         public KeyCode switchRightWeapon = KeyCode.E;
         
@@ -32,6 +33,7 @@ namespace coreElement
         private bool _isSquating = false;
         private bool _isAttackingA = false;
         private bool _isAttackingB = false;
+        private int _skinIndex = 0;
         private int _weaponLeftIndex = 0;
         private int _weaponRightIndex = 0;
         private int _faceDir = 1;
@@ -112,10 +114,9 @@ namespace coreElement
 
             _squat(Input.GetKey(down));
             
-            if (Input.GetKeyDown(switchWeapon))
+            if (Input.GetKeyDown(switchSkin))
             {
-                _switchWeaponLeft();
-                _switchWeaponRight();
+                _switchSkin();
             }
 
             if (Input.GetKeyDown(switchLeftWeapon))
@@ -241,6 +242,18 @@ namespace coreElement
             _weaponRight = UnityFactory.factory.BuildArmature(weaponName);
             _armatureComponent.armature.GetSlot("weapon_r").childArmature = _weaponRight;
             _weaponRight.proxy.AddEventListener(EventObject.FRAME_EVENT, _frameEventHandler);
+        }
+
+        public void _switchSkin()
+        {
+            this._skinIndex++;
+            this._skinIndex %= SKINS.Length;
+            var skinName = SKINS[this._skinIndex];
+            var skinData = UnityFactory.factory.GetArmatureData(skinName).defaultSkin;
+            List<string> exclude = new List<string>();
+            exclude.Add("weapon_l");
+            exclude.Add("weapon_r");
+            UnityFactory.factory.ChangeSkin(this._armatureComponent.armature, skinData, exclude);
         }
 
         private void _aim(float x, float y)
