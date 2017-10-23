@@ -142,8 +142,9 @@ namespace DragonBones
             var container = _proxy;
             var prevDisplay = value as GameObject;
 			int index = prevDisplay.transform.GetSiblingIndex();
-            prevDisplay.hideFlags = HideFlags.HideInHierarchy;
-            prevDisplay.transform.SetParent(null, false);
+            //QQ
+            //prevDisplay.hideFlags = HideFlags.HideInHierarchy;
+            //prevDisplay.transform.SetParent(null, false);
             prevDisplay.SetActive(false);
 
             _renderDisplay.hideFlags = HideFlags.None;

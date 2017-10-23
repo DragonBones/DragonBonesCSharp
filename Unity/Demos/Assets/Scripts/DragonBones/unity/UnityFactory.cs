@@ -77,8 +77,9 @@ namespace DragonBones
                     _gameObject = new GameObject("DragonBones Object", typeof(ClockHandler));
                 }
                 
-                _gameObject.isStatic = true;
-                _gameObject.hideFlags = HideFlags.HideInHierarchy;
+                //QQ
+                //_gameObject.isStatic = true;
+                //_gameObject.hideFlags = HideFlags.HideInHierarchy;
             }
 
             if (_eventManager == null)
@@ -159,7 +160,7 @@ namespace DragonBones
             return armature;
         }
 
-        public override Armature BuildArmature(string armatureName, string dragonBonesName = null, string skinName = null, string textureAtlasName = null)
+        /*public override Armature BuildArmature(string armatureName, string dragonBonesName = null, string skinName = null, string textureAtlasName = null)
         {
             var armature = base.BuildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
 
@@ -193,7 +194,8 @@ namespace DragonBones
 
                         if (display.display != slot.display)
                         {
-                            childArmatureDisplay.gameObject.hideFlags = HideFlags.HideInHierarchy;
+                            //QQ
+                            //childArmatureDisplay.gameObject.hideFlags = HideFlags.HideInHierarchy;
                             childArmatureDisplay.SetActive(false);
                         }
                     }
@@ -201,6 +203,25 @@ namespace DragonBones
             }
 
             return armature;
+        }*/
+
+        override protected Armature _BuildChildArmatrue(BuildArmaturePackage dataPackage, Slot slot, DisplayData displayData)
+        {
+            var childDisplayName = slot.slotData.name + " (" + displayData.path + ")"; //
+            var proxy = slot.armature.proxy as UnityArmatureComponent;
+            var childTransform = proxy.transform.Find(childDisplayName);
+            var childArmature = childTransform == null ?
+                BuildArmature(displayData.path, dataPackage.dataName) :
+                BuildArmatureComponent(displayData.path, dataPackage.dataName, null, dataPackage.textureAtlasName, childTransform.gameObject).armature;
+
+
+            var childArmatureDisplay = childArmature.display as GameObject;
+            childArmatureDisplay.GetComponent<UnityArmatureComponent>().isUGUI = proxy.GetComponent<UnityArmatureComponent>().isUGUI;
+            childArmatureDisplay.name = childDisplayName;
+            childArmatureDisplay.transform.SetParent(proxy.transform, false);
+            childArmatureDisplay.gameObject.hideFlags = HideFlags.HideInHierarchy;
+            childArmatureDisplay.SetActive(false);
+            return childArmature;
         }
 
         /**

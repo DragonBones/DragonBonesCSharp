@@ -536,11 +536,15 @@ namespace DragonBones
 			_sortedSlots = null;
             _disposeProxy = true;
             _armature = null;
+
+#if UNITY_EDITOR
+            UnityFactory.factory._dragonBones.AdvanceTime(0.0f);
+#endif
         }
-    
 
 
-		public void CollectBones()
+
+        public void CollectBones()
         {
 			if(unityBones != null )
 			{
