@@ -279,10 +279,6 @@ namespace DragonBones
 
                 global.ToMatrix(globalTransformMatrix);
             }
-
-            //QQ
-            //UnityEngine.Debug.Log("---------------------" + "bone name:" + this.name + "---------------------");
-            //UnityEngine.Debug.Log(string.Format("x:{0} y:{1} rotation:{2} skew:{3}", global.x, global.y, global.rotation, global.skew));
         }
 
         /**

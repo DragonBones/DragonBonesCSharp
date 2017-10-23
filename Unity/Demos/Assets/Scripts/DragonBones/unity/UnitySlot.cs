@@ -698,15 +698,15 @@ namespace DragonBones
                     var isSkewed = _skewed || skewed;
 
                     //QQ senbei_head
-                    if (this.name.Contains("C01_left_hand02") || this.name.Contains("tailTip") || this.name.Contains("senbei_head"))
-                    {
-                        var rx = _helpVector3.x * Transform.DEG_RAD;
-                        var ry = _helpVector3.y * Transform.DEG_RAD;
+                    //if (this.name.Contains("C01_left_hand02") || this.name.Contains("tailTip") || this.name.Contains("senbei_head"))
+                    //{
+                        //var rx = _helpVector3.x * Transform.DEG_RAD;
+                        //var ry = _helpVector3.y * Transform.DEG_RAD;
                         //UnityEngine.Debug.Log(flipX + "----------------" + "solt name:" + this.name + "----------------" + flipY);
                         //UnityEngine.Debug.Log("rotation:" + global.rotation + " skew:" + dSkew + " z:" + rotation);
                         //UnityEngine.Debug.Log("rotation:" + global.rotation + " skew:" + global.skew + " dSkew:" + dSkew);
                         //UnityEngine.Debug.Log("x:" + rx + " y:" + ry + " rotation:" + global.rotation + " skew:" + global.skew + " z:" + rotation);
-                    }
+                    //}
                     //TODO
                     //isSkewed = true;
                     if (isSkewed)

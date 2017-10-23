@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
 using DragonBones;
-using System;
-using System.Collections;
 
 /**
  * How to use

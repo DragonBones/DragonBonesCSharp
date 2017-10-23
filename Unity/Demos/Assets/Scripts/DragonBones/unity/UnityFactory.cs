@@ -77,7 +77,6 @@ namespace DragonBones
                     _gameObject = new GameObject("DragonBones Object", typeof(ClockHandler));
                 }
                 
-                //QQ
                 _gameObject.isStatic = true;
                 _gameObject.hideFlags = HideFlags.HideInHierarchy;
             }

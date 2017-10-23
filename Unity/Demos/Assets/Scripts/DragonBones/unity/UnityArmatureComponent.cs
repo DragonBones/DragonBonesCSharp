@@ -539,7 +539,7 @@ namespace DragonBones
             {
                 var armature = _armature;
                 _armature = null;
-                //QQQ
+
                 armature.Dispose();
             }
             
