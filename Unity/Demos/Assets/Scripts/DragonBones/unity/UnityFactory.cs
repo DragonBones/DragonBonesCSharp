@@ -216,8 +216,7 @@ namespace DragonBones
             }
 
             var armatureDisplay = armature.display as GameObject;
-            var slotsRoot = armatureDisplay.GetComponent<UnityArmatureComponent>().slotsRoot.transform;
-            var transform = slotsRoot.Find(slotData.name);
+            var transform = armatureDisplay.transform.Find(slotData.name);
             var gameObject = transform == null ? null : transform.gameObject;
             if (gameObject == null)
             {

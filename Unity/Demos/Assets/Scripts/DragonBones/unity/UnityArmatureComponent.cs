@@ -54,7 +54,6 @@ namespace DragonBones
         public bool flipX = false;
         public bool flipY = false;
         public bool addNormal = false;
-        public GameObject slotsRoot;
         public GameObject bonesRoot;
         public List<UnityBone> unityBones = null;
         public bool boneHierarchy = false;
@@ -65,10 +64,7 @@ namespace DragonBones
          */
         public void DBClear()
         {
-
-            Object.Destroy(slotsRoot);
-            Object.Destroy(bonesRoot);
-            slotsRoot = null;
+            //Object.Destroy(bonesRoot);
             bonesRoot = null;
             if (_armature != null)
             {
@@ -350,16 +346,6 @@ namespace DragonBones
 				}
 			}
 			#endif
-			if(slotsRoot == null)
-            {
-				GameObject go = new GameObject("Slots");
-				go.transform.SetParent(transform);
-				go.transform.localPosition = Vector3.zero;
-				go.transform.localRotation = Quaternion.identity;
-				go.transform.localScale = Vector3.one;
-				slotsRoot = go;
-				go.hideFlags = HideFlags.NotEditable;
-			}
 
 			zorderIsDirty = true;
 			if(unityData != null && unityData.dragonBonesJSON != null && unityData.textureAtlas != null)
@@ -603,17 +589,17 @@ namespace DragonBones
                 {
 					bone.GetParentGameObject();
 				}
-
-				foreach (UnityArmatureComponent child in slotsRoot.GetComponentsInChildren<UnityArmatureComponent>(true))
-				{
+                
+                foreach (UnityArmatureComponent child in GetComponentsInChildren<UnityArmatureComponent>(true))
+                {
 					child.ShowBones();
 				}
 			}
 		}
 		public void RemoveBones()
         {
-			foreach (UnityArmatureComponent child in slotsRoot.GetComponentsInChildren<UnityArmatureComponent>(true))
-			{
+            foreach (UnityArmatureComponent child in GetComponentsInChildren<UnityArmatureComponent>(true))
+            {
 				child.RemoveBones();
 			}
 
