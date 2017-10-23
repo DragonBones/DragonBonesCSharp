@@ -46,6 +46,7 @@ namespace DragonBones
                 {
                     return null;
                 }
+
 				return _textureData.parent as UnityTextureAtlasData;
 			}
 		}
@@ -127,10 +128,10 @@ namespace DragonBones
             if (_renderDisplay.transform.parent != container.transform)
             {
                 _renderDisplay.transform.SetParent(container.transform);
-
+                
                 _helpVector3.Set(0.0f, 0.0f, -_zOrder * (_proxy.zSpace + 0.001f));
 
-                _renderDisplay.transform.localPosition = _helpVector3;
+                _SetZorder(_helpVector3);
             }
         }
         /**
@@ -140,27 +141,17 @@ namespace DragonBones
         {
             var container = _proxy.slotsRoot;
             var prevDisplay = value as GameObject;
-
-            //savePosition before SetParent(null)
-            var savePosition = prevDisplay.transform.localPosition;
-
 			int index = prevDisplay.transform.GetSiblingIndex();
             prevDisplay.hideFlags = HideFlags.HideInHierarchy;
-            //prevDisplay.transform.SetParent(null, false);
-            prevDisplay.transform.SetParent(null);
+            prevDisplay.transform.SetParent(null, false);
             prevDisplay.SetActive(false);
 
             _renderDisplay.hideFlags = HideFlags.None;
             _renderDisplay.transform.SetParent(container.transform);
-            _renderDisplay.transform.localPosition = savePosition;
             _renderDisplay.SetActive(true);
             _renderDisplay.transform.SetSiblingIndex(index);
 
-            var prevRender = prevDisplay.GetComponent<Renderer>();
-            if (prevRender != null && _renderer != null)
-            {
-                _renderer.sortingOrder = prevRender.sortingOrder;
-            }
+            _SetZorder(prevDisplay.transform.localPosition);
         }
         /**
          * @private
@@ -174,20 +165,53 @@ namespace DragonBones
          */
         override protected void _UpdateZOrder()
         {
-            var zOrder = 0.0f;
-            if (_proxy.sortingMode == SortingMode.SortByZ)
-            {
-                zOrder = -_zOrder * (_proxy.zSpace + 0.001f);
-            }
-
-            _helpVector3.Set(_renderDisplay.transform.localPosition.x, _renderDisplay.transform.localPosition.y, zOrder);
+            _helpVector3.Set(_renderDisplay.transform.localPosition.x, _renderDisplay.transform.localPosition.y, -_zOrder * (_proxy.zSpace + 0.001f));
 			if(_renderDisplay.transform.localPosition.z != _helpVector3.z)
             {
 				_proxy.zorderIsDirty = true;
 			}
-
-			_renderDisplay.transform.localPosition = _helpVector3;
+            
+            _SetZorder(_helpVector3);
         }
+
+        /**
+         * @private
+         */
+        private void _SetZorder(Vector3 zorderPos)
+        {
+#if UNITY_5_6_OR_NEWER
+            var sortingGroup = _proxy.GetComponent<UnityEngine.Rendering.SortingGroup>();
+            if (sortingGroup == null)
+            {
+                sortingGroup = _proxy.GetComponent<UnityEngine.Rendering.SortingGroup>();
+            }
+
+            //childArmature zorder
+            if (_childArmature != null)
+            {
+                var childProxy = _childArmature.proxy as UnityArmatureComponent;
+                var childSortingGroup = childProxy.GetComponent<UnityEngine.Rendering.SortingGroup>();
+                if (childSortingGroup != null)
+                {
+                    childSortingGroup.sortingOrder = _zOrder;
+                }
+            }
+#endif
+            if (_renderDisplay != null)
+            {
+                _renderDisplay.transform.localPosition = zorderPos;
+                if (!_proxy.isUGUI)
+                {
+                    if (_renderer == null)
+                    {
+                        _renderer = _renderDisplay.AddComponent<MeshRenderer>();
+                    }
+
+                    _renderer.sortingOrder = _zOrder;
+                }
+            }
+        }
+
         /**
          * @private
          */
@@ -258,7 +282,6 @@ namespace DragonBones
                 if (_renderer == null)
                 {
                     _renderer = _renderDisplay.AddComponent<MeshRenderer>();
-                    _renderer.sortingOrder = _zOrder;
                 }
 
                 _meshFilter = _renderDisplay.GetComponent<MeshFilter>();
@@ -603,12 +626,6 @@ namespace DragonBones
             else
             {
                 this.UpdateGlobalTransform(); // Update transform.
-                //QQ
-                //if (this.name.Contains("C01_left_leg08"))
-                //{
-                //    UnityEngine.Debug.Log("---------------------" + "solt name:" + this.name + "---------------------");
-                //    UnityEngine.Debug.Log("slot rotation:" + global.rotation + " solt skew:" + global.skew);
-                //}
 
                 var flipX = _armature.flipX;
                 var flipY = _armature.flipY;
@@ -618,62 +635,53 @@ namespace DragonBones
                 _helpVector3.y = global.y;
                 _helpVector3.z = transform.localPosition.z;
 
-                //_helpVector3.x = globalTransformMatrix.tx;
-                //_helpVector3.y = globalTransformMatrix.ty;
-                //_helpVector3.z = transform.localPosition.z;
-
                 transform.localPosition = _helpVector3;
 
-                _helpVector3.x = flipY ? 180.0f : 0.0f;
-                _helpVector3.y = flipX ? 180.0f : 0.0f;
+                _helpVector3.x = 0.0f;
+                _helpVector3.y = 0.0f;
                 _helpVector3.z = global.rotation * Transform.RAD_DEG;
-
-                if (flipX != flipY)
+                if (flipX || flipY)
                 {
-                    _helpVector3.z = -_helpVector3.z;
-                }
-
-                if ((flipX || flipY) && _helpVector3.z != 0.0f)
-                {
-                    _helpVector3.z += 180.0f;
-                }
-
-                if (_childArmature != null)
-                {
-                    _helpVector3.x = 0.0f;
-                    _helpVector3.y = 0.0f;
-                    if (flipX)
+                    if (flipX && flipY)
+                    {
+                        //_helpVector3.z += 180.0f;
+                    }
+                    else
                     {
                         _helpVector3.z = -_helpVector3.z;
-                    }
+                        if (flipX)
+                        {
+                            _helpVector3.y = 180.0f;
+                            _helpVector3.z -= 180.0f;
+                        }
 
-                    _childArmature.flipX = flipX;
-                    _childArmature.flipY = flipY;
+                        if (flipY)
+                        {
+                            _helpVector3.x = 180.0f;
+                        }
+                    }
                 }
                 
                 transform.localEulerAngles = _helpVector3;
 
                 //Modify mesh skew. // TODO child armature skew.
                 if ((_display == _rawDisplay || _display == _meshDisplay) && _mesh != null)
-                {
-                    var dSkew = global.skew;
+                {                    
+                    var skew = global.skew;
+                    var dSkew = skew;
+                    if (flipX && flipY)
+                    {
+                        dSkew = -skew + Transform.PI;
+                    }
+                    else if (!flipX && !flipY)
+                    {
+                        dSkew = -skew - Transform.PI;
+                    }
 
-                    //dSkew = Mathf.RoundToInt(dSkew * 100) % Mathf.RoundToInt(Transform.PI * 100);
-                    //dSkew = dSkew / 100.0f;
-
-                    //var skewed = dSkew < -0.01f || 0.01f < dSkew;
-                    //if (skewed)
-                    //{
-                    //    skewed = Transform.PI - Mathf.Abs(dSkew) > 0.01f;
-                    //}
-
-                    //_skewed = false;
-                    //skewed = false;
-                    var skewed = !flipX && !flipY && (dSkew > -0.01f && 0.01f > dSkew) && global.rotation != 0.0f;
+                    var skewed = dSkew < -0.01f || 0.01f < dSkew;
                     if (_skewed || skewed)
                     {
                         _skewed = skewed;
-                        dSkew = global.skew - global.rotation;
 
                         var isPositive = global.scaleX >= 0.0f;
                         var cos = Mathf.Cos(dSkew);

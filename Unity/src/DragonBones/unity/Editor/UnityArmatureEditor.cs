@@ -13,6 +13,7 @@ namespace DragonBones
 		private int _armatureIndex = -1;
 		private int _animationIndex = -1;
 		private int _sortingLayerIndex = -1;
+        private int _playAnimationTimes = -1;
 		private long _nowTime = 0;
 		private List<string> _armatureNames = null;
 		private List<string> _animationNames = null;
@@ -55,7 +56,7 @@ namespace DragonBones
 				// Play animation.
 				if (!string.IsNullOrEmpty(_armatureComponent.animationName))
 				{
-					_armatureComponent.animation.Play(_armatureComponent.animationName);
+					_armatureComponent.animation.Play(_armatureComponent.animationName, _playAnimationTimes);
 				}
 				_armatureComponent.CollectBones();
 			}
@@ -184,7 +185,7 @@ namespace DragonBones
 						if(animationIndex>=0)
                         {
 							_armatureComponent.animationName = _animationNames[animationIndex];
-							_armatureComponent.animation.Play(_armatureComponent.animationName);
+							_armatureComponent.animation.Play(_armatureComponent.animationName, _playAnimationTimes);
                             _UpdateParameters();
 						}
                         else
@@ -214,14 +215,20 @@ namespace DragonBones
 						{
 							if (GUILayout.Button("Play"))
 							{
-								_armatureComponent.animation.Play();
+								_armatureComponent.animation.Play(null, _playAnimationTimes);
 							}
 						}
 					}
 					EditorGUILayout.EndHorizontal();
-				}
 
-				EditorGUILayout.Space();
+                    //
+                    EditorGUILayout.Space();
+                    //playTimes
+                    EditorGUILayout.BeginHorizontal();
+                    _playAnimationTimes = EditorGUILayout.IntField("PlayTimes", _playAnimationTimes);
+                    EditorGUILayout.EndHorizontal();
+                    EditorGUILayout.Space();
+                }
 
 				if(!_armatureComponent.isUGUI)
                 {

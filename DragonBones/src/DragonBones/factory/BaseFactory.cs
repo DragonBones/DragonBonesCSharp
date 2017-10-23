@@ -826,7 +826,7 @@ namespace DragonBones
                 }
 
                 var displays = skin.GetDisplays(slot.name);
-                if (displays != null)
+                if (displays == null)
                 {
                     continue;
                 }

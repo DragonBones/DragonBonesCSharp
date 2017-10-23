@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -17,7 +16,6 @@ namespace DragonBones
         {
             if (!isStarted)
             {
-                //UnityFactory._clock.AdvanceTime(Time.deltaTime);
                 UnityFactory.factory._dragonBones.AdvanceTime(Time.deltaTime);
                 //isStarted = true;
             }
@@ -79,7 +77,6 @@ namespace DragonBones
                     _gameObject = new GameObject("DragonBones Object", typeof(ClockHandler));
                 }
                 
-                //QQ
                 _gameObject.isStatic = true;
                 _gameObject.hideFlags = HideFlags.HideInHierarchy;
             }
@@ -145,12 +142,12 @@ namespace DragonBones
                 armatureComponent = armatureDisplay.AddComponent<UnityArmatureComponent>();
                 armatureComponent.isUGUI = _isUGUI;
 #if UNITY_5_6_OR_NEWER
-                if (armatureDisplay.GetComponent<SortingGroup>() == null)
+                if (armatureDisplay.GetComponent<UnityEngine.Rendering.SortingGroup>() == null)
                 {
-                    armatureDisplay.AddComponent<SortingGroup>();
+                    armatureDisplay.AddComponent<UnityEngine.Rendering.SortingGroup>();
                 }
                 
-                armatureComponent.sortingMode = SortingMode.SortByOrder;
+                //armatureComponent.sortingMode = SortingMode.SortByOrder;
 #else
                 armatureComponent.sortingMode = SortingMode.SortByZ;
 #endif
