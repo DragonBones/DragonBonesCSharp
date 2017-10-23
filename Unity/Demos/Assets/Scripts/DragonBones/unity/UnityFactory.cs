@@ -131,7 +131,7 @@ namespace DragonBones
         {
             if (Application.isPlaying) //
             {
-                //Init();
+                Init();
             }
 
             var armature = BaseObject.BorrowObject<Armature>();
@@ -141,17 +141,14 @@ namespace DragonBones
             {
                 armatureComponent = armatureDisplay.AddComponent<UnityArmatureComponent>();
                 armatureComponent.isUGUI = _isUGUI;
-#if UNITY_5_6_OR_NEWER
-                if (armatureDisplay.GetComponent<UnityEngine.Rendering.SortingGroup>() == null)
-                {
-                    armatureDisplay.AddComponent<UnityEngine.Rendering.SortingGroup>();
-                }
-                
-                //armatureComponent.sortingMode = SortingMode.SortByOrder;
-#else
-                armatureComponent.sortingMode = SortingMode.SortByZ;
-#endif
             }
+
+#if UNITY_5_6_OR_NEWER
+            if (armatureDisplay.GetComponent<UnityEngine.Rendering.SortingGroup>() == null)
+            {
+                armatureDisplay.AddComponent<UnityEngine.Rendering.SortingGroup>();
+            }
+#endif
 
             armatureComponent._armature = armature;
 
@@ -532,7 +529,7 @@ namespace DragonBones
 #endif
 					for(int i=0;i<data.textureAtlas.Length;++i)
 					{
-                        _LoadTextureAtlasData(data.textureAtlas[i],data.dataName,texScale,isUGUI);
+                        LoadTextureAtlasData(data.textureAtlas[i],data.dataName,texScale,isUGUI);
 					}
 #if UNITY_EDITOR
 					if(isDirty)
@@ -593,7 +590,7 @@ namespace DragonBones
         /**
          * @private
          */
-        protected DragonBonesData LoadDragonBonesData(TextAsset dragonBonesJSON, TextAsset dragonBonesBinary = null, string name = null, float scale = 0.01f)
+        public DragonBonesData LoadDragonBonesData(TextAsset dragonBonesJSON, TextAsset dragonBonesBinary = null, string name = null, float scale = 0.01f)
         {
             if (dragonBonesJSON == null && dragonBonesBinary == null)
             {
@@ -614,21 +611,14 @@ namespace DragonBones
             {
                 data = ParseDragonBonesData((Dictionary<string, object>)MiniJSON.Json.Deserialize(dragonBonesJSON.text), name, scale); // Unity default Scale Factor.
 
-                //
-                //if (string.IsNullOrEmpty(name))
-                //{
-                    name = dragonBonesJSON.name;
-                //}
+                name = dragonBonesJSON.name;
             }
             else
             {
                 BinaryDataParser.jsonParseDelegate = MiniJSON.Json.Deserialize;
                 data = ParseDragonBonesData(dragonBonesBinary.bytes, name, scale); // Unity default Scale Factor.
                 //
-                //if (string.IsNullOrEmpty(name))
-                //{
-                    name = dragonBonesBinary.name;
-                //}
+                name = dragonBonesBinary.name;
             }
 
             int index = name.LastIndexOf("_ske");
@@ -712,7 +702,7 @@ namespace DragonBones
          * @see #RemoveTextureAtlasData()
          * @see DragonBones.UnityTextureAtlasData
          */
-		protected UnityTextureAtlasData _LoadTextureAtlasData(UnityDragonBonesData.TextureAtlas textureAtlas, string name , float scale = 1.0f,bool isUGUI=false)
+		public UnityTextureAtlasData LoadTextureAtlasData(UnityDragonBonesData.TextureAtlas textureAtlas, string name , float scale = 1.0f,bool isUGUI=false)
 		{
 			UnityTextureAtlasData textureAtlasData = null;
 			if (_pathTextureAtlasDataMap.ContainsKey(name+textureAtlas.texture.name))
