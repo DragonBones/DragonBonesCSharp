@@ -11,14 +11,9 @@ namespace DragonBones
      */
     internal class ClockHandler : MonoBehaviour
     {
-        private bool isStarted;
         void Update()
         {
-            if (!isStarted)
-            {
-                UnityFactory.factory._dragonBones.AdvanceTime(Time.deltaTime);
-                //isStarted = true;
-            }
+            UnityFactory.factory._dragonBones.AdvanceTime(Time.deltaTime);
         }
     }
 
@@ -76,10 +71,9 @@ namespace DragonBones
                 {
                     _gameObject = new GameObject("DragonBones Object", typeof(ClockHandler));
                 }
-                
-                //QQ
-                //_gameObject.isStatic = true;
-                //_gameObject.hideFlags = HideFlags.HideInHierarchy;
+
+                _gameObject.isStatic = true;
+                _gameObject.hideFlags = HideFlags.HideInHierarchy;
             }
 
             if (_eventManager == null)
@@ -152,69 +146,28 @@ namespace DragonBones
 #endif
 
             armatureComponent._armature = armature;
-
             armature.Init(dataPackage.armature, armatureComponent, armatureDisplay, this._dragonBones);
-
             _armatureGameObject = null;
 
             return armature;
         }
-
-        /*public override Armature BuildArmature(string armatureName, string dragonBonesName = null, string skinName = null, string textureAtlasName = null)
-        {
-            var armature = base.BuildArmature(armatureName, dragonBonesName, skinName, textureAtlasName);
-
-            var armatureDisplay = armature.display as GameObject;
-            //
-            var allSlots = armature.GetSlots();
-            foreach (var slot in allSlots)
-            {
-                var displayDatas = slot._displayDatas;
-                var displayList = slot.displayList;
-                for (int i = 0; i < displayDatas.Count; i++)
-                {
-                    var displayData = displayDatas[i];
-                    if (displayData.type == DisplayType.Armature)
-                    {
-                        //
-                        if (i >= displayList.Count)
-                        {
-                            break;
-                        }
-
-                        var armatureDisplayData = displayData as ArmatureDisplayData;
-                        var childDisplayName = slot.slotData.name + " (" + armatureDisplayData.path + ")"; //
-
-                        //
-                        var display = displayList[i] as Armature;
-                        
-                        var childArmatureDisplay = display.display as GameObject;
-                        childArmatureDisplay.GetComponent<UnityArmatureComponent>().isUGUI = armatureDisplay.GetComponent<UnityArmatureComponent>().isUGUI;
-                        childArmatureDisplay.name = childDisplayName;
-
-                        if (display.display != slot.display)
-                        {
-                            //QQ
-                            //childArmatureDisplay.gameObject.hideFlags = HideFlags.HideInHierarchy;
-                            childArmatureDisplay.SetActive(false);
-                        }
-                    }
-                }
-            }
-
-            return armature;
-        }*/
-
+        
         override protected Armature _BuildChildArmatrue(BuildArmaturePackage dataPackage, Slot slot, DisplayData displayData)
         {
             var childDisplayName = slot.slotData.name + " (" + displayData.path + ")"; //
             var proxy = slot.armature.proxy as UnityArmatureComponent;
             var childTransform = proxy.transform.Find(childDisplayName);
-            var childArmature = childTransform == null ?
-                BuildArmature(displayData.path, dataPackage.dataName) :
-                BuildArmatureComponent(displayData.path, dataPackage.dataName, null, dataPackage.textureAtlasName, childTransform.gameObject).armature;
+            Armature childArmature = null;
+            if (childTransform == null)
+            {
+                childArmature = BuildArmature(displayData.path, dataPackage.dataName);
+            }
+            else
+            {
+                childArmature =  BuildArmatureComponent(displayData.path, dataPackage.dataName, null, dataPackage.textureAtlasName, childTransform.gameObject).armature;
+            }
 
-
+            //
             var childArmatureDisplay = childArmature.display as GameObject;
             childArmatureDisplay.GetComponent<UnityArmatureComponent>().isUGUI = proxy.GetComponent<UnityArmatureComponent>().isUGUI;
             childArmatureDisplay.name = childDisplayName;
