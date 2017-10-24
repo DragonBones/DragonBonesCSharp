@@ -209,13 +209,20 @@ namespace DragonBones
 
 		public static void ChangeArmatureData(UnityArmatureComponent _armatureComponent, string armatureName, string dragonBonesName)
 		{
+            UnityDragonBonesData unityData = null;
 			Slot slot = null;
 			if (_armatureComponent.armature != null)
 			{
+                unityData = _armatureComponent.unityData;
 				slot = _armatureComponent.armature.parent;
 				_armatureComponent.Dispose(false);
-			}
-			_armatureComponent.armatureName = armatureName;
+
+                UnityFactory.factory._dragonBones.AdvanceTime(0.0f);
+
+                _armatureComponent.unityData = unityData;
+            }
+
+            _armatureComponent.armatureName = armatureName;
 
 			_armatureComponent = UnityFactory.factory.BuildArmatureComponent(_armatureComponent.armatureName, dragonBonesName, null, _armatureComponent.unityData.dataName, _armatureComponent.gameObject,_armatureComponent.isUGUI);
 			if (slot != null)

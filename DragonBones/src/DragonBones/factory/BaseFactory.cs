@@ -52,7 +52,7 @@ namespace DragonBones
         /** 
          * @private 
          */
-        internal DragonBones _dragonBones = null;
+        public DragonBones _dragonBones = null;
         /**
          * @private
          */
@@ -362,7 +362,8 @@ namespace DragonBones
                     break;
                 case DisplayType.Armature:
                     var armatureDisplayData = displayData as ArmatureDisplayData;
-                    var childArmature = this.BuildArmature(armatureDisplayData.path, dataName, null, dataPackage != null ? dataPackage.textureAtlasName : null);
+                    var childArmature = this._BuildChildArmatrue(dataPackage, slot, displayData);
+                    //var childArmature = this.BuildArmature(armatureDisplayData.path, dataName, null, dataPackage != null ? dataPackage.textureAtlasName : null);
                     if (childArmature != null)
                     {
                         childArmature.inheritAnimation = armatureDisplayData.inheritAnimation;
@@ -392,6 +393,16 @@ namespace DragonBones
             }
 
             return display;
+        }
+
+        protected virtual Armature _BuildChildArmatrue(BuildArmaturePackage dataPackage, Slot slot, DisplayData displayData)
+        {
+            return BuildArmature(displayData.path, dataPackage.dataName);
+            //var childDisplayName = slotData.name + " (" + displayData.path + ")"; //
+            //var childTransform = slotsRoot.Find(childDisplayName);
+            //var childArmature = childTransform == null ?
+            //    BuildArmature(displayData.path, dataPackage.dataName) :
+            //    BuildArmatureComponent(displayData.path, dataPackage.dataName, null, dataPackage.textureAtlasName, childTransform.gameObject).armature;
         }
         /**
          * @private

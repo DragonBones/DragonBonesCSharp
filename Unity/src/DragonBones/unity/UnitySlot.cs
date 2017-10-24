@@ -124,7 +124,7 @@ namespace DragonBones
         override protected void _AddDisplay()
         {
             _proxy = _armature.proxy as UnityArmatureComponent;
-			var container = _proxy.slotsRoot;
+            var container = _proxy;
             if (_renderDisplay.transform.parent != container.transform)
             {
                 _renderDisplay.transform.SetParent(container.transform);
@@ -139,11 +139,12 @@ namespace DragonBones
          */
         override protected void _ReplaceDisplay(object value)
         {
-            var container = _proxy.slotsRoot;
+            var container = _proxy;
             var prevDisplay = value as GameObject;
 			int index = prevDisplay.transform.GetSiblingIndex();
-            prevDisplay.hideFlags = HideFlags.HideInHierarchy;
-            prevDisplay.transform.SetParent(null, false);
+            //QQ
+            //prevDisplay.hideFlags = HideFlags.HideInHierarchy;
+            //prevDisplay.transform.SetParent(null, false);
             prevDisplay.SetActive(false);
 
             _renderDisplay.hideFlags = HideFlags.None;
@@ -204,7 +205,11 @@ namespace DragonBones
                 {
                     if (_renderer == null)
                     {
-                        _renderer = _renderDisplay.AddComponent<MeshRenderer>();
+                        _renderer = _renderDisplay.GetComponent<MeshRenderer>();
+                        if (_renderer == null)
+                        {
+                            _renderer = _renderDisplay.AddComponent<MeshRenderer>();
+                        }
                     }
 
                     _renderer.sortingOrder = _zOrder;

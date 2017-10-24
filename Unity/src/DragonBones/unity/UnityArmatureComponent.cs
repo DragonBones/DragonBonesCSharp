@@ -41,6 +41,11 @@ namespace DragonBones
         [SerializeField]
         internal int _sortingOrder = 0;
 
+        [Tooltip("0 : Loop")]
+        [Range(0, 100)]
+        [SerializeField]
+        protected int _playerTimes = 0;
+
         [Range(-2f, 2f)]
         [SerializeField]
         protected float _timeScale = 1.0f;
@@ -54,7 +59,6 @@ namespace DragonBones
         public bool flipX = false;
         public bool flipY = false;
         public bool addNormal = false;
-        public GameObject slotsRoot;
         public GameObject bonesRoot;
         public List<UnityBone> unityBones = null;
         public bool boneHierarchy = false;
@@ -65,10 +69,7 @@ namespace DragonBones
          */
         public void DBClear()
         {
-
-            Object.Destroy(slotsRoot);
-            Object.Destroy(bonesRoot);
-            slotsRoot = null;
+            //Object.Destroy(bonesRoot);
             bonesRoot = null;
             if (_armature != null)
             {
@@ -91,6 +92,7 @@ namespace DragonBones
             animationName = null;
             _sortingLayerName = "Default";
             _sortingOrder = 0;
+            _playerTimes = 0;
             _timeScale = 1.0f;
             _zSpace = 0.0f;
             isUGUI = false;
@@ -273,6 +275,19 @@ namespace DragonBones
                 }
             }
         }
+
+        public int playerTimes
+        {
+            set
+            {
+                _playerTimes = value;
+            }
+
+            get
+            {
+                return _playerTimes;
+            }
+        }
         
 		public float timeScale
         {
@@ -350,16 +365,6 @@ namespace DragonBones
 				}
 			}
 			#endif
-			if(slotsRoot == null)
-            {
-				GameObject go = new GameObject("Slots");
-				go.transform.SetParent(transform);
-				go.transform.localPosition = Vector3.zero;
-				go.transform.localRotation = Quaternion.identity;
-				go.transform.localScale = Vector3.one;
-				slotsRoot = go;
-				go.hideFlags = HideFlags.NotEditable;
-			}
 
 			zorderIsDirty = true;
 			if(unityData != null && unityData.dragonBonesJSON != null && unityData.textureAtlas != null)
@@ -550,11 +555,15 @@ namespace DragonBones
 			_sortedSlots = null;
             _disposeProxy = true;
             _armature = null;
+
+#if UNITY_EDITOR
+            UnityFactory.factory._dragonBones.AdvanceTime(0.0f);
+#endif
         }
-    
 
 
-		public void CollectBones()
+
+        public void CollectBones()
         {
 			if(unityBones != null )
 			{
@@ -603,17 +612,17 @@ namespace DragonBones
                 {
 					bone.GetParentGameObject();
 				}
-
-				foreach (UnityArmatureComponent child in slotsRoot.GetComponentsInChildren<UnityArmatureComponent>(true))
-				{
+                
+                foreach (UnityArmatureComponent child in GetComponentsInChildren<UnityArmatureComponent>(true))
+                {
 					child.ShowBones();
 				}
 			}
 		}
 		public void RemoveBones()
         {
-			foreach (UnityArmatureComponent child in slotsRoot.GetComponentsInChildren<UnityArmatureComponent>(true))
-			{
+            foreach (UnityArmatureComponent child in GetComponentsInChildren<UnityArmatureComponent>(true))
+            {
 				child.RemoveBones();
 			}
 
