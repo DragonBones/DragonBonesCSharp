@@ -181,22 +181,22 @@ namespace DragonBones
         private void _SetZorder(Vector3 zorderPos)
         {
 #if UNITY_5_6_OR_NEWER
-            var sortingGroup = _proxy.GetComponent<UnityEngine.Rendering.SortingGroup>();
-            if (sortingGroup == null)
-            {
-                sortingGroup = _proxy.GetComponent<UnityEngine.Rendering.SortingGroup>();
-            }
+            //var sortingGroup = _proxy.GetComponent<UnityEngine.Rendering.SortingGroup>();
+            //if (sortingGroup == null)
+            //{
+            //    sortingGroup = _proxy.GetComponent<UnityEngine.Rendering.SortingGroup>();
+            //}
 
-            //childArmature zorder
-            if (_childArmature != null)
-            {
-                var childProxy = _childArmature.proxy as UnityArmatureComponent;
-                var childSortingGroup = childProxy.GetComponent<UnityEngine.Rendering.SortingGroup>();
-                if (childSortingGroup != null)
-                {
-                    childSortingGroup.sortingOrder = _zOrder;
-                }
-            }
+            ////childArmature zorder
+            //if (_childArmature != null)
+            //{
+            //    var childProxy = _childArmature.proxy as UnityArmatureComponent;
+            //    var childSortingGroup = childProxy.GetComponent<UnityEngine.Rendering.SortingGroup>();
+            //    if (childSortingGroup != null)
+            //    {
+            //        childSortingGroup.sortingOrder = _zOrder;
+            //    }
+            //}
 #endif
             if (_renderDisplay != null)
             {
@@ -212,7 +212,10 @@ namespace DragonBones
                         }
                     }
 
-                    _renderer.sortingOrder = _zOrder;
+                    if (_proxy.sortingMode == SortingMode.SortByOrder)
+                    {
+                        _renderer.sortingOrder = _zOrder;
+                    }
                 }
             }
         }

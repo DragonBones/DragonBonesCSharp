@@ -47,8 +47,8 @@ namespace DragonBones
 					armatureComponent.transform.SetParent(canvas.transform);
 				}
 			}
-			armatureComponent.transform.localScale = Vector2.one*100f;
-			armatureComponent.transform.localPosition = Vector3.zero;
+            //armatureComponent.transform.localScale = Vector2.one*100f;
+            armatureComponent.transform.localPosition = Vector3.zero;
 		}
 
 		[MenuItem("Assets/Create/DragonBones/Armature Object(UGUI)", true)]
@@ -216,8 +216,8 @@ namespace DragonBones
                 unityData = _armatureComponent.unityData;
 				slot = _armatureComponent.armature.parent;
 				_armatureComponent.Dispose(false);
-
-                UnityFactory.factory._dragonBones.AdvanceTime(0.0f);
+                //QQ
+                //UnityFactory.factory._dragonBones.AdvanceTime(0.0f);
 
                 _armatureComponent.unityData = unityData;
             }
@@ -233,16 +233,13 @@ namespace DragonBones
 			_armatureComponent.sortingLayerName = _armatureComponent.sortingLayerName;
 			_armatureComponent.sortingOrder = _armatureComponent.sortingOrder;
 		}
-
-
+        
 		public static UnityEngine.Transform GetSelectionParentTransform()
 		{
 			var parent = Selection.activeObject as GameObject;
 			return parent != null ? parent.transform : null;
 		}
-
-
-
+        
 		public static void GetTextureAtlasConfigs(List<string> textureAtlasFiles, string filePath, string rawName = null, string suffix = "tex")
 		{
 			var folder = Directory.GetParent(filePath).ToString();
@@ -444,5 +441,6 @@ namespace DragonBones
 
             return armatureComponent;
         }
+
     }
 }

@@ -27,13 +27,14 @@ namespace DragonBones
                 return;
             }
 
+
 			// 
 			_nowTime = System.DateTime.Now.Ticks;
 			_sortingLayerNames = _GetSortingLayerNames();
 			_sortingLayerIndex = _sortingLayerNames.IndexOf(_armatureComponent.sortingLayerName);
 
-			// Update armature.
-			if (EditorApplication.isPlayingOrWillChangePlaymode &&
+            // Update armature.
+            if (!EditorApplication.isPlayingOrWillChangePlaymode &&
 				_armatureComponent.armature == null &&
 				_armatureComponent.unityData != null &&
 				!string.IsNullOrEmpty(_armatureComponent.armatureName))
@@ -52,28 +53,28 @@ namespace DragonBones
 				// Refresh texture.
 				_armatureComponent.armature.InvalidUpdate(null, true);
 
-				// Play animation.
-				if (!string.IsNullOrEmpty(_armatureComponent.animationName))
-				{
-					_armatureComponent.animation.Play(_armatureComponent.animationName, _armatureComponent.playerTimes);
-				}
-				_armatureComponent.CollectBones();
-			}
+                // Play animation.
+                if (!string.IsNullOrEmpty(_armatureComponent.animationName))
+                {
+                    _armatureComponent.animation.Play(_armatureComponent.animationName, _armatureComponent.playerTimes);
+                }
+                _armatureComponent.CollectBones();
+            }
 
-			// Update hideFlags.
-			if (!EditorApplication.isPlayingOrWillChangePlaymode &&
-				_armatureComponent.armature != null &&
-				_armatureComponent.armature.parent != null)
-			{
-				_armatureComponent.gameObject.hideFlags = HideFlags.NotEditable;
-			}
-			else
-			{
-				_armatureComponent.gameObject.hideFlags = HideFlags.None;
-			}
+            // Update hideFlags.
+            if (!EditorApplication.isPlayingOrWillChangePlaymode &&
+                _armatureComponent.armature != null &&
+                _armatureComponent.armature.parent != null)
+            {
+                _armatureComponent.gameObject.hideFlags = HideFlags.NotEditable;
+            }
+            else
+            {
+                _armatureComponent.gameObject.hideFlags = HideFlags.None;
+            }
 
-			_UpdateParameters();
-		}
+            _UpdateParameters();
+        }
 
 		public override void OnInspectorGUI()
 		{

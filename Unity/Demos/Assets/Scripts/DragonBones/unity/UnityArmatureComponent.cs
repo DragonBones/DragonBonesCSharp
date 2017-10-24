@@ -404,7 +404,7 @@ namespace DragonBones
                 }
                 if (!string.IsNullOrEmpty(animationName))
                 {
-                    _armature.animation.Play(animationName);
+                    _armature.animation.Play(animationName, _playerTimes);
                 }
 
 				CollectBones();

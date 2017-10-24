@@ -175,9 +175,9 @@ namespace DragonBones
                     }
 
 #if UNITY_EDITOR
-                    UnityEngine.Object.DestroyImmediate(slotRoot);
+                    UnityEngine.GameObject.DestroyImmediate(slotRoot.gameObject);
 #else
-                    UnityEngine.Object.Destroy(slotRoot);
+                    UnityEngine.Object.Destroy(slotRoot.gameObject);
 #endif
                 }
             }
@@ -497,7 +497,11 @@ namespace DragonBones
          */
         public IEventDispatcher<EventObject> soundEventManager
         {
-            get { return _eventManager; }
+            get
+            {
+                Init();
+                return _dragonBonesInstance.eventManager;
+            }
         }
 
         /**
