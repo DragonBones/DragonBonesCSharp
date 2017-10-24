@@ -660,9 +660,9 @@ namespace DragonBones
             }
 
             return textureAtlasData;
-        }        
+        }
 
-		/**
+        /**
          * @language zh_CN
          * 加载、解析并添加贴图集数据。
          * @param textureAtlas 贴图集数据
@@ -675,7 +675,7 @@ namespace DragonBones
          * @see #RemoveTextureAtlasData()
          * @see DragonBones.UnityTextureAtlasData
          */
-		public UnityTextureAtlasData LoadTextureAtlasData(UnityDragonBonesData.TextureAtlas textureAtlas, string name , float scale = 1.0f,bool isUGUI=false)
+        public UnityTextureAtlasData LoadTextureAtlasData(UnityDragonBonesData.TextureAtlas textureAtlas, string name , float scale = 1.0f,bool isUGUI = false)
 		{
 			UnityTextureAtlasData textureAtlasData = null;
 			if (_pathTextureAtlasDataMap.ContainsKey(name+textureAtlas.texture.name))
@@ -685,7 +685,7 @@ namespace DragonBones
 				if(!Application.isPlaying)
                 {
 					textureAtlasData.imagePath = AssetDatabase.GetAssetPath(textureAtlas.texture);
-					textureAtlasData.imagePath =textureAtlasData.imagePath.Substring(0,textureAtlasData.imagePath.Length-4);
+					textureAtlasData.imagePath = textureAtlasData.imagePath.Substring(0,textureAtlasData.imagePath.Length-4);
 				}
 #endif
                 _RefreshTextureAtlas(textureAtlasData,isUGUI,true);
