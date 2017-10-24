@@ -42,7 +42,7 @@ namespace DragonBones
          * @private
          */
         internal static readonly WorldClock _clock = new WorldClock();
-        private GameObject _gameObject = null;
+        private static GameObject _gameObject = null;
         private IEventDispatcher<EventObject> _eventManager = null;        
         
         private GameObject _armatureGameObject = null;
@@ -58,7 +58,7 @@ namespace DragonBones
          */
         public UnityFactory(DataParser dataParser = null) : base(dataParser)
         {
-            Init();
+            //Init();
         }
 
         private void Init()
@@ -70,10 +70,10 @@ namespace DragonBones
                 if (_gameObject == null)
                 {
                     _gameObject = new GameObject("DragonBones Object", typeof(ClockHandler));
-                }
 
-                _gameObject.isStatic = true;
-                _gameObject.hideFlags = HideFlags.HideInHierarchy;
+                    _gameObject.isStatic = true;
+                    _gameObject.hideFlags = HideFlags.HideInHierarchy;
+                }
             }
 
             if (_eventManager == null)
@@ -124,11 +124,12 @@ namespace DragonBones
          */
         override protected Armature _BuildArmature(BuildArmaturePackage dataPackage)
         {
-            if (Application.isPlaying) //
-            {
-                Init();
-            }
+            //if (Application.isPlaying) //
+            //{
 
+            //}
+
+            Init();
             var armature = BaseObject.BorrowObject<Armature>();
             var armatureDisplay = _armatureGameObject == null ? new GameObject(dataPackage.armature.name) : _armatureGameObject;
             var armatureComponent = armatureDisplay.GetComponent<UnityArmatureComponent>();
@@ -136,14 +137,18 @@ namespace DragonBones
             {
                 armatureComponent = armatureDisplay.AddComponent<UnityArmatureComponent>();
                 armatureComponent.isUGUI = _isUGUI;
+                if (_isUGUI)
+                {
+                    armatureComponent.transform.localScale = Vector2.one * (1.0f / dataPackage.armature.scale);
+                }
             }
 
-#if UNITY_5_6_OR_NEWER
-            if (armatureDisplay.GetComponent<UnityEngine.Rendering.SortingGroup>() == null)
-            {
-                armatureDisplay.AddComponent<UnityEngine.Rendering.SortingGroup>();
-            }
-#endif
+//#if UNITY_5_6_OR_NEWER
+//            if (armatureDisplay.GetComponent<UnityEngine.Rendering.SortingGroup>() == null)
+//            {
+//                armatureDisplay.AddComponent<UnityEngine.Rendering.SortingGroup>();
+//            }
+//#endif
 
             armatureComponent._armature = armature;
             armature.Init(dataPackage.armature, armatureComponent, armatureDisplay, this._dragonBones);
