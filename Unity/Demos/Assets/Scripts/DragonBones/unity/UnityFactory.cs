@@ -162,13 +162,32 @@ namespace DragonBones
                     armatureComponent.transform.localScale = Vector2.one * (1.0f / dataPackage.armature.scale);
                 }
             }
+            else
+            {
+                //compatible slotRoot
+                var slotRoot = armatureDisplay.transform.Find("Slots");
+                if (slotRoot != null)
+                {
+                    for (int i = slotRoot.transform.childCount; i > 0; i--)
+                    {
+                        var childSlotDisplay = slotRoot.transform.GetChild(i -1);
+                        childSlotDisplay.transform.SetParent(armatureDisplay.transform, false);
+                    }
 
-//#if UNITY_5_6_OR_NEWER
-//            if (armatureDisplay.GetComponent<UnityEngine.Rendering.SortingGroup>() == null)
-//            {
-//                armatureDisplay.AddComponent<UnityEngine.Rendering.SortingGroup>();
-//            }
-//#endif
+#if UNITY_EDITOR
+                    UnityEngine.Object.DestroyImmediate(slotRoot);
+#else
+                    UnityEngine.Object.Destroy(slotRoot);
+#endif
+                }
+            }
+
+            //#if UNITY_5_6_OR_NEWER
+            //            if (armatureDisplay.GetComponent<UnityEngine.Rendering.SortingGroup>() == null)
+            //            {
+            //                armatureDisplay.AddComponent<UnityEngine.Rendering.SortingGroup>();
+            //            }
+            //#endif
 
             armatureComponent._armature = armature;
             armature.Init(dataPackage.armature, armatureComponent, armatureDisplay, this._dragonBones);
