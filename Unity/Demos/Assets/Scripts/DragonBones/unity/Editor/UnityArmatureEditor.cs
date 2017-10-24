@@ -13,7 +13,6 @@ namespace DragonBones
 		private int _armatureIndex = -1;
 		private int _animationIndex = -1;
 		private int _sortingLayerIndex = -1;
-        private int _playAnimationTimes = -1;
 		private long _nowTime = 0;
 		private List<string> _armatureNames = null;
 		private List<string> _animationNames = null;
@@ -56,7 +55,7 @@ namespace DragonBones
 				// Play animation.
 				if (!string.IsNullOrEmpty(_armatureComponent.animationName))
 				{
-					_armatureComponent.animation.Play(_armatureComponent.animationName, _playAnimationTimes);
+					_armatureComponent.animation.Play(_armatureComponent.animationName, _armatureComponent.playerTimes);
 				}
 				_armatureComponent.CollectBones();
 			}
@@ -185,12 +184,15 @@ namespace DragonBones
 						if(animationIndex>=0)
                         {
 							_armatureComponent.animationName = _animationNames[animationIndex];
-							_armatureComponent.animation.Play(_armatureComponent.animationName, _playAnimationTimes);
+                            var animationData = _armatureComponent.animation.animations[_armatureComponent.animationName];
+                            _armatureComponent.playerTimes = (int)animationData.playTimes;
+                            _armatureComponent.animation.Play(_armatureComponent.animationName, _armatureComponent.playerTimes);
                             _UpdateParameters();
 						}
                         else
                         {
 							_armatureComponent.animationName = null;
+                            _armatureComponent.playerTimes = 0;
 							_armatureComponent.animation.Stop();
 						}
 
@@ -215,7 +217,7 @@ namespace DragonBones
 						{
 							if (GUILayout.Button("Play"))
 							{
-								_armatureComponent.animation.Play(null, _playAnimationTimes);
+								_armatureComponent.animation.Play(null, _armatureComponent.playerTimes);
 							}
 						}
 					}
@@ -225,7 +227,10 @@ namespace DragonBones
                     EditorGUILayout.Space();
                     //playTimes
                     EditorGUILayout.BeginHorizontal();
-                    _playAnimationTimes = EditorGUILayout.IntField("PlayTimes", _playAnimationTimes);
+                    serializedObject.Update();
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty("_playerTimes"), true);
+                    serializedObject.ApplyModifiedProperties();
+                    _armatureComponent.playerTimes = serializedObject.FindProperty("_playerTimes").intValue;
                     EditorGUILayout.EndHorizontal();
                     EditorGUILayout.Space();
                 }

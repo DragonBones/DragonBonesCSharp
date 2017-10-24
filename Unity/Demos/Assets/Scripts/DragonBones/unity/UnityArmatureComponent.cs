@@ -41,6 +41,11 @@ namespace DragonBones
         [SerializeField]
         internal int _sortingOrder = 0;
 
+        [Tooltip("0 : Loop")]
+        [Range(0, 100)]
+        [SerializeField]
+        protected int _playerTimes = 0;
+
         [Range(-2f, 2f)]
         [SerializeField]
         protected float _timeScale = 1.0f;
@@ -87,6 +92,7 @@ namespace DragonBones
             animationName = null;
             _sortingLayerName = "Default";
             _sortingOrder = 0;
+            _playerTimes = 0;
             _timeScale = 1.0f;
             _zSpace = 0.0f;
             isUGUI = false;
@@ -267,6 +273,19 @@ namespace DragonBones
 						}
 					}
                 }
+            }
+        }
+
+        public int playerTimes
+        {
+            set
+            {
+                _playerTimes = value;
+            }
+
+            get
+            {
+                return _playerTimes;
             }
         }
         
