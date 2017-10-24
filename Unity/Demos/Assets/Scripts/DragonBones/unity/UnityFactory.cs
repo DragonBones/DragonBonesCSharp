@@ -13,7 +13,11 @@ namespace DragonBones
     {
         void Update()
         {
-            UnityFactory.factory._dragonBones.AdvanceTime(Time.deltaTime);
+            var dragonBone = UnityFactory._dragonBonesInstance;
+            if (dragonBone != null)
+            {
+                dragonBone.AdvanceTime(Time.deltaTime);
+            }
         }
     }
 
@@ -43,6 +47,8 @@ namespace DragonBones
          */
         internal static readonly WorldClock _clock = new WorldClock();
         private static GameObject _gameObject = null;
+
+        internal static DragonBones _dragonBonesInstance = null;
         private IEventDispatcher<EventObject> _eventManager = null;        
         
         private GameObject _armatureGameObject = null;
@@ -63,7 +69,6 @@ namespace DragonBones
 
         private void Init()
         {
-            //一个factory创建一个DragonBones环境
             if (_gameObject == null)
             {
                 _gameObject = GameObject.Find("DragonBones Object");
@@ -72,26 +77,41 @@ namespace DragonBones
                     _gameObject = new GameObject("DragonBones Object", typeof(ClockHandler));
 
                     _gameObject.isStatic = true;
-                    _gameObject.hideFlags = HideFlags.HideInHierarchy;
+                    //_gameObject.hideFlags = HideFlags.HideInHierarchy;
                 }
             }
 
-            if (_eventManager == null)
+            if (_dragonBonesInstance == null)
             {
                 _eventManager = _gameObject.GetComponent<DragonBoneEventDispatcher>();
                 if (_eventManager == null)
                 {
                     _eventManager = _gameObject.AddComponent<DragonBoneEventDispatcher>();
                 }
-            }
 
-            if (_dragonBones == null)
-            {
-                _dragonBones = new DragonBones(_eventManager);
-
+                _dragonBonesInstance = new DragonBones(_eventManager);
                 //
                 DragonBones.yDown = false;
             }
+
+            _dragonBones = _dragonBonesInstance;
+
+            //if (_eventManager == null)
+            //{
+            //    _eventManager = _gameObject.GetComponent<DragonBoneEventDispatcher>();
+            //    if (_eventManager == null)
+            //    {
+            //        _eventManager = _gameObject.AddComponent<DragonBoneEventDispatcher>();
+            //    }
+            //}
+
+            //if (_dragonBones == null)
+            //{
+            //    _dragonBones = new DragonBones(_eventManager);
+
+            //    //
+            //    DragonBones.yDown = false;
+            //}
         }
         /**
          * @private
