@@ -345,12 +345,10 @@ namespace DragonBones
          */
         void Awake()
 		{
-            #if UNITY_EDITOR
             if (_isPrefab())
             {
                 return;
             }
-			#endif
 
 			#if UNITY_5_6_OR_NEWER
 			if(!isUGUI)
@@ -366,7 +364,8 @@ namespace DragonBones
 			#endif
 
 			zorderIsDirty = true;
-			if(unityData != null && unityData.dragonBonesJSON != null && unityData.textureAtlas != null)
+            if(unityData != null && (unityData.dragonBonesJSON != null || unityData.dragonBonesBinary != null) && unityData.textureAtlas != null)
+            //if (unityData != null && unityData.dragonBonesJSON != null && unityData.textureAtlas != null)
             {
 				var dragonBonesData = UnityFactory.factory.LoadData(unityData,isUGUI);
 				if (dragonBonesData != null && !string.IsNullOrEmpty(armatureName))

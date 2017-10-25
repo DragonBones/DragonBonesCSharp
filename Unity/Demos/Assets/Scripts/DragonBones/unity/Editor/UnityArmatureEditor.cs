@@ -21,7 +21,7 @@ namespace DragonBones
 
         void OnEnable()
 		{
-			_armatureComponent = target as UnityArmatureComponent;
+            _armatureComponent = target as UnityArmatureComponent;
             if (_IsPrefab())
             {
                 return;
@@ -131,7 +131,17 @@ namespace DragonBones
 				_armatureIndex = -1;
 				_animationIndex = -1;
 				_armatureComponent.animationName = null;
-				if (UnityEditor.ChangeDragonBonesData(_armatureComponent, _armatureComponent.unityData.dragonBonesJSON))
+                bool isChangeSuccess = false;
+                if (_armatureComponent.unityData.dragonBonesJSON != null)
+                {
+                    isChangeSuccess = UnityEditor.ChangeDragonBonesData(_armatureComponent, _armatureComponent.unityData.dragonBonesJSON);
+                }
+                else if (_armatureComponent.unityData.dragonBonesBinary != null)
+                {
+                    isChangeSuccess = UnityEditor.ChangeDragonBonesData(_armatureComponent, _armatureComponent.unityData.dragonBonesBinary);
+                }
+                
+                if (isChangeSuccess)
 				{
 					_armatureComponent.CollectBones();
                     _UpdateParameters();

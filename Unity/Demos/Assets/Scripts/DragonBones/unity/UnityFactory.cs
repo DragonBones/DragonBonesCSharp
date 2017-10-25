@@ -13,11 +13,12 @@ namespace DragonBones
     {
         void Update()
         {
-            var dragonBone = UnityFactory._dragonBonesInstance;
-            if (dragonBone != null)
+            var db = UnityFactory._dragonBonesInstance;
+            if (db != null)
             {
-                dragonBone.AdvanceTime(Time.deltaTime);
+                db.AdvanceTime(Time.deltaTime);
             }
+            //UnityFactory._dragonBonesInstance.AdvanceTime(Time.deltaTime);
         }
     }
 
