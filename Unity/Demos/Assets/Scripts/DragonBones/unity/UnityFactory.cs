@@ -77,7 +77,7 @@ namespace DragonBones
                     _gameObject = new GameObject("DragonBones Object", typeof(ClockHandler));
 
                     _gameObject.isStatic = true;
-                    //_gameObject.hideFlags = HideFlags.HideInHierarchy;
+                    _gameObject.hideFlags = HideFlags.HideInHierarchy;
                 }
             }
 
@@ -157,10 +157,6 @@ namespace DragonBones
             {
                 armatureComponent = armatureDisplay.AddComponent<UnityArmatureComponent>();
                 armatureComponent.isUGUI = _isUGUI;
-                if (_isUGUI)
-                {
-                    armatureComponent.transform.localScale = Vector2.one * (1.0f / dataPackage.armature.scale);
-                }
             }
             else
             {
@@ -180,6 +176,11 @@ namespace DragonBones
                     UnityEngine.Object.Destroy(slotRoot.gameObject);
 #endif
                 }
+            }
+
+            if (armatureComponent.isUGUI)
+            {
+                armatureComponent.transform.localScale = Vector2.one * (1.0f / dataPackage.armature.scale);
             }
 
             //#if UNITY_5_6_OR_NEWER

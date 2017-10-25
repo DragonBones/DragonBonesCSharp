@@ -19,7 +19,7 @@ namespace DragonBones
 		private List<string> _sortingLayerNames = null;
 		private UnityArmatureComponent _armatureComponent = null;
 
-		void OnEnable()
+        void OnEnable()
 		{
 			_armatureComponent = target as UnityArmatureComponent;
             if (_IsPrefab())
