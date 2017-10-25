@@ -612,7 +612,10 @@ namespace DragonBones
                 
                 foreach (UnityArmatureComponent child in GetComponentsInChildren<UnityArmatureComponent>(true))
                 {
-					child.ShowBones();
+                    if (child != this)
+                    {
+                        child.ShowBones();
+                    }
 				}
 			}
 		}
@@ -620,7 +623,10 @@ namespace DragonBones
         {
             foreach (UnityArmatureComponent child in GetComponentsInChildren<UnityArmatureComponent>(true))
             {
-				child.RemoveBones();
+                if (child != this)
+                {
+                    child.RemoveBones();
+                }
 			}
 
 			if(unityBones!=null)
