@@ -10,7 +10,7 @@ namespace DragonBones
 	public class DragonBonesIcons : Editor
     {
 
-		static Texture2D textureBone,textureArmature,textureImg,textureMesh,textureIk;
+		static Texture2D /*textureBone,*/textureArmature,textureImg,textureMesh/*,textureIk*/;
 		static string editorPath="";
 		static string editorGUIPath=  "";
 		static bool isInited = false;
@@ -31,8 +31,8 @@ namespace DragonBones
 			editorPath = Path.GetDirectoryName(files[0].FullName.Replace("\\", "/").Replace(Application.dataPath, "Assets"));
 			editorGUIPath = editorPath + "/GUI"; 
 
-			textureBone = AssetDatabase.LoadAssetAtPath<Texture2D>(editorGUIPath+"/icon-bone.png");
-			textureIk = AssetDatabase.LoadAssetAtPath<Texture2D>(editorGUIPath+"/icon-ik.png");
+			//textureBone = AssetDatabase.LoadAssetAtPath<Texture2D>(editorGUIPath+"/icon-bone.png");
+			//textureIk = AssetDatabase.LoadAssetAtPath<Texture2D>(editorGUIPath+"/icon-ik.png");
 			textureArmature = AssetDatabase.LoadAssetAtPath<Texture2D>(editorGUIPath+"/icon-skeleton.png");
 			textureImg = AssetDatabase.LoadAssetAtPath<Texture2D>(editorGUIPath+"/icon-image.png");
 			textureMesh = AssetDatabase.LoadAssetAtPath<Texture2D>(editorGUIPath+"/icon-mesh.png");

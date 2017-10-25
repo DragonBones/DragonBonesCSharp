@@ -885,7 +885,7 @@ namespace DragonBones
                 var rawWeights = (rawData[ObjectDataParser.WEIGHTS] as List<object>).ConvertAll<float>(Convert.ToSingle); // float;
                 var rawSlotPose = (rawData[ObjectDataParser.SLOT_POSE] as List<object>).ConvertAll<float>(Convert.ToSingle); // float;
                 var rawBonePoses = (rawData[ObjectDataParser.BONE_POSE] as List<object>).ConvertAll<float>(Convert.ToSingle); //float ;
-                var sortedBones = this._armature.sortedBones;
+                //var sortedBones = this._armature.sortedBones;
                 var weightBoneIndices = new List<uint>();
                 var weightBoneCount = rawBonePoses.Count / 7; // uint
                 var floatOffset = this._floatArray.Count;

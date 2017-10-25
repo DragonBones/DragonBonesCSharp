@@ -598,7 +598,7 @@ namespace DragonBones
                     vertexOffset += 65536; // Fixed out of bouds bug. 
                 }
 
-                Vector3[] vertices = new Vector3[vertextCount];
+                //Vector3[] vertices = new Vector3[vertextCount];
                 for (int i = 0, iV = 0, iF = 0, l = vertextCount; i < l; ++i)
                 {
                     _vertices[i].x = (floatArray[vertexOffset + (iV++)] * scale + this._ffdVertices[iF++])/* * scale*/;
