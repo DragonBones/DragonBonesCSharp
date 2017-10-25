@@ -364,10 +364,10 @@ namespace DragonBones
 			#endif
 
 			zorderIsDirty = true;
-            if(unityData != null && (unityData.dragonBonesJSON != null || unityData.dragonBonesBinary != null) && unityData.textureAtlas != null)
-            //if (unityData != null && unityData.dragonBonesJSON != null && unityData.textureAtlas != null)
+            //if(unityData != null && (unityData.dragonBonesJSON != null || unityData.dragonBonesBinary != null) && unityData.textureAtlas != null)
+            if (unityData != null && unityData.dragonBonesJSON != null && unityData.textureAtlas != null)
             {
-				var dragonBonesData = UnityFactory.factory.LoadData(unityData,isUGUI);
+				var dragonBonesData = UnityFactory.factory.LoadData(unityData, isUGUI);
 				if (dragonBonesData != null && !string.IsNullOrEmpty(armatureName))
 				{
 					UnityFactory.factory.BuildArmatureComponent(armatureName, dragonBonesData.name, null, unityData.dataName, gameObject , isUGUI);

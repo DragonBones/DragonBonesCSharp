@@ -17,7 +17,6 @@ namespace DragonBones
 
 		public string dataName;
 		public TextAsset dragonBonesJSON;
-        public TextAsset dragonBonesBinary;
         public TextureAtlas[] textureAtlas;
 
         

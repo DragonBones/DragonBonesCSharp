@@ -80,6 +80,12 @@ namespace DragonBones
                     _gameObject.isStatic = true;
                     _gameObject.hideFlags = HideFlags.HideInHierarchy;
                 }
+
+                var clockHandler = _gameObject.GetComponent<ClockHandler>();
+                if (clockHandler == null)
+                {
+                    _gameObject.AddComponent<ClockHandler>();
+                }
             }
 
             if (_dragonBonesInstance == null)
@@ -519,9 +525,9 @@ namespace DragonBones
 		{
 			DragonBonesData dragonBonesData = null;
 
-			if (data.dragonBonesJSON != null || data.dragonBonesBinary != null)
+			if (data.dragonBonesJSON != null)
 			{
-                dragonBonesData = LoadDragonBonesData(data.dragonBonesJSON, data.dragonBonesBinary, data.dataName, armatureScale);
+                dragonBonesData = LoadDragonBonesData(data.dragonBonesJSON, data.dataName, armatureScale);
 
                 if (!string.IsNullOrEmpty(data.dataName) && dragonBonesData != null && data.textureAtlas != null)
 				{
@@ -592,15 +598,7 @@ namespace DragonBones
 
             TextAsset dragonBonesJSON = Resources.Load<TextAsset>(dragonBonesJSONPath);
 
-            DragonBonesData dragonBonesData = null;
-            if (dragonBonesJSON.text == "DBDT")
-            {
-                dragonBonesData = LoadDragonBonesData(null, dragonBonesJSON, name);
-            }
-            else
-            {
-                dragonBonesData = LoadDragonBonesData(dragonBonesJSON, null, name);
-            }
+            DragonBonesData dragonBonesData = LoadDragonBonesData(dragonBonesJSON, name);
             
             if (dragonBonesData != null)
             {
@@ -613,9 +611,9 @@ namespace DragonBones
         /**
          * @private
          */
-        public DragonBonesData LoadDragonBonesData(TextAsset dragonBonesJSON, TextAsset dragonBonesBinary = null, string name = null, float scale = 0.01f)
+        public DragonBonesData LoadDragonBonesData(TextAsset dragonBonesJSON, string name = null, float scale = 0.01f)
         {
-            if (dragonBonesJSON == null && dragonBonesBinary == null)
+            if (dragonBonesJSON == null)
             {
                 return null;
             }
@@ -630,18 +628,18 @@ namespace DragonBones
             }
 
             DragonBonesData data = null;
-            if (dragonBonesJSON != null)
+            if (dragonBonesJSON.text == "DBDT")
             {
-                data = ParseDragonBonesData((Dictionary<string, object>)MiniJSON.Json.Deserialize(dragonBonesJSON.text), name, scale); // Unity default Scale Factor.
-
+                BinaryDataParser.jsonParseDelegate = MiniJSON.Json.Deserialize;
+                data = ParseDragonBonesData(dragonBonesJSON.bytes, name, scale); // Unity default Scale Factor.
+                //
                 name = dragonBonesJSON.name;
             }
             else
             {
-                BinaryDataParser.jsonParseDelegate = MiniJSON.Json.Deserialize;
-                data = ParseDragonBonesData(dragonBonesBinary.bytes, name, scale); // Unity default Scale Factor.
-                //
-                name = dragonBonesBinary.name;
+                data = ParseDragonBonesData((Dictionary<string, object>)MiniJSON.Json.Deserialize(dragonBonesJSON.text), name, scale); // Unity default Scale Factor.
+
+                name = dragonBonesJSON.name;
             }
 
             int index = name.LastIndexOf("_ske");

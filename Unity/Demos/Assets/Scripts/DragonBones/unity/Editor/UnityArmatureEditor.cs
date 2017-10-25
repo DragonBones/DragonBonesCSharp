@@ -131,17 +131,8 @@ namespace DragonBones
 				_armatureIndex = -1;
 				_animationIndex = -1;
 				_armatureComponent.animationName = null;
-                bool isChangeSuccess = false;
-                if (_armatureComponent.unityData.dragonBonesJSON != null)
-                {
-                    isChangeSuccess = UnityEditor.ChangeDragonBonesData(_armatureComponent, _armatureComponent.unityData.dragonBonesJSON);
-                }
-                else if (_armatureComponent.unityData.dragonBonesBinary != null)
-                {
-                    isChangeSuccess = UnityEditor.ChangeDragonBonesData(_armatureComponent, _armatureComponent.unityData.dragonBonesBinary);
-                }
                 
-                if (isChangeSuccess)
+                if (UnityEditor.ChangeDragonBonesData(_armatureComponent, _armatureComponent.unityData.dragonBonesJSON))
 				{
 					_armatureComponent.CollectBones();
                     _UpdateParameters();
