@@ -216,8 +216,8 @@ namespace DragonBones
                 unityData = _armatureComponent.unityData;
 				slot = _armatureComponent.armature.parent;
 				_armatureComponent.Dispose(false);
-                //QQ
-                //UnityFactory.factory._dragonBones.AdvanceTime(0.0f);
+
+                UnityFactory.factory._dragonBones.AdvanceTime(0.0f);
 
                 _armatureComponent.unityData = unityData;
             }

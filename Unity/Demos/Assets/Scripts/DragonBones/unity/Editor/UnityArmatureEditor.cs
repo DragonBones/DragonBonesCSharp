@@ -13,6 +13,7 @@ namespace DragonBones
 		private int _armatureIndex = -1;
 		private int _animationIndex = -1;
 		private int _sortingLayerIndex = -1;
+        private int _playTimes = 0;
 		private long _nowTime = 0;
 		private List<string> _armatureNames = null;
 		private List<string> _animationNames = null;
@@ -230,9 +231,15 @@ namespace DragonBones
                     //playTimes
                     EditorGUILayout.BeginHorizontal();
                     serializedObject.Update();
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty("_playerTimes"), true);
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty("_playerTimes"), false);
                     serializedObject.ApplyModifiedProperties();
-                    _armatureComponent.playerTimes = serializedObject.FindProperty("_playerTimes").intValue;
+                    var times = serializedObject.FindProperty("_playerTimes").intValue;
+                    if (_playTimes != times)
+                    {
+                        _playTimes = times;
+                        _armatureComponent.animation.Reset();
+                        _armatureComponent.animation.Play(_armatureComponent.animationName, _armatureComponent.playerTimes);
+                    }
                     EditorGUILayout.EndHorizontal();
                     EditorGUILayout.Space();
                 }
