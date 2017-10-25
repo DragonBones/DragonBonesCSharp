@@ -13,11 +13,7 @@ namespace DragonBones
     {
         void Update()
         {
-            var db = UnityFactory._dragonBonesInstance;
-            if (db != null)
-            {
-                db.AdvanceTime(Time.deltaTime);
-            }
+            UnityFactory.factory._dragonBones.AdvanceTime(Time.deltaTime);
             //UnityFactory._dragonBonesInstance.AdvanceTime(Time.deltaTime);
         }
     }
@@ -37,21 +33,37 @@ namespace DragonBones
         public const string defaultShaderName = "Sprites/Default";
         public const string defaultUIShaderName = "UI/Default";
 
-        /**
-         * @language zh_CN
-         * 一个可以直接使用的全局工厂实例。
-         * @version DragonBones 4.7
-         */
-        public static readonly UnityFactory factory = new UnityFactory();
-        /**
-         * @private
-         */
-        internal static readonly WorldClock _clock = new WorldClock();
+       
+        private static UnityFactory _factory = null;
+        
         private static GameObject _gameObject = null;
 
         internal static DragonBones _dragonBonesInstance = null;
-        private IEventDispatcher<EventObject> _eventManager = null;        
-        
+        //private IEventDispatcher<EventObject> _eventManager = null; 
+
+        /**
+        * @language zh_CN
+        * 一个可以直接使用的全局工厂实例。
+        * @version DragonBones 4.7
+        */
+        public static UnityFactory factory
+        {
+            get
+            {
+                if (_factory == null)
+                {
+                    _factory = new UnityFactory();
+                }
+
+                return _factory;
+            }
+        }
+
+        public static WorldClock clock
+        {
+            get { return _dragonBonesInstance.clock; }
+        }
+
         private GameObject _armatureGameObject = null;
         private bool _isUGUI = false;
 
@@ -65,20 +77,23 @@ namespace DragonBones
          */
         public UnityFactory(DataParser dataParser = null) : base(dataParser)
         {
-            //Init();
+            Init();
         }
 
         private void Init()
         {
-            if (_gameObject == null)
+            if (Application.isPlaying)
             {
-                _gameObject = GameObject.Find("DragonBones Object");
                 if (_gameObject == null)
                 {
-                    _gameObject = new GameObject("DragonBones Object", typeof(ClockHandler));
+                    _gameObject = GameObject.Find("DragonBones Object");
+                    if (_gameObject == null)
+                    {
+                        _gameObject = new GameObject("DragonBones Object", typeof(ClockHandler));
 
-                    _gameObject.isStatic = true;
-                    _gameObject.hideFlags = HideFlags.HideInHierarchy;
+                        _gameObject.isStatic = true;
+                        _gameObject.hideFlags = HideFlags.HideInHierarchy;
+                    }
                 }
 
                 var clockHandler = _gameObject.GetComponent<ClockHandler>();
@@ -86,19 +101,28 @@ namespace DragonBones
                 {
                     _gameObject.AddComponent<ClockHandler>();
                 }
-            }
 
-            if (_dragonBonesInstance == null)
-            {
-                _eventManager = _gameObject.GetComponent<DragonBoneEventDispatcher>();
-                if (_eventManager == null)
+                var eventManager = _gameObject.GetComponent<DragonBoneEventDispatcher>();
+                if (eventManager == null)
                 {
-                    _eventManager = _gameObject.AddComponent<DragonBoneEventDispatcher>();
+                    eventManager = _gameObject.AddComponent<DragonBoneEventDispatcher>();
                 }
 
-                _dragonBonesInstance = new DragonBones(_eventManager);
-                //
-                DragonBones.yDown = false;
+                if (_dragonBonesInstance == null)
+                {
+                    _dragonBonesInstance = new DragonBones(eventManager);
+                    //
+                    DragonBones.yDown = false;
+                }
+            }
+            else
+            {
+                if (_dragonBonesInstance == null)
+                {
+                    _dragonBonesInstance = new DragonBones(null);
+                    //
+                    DragonBones.yDown = false;
+                }
             }
 
             _dragonBones = _dragonBonesInstance;
@@ -151,12 +175,8 @@ namespace DragonBones
          */
         override protected Armature _BuildArmature(BuildArmaturePackage dataPackage)
         {
-            //if (Application.isPlaying) //
-            //{
+            
 
-            //}
-
-            Init();
             var armature = BaseObject.BorrowObject<Armature>();
             var armatureDisplay = _armatureGameObject == null ? new GameObject(dataPackage.armature.name) : _armatureGameObject;
             var armatureComponent = armatureDisplay.GetComponent<UnityArmatureComponent>();
@@ -454,7 +474,10 @@ namespace DragonBones
             
             if (armature != null)
             {
-                _dragonBones.clock.Add(armature);
+                if (_dragonBones != null)
+                {
+                    _dragonBones.clock.Add(armature);
+                }
 
                 var armatureDisplay = armature.display as GameObject;
                 var armatureComponent = armatureDisplay.GetComponent<UnityArmatureComponent>();
@@ -506,8 +529,7 @@ namespace DragonBones
         public IEventDispatcher<EventObject> soundEventManager
         {
             get
-            {
-                Init();
+            {                
                 return _dragonBonesInstance.eventManager;
             }
         }

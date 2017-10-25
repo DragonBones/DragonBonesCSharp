@@ -92,8 +92,7 @@ namespace DragonBones
                         _gameObject = new GameObject("DragonBones Object", typeof(ClockHandler));
 
                         _gameObject.isStatic = true;
-                        UnityEngine.Debug.Log("new DragonBones");
-                        //_gameObject.hideFlags = HideFlags.HideInHierarchy;
+                        _gameObject.hideFlags = HideFlags.HideInHierarchy;
                     }
                 }
 
