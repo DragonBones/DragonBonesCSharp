@@ -19,9 +19,9 @@ namespace DragonBones
 		private List<string> _sortingLayerNames = null;
 		private UnityArmatureComponent _armatureComponent = null;
 
-		void OnEnable()
+        void OnEnable()
 		{
-			_armatureComponent = target as UnityArmatureComponent;
+            _armatureComponent = target as UnityArmatureComponent;
             if (_IsPrefab())
             {
                 return;
@@ -131,7 +131,8 @@ namespace DragonBones
 				_armatureIndex = -1;
 				_animationIndex = -1;
 				_armatureComponent.animationName = null;
-				if (UnityEditor.ChangeDragonBonesData(_armatureComponent, _armatureComponent.unityData.dragonBonesJSON))
+                
+                if (UnityEditor.ChangeDragonBonesData(_armatureComponent, _armatureComponent.unityData.dragonBonesJSON))
 				{
 					_armatureComponent.CollectBones();
                     _UpdateParameters();

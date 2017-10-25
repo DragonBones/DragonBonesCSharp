@@ -345,12 +345,10 @@ namespace DragonBones
          */
         void Awake()
 		{
-            #if UNITY_EDITOR
             if (_isPrefab())
             {
                 return;
             }
-			#endif
 
 			#if UNITY_5_6_OR_NEWER
 			if(!isUGUI)
@@ -366,9 +364,10 @@ namespace DragonBones
 			#endif
 
 			zorderIsDirty = true;
-			if(unityData != null && unityData.dragonBonesJSON != null && unityData.textureAtlas != null)
+            //if(unityData != null && (unityData.dragonBonesJSON != null || unityData.dragonBonesBinary != null) && unityData.textureAtlas != null)
+            if (unityData != null && unityData.dragonBonesJSON != null && unityData.textureAtlas != null)
             {
-				var dragonBonesData = UnityFactory.factory.LoadData(unityData,isUGUI);
+				var dragonBonesData = UnityFactory.factory.LoadData(unityData, isUGUI);
 				if (dragonBonesData != null && !string.IsNullOrEmpty(armatureName))
 				{
 					UnityFactory.factory.BuildArmatureComponent(armatureName, dragonBonesData.name, null, unityData.dataName, gameObject , isUGUI);
@@ -613,7 +612,10 @@ namespace DragonBones
                 
                 foreach (UnityArmatureComponent child in GetComponentsInChildren<UnityArmatureComponent>(true))
                 {
-					child.ShowBones();
+                    if (child != this)
+                    {
+                        child.ShowBones();
+                    }
 				}
 			}
 		}
@@ -621,7 +623,10 @@ namespace DragonBones
         {
             foreach (UnityArmatureComponent child in GetComponentsInChildren<UnityArmatureComponent>(true))
             {
-				child.RemoveBones();
+                if (child != this)
+                {
+                    child.RemoveBones();
+                }
 			}
 
 			if(unityBones!=null)

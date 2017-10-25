@@ -162,7 +162,7 @@ namespace DragonBones
 
                 UnityDragonBonesData.TextureAtlas[] textureAtlas = UnityEditor.GetTextureAtlasByJSONs(textureAtlasJSONs);
 
-                UnityDragonBonesData data = UnityEditor.CreateUnityDragonBonesData(dragonBoneJSON,textureAtlas);
+                UnityDragonBonesData data = UnityEditor.CreateUnityDragonBonesData(dragonBoneJSON, textureAtlas);
 				_armatureComponent.unityData = data;
 
 				var dragonBonesData = UnityFactory.factory.LoadData(data,_armatureComponent.isUGUI);
@@ -334,22 +334,28 @@ namespace DragonBones
 					data.dataName = name;
 					isDirty = true;
 				}
-				if(dragonBonesAsset.text=="DBDT")
-				{
-					if(data.dragonBonesBinary!=dragonBonesAsset)
-                    {
-						data.dragonBonesBinary = dragonBonesAsset;
-						isDirty = true;
-					}
-				}
-				else
-				{
-					if(data.dragonBonesJSON!=dragonBonesAsset)
-                    {
-						data.dragonBonesJSON = dragonBonesAsset;
-						isDirty = true;
-					}
-				}
+
+                if (data.dragonBonesJSON != dragonBonesAsset)
+                {
+                    data.dragonBonesJSON = dragonBonesAsset;
+                    isDirty = true;
+                }
+				//if(dragonBonesAsset.text=="DBDT")
+				//{
+				//	if(data.dragonBonesBinary!=dragonBonesAsset)
+    //                {
+				//		data.dragonBonesBinary = dragonBonesAsset;
+				//		isDirty = true;
+				//	}
+				//}
+				//else
+				//{
+				//	if(data.dragonBonesJSON!=dragonBonesAsset)
+    //                {
+				//		data.dragonBonesJSON = dragonBonesAsset;
+				//		isDirty = true;
+				//	}
+				//}
 
 				if(textureAtlas!=null && textureAtlas.Length>0 && textureAtlas[0]!=null && textureAtlas[0].texture!=null)
                 {
@@ -411,15 +417,17 @@ namespace DragonBones
 				else if(!isCreateUnityData && assetPath.EndsWith("_Data.asset"))
 				{
 					UnityDragonBonesData data = AssetDatabase.LoadAssetAtPath<UnityDragonBonesData>(assetPath);
-					if(data.dragonBonesJSON != null)
-                    {
-						dragonBonesSkePaths.Add(AssetDatabase.GetAssetPath(data.dragonBonesJSON));
-					}
-					else if(data.dragonBonesBinary != null)
-					{
-						dragonBonesSkePaths.Add(AssetDatabase.GetAssetPath(data.dragonBonesBinary));
-					}
-				}
+                    //if(data.dragonBonesJSON != null)
+                    //               {
+                    //	dragonBonesSkePaths.Add(AssetDatabase.GetAssetPath(data.dragonBonesJSON));
+                    //}
+                    //else if(data.dragonBonesBinary != null)
+                    //{
+                    //	dragonBonesSkePaths.Add(AssetDatabase.GetAssetPath(data.dragonBonesBinary));
+                    //}
+
+                    dragonBonesSkePaths.Add(AssetDatabase.GetAssetPath(data.dragonBonesJSON));
+                }
 			}
 
 			return dragonBonesSkePaths;
