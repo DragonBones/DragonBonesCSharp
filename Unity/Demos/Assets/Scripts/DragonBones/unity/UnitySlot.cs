@@ -568,8 +568,8 @@ namespace DragonBones
 
                             if (hasFFD)
                             {
-                                xL += this._ffdVertices[iF++] * scale;
-                                yL += this._ffdVertices[iF++] * scale;
+                                xL += this._ffdVertices[iF++];
+                                yL += this._ffdVertices[iF++];
                             }
 
                             xG += (matrix.a * xL + matrix.c * yL + matrix.tx) * weight; /** (1.0f / scale)) * weight;*/
