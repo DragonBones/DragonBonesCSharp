@@ -236,9 +236,12 @@ namespace DragonBones
                     var times = serializedObject.FindProperty("_playerTimes").intValue;
                     if (_playTimes != times)
                     {
-                        _playTimes = times;
-                        _armatureComponent.animation.Reset();
-                        _armatureComponent.animation.Play(_armatureComponent.animationName, _armatureComponent.playerTimes);
+                        if (!string.IsNullOrEmpty(_armatureComponent.animationName))
+                        {
+                            _playTimes = times;
+                            _armatureComponent.animation.Reset();
+                            _armatureComponent.animation.Play(_armatureComponent.animationName, _armatureComponent.playerTimes);
+                        }
                     }
                     EditorGUILayout.EndHorizontal();
                     EditorGUILayout.Space();
