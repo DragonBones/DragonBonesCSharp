@@ -8,20 +8,20 @@ namespace DragonBones
 {
 	public class AssetProcess : AssetPostprocessor
     {
-		//[System.Serializable]
-		//struct SubTextureClass
-  //      {
-		//	public string name;
-		//	public float x,y,width,height,frameX,frameY,frameWidth,frameHeight;
-		//}
+        [System.Serializable]
+        struct SubTextureClass
+        {
+            public string name;
+            public float x, y, width, height, frameX, frameY, frameWidth, frameHeight;
+        }
 
-		[System.Serializable]
+        [System.Serializable]
 		class TextureDataClass
         {
 			public string name=null;
 			public string imagePath=null;
 			public int width=0,height=0;
-			//public List<SubTextureClass> SubTexture=null;
+			public List<SubTextureClass> SubTexture=null;
 		}
 
 		public static void OnPostprocessAllAssets(string[]imported,string[] deletedAssets,string[] movedAssets,string[]movedFromAssetPaths)  

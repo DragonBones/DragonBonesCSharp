@@ -158,8 +158,6 @@ namespace DragonBones
          */
         override protected Armature _BuildArmature(BuildArmaturePackage dataPackage)
         {
-            
-
             var armature = BaseObject.BorrowObject<Armature>();
             var armatureDisplay = _armatureGameObject == null ? new GameObject(dataPackage.armature.name) : _armatureGameObject;
             var armatureComponent = armatureDisplay.GetComponent<UnityArmatureComponent>();
@@ -167,6 +165,11 @@ namespace DragonBones
             {
                 armatureComponent = armatureDisplay.AddComponent<UnityArmatureComponent>();
                 armatureComponent.isUGUI = _isUGUI;
+
+                if (armatureComponent.isUGUI)
+                {
+                    armatureComponent.transform.localScale = Vector2.one * (1.0f / dataPackage.armature.scale);
+                }
             }
             else
             {
@@ -187,19 +190,7 @@ namespace DragonBones
 #endif
                 }
             }
-
-            if (armatureComponent.isUGUI)
-            {
-                armatureComponent.transform.localScale = Vector2.one * (1.0f / dataPackage.armature.scale);
-            }
-
-            //#if UNITY_5_6_OR_NEWER
-            //            if (armatureDisplay.GetComponent<UnityEngine.Rendering.SortingGroup>() == null)
-            //            {
-            //                armatureDisplay.AddComponent<UnityEngine.Rendering.SortingGroup>();
-            //            }
-            //#endif
-
+            
             armatureComponent._armature = armature;
             armature.Init(dataPackage.armature, armatureComponent, armatureDisplay, this._dragonBones);
             _armatureGameObject = null;

@@ -28,7 +28,6 @@ namespace DragonBones
                 return;
             }
 
-
 			// 
 			_nowTime = System.DateTime.Now.Ticks;
 			_sortingLayerNames = _GetSortingLayerNames();
