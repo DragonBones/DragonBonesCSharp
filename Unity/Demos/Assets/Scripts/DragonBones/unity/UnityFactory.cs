@@ -126,23 +126,6 @@ namespace DragonBones
             }
 
             _dragonBones = _dragonBonesInstance;
-
-            //if (_eventManager == null)
-            //{
-            //    _eventManager = _gameObject.GetComponent<DragonBoneEventDispatcher>();
-            //    if (_eventManager == null)
-            //    {
-            //        _eventManager = _gameObject.AddComponent<DragonBoneEventDispatcher>();
-            //    }
-            //}
-
-            //if (_dragonBones == null)
-            //{
-            //    _dragonBones = new DragonBones(_eventManager);
-
-            //    //
-            //    DragonBones.yDown = false;
-            //}
         }
         /**
          * @private
