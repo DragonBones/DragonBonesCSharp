@@ -246,7 +246,8 @@ namespace DragonBones
 		public static void GetTextureAtlasConfigs(List<string> textureAtlasFiles, string filePath, string rawName = null, string suffix = "tex")
 		{
 			var folder = Directory.GetParent(filePath).ToString();
-			var name = rawName != null ? rawName : filePath.Substring(0, filePath.LastIndexOf(".")).Substring(filePath.LastIndexOf("/") + 1);
+
+            var name = rawName != null ? rawName : filePath.Substring(0, filePath.LastIndexOf(".")).Substring(filePath.LastIndexOf("/") + 1);
 			if(name.LastIndexOf("_ske")==name.Length-4){
 				name = name.Substring(0,name.LastIndexOf("_ske"));
 			}
@@ -263,11 +264,6 @@ namespace DragonBones
 				return;
 			}
 
-			if (textureAtlasFiles.Count > 0 || rawName != null)
-			{
-				return;
-			}
-
 			while (true)
 			{
 				textureAtlasName = (!string.IsNullOrEmpty(name) ? name + (!string.IsNullOrEmpty(suffix) ? "_" + suffix : suffix) : suffix) + "_" + (index++);
@@ -281,8 +277,13 @@ namespace DragonBones
 					break;
 				}
 			}
+            
+            if (textureAtlasFiles.Count > 0 || rawName != null)
+            {
+                return;
+            }
 
-			GetTextureAtlasConfigs(textureAtlasFiles, filePath, "", suffix);
+            GetTextureAtlasConfigs(textureAtlasFiles, filePath, "", suffix);
 			if (textureAtlasFiles.Count > 0)
 			{
 				return;
