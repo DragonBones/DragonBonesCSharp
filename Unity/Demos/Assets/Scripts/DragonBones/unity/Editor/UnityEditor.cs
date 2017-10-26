@@ -210,6 +210,7 @@ namespace DragonBones
 
 		public static void ChangeArmatureData(UnityArmatureComponent _armatureComponent, string armatureName, string dragonBonesName)
 		{
+            bool isUGUI = _armatureComponent.isUGUI;
             UnityDragonBonesData unityData = null;
 			Slot slot = null;
 			if (_armatureComponent.armature != null)
@@ -224,6 +225,7 @@ namespace DragonBones
             }
 
             _armatureComponent.armatureName = armatureName;
+            _armatureComponent.isUGUI = isUGUI;
 
 			_armatureComponent = UnityFactory.factory.BuildArmatureComponent(_armatureComponent.armatureName, dragonBonesName, null, _armatureComponent.unityData.dataName, _armatureComponent.gameObject,_armatureComponent.isUGUI);
 			if (slot != null)
