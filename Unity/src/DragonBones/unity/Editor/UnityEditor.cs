@@ -47,7 +47,8 @@ namespace DragonBones
 					armatureComponent.transform.SetParent(canvas.transform);
 				}
 			}
-            //armatureComponent.transform.localScale = Vector2.one*100f;
+
+            armatureComponent.transform.localScale = Vector2.one * 100.0f;
             armatureComponent.transform.localPosition = Vector3.zero;
 		}
 
@@ -216,8 +217,8 @@ namespace DragonBones
                 unityData = _armatureComponent.unityData;
 				slot = _armatureComponent.armature.parent;
 				_armatureComponent.Dispose(false);
-                //QQ
-                //UnityFactory.factory._dragonBones.AdvanceTime(0.0f);
+
+                UnityFactory.factory._dragonBones.AdvanceTime(0.0f);
 
                 _armatureComponent.unityData = unityData;
             }
