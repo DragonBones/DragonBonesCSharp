@@ -1,12 +1,11 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using System.IO;
 
 namespace DragonBones
 {
-	public class AssetProcess : AssetPostprocessor
+    public class AssetProcess : AssetPostprocessor
     {
         [System.Serializable]
         struct SubTextureClass
