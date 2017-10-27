@@ -367,12 +367,21 @@ namespace DragonBones
             }
 
             this._data.binary = this._binary;
-            this._data.intArray = this._intArrayBuffer = intArray;
-            this._data.floatArray = this._floatArrayBuffer = floatArray;
-            this._data.frameIntArray = this._frameIntArrayBuffer = frameIntArray;
-            this._data.frameFloatArray = this._frameFloatArrayBuffer = frameFloatArray;
-            this._data.frameArray = this._frameArrayBuffer = frameArray;
-            this._data.timelineArray = this._timelineArrayBuffer = timelineArray;
+
+            //
+            this._intArrayBuffer = intArray;
+            this._floatArrayBuffer = floatArray;
+            this._frameIntArrayBuffer = frameIntArray;
+            this._frameFloatArrayBuffer = frameFloatArray;
+            this._frameArrayBuffer = frameArray;
+            this._timelineArrayBuffer = timelineArray;
+
+            this._data.intArray = this._intArrayBuffer;
+            this._data.floatArray = this._floatArrayBuffer;
+            this._data.frameIntArray = this._frameIntArrayBuffer;
+            this._data.frameFloatArray = this._frameFloatArrayBuffer;
+            this._data.frameArray = this._frameArrayBuffer;
+            this._data.timelineArray = this._timelineArrayBuffer;
         }
         /**
          * @inheritDoc
