@@ -1,52 +1,43 @@
-﻿using System.Collections.Generic;
-
-namespace DragonBones
+﻿namespace DragonBones
 {
     /**
-     * @language zh_CN
      * 骨架代理接口。
      * @version DragonBones 5.0
+     * @language zh_CN
      */
     public interface IArmatureProxy : IEventDispatcher<EventObject>
     {
         /**
          * @private
          */
-        void _onClear();
+        void DBInit(Armature armature);
         /**
-         * @language zh_CN
+         * @private
+         */
+        void DBClear();
+        /**
+         * @private
+         */
+        void DBUpdate();
+        /**
          * 释放代理和骨架。 (骨架会回收到对象池)
          * @version DragonBones 4.5
+         * @language zh_CN
          */
         void Dispose(bool disposeProxy);
         /**
-         * @language zh_CN
          * 获取骨架。
-         * @readOnly
-         * @see DragonBones.Armature
+         * @see dragonBones.Armature
          * @version DragonBones 4.5
-         */
-        Armature armature
-        {
-            get;
-        }
-        /**
          * @language zh_CN
-         * 获取动画控制器。
-         * @readOnly
-         * @see DragonBones.Animation
-         * @version DragonBones 4.5
          */
-        Animation animation
-        {
-            get;
-        }
-    }
-    /**
-     * @deprecated
-     * @see DragonBones.IArmatureProxy
-     */
-    public interface IArmatureDisplay : IArmatureProxy
-    {
+         Armature armature { get; }
+        /**
+         * 获取动画控制器。
+         * @see dragonBones.Animation
+         * @version DragonBones 4.5
+         * @language zh_CN
+         */
+         Animation animation { get; }
     }
 }

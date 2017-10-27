@@ -1,20 +1,19 @@
 ﻿using UnityEngine;
-using System.Collections;
 using UnityEngine.UI;
 
 namespace DragonBones
 {
-	[DisallowMultipleComponent]
+    [DisallowMultipleComponent]
 	[ExecuteInEditMode,RequireComponent(typeof(CanvasRenderer), typeof(RectTransform))]
-	public class UnityUGUIDisplay : MaskableGraphic {
+	public class UnityUGUIDisplay : MaskableGraphic
+    {
 		[HideInInspector]
 		public Mesh sharedMesh;
 
-		private Texture _Texture;
-		public override Texture mainTexture {
-			get { 
-				return _Texture == null ? material.mainTexture : _Texture;
-			}
+		private Texture _texture;
+		public override Texture mainTexture
+        {
+			get { return _texture == null ? material.mainTexture : _texture; }
 		}
 
 		/// <summary>
@@ -22,15 +21,15 @@ namespace DragonBones
 		/// </summary>
 		public Texture texture
 		{
-			get
-			{
-				return _Texture;
-			}
+			get	{ return _texture; }
 			set
 			{
-				if (_Texture == value)
-					return;
-				_Texture = value;
+                if (_texture == value)
+                {
+                    return;
+                }
+				
+                _texture = value;
 				SetMaterialDirty();
 			}
 		}
@@ -40,15 +39,22 @@ namespace DragonBones
 			vh.Clear();
 		}
 
-		public override void Rebuild (CanvasUpdate update) {
+		public override void Rebuild (CanvasUpdate update)
+        {
 			base.Rebuild(update);
-			if (canvasRenderer.cull) return;
-			if (update == CanvasUpdate.PreRender){
+            if (canvasRenderer.cull)
+            {
+                return;
+            }
+
+			if (update == CanvasUpdate.PreRender)
+            {
 				canvasRenderer.SetMesh(sharedMesh);
 			}
 		}
 
-		void Update(){
+		void Update()
+        {
 			canvasRenderer.SetMesh(sharedMesh);
 		}
 	}

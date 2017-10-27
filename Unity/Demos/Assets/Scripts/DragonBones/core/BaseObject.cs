@@ -1,20 +1,20 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 
 namespace DragonBones
 {
     /**
-     * @language zh_CN
-     * »ù´¡¶ÔÏó¡£
+     * åŸºç¡€å¯¹è±¡ã€‚
      * @version DragonBones 4.5
+     * @language zh_CN
      */
     abstract public class BaseObject
     {
         private static uint _hashCode = 0;
-        private static uint _defaultMaxCount = 5000;
+        private static uint _defaultMaxCount = 1000;
         private static readonly Dictionary<System.Type, uint> _maxCountMap = new Dictionary<System.Type, uint>();
         private static readonly Dictionary<System.Type, List<BaseObject>> _poolsMap = new Dictionary<System.Type, List<BaseObject>>();
-        
-        private static void _returnObject(BaseObject obj)
+
+        private static void _ReturnObject(BaseObject obj)
         {
             var classType = obj.GetType();
             var maxCount = _maxCountMap.ContainsKey(classType) ? _maxCountMap[classType] : _defaultMaxCount;
@@ -28,56 +28,62 @@ namespace DragonBones
                 }
                 else
                 {
-                    DragonBones.Assert(false, DragonBones.ARGUMENT_ERROR);
+                    Helper.Assert(false, "The object is already in the pool.");
                 }
             }
+            else
+            {
+
+            }
         }
+
         /**
-         * @language zh_CN
-         * ÉèÖÃÃ¿ÖÖ¶ÔÏó³ØµÄ×î´ó»º´æÊıÁ¿¡£
-         * @param classType ¶ÔÏóÀàĞÍ¡£
-         * @param maxCount ×î´ó»º´æÊıÁ¿¡£ (ÉèÖÃÎª 0 Ôò²»»º´æ)
+         * è®¾ç½®æ¯ç§å¯¹è±¡æ± çš„æœ€å¤§ç¼“å­˜æ•°é‡ã€‚
+         * @param objectConstructor å¯¹è±¡ç±»ã€‚
+         * @param maxCount æœ€å¤§ç¼“å­˜æ•°é‡ã€‚ (è®¾ç½®ä¸º 0 åˆ™ä¸ç¼“å­˜)
          * @version DragonBones 4.5
+         * @language zh_CN
          */
         public static void SetMaxCount(System.Type classType, uint maxCount)
         {
             if (classType != null)
             {
-                _maxCountMap[classType] = maxCount;
                 if (_poolsMap.ContainsKey(classType))
                 {
                     var pool = _poolsMap[classType];
                     if (pool.Count > maxCount)
                     {
-                        DragonBones.ResizeList(pool, (int)maxCount, null);
+                        pool.ResizeList((int)maxCount, null);
                     }
                 }
+
+                _maxCountMap[classType] = maxCount;
             }
             else
             {
                 _defaultMaxCount = maxCount;
-                foreach (var pair in _poolsMap)
+
+                foreach (var key in _poolsMap.Keys)
                 {
-                    if (!_maxCountMap.ContainsKey(pair.Key))
-                    {
-                        continue;
-                    }
-
-                    _maxCountMap[pair.Key] = maxCount;
-
-                    var pool = _poolsMap[pair.Key];
+                    var pool = _poolsMap[key];
                     if (pool.Count > maxCount)
                     {
-                        DragonBones.ResizeList(pool, (int)maxCount, null);
+                        pool.ResizeList((int)maxCount, null);
+                    }
+
+                    if (_maxCountMap.ContainsKey(key))
+                    {
+                        _maxCountMap[key] = maxCount;
                     }
                 }
             }
         }
+
         /**
-         * @language zh_CN
-         * Çå³ı¶ÔÏó³Ø»º´æµÄ¶ÔÏó¡£
-         * @param classType ¶ÔÏóÀàĞÍ¡£ (²»ÉèÖÃÔòÇå³ıËùÓĞ»º´æ)
+         * æ¸…é™¤å¯¹è±¡æ± ç¼“å­˜çš„å¯¹è±¡ã€‚
+         * @param objectConstructor å¯¹è±¡ç±»ã€‚ (ä¸è®¾ç½®åˆ™æ¸…é™¤æ‰€æœ‰ç¼“å­˜)
          * @version DragonBones 4.5
+         * @language zh_CN
          */
         public static void ClearPool(System.Type classType)
         {
@@ -86,7 +92,7 @@ namespace DragonBones
                 if (_poolsMap.ContainsKey(classType))
                 {
                     var pool = _poolsMap[classType];
-                    if (pool.Count > 0)
+                    if (pool != null)
                     {
                         pool.Clear();
                     }
@@ -97,7 +103,7 @@ namespace DragonBones
                 foreach (var pair in _poolsMap)
                 {
                     var pool = _poolsMap[pair.Key];
-                    if (pool.Count > 0)
+                    if (pool != null)
                     {
                         pool.Clear();
                     }
@@ -105,10 +111,10 @@ namespace DragonBones
             }
         }
         /**
-         * @language zh_CN
-         * ´Ó¶ÔÏó³ØÖĞ´´½¨Ö¸¶¨¶ÔÏó¡£
-         * @param objectConstructor ¶ÔÏóÀà¡£
+         * ä»å¯¹è±¡æ± ä¸­åˆ›å»ºæŒ‡å®šå¯¹è±¡ã€‚
+         * @param objectConstructor å¯¹è±¡ç±»ã€‚
          * @version DragonBones 4.5
+         * @language zh_CN
          */
         public static T BorrowObject<T>() where T : BaseObject, new()
         {
@@ -124,34 +130,34 @@ namespace DragonBones
             else
             {
                 var obj = new T();
-                obj._onClear();
+                obj._OnClear();
                 return obj;
             }
         }
         /**
-         * @language zh_CN
-         * ¶ÔÏóµÄÎ¨Ò»±êÊ¶¡£
+         * å¯¹è±¡çš„å”¯ä¸€æ ‡è¯†ã€‚
          * @version DragonBones 4.5
+         * @language zh_CN
          */
-        public uint hashCode = _hashCode++;
+        public readonly uint hashCode = _hashCode++;
 
         protected BaseObject()
         {
         }
+
         /**
          * @private
          */
-        abstract protected void _onClear();
+        abstract protected void _OnClear();
         /**
          * @language zh_CN
-         * Çå³ıÊı¾İ²¢·µ»¹¶ÔÏó³Ø¡£
+         * æ¸…é™¤æ•°æ®å¹¶è¿”è¿˜å¯¹è±¡æ± ã€‚
          * @version DragonBones 4.5
          */
         public void ReturnToPool()
         {
-            _onClear();
-            _returnObject(this);
+            _OnClear();
+            _ReturnObject(this);
         }
     }
 }
-

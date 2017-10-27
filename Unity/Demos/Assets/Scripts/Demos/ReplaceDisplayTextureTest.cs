@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
-using System.Collections;
 using DragonBones;
+
 public class ReplaceDisplayTextureTest : MonoBehaviour 
 {
 	public string dragonBonesName,armatureName,slotName,displayName;
@@ -9,9 +9,11 @@ public class ReplaceDisplayTextureTest : MonoBehaviour
 	public string replaceSlot;
 
 	// Use this for initialization
-	void Start () {
+	void Start ()
+    {
 		UnityArmatureComponent unityArmature = GetComponent<UnityArmatureComponent>();
-	
+
+        UnityFactory.factory.autoSearch = true;
 		UnityFactory.factory.ReplaceSlotDisplay(
 			dragonBonesName,armatureName,slotName,displayName,unityArmature.armature.GetSlot(replaceSlot),
 			replaceTex,new Material(Shader.Find("Sprites/Default"))
@@ -19,7 +21,8 @@ public class ReplaceDisplayTextureTest : MonoBehaviour
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void Update ()
+    {
 	
 	}
 }

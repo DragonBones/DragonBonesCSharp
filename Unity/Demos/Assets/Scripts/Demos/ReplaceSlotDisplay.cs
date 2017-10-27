@@ -10,15 +10,21 @@ public class ReplaceSlotDisplay : MonoBehaviour
         // Replace normal display.
         "display0002", "display0003", "display0004", "display0005", "display0006", "display0007", "display0008", "display0009", "display0010",
         // Replace mesh display.
-        "meshA", "meshB", "mesh"
+        "meshA", "meshB", "meshC"
     };
+
+    [SerializeField]
+    private UnityDragonBonesData replaceData;
 
     private UnityArmatureComponent _armatureComponent = null;
 
     // Use this for initialization
     void Start()
     {
+        UnityFactory.factory.LoadData(replaceData);
+
         _armatureComponent = this.GetComponent<UnityArmatureComponent>();
+        _armatureComponent.timeScale = 0.1f;
         _armatureComponent.animation.timeScale = 0.1f;
         _armatureComponent.animation.Play();
     }
@@ -44,7 +50,7 @@ public class ReplaceSlotDisplay : MonoBehaviour
                 case "meshA":
                     // Normal to mesh.
                     UnityFactory.factory.ReplaceSlotDisplay(
-                        "ReplaceSlotDisplay",
+                        "replace",
                         "MyMesh",
                         "meshA",
                         "weapon_1004_1",
@@ -52,7 +58,7 @@ public class ReplaceSlotDisplay : MonoBehaviour
                     );
                     // Replace mesh texture. 
                     UnityFactory.factory.ReplaceSlotDisplay(
-                        "ReplaceSlotDisplay",
+                        "replace",
                         "MyDisplay",
                         "ball",
                         "display0002",
@@ -71,7 +77,7 @@ public class ReplaceSlotDisplay : MonoBehaviour
                     );
                     // Replace mesh texture. 
                     UnityFactory.factory.ReplaceSlotDisplay(
-                        "ReplaceSlotDisplay",
+                        "replace",
                         "MyDisplay",
                         "ball",
                         "display0003",
@@ -79,10 +85,10 @@ public class ReplaceSlotDisplay : MonoBehaviour
                     );
                     break;
 
-                case "mesh":
+                case "meshC":
                     // Back to normal.
                     UnityFactory.factory.ReplaceSlotDisplay(
-                        "ReplaceSlotDisplay",
+                        "replace",
                         "MyMesh",
                         "mesh",
                         "weapon_1004_1",
@@ -90,7 +96,7 @@ public class ReplaceSlotDisplay : MonoBehaviour
                     );
                     // Replace mesh texture. 
                     UnityFactory.factory.ReplaceSlotDisplay(
-                        "ReplaceSlotDisplay",
+                        "replace",
                         "MyDisplay",
                         "ball",
                         "display0005",
@@ -102,7 +108,7 @@ public class ReplaceSlotDisplay : MonoBehaviour
         else // Replace normal display.
         {
             UnityFactory.factory.ReplaceSlotDisplay(
-                "ReplaceSlotDisplay",
+                "replace",
                 "MyDisplay",
                 "ball",
                 replaceDisplayName,

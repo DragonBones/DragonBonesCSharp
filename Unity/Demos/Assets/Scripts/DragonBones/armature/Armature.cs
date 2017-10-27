@@ -1,506 +1,437 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DragonBones
 {
     /**
-     * @language zh_CN
      * 骨架，是骨骼动画系统的核心，由显示容器、骨骼、插槽、动画、事件系统构成。
-     * @see DragonBones.ArmatureData
-     * @see DragonBones.Bone
-     * @see DragonBones.Slot
-     * @see DragonBones.Animation
-     * @see DragonBones.IArmatureDisplay
+     * @see dragonBones.ArmatureData
+     * @see dragonBones.Bone
+     * @see dragonBones.Slot
+     * @see dragonBones.Animation
      * @version DragonBones 3.0
+     * @language zh_CN
      */
-    public class Armature : BaseObject, IAnimateble
+    public class Armature : BaseObject, IAnimatable
     {
-        private static int _onSortSlots(Slot a, Slot b)
+        private static int _OnSortSlots(Slot a, Slot b)
         {
             return a._zOrder > b._zOrder ? 1 : -1;
         }
+
         /**
-         * @language zh_CN
-         * 子骨架是否继承父骨架的动画。 [true: 继承, false: 不继承]
+         * 是否继承父骨架的动画状态。
          * @default true
          * @version DragonBones 4.5
+         * @language zh_CN
          */
         public bool inheritAnimation;
         /**
+         * 获取骨架数据。
+         * @see dragonBones.ArmatureData
+         * @version DragonBones 4.5
+         * @readonly
          * @language zh_CN
-         * 可以用于存储临时数据。
+         */
+        public ArmatureData armatureData;
+        /**
+         * 用于存储临时数据。
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public object userData;
-        
-        private bool _delayDispose;
-        private bool _lockDispose;
-        /**
-         * @private
-         */
-        internal bool _bonesDirty;
+
+        private bool _lockUpdate;
+        private bool _bonesDirty;
         private bool _slotsDirty;
         private bool _zOrderDirty;
+        private bool _flipX;
+        private bool _flipY;
+
         /**
+         * @internal
          * @private
          */
-        internal bool _flipX;
-        /**
-         * @private
-         */
-        internal bool _flipY;
+        internal int _cacheFrameIndex;
         private readonly List<Bone> _bones = new List<Bone>();
         private readonly List<Slot> _slots = new List<Slot>();
         private readonly List<ActionData> _actions = new List<ActionData>();
-        private readonly List<EventObject> _events = new List<EventObject>();
-        /**
-         * @private
-         */
-        internal ArmatureData _armatureData;
-        /**
-         * @private
-         */
-        internal SkinData _skinData;
-        private Animation _animation;
-        private IArmatureProxy _proxy;
+        private Animation _animation = null; // Initial value.
+        private IArmatureProxy _proxy = null; // Initial value.
         private object _display;
-        private IEventDispatcher<EventObject> _eventManager;
         /**
+         * @private
+         */
+        public TextureAtlasData _replaceTextureAtlasData = null; // Initial value.
+        private object _replacedTexture;
+        /**
+         * @internal
+         * @private
+         */
+        internal DragonBones _dragonBones;
+        private WorldClock _clock = null; // Initial value.
+
+        /**
+         * @internal
          * @private
          */
         internal Slot _parent;
-        private WorldClock _clock;
         /**
          * @private
          */
-        internal TextureAtlasData _replaceTextureAtlasData;
-        private object _replacedTexture;
-        /**
-         * @private
-         */
-        public Armature()
+        protected override void _OnClear()
         {
-        }
-        /**
-         * @private
-         */
-        protected override void _onClear()
-        {
-            foreach (var bone in _bones)
+            if (this._clock != null)
+            { 
+                // Remove clock first.
+                this._clock.Remove(this);
+            }
+
+            foreach (var bone in this._bones)
             {
                 bone.ReturnToPool();
             }
 
-            foreach (var slot in _slots)
+            foreach (var slot in this._slots)
             {
                 slot.ReturnToPool();
             }
 
-            foreach (var evt in _events)
+            if (this._animation != null)
             {
-                evt.ReturnToPool();
+                this._animation.ReturnToPool();
             }
 
-            if (_clock != null)
+            if (this._proxy != null)
             {
-                _clock.Remove(this);
+                this._proxy.DBClear();
             }
 
-            if (_proxy != null)
+            if (this._replaceTextureAtlasData != null)
             {
-                _proxy._onClear();
+                this._replaceTextureAtlasData.ReturnToPool();
             }
 
-            if (_replaceTextureAtlasData != null)
-            {
-                _replaceTextureAtlasData.ReturnToPool();
-            }
+            this.inheritAnimation = true;
+            this.armatureData = null; //
+            this.userData = null;
 
-            if (_animation != null)
-            {
-                _animation.ReturnToPool();
-            }
-
-            inheritAnimation = true;
-            userData = null;
-
-            _delayDispose = false;
-            _lockDispose = false;
-            _bonesDirty = false;
-            _slotsDirty = false;
-            _zOrderDirty = false;
-            _flipX = false;
-            _flipY = false;
-            _bones.Clear();
-            _slots.Clear();
-            _actions.Clear();
-            _events.Clear();
-            _armatureData = null;
-            _skinData = null;
-            _animation = null;
-            _proxy = null;
-            _display = null;
-            _eventManager = null;
-            _parent = null;
-            _clock = null;
-            _replaceTextureAtlasData = null;
-            _replacedTexture = null;
+            this._lockUpdate = false;
+            this._bonesDirty = false;
+            this._slotsDirty = false;
+            this._zOrderDirty = false;
+            this._flipX = false;
+            this._flipY = false;
+            this._cacheFrameIndex = -1;
+            this._bones.Clear();
+            this._slots.Clear();
+            this._actions.Clear();
+            this._animation = null; //
+            this._proxy = null; //
+            this._display = null;
+            this._replaceTextureAtlasData = null;
+            this._replacedTexture = null;
+            this._dragonBones = null; //
+            this._clock = null;
+            this._parent = null;
         }
-        
-        private void _sortBones()
+
+        private void _SortBones()
         {
-            var total = _bones.Count;
+            var total = this._bones.Count;
             if (total <= 0)
             {
                 return;
             }
 
-            var sortHelper = _bones.ToArray();
-            int index = 0;
-            int count = 0;
+            var sortHelper = this._bones.ToArray();
+            var index = 0;
+            var count = 0;
 
-            _bones.Clear();
-
+            this._bones.Clear();
             while (count < total)
             {
                 var bone = sortHelper[index++];
-
                 if (index >= total)
                 {
                     index = 0;
                 }
 
-                if (_bones.Contains(bone))
+                if (this._bones.Contains(bone))
                 {
                     continue;
                 }
 
-                if (bone.parent != null && !_bones.Contains(bone.parent))
-                {
+                if (bone.constraints.Count > 0)
+                { 
+                    // Wait constraint.
+                    var flag = false;
+                    foreach (var constraint in bone.constraints)
+                    {
+                        if (!this._bones.Contains(constraint.target))
+                        {
+                            flag = true;
+                            break;
+                        }
+                    }
+
+                    if (flag)
+                    {
+                        continue;
+                    }
+                }
+
+                if (bone.parent != null && !this._bones.Contains(bone.parent))
+                { 
+                    // Wait parent.
                     continue;
                 }
 
-                if (bone.ik != null && !_bones.Contains(bone.ik))
-                {
-                    continue;
-                }
-
-                if (bone.ik != null && bone.ikChain > 0 && bone.ikChainIndex == bone.ikChain)
-                {
-                    _bones.Insert(_bones.IndexOf(bone.parent) + 1, bone); // ik, parent, bone, children
-                }
-                else
-                {
-                    _bones.Add(bone);
-                }
-
+                this._bones.Add(bone);
                 count++;
             }
         }
-        
-        private void _sortSlots()
+
+        private void _SortSlots()
         {
-            _slots.Sort(_onSortSlots);
+            this._slots.Sort(Armature._OnSortSlots);
         }
 
-        private void _doAction(ActionData value)
+        /**
+         * @internal
+         * @private
+         */
+        internal void _SortZOrder(short[] slotIndices, int offset)
         {
-            switch (value.type)
-            {
-                case ActionType.Play:
-                    _animation.PlayConfig(value.animationConfig);
-                    break;
+            var slotDatas = this.armatureData.sortedSlots;
+            var isOriginal = slotIndices == null;
 
-                default:
-                    break;
-            }
-        }
-        /**
-         * @private
-         */
-        internal void _init(
-            ArmatureData armatureData, SkinData skinData,
-            object display, IArmatureProxy proxy, IEventDispatcher<EventObject> eventManager
-        )
-        {
-            if (_armatureData != null)
+            if (this._zOrderDirty || !isOriginal)
             {
-                return;
-            }
-
-            _armatureData = armatureData;
-            _skinData = skinData;
-            _animation = BaseObject.BorrowObject<Animation>();
-            _display = display;
-            _proxy = proxy;
-            _eventManager = eventManager;
-
-            _animation._init(this);
-            _animation.animations = _armatureData.animations;
-        }
-        /**
-         * @private
-         */
-        internal void _addBoneToBoneList(Bone value)
-        {
-            if (!_bones.Contains(value))
-            {
-                _bonesDirty = true;
-                _bones.Add(value);
-                _animation._timelineStateDirty = true;
-            }
-        }
-        /**
-         * @private
-         */
-        internal void _removeBoneFromBoneList(Bone value)
-        {
-            if (_bones.Contains(value))
-            {
-                _bones.Remove(value);
-                _animation._timelineStateDirty = true;
-            }
-        }
-        /**
-         * @private
-         */
-        internal void _addSlotToSlotList(Slot value)
-        {
-            if (!_slots.Contains(value))
-            {
-                _slotsDirty = true;
-                _slots.Add(value);
-                _animation._timelineStateDirty = true;
-            }
-        }
-        /**
-         * @private
-         */
-        internal void _removeSlotFromSlotList(Slot value)
-        {
-            if (_slots.Contains(value))
-            {
-                _slots.Remove(value);
-                _animation._timelineStateDirty = true;
-            }
-        }
-        /**
-         * @private
-         */
-        public void _sortZOrder(List<int> slotIndices)
-        {
-            var sortedSlots = _armatureData.sortedSlots;
-            var isOriginal = slotIndices == null || slotIndices.Count < 1;
-
-            if (_zOrderDirty || !isOriginal)
-            {
-                for (int i = 0, l = sortedSlots.Count; i < l; ++i)
+                for (int i = 0, l = slotDatas.Count; i < l; ++i)
                 {
-                    var slotIndex = isOriginal ? i : slotIndices[i];
-                    var slotData = sortedSlots[slotIndex];
-                    if (slotData != null)
+                    var slotIndex = isOriginal ? i : slotIndices[offset + i];
+                    if (slotIndex < 0 || slotIndex >= l)
                     {
-                        var slot = GetSlot(slotData.name);
+                        continue;
+                    }
 
-                        if (slot != null)
-                        {
-                            slot._setZorder(i);
-                        }
+                    var slotData = slotDatas[slotIndex];
+                    var slot = this.GetSlot(slotData.name);
+                    if (slot != null)
+                    {
+                        slot._SetZorder(i);
                     }
                 }
 
-                _slotsDirty = true;
-                _zOrderDirty = !isOriginal;
+                this._slotsDirty = true;
+                this._zOrderDirty = !isOriginal;
             }
         }
         /**
+         * @internal
          * @private
          */
-        internal void _bufferAction(ActionData value)
+        internal void _AddBoneToBoneList(Bone value)
         {
-            _actions.Add(value);
-        }
-        /**
-         * @private
-         */
-        internal void _bufferEvent(EventObject value, string type)
-        {
-            value.type = type;
-            value.armature = this;
-            _events.Add(value);
-        }
-        /**
-         * @language zh_CN
-         * 释放骨架。 (回收到对象池)
-         * @version DragonBones 3.0
-         */
-        public void Dispose()
-        {
-            if (_armatureData != null)
+            if (!this._bones.Contains(value))
             {
-                if (_lockDispose)
+                this._bonesDirty = true;
+                this._bones.Add(value);
+                this._animation._timelineDirty = true;
+            }
+        }
+        /**
+         * @internal
+         * @private
+         */
+        internal void _RemoveBoneFromBoneList(Bone value)
+        {
+            if (this._bones.Contains(value))
+            {
+                this._bones.Remove(value);
+                this._animation._timelineDirty = true;
+            }
+        }
+        /**
+         * @internal
+         * @private
+         */
+        internal void _AddSlotToSlotList(Slot value)
+        {
+            if (!this._slots.Contains(value))
+            {
+                this._slotsDirty = true;
+                this._slots.Add(value);
+                this._animation._timelineDirty = true;
+            }
+        }
+        /**
+         * @internal
+         * @private
+         */
+        internal void _RemoveSlotFromSlotList(Slot value)
+        {
+            if (this._slots.Contains(value))
+            {
+                this._slots.Remove(value);
+                this._animation._timelineDirty = true;
+            }
+        }
+        /**
+         * @internal
+         * @private
+         */
+        internal void _BufferAction(ActionData action, bool append)
+        {
+            if (!this._actions.Contains(action))
+            {
+                if (append)
                 {
-                    _delayDispose = true;
+                    this._actions.Add(action);
                 }
                 else
                 {
-                    ReturnToPool();
+                    this._actions.Insert(0, action);
                 }
             }
         }
         /**
+         * 释放骨架。 (回收到对象池)
+         * @version DragonBones 3.0
          * @language zh_CN
+         */
+        public void Dispose()
+        {
+            if (this.armatureData != null)
+            {
+                this._lockUpdate = true;
+
+                if (this._dragonBones != null)
+                {
+                    this._dragonBones.BufferObject(this);
+                }
+            }
+        }
+        /**
+         * @private
+         */
+        public void Init(ArmatureData armatureData, IArmatureProxy proxy, object display, DragonBones dragonBones)
+        {
+            if (this.armatureData != null)
+            {
+                return;
+            }
+
+            this.armatureData = armatureData;
+            this._animation = BaseObject.BorrowObject<Animation>();
+            this._proxy = proxy;
+            this._display = display;
+            this._dragonBones = dragonBones;
+
+            this._proxy.DBInit(this);
+            this._animation.Init(this);
+            this._animation.animations = this.armatureData.animations;
+        }
+        /**
          * 更新骨架和动画。
          * @param passedTime 两帧之间的时间间隔。 (以秒为单位)
-         * @see DragonBones.IAnimateble
-         * @see DragonBones.WorldClock
+         * @see dragonBones.IAnimatable
+         * @see dragonBones.WorldClock
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public void AdvanceTime(float passedTime)
         {
-            if (_armatureData == null)
+            if (this._lockUpdate)
             {
-                DragonBones.Assert(false, "The armature has been disposed.");
-                return;
-            }
-            else if (_armatureData.parent == null)
-            {
-                DragonBones.Assert(false, "The armature data has been disposed.");
                 return;
             }
 
-            var prevCacheFrameIndex = _animation._cacheFrameIndex;
-
-            // Update animations.
-            _animation._advanceTime(passedTime);
-
-            var currentCacheFrameIndex = _animation._cacheFrameIndex;
-
-            // Bones and slots.
-            if (_bonesDirty)
+            if (this.armatureData == null)
             {
-                _bonesDirty = false;
-                _sortBones();
+                Helper.Assert(false, "The armature has been disposed.");
+                return;
+            }
+            else if (this.armatureData.parent == null)
+            {
+                Helper.Assert(false, "The armature data has been disposed.\nPlease make sure dispose armature before call factory.clear().");
+                return;
             }
 
-            if (_slotsDirty)
+            var prevCacheFrameIndex = this._cacheFrameIndex;
+
+            // Update nimation.
+            this._animation.AdvanceTime(passedTime);
+
+            // Sort bones and slots.
+            if (this._bonesDirty)
             {
-                _slotsDirty = false;
-                _sortSlots();
+                this._bonesDirty = false;
+                this._SortBones();
             }
 
-            int i = 0, l = 0;
-
-            if (currentCacheFrameIndex < 0 || currentCacheFrameIndex != prevCacheFrameIndex)
+            if (this._slotsDirty)
             {
-                // Update bones.
-                for (i = 0, l = _bones.Count; i < l; ++i)
+                this._slotsDirty = false;
+                this._SortSlots();
+            }
+
+            // Update bones and slots.
+            if (this._cacheFrameIndex < 0 || this._cacheFrameIndex != prevCacheFrameIndex)
+            {
+                int i = 0, l = 0;
+                for (i = 0, l = this._bones.Count; i < l; ++i)
                 {
-                    var bone = _bones[i];
-                    bone._update(currentCacheFrameIndex);
+                    this._bones[i].Update(this._cacheFrameIndex);
                 }
 
-                // Update slots.
-                for (i = 0, l = _slots.Count; i < l; ++i)
+                for (i = 0, l = this._slots.Count; i < l; ++i)
                 {
-                    _slots[i]._update(currentCacheFrameIndex);
+                    this._slots[i].Update(this._cacheFrameIndex);
                 }
             }
 
-            //
-            if (!_lockDispose)
+            if (this._actions.Count > 0)
             {
-                _lockDispose = true;
-
-                // Events. (Dispatch event before action.)
-                l = _events.Count;
-                if (l > 0)
+                this._lockUpdate = true;
+                foreach (var action in this._actions)
                 {
-                    for (i = 0; i < l; ++i)
+                    if (action.type == ActionType.Play)
                     {
-                        var eventObject = _events[i];
-                        _proxy.DispatchEvent(eventObject.type, eventObject);
-
-                        if (eventObject.type == EventObject.SOUND_EVENT)
-                        {
-                            _eventManager.DispatchEvent(eventObject.type, eventObject);
-                        }
-
-                        eventObject.ReturnToPool();
+                        this._animation.FadeIn(action.name);
                     }
-
-                    _events.Clear();
                 }
 
-                // Actions.
-                l = _actions.Count;
-                if (l > 0)
-                {
-                    for (i = 0; i < l; ++i)
-                    {
-                        var action = _actions[i];
-                        if (action.slot != null)
-                        {
-                            var slot = GetSlot(action.slot.name);
-                            if (slot != null)
-                            {
-                                var childArmature = slot.childArmature;
-                                if (childArmature != null)
-                                {
-                                    childArmature._doAction(action);
-                                }
-                            }
-                        }
-                        else if (action.bone != null)
-                        {
-                            for (int iA = 0, lA = _slots.Count; iA < lA; ++iA)
-                            {
-                                var childArmature = _slots[iA].childArmature;
-                                if (childArmature != null)
-                                {
-                                    childArmature._doAction(action);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            _doAction(action);
-                        }
-                    }
-
-                    _actions.Clear();
-                }
-
-                _lockDispose = false;
+                this._actions.Clear();
+                this._lockUpdate = false;
             }
 
-            if (_delayDispose)
-            {
-                ReturnToPool();
-            }
+            this._proxy.DBUpdate();
         }
         /**
-         * @language zh_CN
          * 更新骨骼和插槽。 (当骨骼没有动画状态或动画状态播放完成时，骨骼将不在更新)
          * @param boneName 指定的骨骼名称，如果未设置，将更新所有骨骼。
          * @param updateSlotDisplay 是否更新插槽的显示对象。
-         * @see DragonBones.Bone
-         * @see DragonBones.Slot
+         * @see dragonBones.Bone
+         * @see dragonBones.Slot
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public void InvalidUpdate(string boneName = null, bool updateSlotDisplay = false)
         {
+
             if (!string.IsNullOrEmpty(boneName))
             {
-                var bone = GetBone(boneName);
+                Bone bone = this.GetBone(boneName);
                 if (bone != null)
                 {
                     bone.InvalidUpdate();
 
                     if (updateSlotDisplay)
                     {
-                        for (int i = 0, l = _slots.Count; i < l; ++i)
+                        foreach (var slot in this._slots)
                         {
-                            var slot = _slots[i];
                             if (slot.parent == bone)
                             {
                                 slot.InvalidUpdate();
@@ -511,32 +442,31 @@ namespace DragonBones
             }
             else
             {
-                for (int i = 0, l = _bones.Count; i < l; ++i)
+                foreach (var bone in this._bones)
                 {
-                    _bones[i].InvalidUpdate();
+                    bone.InvalidUpdate();
                 }
 
                 if (updateSlotDisplay)
                 {
-                    for (int i = 0, l = _slots.Count; i < l; ++i)
+                    foreach (var slot in this._slots)
                     {
-                        _slots[i].InvalidUpdate();
+                        slot.InvalidUpdate();
                     }
                 }
             }
         }
         /**
-         * @language zh_CN
          * 判断点是否在所有插槽的自定义包围盒内。
          * @param x 点的水平坐标。（骨架内坐标系）
          * @param y 点的垂直坐标。（骨架内坐标系）
          * @version DragonBones 5.0
+         * @language zh_CN
          */
         public Slot ContainsPoint(float x, float y)
         {
-            for (int i = 0, l = _slots.Count; i < l; ++i)
+            foreach (var slot in this._slots)
             {
-                var slot = _slots[i];
                 if (slot.ContainsPoint(x, y))
                 {
                     return slot;
@@ -546,7 +476,6 @@ namespace DragonBones
             return null;
         }
         /**
-         * @language zh_CN
          * 判断线段是否与骨架的所有插槽的自定义包围盒相交。
          * @param xA 线段起点的水平坐标。（骨架内坐标系）
          * @param yA 线段起点的垂直坐标。（骨架内坐标系）
@@ -557,14 +486,13 @@ namespace DragonBones
          * @param normalRadians 碰撞点处包围盒切线的法线弧度。 [x: 第一个碰撞点处切线的法线弧度, y: 第二个碰撞点处切线的法线弧度]
          * @returns 线段从起点到终点相交的第一个自定义包围盒的插槽。
          * @version DragonBones 5.0
+         * @language zh_CN
          */
-        public Slot intersectsSegment(
-            float xA, float yA, float xB, float yB,
-            Point intersectionPointA = null,
-            Point intersectionPointB = null,
-            Point normalRadians = null
-        )
-        {
+         public Slot IntersectsSegment(float xA, float yA, float xB, float yB,
+                                        Point intersectionPointA = null,
+                                        Point intersectionPointB = null,
+                                        Point normalRadians = null)
+         {
             var isV = xA == xB;
             var dMin = 0.0f;
             var dMax = 0.0f;
@@ -577,9 +505,8 @@ namespace DragonBones
             Slot intSlotA = null;
             Slot intSlotB = null;
 
-            for (int i = 0, l = _slots.Count; i < l; ++i)
+            foreach (var slot in this._slots)
             {
-                var slot = _slots[i];
                 var intersectionCount = slot.IntersectsSegment(xA, yA, xB, yB, intersectionPointA, intersectionPointB, normalRadians);
                 if (intersectionCount > 0)
                 {
@@ -662,16 +589,16 @@ namespace DragonBones
             return intSlotA;
         }
         /**
-         * @language zh_CN
-         * 获取骨骼。
+         * 获取指定名称的骨骼。
          * @param name 骨骼的名称。
          * @returns 骨骼。
-         * @see DragonBones.Bone
+         * @see dragonBones.Bone
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public Bone GetBone(string name)
         {
-            foreach (var bone in _bones)
+            foreach (var bone in this._bones)
             {
                 if (bone.name == name)
                 {
@@ -682,30 +609,30 @@ namespace DragonBones
             return null;
         }
         /**
-         * @language zh_CN
          * 通过显示对象获取骨骼。
          * @param display 显示对象。
          * @returns 包含这个显示对象的骨骼。
-         * @see DragonBones.Bone
+         * @see dragonBones.Bone
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public Bone GetBoneByDisplay(object display)
         {
-            var slot = GetSlotByDisplay(display);
+            var slot = this.GetSlotByDisplay(display);
 
             return slot != null ? slot.parent : null;
         }
         /**
-         * @language zh_CN
          * 获取插槽。
          * @param name 插槽的名称。
          * @returns 插槽。
-         * @see DragonBones.Slot
+         * @see dragonBones.Slot
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public Slot GetSlot(string name)
         {
-            foreach (var slot in _slots)
+            foreach (var slot in this._slots)
             {
                 if (slot.name == name)
                 {
@@ -716,18 +643,18 @@ namespace DragonBones
             return null;
         }
         /**
-         * @language zh_CN
          * 通过显示对象获取插槽。
          * @param display 显示对象。
          * @returns 包含这个显示对象的插槽。
-         * @see DragonBones.Slot
+         * @see dragonBones.Slot
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public Slot GetSlotByDisplay(object display)
         {
             if (display != null)
             {
-                foreach (var slot in _slots)
+                foreach (var slot in this._slots)
                 {
                     if (slot.display == display)
                     {
@@ -741,148 +668,118 @@ namespace DragonBones
         /**
          * @deprecated
          */
-        public void AddBone(Bone value, string parentName = null)
+        public void AddBone(Bone value, string parentName)
         {
-            if (value != null)
-            {
-                value._setArmature(this);
-                value._setParent(!string.IsNullOrEmpty(parentName) ? GetBone(parentName) : null);
-            }
-            else
-            {
-                DragonBones.Assert(false, DragonBones.ARGUMENT_ERROR);
-            }
+            Helper.Assert(value != null, "add bone is null");
+
+            value._SetArmature(this);
+            value._SetParent(!string.IsNullOrEmpty(parentName) ? this.GetBone(parentName) : null);
+        }
+        /**
+         * @deprecated
+         */
+        public void RemoveBone(Bone value)
+        {
+            Helper.Assert(value != null && value.armature == this, "bone is null");
+
+            value._SetParent(null);
+            value._SetArmature(null);
         }
         /**
          * @deprecated
          */
         public void AddSlot(Slot value, string parentName)
         {
-            var bone = GetBone(parentName);
-            if (bone != null)
-            {
-                value._setArmature(this);
-                value._setParent(bone);
-            }
-            else
-            {
-                DragonBones.Assert(false, DragonBones.ARGUMENT_ERROR);
-            }
+            var bone = this.GetBone(parentName);
+
+            Helper.Assert(value != null && bone != null, "slot value is null");
+
+            value._SetArmature(this);
+            value._SetParent(bone);
         }
         /**
-         * @language zh_CN
-         * 替换骨架的主贴图，根据渲染引擎的不同，提供不同的贴图类型。
-         * @param texture 贴图。
-         * @version DragonBones 4.5
+         * @deprecated
          */
-        public void ReplaceTexture(object texture)
+        public void RemoveSlot(Slot value)
         {
-            replacedTexture = texture;
+            Helper.Assert(value != null && value.armature == this, "remove slot is null");
+
+            value._SetParent(null);
+            value._SetArmature(null);
         }
         /**
-         * @language zh_CN
          * 获取所有骨骼。
-         * @see DragonBones.Bone
+         * @see dragonBones.Bone
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public List<Bone> GetBones()
         {
-            return _bones;
+            return this._bones;
         }
         /**
-         * @language zh_CN
          * 获取所有插槽。
-         * @see DragonBones.Slot
+         * @see dragonBones.Slot
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public List<Slot> GetSlots()
         {
-            return _slots;
-        }
-        /**
-         * @language zh_CN
-         * 骨架名称。
-         * @see DragonBones.ArmatureData#name
-         * @version DragonBones 3.0
-         */
-        public string name
-        {
-            get { return _armatureData != null ? _armatureData.name : null; }
-        }
-        /**
-         * @language zh_CN
-         * 获取骨架数据。
-         * @see DragonBones.ArmatureData
-         * @version DragonBones 4.5
-         */
-        public ArmatureData armatureData
-        {
-            get { return _armatureData; }
-        }
-        /**
-         * @language zh_CN
-         * 获得动画控制器。
-         * @see DragonBones.Animation
-         * @version DragonBones 3.0
-         */
-        public Animation animation
-        {
-            get { return _animation; }
-        }
-        /**
-         * @language zh_CN
-         * 获取事件监听器。
-         * @version DragonBones 3.0
-         */
-        public IEventDispatcher<EventObject> eventDispatcher
-        {
-            get { return _proxy; }
-        }
-        /**
-         * @language zh_CN
-         * 获取显示容器，插槽的显示对象都会以此显示容器为父级，根据渲染平台的不同，类型会不同，通常是 DisplayObjectContainer 类型。
-         * @version DragonBones 3.0
-         */
-        public object display
-        {
-            get { return _display; }
-        }
-        /**
-         * @language zh_CN
-         * 获取父插槽。 (当此骨架是某个骨架的子骨架时，可以通过此属性向上查找从属关系)
-         * @see DragonBones.Slot
-         * @version DragonBones 4.5
-         */
-        public Slot parent
-        {
-            get { return _parent; }
+            return this._slots;
         }
 
+        public bool flipX
+        {
+            get { return this._flipX; }
+            set
+            {
+                if (this._flipX == value)
+                {
+                    return;
+                }
+
+                this._flipX = value;
+                this.InvalidUpdate();
+            }
+        }
+        public bool flipY
+        {
+            get { return this._flipY; }
+            set
+            {
+                if (this._flipY == value)
+                {
+                    return;
+                }
+
+                this._flipY = value;
+                this.InvalidUpdate();
+            }
+        }
         /**
-         * @language zh_CN
          * 动画缓存帧率，当设置的值大于 0 的时，将会开启动画缓存。
          * 通过将动画数据缓存在内存中来提高运行性能，会有一定的内存开销。
          * 帧率不宜设置的过高，通常跟动画的帧率相当且低于程序运行的帧率。
          * 开启动画缓存后，某些功能将会失效，比如 Bone 和 Slot 的 offset 属性等。
-         * @see DragonBones.DragonBonesData#frameRate
-         * @see DragonBones.ArmatureData#frameRate
+         * @see dragonBones.DragonBonesData#frameRate
+         * @see dragonBones.ArmatureData#frameRate
          * @version DragonBones 4.5
+         * @language zh_CN
          */
         public uint cacheFrameRate
         {
-            get { return _armatureData.cacheFrameRate; }
-
+            get { return this.armatureData.cacheFrameRate; }
             set
             {
-                if (_armatureData.cacheFrameRate != value)
+                if (this.armatureData.cacheFrameRate != value)
                 {
-                    _armatureData.CacheFrames(value);
+                    this.armatureData.CacheFrames(value);
 
                     // Set child armature frameRate.
-                    foreach (var slot in _slots)
+                    foreach (var slot in this._slots)
                     {
                         var childArmature = slot.childArmature;
-                        if (childArmature != null && childArmature.cacheFrameRate == 0)
+                        if (childArmature != null)
                         {
                             childArmature.cacheFrameRate = value;
                         }
@@ -891,41 +788,40 @@ namespace DragonBones
             }
         }
         /**
-         * @inheritDoc
+         * 骨架名称。
+         * @see dragonBones.ArmatureData#name
+         * @version DragonBones 3.0
+         * @language zh_CN
          */
-        public WorldClock clock
+        public string name
         {
-            get { return _clock; }
-            set
-            {
-                if (_clock == value)
-                {
-                    return;
-                }
-
-                var prevClock = _clock;
-                _clock = value;
-
-                if (prevClock != null)
-                {
-                    prevClock.Remove(this);
-                }
-
-                if (_clock != null)
-                {
-                    _clock.Add(this);
-                }
-
-                // Update childArmature clock.
-                for (int i = 0, l = _slots.Count; i < l; ++i)
-                {
-                    var childArmature = _slots[i].childArmature;
-                    if (childArmature != null)
-                    {
-                        childArmature.clock = _clock;
-                    }
-                }
-            }
+            get { return this.armatureData.name; }
+        }
+        /**
+         * 获得动画控制器。
+         * @see dragonBones.Animation
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
+        public Animation animation
+        {
+            get { return this._animation; }
+        }
+        /**
+         * @pivate
+         */
+        public IArmatureProxy proxy
+        {
+            get { return this._proxy; }
+        }
+        /**
+         * 获取显示容器，插槽的显示对象都会以此显示容器为父级，根据渲染平台的不同，类型会不同，通常是 DisplayObjectContainer 类型。
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
+        public object display
+        {
+            get { return this._display; }
         }
         /**
          * @language zh_CN
@@ -934,83 +830,74 @@ namespace DragonBones
          */
         public object replacedTexture
         {
-            get { return _replacedTexture; }
+            get { return this._replacedTexture; }
             set
             {
-                if (_replacedTexture == value)
+                if (this._replacedTexture == value)
                 {
                     return;
                 }
 
-                if (_replaceTextureAtlasData != null)
+                if (this._replaceTextureAtlasData != null)
                 {
-                    _replaceTextureAtlasData.ReturnToPool();
-                    _replaceTextureAtlasData = null;
+                    this._replaceTextureAtlasData.ReturnToPool();
+                    this._replaceTextureAtlasData = null;
                 }
 
-                _replacedTexture = value;
+                this._replacedTexture = value;
 
-                for (int i = 0, l = _slots.Count; i < l; ++i)
+                foreach (var slot in this._slots)
                 {
-                    var slot = _slots[i];
                     slot.InvalidUpdate();
-                    slot._update(-1);
+                    slot.Update(-1);
                 }
             }
         }
-
-        public bool flipX
+        /**
+         * @inheritDoc
+         */
+        public WorldClock clock
         {
-            get { return _flipX; }
-
+            get { return this._clock; }
             set
             {
-                if (_flipX == value)
+                if (this._clock == value)
                 {
                     return;
                 }
 
-                _flipX = value;
-                
-                // Flipping child armature.
-                foreach (var slot in _slots)
+                if (this._clock != null)
+                {
+                    this._clock.Remove(this);
+                }
+
+                this._clock = value;
+
+                if (this._clock != null)
+                {
+                    this._clock.Add(this);
+                }
+
+                // Update childArmature clock.
+                foreach (var slot in this._slots)
                 {
                     var childArmature = slot.childArmature;
                     if (childArmature != null)
                     {
-                        childArmature.flipX = _flipX;
+                        childArmature.clock = this._clock;
                     }
                 }
-
-                InvalidUpdate();
             }
         }
-
-        public bool flipY
+        /**
+         * 获取父插槽。 (当此骨架是某个骨架的子骨架时，可以通过此属性向上查找从属关系)
+         * @see dragonBones.Slot
+         * @version DragonBones 4.5
+         * @language zh_CN
+         */
+        public Slot parent
         {
-            get { return _flipY; }
-
-            set
-            {
-                if (_flipY == value)
-                {
-                    return;
-                }
-
-                _flipY = value;
-
-                // Flipping child armature.
-                foreach (var slot in _slots)
-                {
-                    var childArmature = slot.childArmature;
-                    if (childArmature != null)
-                    {
-                        childArmature.flipY = _flipY;
-                    }
-                }
-
-                InvalidUpdate();
-            }
+            get { return this._parent; }
         }
     }
 }

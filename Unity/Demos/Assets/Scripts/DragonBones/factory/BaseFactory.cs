@@ -7,37 +7,40 @@ namespace DragonBones
      */
     public class BuildArmaturePackage
     {
-        public string dataName = null;
-        public string textureAtlasName = null;
-        public DragonBonesData data = null;
-        public ArmatureData armature = null;
-        public SkinData skin = null;
+        public string dataName = "";
+        public string textureAtlasName = "";
+        public DragonBonesData data;
+        public ArmatureData armature;
+        public SkinData skin;
     }
     /**
-     * @language zh_CN
      * 创建骨架的基础工厂。 (通常只需要一个全局工厂实例)
-     * @see DragonBones.DragonBonesData
-     * @see DragonBones.TextureAtlasData
-     * @see DragonBones.ArmatureData
-     * @see DragonBones.Armature
+     * @see dragonBones.DragonBonesData
+     * @see dragonBones.TextureAtlasData
+     * @see dragonBones.ArmatureData
+     * @see dragonBones.Armature
      * @version DragonBones 3.0
+     * @language zh_CN
      */
     public abstract class BaseFactory
     {
-        protected static readonly ObjectDataParser _defaultDataParser = new ObjectDataParser();
-        /**
-         * @language zh_CN
-         * 是否开启共享搜索。
-         * 如果开启，创建一个骨架时，可以从多个龙骨数据中寻找骨架数据，或贴图集数据中寻找贴图数据。 (通常在有共享导出的数据时开启)
-         * @see DragonBones.DragonBonesData#autoSearch
-         * @see DragonBones.TextureAtlasData#autoSearch
-         * @version DragonBones 4.5
-         */
-        public bool autoSearch = false;
         /**
          * @private
          */
-        protected DataParser _dataParser = null;
+        protected static ObjectDataParser _objectParser = null;
+        /**
+         * @private
+         */
+        protected static BinaryDataParser _binaryParser = null;
+        /**
+         * 是否开启共享搜索。
+         * 如果开启，创建一个骨架时，可以从多个龙骨数据中寻找骨架数据，或贴图集数据中寻找贴图数据。 (通常在有共享导出的数据时开启)
+         * @see dragonBones.DragonBonesData#autoSearch
+         * @see dragonBones.TextureAtlasData#autoSearch
+         * @version DragonBones 4.5
+         * @language zh_CN
+         */
+        public bool autoSearch = false;
         /**
          * @private
          */
@@ -49,26 +52,47 @@ namespace DragonBones
         /** 
          * @private 
          */
+        public DragonBones _dragonBones = null;
+        /**
+         * @private
+         */
+        protected DataParser _dataParser = null;
+        /**
+         * 创建一个工厂。 (通常只需要一个全局工厂实例)
+         * @param dataParser 龙骨数据解析器，如果不设置，则使用默认解析器。
+         * @version DragonBones 3.0
+         * @language zh_CN
+         */
         public BaseFactory(DataParser dataParser = null)
         {
-            _dataParser = dataParser;
-
-            if (_dataParser == null)
+            if (BaseFactory._objectParser == null)
             {
-                _dataParser = _defaultDataParser;
+                BaseFactory._objectParser = new ObjectDataParser();
             }
+
+            if (BaseFactory._binaryParser == null)
+            {
+                BaseFactory._binaryParser = new BinaryDataParser();
+            }
+
+            this._dataParser = dataParser != null ? dataParser : BaseFactory._objectParser;
         }
         /** 
          * @private 
          */
-        protected TextureData _getTextureData(string textureAtlasName, string textureName)
+        protected bool _IsSupportMesh()
         {
-            if (_textureAtlasDataMap.ContainsKey(textureAtlasName))
+            return true;
+        }
+        /** 
+         * @private 
+         */
+        protected TextureData _GetTextureData(string textureAtlasName, string textureName)
+        {
+            if (this._textureAtlasDataMap.ContainsKey(textureAtlasName))
             {
-                var textureAtlasDataList = _textureAtlasDataMap[textureAtlasName];
-                for (int i = 0, l = textureAtlasDataList.Count; i < l; ++i)
+                foreach (var textureAtlasData in this._textureAtlasDataMap[textureAtlasName])
                 {
-                    var textureAtlasData = textureAtlasDataList[i];
                     var textureData = textureAtlasData.GetTexture(textureName);
                     if (textureData != null)
                     {
@@ -77,13 +101,13 @@ namespace DragonBones
                 }
             }
 
-            if (autoSearch) // Will be search all data, if the autoSearch is true.
+            if (this.autoSearch)
             {
-                foreach (var textureAtlasDataList in _textureAtlasDataMap.Values)
+                // Will be search all data, if the autoSearch is true.
+                foreach (var values in this._textureAtlasDataMap.Values)
                 {
-                    for (int i = 0, l = textureAtlasDataList.Count; i < l; ++i)
+                    foreach (var textureAtlasData in values)
                     {
-                        var textureAtlasData = textureAtlasDataList[i];
                         if (textureAtlasData.autoSearch)
                         {
                             var textureData = textureAtlasData.GetTexture(textureName);
@@ -101,7 +125,11 @@ namespace DragonBones
         /**
          * @private
          */
-        protected bool _fillBuildArmaturePackage(BuildArmaturePackage dataPackage, string dragonBonesName, string armatureName, string skinName, string textureAtlasName)
+        protected bool _FillBuildArmaturePackage(BuildArmaturePackage dataPackage,
+                                                string dragonBonesName,
+                                                string armatureName,
+                                                string skinName,
+                                                string textureAtlasName)
         {
             DragonBonesData dragonBonesData = null;
             ArmatureData armatureData = null;
@@ -109,24 +137,25 @@ namespace DragonBones
             var isAvailableName = !string.IsNullOrEmpty(dragonBonesName);
             if (isAvailableName)
             {
-                if (_dragonBonesDataMap.ContainsKey(dragonBonesName))
+                if (this._dragonBonesDataMap.ContainsKey(dragonBonesName))
                 {
-                    dragonBonesData = _dragonBonesDataMap[dragonBonesName];
+                    dragonBonesData = this._dragonBonesDataMap[dragonBonesName];
                     armatureData = dragonBonesData.GetArmature(armatureName);
                 }
             }
 
-            if (armatureData == null && (!isAvailableName || autoSearch)) // Will be search all data, if do not give a data name or the autoSearch is true.
+            if (armatureData == null && (!isAvailableName || this.autoSearch))
             {
-                foreach (var pair in _dragonBonesDataMap)
+                // Will be search all data, if do not give a data name or the autoSearch is true.
+                foreach (var key in this._dragonBonesDataMap.Keys)
                 {
-                    dragonBonesData = pair.Value;
+                    dragonBonesData = this._dragonBonesDataMap[key];
                     if (!isAvailableName || dragonBonesData.autoSearch)
                     {
                         armatureData = dragonBonesData.GetArmature(armatureName);
                         if (armatureData != null)
                         {
-                            dragonBonesName = dragonBonesData.name;
+                            dragonBonesName = key;
                             break;
                         }
                     }
@@ -139,7 +168,26 @@ namespace DragonBones
                 dataPackage.textureAtlasName = textureAtlasName;
                 dataPackage.data = dragonBonesData;
                 dataPackage.armature = armatureData;
-                dataPackage.skin = armatureData.GetSkin(skinName);
+                dataPackage.skin = null;
+
+                if (!string.IsNullOrEmpty(skinName))
+                {
+                    dataPackage.skin = armatureData.GetSkin(skinName);
+                    if (dataPackage.skin == null && this.autoSearch)
+                    {
+                        foreach (var k in this._dragonBonesDataMap.Keys)
+                        {
+                            var skinDragonBonesData = this._dragonBonesDataMap[k];
+                            var skinArmatureData = skinDragonBonesData.GetArmature(skinName);
+                            if (skinArmatureData != null)
+                            {
+                                dataPackage.skin = skinArmatureData.defaultSkin;
+                                break;
+                            }
+                        }
+                    }
+                }
+
                 if (dataPackage.skin == null)
                 {
                     dataPackage.skin = armatureData.defaultSkin;
@@ -153,14 +201,14 @@ namespace DragonBones
         /**
          * @private
          */
-        protected void _buildBones(BuildArmaturePackage dataPackage, Armature armature)
+        protected void _BuildBones(BuildArmaturePackage dataPackage, Armature armature)
         {
             var bones = dataPackage.armature.sortedBones;
             for (int i = 0, l = bones.Count; i < l; ++i)
             {
                 var boneData = bones[i];
                 var bone = BaseObject.BorrowObject<Bone>();
-                bone._init(boneData);
+                bone.Init(boneData);
 
                 if (boneData.parent != null)
                 {
@@ -168,337 +216,502 @@ namespace DragonBones
                 }
                 else
                 {
-                    armature.AddBone(bone);
+                    armature.AddBone(bone, string.Empty);
                 }
 
-                if (boneData.ik != null)
+                var constraints = boneData.constraints;
+
+                for (int j = 0, lJ = constraints.Count; j < lJ; ++j)
                 {
-                    bone.ikBendPositive = boneData.bendPositive;
-                    bone.ikWeight = boneData.weight;
-                    bone._setIK(armature.GetBone(boneData.ik.name), boneData.chain, boneData.chainIndex);
+                    var constraintData = constraints[j];
+                    var target = armature.GetBone(constraintData.target.name);
+                    if (target == null)
+                    {
+                        continue;
+                    }
+
+                    // TODO more constraint type.
+                    var ikConstraintData = constraintData as IKConstraintData;
+                    var constraint = BaseObject.BorrowObject<IKConstraint>();
+                    var root = ikConstraintData.root != null ? armature.GetBone(ikConstraintData.root.name) : null;
+                    constraint.target = target;
+                    constraint.bone = bone;
+                    constraint.root = root;
+                    constraint.bendPositive = ikConstraintData.bendPositive;
+                    constraint.scaleEnabled = ikConstraintData.scaleEnabled;
+                    constraint.weight = ikConstraintData.weight;
+
+                    if (root != null)
+                    {
+                        root.AddConstraint(constraint);
+                    }
+                    else
+                    {
+                        bone.AddConstraint(constraint);
+                    }
                 }
             }
         }
         /**
          * @private
          */
-        protected void _buildSlots(BuildArmaturePackage dataPackage, Armature armature)
+        protected void _BuildSlots(BuildArmaturePackage dataPackage, Armature armature)
         {
             var currentSkin = dataPackage.skin;
             var defaultSkin = dataPackage.armature.defaultSkin;
-            var skinSlotDatas = new Dictionary<string, SkinSlotData>();
-
-            foreach (var skinSlotData in defaultSkin.slots.Values)
+            if (currentSkin == null || defaultSkin == null)
             {
-                skinSlotDatas[skinSlotData.slot.name] = skinSlotData;
+                return;
+            }
+
+            Dictionary<string, List<DisplayData>> skinSlots = new Dictionary<string, List<DisplayData>>();
+            foreach (var key in defaultSkin.displays.Keys)
+            {
+                var displays = defaultSkin.GetDisplays(key);
+                skinSlots[key] = displays;
             }
 
             if (currentSkin != defaultSkin)
             {
-                foreach (var skinSlotData in currentSkin.slots.Values)
+                foreach (var k in currentSkin.displays.Keys)
                 {
-                    skinSlotDatas[skinSlotData.slot.name] = skinSlotData;
+                    var displays = currentSkin.GetDisplays(k);
+                    skinSlots[k] = displays;
                 }
             }
 
-            var slots = dataPackage.armature.sortedSlots;
-            for (int i = 0, l = slots.Count; i < l; ++i)
+            foreach (var slotData in dataPackage.armature.sortedSlots)
             {
-                var slotData = slots[i];
-                if (!skinSlotDatas.ContainsKey(slotData.name))
+                var displays = skinSlots.ContainsKey(slotData.name)? skinSlots[slotData.name] : null;
+                var slot = this._BuildSlot(dataPackage, slotData, displays, armature);
+                armature.AddSlot(slot, slotData.parent.name);
+
+                if (displays != null)
                 {
-                    continue;
+                    var displayList = new List<object>();
+
+                    // for (const displayData of displays) {
+                    for (int i = 0, l = displays.Count; i < l; ++i)
+                    {
+                        var displayData = displays[i];
+
+                        if (displayData != null)
+                        {
+                            displayList.Add(this._GetSlotDisplay(dataPackage, displayData, null, slot));
+                        }
+                        else
+                        {
+                            displayList.Add(null);
+                        }
+                    }
+
+                    slot._SetDisplayList(displayList);
                 }
 
-                var skinSlotData = skinSlotDatas[slotData.name];
-                var slot = _generateSlot(dataPackage, skinSlotData, armature);
-                if (slot != null)
-                {
-                    armature.AddSlot(slot, slotData.parent.name);
-                    slot._setDisplayIndex(slotData.displayIndex);
-                }
+                slot._SetDisplayIndex(slotData.displayIndex, true);
             }
         }
         /**
          * @private
          */
-        protected void _replaceSlotDisplay(BuildArmaturePackage dataPackage, DisplayData displayData, Slot slot, int displayIndex)
+        protected object _GetSlotDisplay(BuildArmaturePackage dataPackage, DisplayData displayData, DisplayData rawDisplayData, Slot slot)
+        {
+            var dataName = dataPackage != null ? dataPackage.dataName : displayData.parent.parent.parent.name;
+            object display = null;
+            switch (displayData.type)
+            {
+                case DisplayType.Image:
+                    var imageDisplayData = displayData as ImageDisplayData;
+                    if (imageDisplayData.texture == null)
+                    {
+                        imageDisplayData.texture = this._GetTextureData(dataName, displayData.path);
+                    }
+                    else if (dataPackage != null && !string.IsNullOrEmpty(dataPackage.textureAtlasName))
+                    {
+                        imageDisplayData.texture = this._GetTextureData(dataPackage.textureAtlasName, displayData.path);
+                    }
+
+                    if (rawDisplayData != null && rawDisplayData.type == DisplayType.Mesh && this._IsSupportMesh())
+                    {
+                        display = slot.meshDisplay;
+                    }
+                    else
+                    {
+                        display = slot.rawDisplay;
+                    }
+                    break;
+                case DisplayType.Mesh:
+                    var meshDisplayData = displayData as MeshDisplayData;
+                    if (meshDisplayData.texture == null)
+                    {
+                        meshDisplayData.texture = this._GetTextureData(dataName, meshDisplayData.path);
+                    }
+                    else if (dataPackage != null && !string.IsNullOrEmpty(dataPackage.textureAtlasName))
+                    {
+                        meshDisplayData.texture = this._GetTextureData(dataPackage.textureAtlasName, meshDisplayData.path);
+                    }
+
+                    if (this._IsSupportMesh())
+                    {
+                        display = slot.meshDisplay;
+                    }
+                    else
+                    {
+                        display = slot.rawDisplay;
+                    }
+                    break;
+                case DisplayType.Armature:
+                    var armatureDisplayData = displayData as ArmatureDisplayData;
+                    var childArmature = this._BuildChildArmatrue(dataPackage, slot, displayData);
+                    //var childArmature = this.BuildArmature(armatureDisplayData.path, dataName, null, dataPackage != null ? dataPackage.textureAtlasName : null);
+                    if (childArmature != null)
+                    {
+                        childArmature.inheritAnimation = armatureDisplayData.inheritAnimation;
+                        if (!childArmature.inheritAnimation)
+                        {
+                            var actions = armatureDisplayData.actions.Count > 0 ? armatureDisplayData.actions : childArmature.armatureData.defaultActions;
+                            if (actions.Count > 0)
+                            {
+                                foreach (var action in actions)
+                                {
+                                    childArmature._BufferAction(action, true);
+                                }
+                            }
+                            else
+                            {
+                                childArmature.animation.Play();
+                            }
+                        }
+
+                        armatureDisplayData.armature = childArmature.armatureData; // 
+                    }
+
+                    display = childArmature;
+                    break;
+                case DisplayType.BoundingBox:
+                    break;
+            }
+
+            return display;
+        }
+
+        protected virtual Armature _BuildChildArmatrue(BuildArmaturePackage dataPackage, Slot slot, DisplayData displayData)
+        {
+            return BuildArmature(displayData.path, dataPackage.dataName);
+            //var childDisplayName = slotData.name + " (" + displayData.path + ")"; //
+            //var childTransform = slotsRoot.Find(childDisplayName);
+            //var childArmature = childTransform == null ?
+            //    BuildArmature(displayData.path, dataPackage.dataName) :
+            //    BuildArmatureComponent(displayData.path, dataPackage.dataName, null, dataPackage.textureAtlasName, childTransform.gameObject).armature;
+        }
+        /**
+         * @private
+         */
+        protected void _ReplaceSlotDisplay(BuildArmaturePackage dataPackage, DisplayData displayData, Slot slot, int displayIndex)
         {
             if (displayIndex < 0)
             {
                 displayIndex = slot.displayIndex;
             }
 
-            if (displayIndex >= 0)
+            if (displayIndex < 0)
             {
-                var displayList = slot.displayList; // Copy.
-                if (displayList.Count <= displayIndex)
-                {
-                    DragonBones.ResizeList(displayList, displayIndex + 1, null);
-                }
-
-                if (slot._replacedDisplayDatas.Count <= displayIndex)
-                {
-                    DragonBones.ResizeList(slot._replacedDisplayDatas, displayIndex + 1, null);
-                }
-
-                slot._replacedDisplayDatas[displayIndex] = displayData;
-
-                if (displayData.type == DisplayType.Armature)
-                {
-                    var childArmature = BuildArmature(displayData.path, dataPackage.dataName);
-                    displayList[displayIndex] = childArmature;
-                }
-                else
-                {
-                    if (displayData.texture == null)
-                    {
-                        displayData.texture = _getTextureData(dataPackage.dataName, displayData.path);
-                    }
-
-                    var displayDatas = slot.skinSlotData.displays;
-                    if (
-                        displayData.mesh != null ||
-                        (displayIndex < displayDatas.Count && displayDatas[displayIndex].mesh != null)
-                    )
-                    {
-                        displayList[displayIndex] = slot.meshDisplay;
-                    }
-                    else
-                    {
-                        displayList[displayIndex] = slot.rawDisplay;
-                    }
-                }
-
-                slot.displayList = displayList;
+                displayIndex = 0;
             }
+
+            slot.ReplaceDisplayData(displayData, displayIndex);
+
+            var displayList = slot.displayList; // Copy.
+            if (displayList.Count <= displayIndex)
+            {
+                displayList.ResizeList(displayIndex + 1);
+
+                for (int i = 0, l = displayList.Count; i < l; ++i)
+                {
+                    // Clean undefined.
+                    displayList[i] = null;
+                }
+            }
+
+            if (displayData != null)
+            {
+                var rawDisplayDatas = slot.rawDisplayDatas;
+                DisplayData rawDisplayData = null;
+
+                if (rawDisplayDatas != null)
+                {
+                    if (displayIndex < rawDisplayDatas.Count)
+                    {
+                        rawDisplayData = rawDisplayDatas[displayIndex];
+                    }
+                }
+
+                displayList[displayIndex] = this._GetSlotDisplay(dataPackage, displayData, rawDisplayData, slot);
+            }
+            else
+            {
+                displayList[displayIndex] = null;
+            }
+
+            slot.displayList = displayList;
         }
         /** 
          * @private 
          */
-        protected abstract TextureAtlasData _generateTextureAtlasData(TextureAtlasData textureAtlasData, object textureAtlas);
+        protected abstract TextureAtlasData _BuildTextureAtlasData(TextureAtlasData textureAtlasData, object textureAtlas);
         /** 
          * @private 
          */
-        protected abstract Armature _generateArmature(BuildArmaturePackage dataPackage);
+        protected abstract Armature _BuildArmature(BuildArmaturePackage dataPackage);
         /** 
          * @private 
          */
-        protected abstract Slot _generateSlot(BuildArmaturePackage dataPackage, SkinSlotData skinSlotData, Armature armature);
+        protected abstract Slot _BuildSlot(BuildArmaturePackage dataPackage, SlotData slotData, List<DisplayData> displays, Armature armature);
         /**
-         * @language zh_CN
          * 解析并添加龙骨数据。
-         * @param rawData 需要解析的原始数据。 (JSON)
+         * @param rawData 需要解析的原始数据。
          * @param name 为数据提供一个名称，以便可以通过这个名称获取数据，如果未设置，则使用数据中的名称。
-         * @param scale 为所有骨架设置一个缩放值。
          * @returns DragonBonesData
-         * @see #GetDragonBonesData()
-         * @see #AddDragonBonesData()
-         * @see #RemoveDragonBonesData()
-         * @see DragonBones.DragonBonesData
+         * @see #getDragonBonesData()
+         * @see #addDragonBonesData()
+         * @see #removeDragonBonesData()
+         * @see dragonBones.DragonBonesData
          * @version DragonBones 4.5
+         * @language zh_CN
          */
-        public DragonBonesData ParseDragonBonesData(Dictionary<string, object> rawData, string name = null, float scale = 1.0f)
+        public DragonBonesData ParseDragonBonesData(object rawData, string name = null, float scale = 1.0f)
         {
-            var dragonBonesData = _dataParser.ParseDragonBonesData(rawData, scale);
-            AddDragonBonesData(dragonBonesData, name);
+            var dataParser = rawData is byte[] ? BaseFactory._binaryParser : this._dataParser;
+            DragonBonesData dragonBonesData = dataParser.ParseDragonBonesData(rawData, scale);
+
+            while (true)
+            {
+                var textureAtlasData = this._BuildTextureAtlasData(null, null);
+                if (dataParser.ParseTextureAtlasData(null, textureAtlasData, scale))
+                {
+                    this.AddTextureAtlasData(textureAtlasData, name);
+                }
+                else
+                {
+                    textureAtlasData.ReturnToPool();
+                    break;
+                }
+            }
+
+            if (dragonBonesData != null)
+            {
+                this.AddDragonBonesData(dragonBonesData, name);
+            }
 
             return dragonBonesData;
         }
         /**
-         * @language zh_CN
          * 解析并添加贴图集数据。
          * @param rawData 需要解析的原始数据。 (JSON)
-         * @param textureAtlas 贴图。 (根据渲染引擎的不同而不同，通常是贴图或材质)
+         * @param textureAtlas 贴图。
          * @param name 为数据指定一个名称，以便可以通过这个名称获取数据，如果未设置，则使用数据中的名称。
          * @param scale 为贴图集设置一个缩放值。
          * @returns 贴图集数据
-         * @see #GetTextureAtlasData()
-         * @see #AddTextureAtlasData()
-         * @see #RemoveTextureAtlasData()
-         * @see DragonBones.TextureAtlasData
+         * @see #getTextureAtlasData()
+         * @see #addTextureAtlasData()
+         * @see #removeTextureAtlasData()
+         * @see dragonBones.TextureAtlasData
          * @version DragonBones 4.5
+         * @language zh_CN
          */
-        public TextureAtlasData ParseTextureAtlasData(Dictionary<string, object> rawData, object textureAtlas, string name = null, float scale = 0.0f)
+        public TextureAtlasData ParseTextureAtlasData(Dictionary<string, object>  rawData, object textureAtlas, string name = null, float scale = 1.0f)
         {
-            var textureAtlasData = _generateTextureAtlasData(null, null);
-            _dataParser.ParseTextureAtlasData(rawData, textureAtlasData, scale);
-
-            _generateTextureAtlasData(textureAtlasData, textureAtlas);
-            AddTextureAtlasData(textureAtlasData, name);
+            var textureAtlasData = this._BuildTextureAtlasData(null, null);
+            this._dataParser.ParseTextureAtlasData(rawData, textureAtlasData, scale);
+            this._BuildTextureAtlasData(textureAtlasData, textureAtlas);
+            this.AddTextureAtlasData(textureAtlasData, name);
 
             return textureAtlasData;
         }
         /**
+         * @version DragonBones 5.1
          * @language zh_CN
+         */
+        public void UpdateTextureAtlasData(string name, List<object> textureAtlases)
+        {
+            var textureAtlasDatas = this.GetTextureAtlasData(name);
+            if (textureAtlasDatas != null)
+            {
+                for (int i = 0, l = textureAtlasDatas.Count; i < l; ++i)
+                {
+                    if (i < textureAtlases.Count)
+                    {
+                        this._BuildTextureAtlasData(textureAtlasDatas[i], textureAtlases[i]);
+                    }
+                }
+            }
+        }
+        /**
          * 获取指定名称的龙骨数据。
          * @param name 数据名称。
          * @returns DragonBonesData
-         * @see #ParseDragonBonesData()
-         * @see #AddDragonBonesData()
-         * @see #RemoveDragonBonesData()
-         * @see DragonBones.DragonBonesData
+         * @see #parseDragonBonesData()
+         * @see #addDragonBonesData()
+         * @see #removeDragonBonesData()
+         * @see dragonBones.DragonBonesData
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public DragonBonesData GetDragonBonesData(string name)
         {
-            return _dragonBonesDataMap.ContainsKey(name) ? _dragonBonesDataMap[name] : null;
+            return this._dragonBonesDataMap.ContainsKey(name) ? this._dragonBonesDataMap[name] : null;
         }
         /**
-         * @language zh_CN
          * 添加龙骨数据。
          * @param data 龙骨数据。
          * @param name 为数据指定一个名称，以便可以通过这个名称获取数据，如果未设置，则使用数据中的名称。
-         * @see #ParseDragonBonesData()
-         * @see #GetDragonBonesData()
-         * @see #RemoveDragonBonesData()
-         * @see DragonBones.DragonBonesData
+         * @see #parseDragonBonesData()
+         * @see #getDragonBonesData()
+         * @see #removeDragonBonesData()
+         * @see dragonBones.DragonBonesData
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public void AddDragonBonesData(DragonBonesData data, string name = null)
         {
-            if (data != null)
+            name = !string.IsNullOrEmpty(name) ? name : data.name;
+            if (this._dragonBonesDataMap.ContainsKey(name))
             {
-                name = !string.IsNullOrEmpty(name) ? name : data.name;
-                if (!string.IsNullOrEmpty(name))
+                if (this._dragonBonesDataMap[name] == data)
                 {
-                    if (!_dragonBonesDataMap.ContainsKey(name))
-                    {
-                        _dragonBonesDataMap[name] = data;
-                    }
-                    else
-                    {
-                        DragonBones.Assert(false, "Same name data. " + name);
-                    }
+                    return;
                 }
-                else
-                {
-                    DragonBones.Assert(false, "Unnamed data.");
-                }
+
+                Helper.Assert(false, "Can not add same name data: " + name);
+                return;
             }
-            else
-            {
-                DragonBones.Assert(false, DragonBones.ARGUMENT_ERROR);
-            }
+
+            this._dragonBonesDataMap[name] = data;
         }
         /**
-         * @language zh_CN
          * 移除龙骨数据。
          * @param name 数据名称。
          * @param disposeData 是否释放数据。
-         * @see #ParseDragonBonesData()
-         * @see #GetDragonBonesData()
-         * @see #AddDragonBonesData()
-         * @see DragonBones.DragonBonesData
+         * @see #parseDragonBonesData()
+         * @see #getDragonBonesData()
+         * @see #addDragonBonesData()
+         * @see dragonBones.DragonBonesData
          * @version DragonBones 3.0
+         * @language zh_CN
          */
-        virtual public void RemoveDragonBonesData(string name, bool disposeData = true)
+        public virtual void RemoveDragonBonesData(string name, bool disposeData = true)
         {
-            if (_dragonBonesDataMap.ContainsKey(name))
+            if (this._dragonBonesDataMap.ContainsKey(name))
             {
                 if (disposeData)
                 {
-                    _dragonBonesDataMap[name].ReturnToPool();
+                    this._dragonBones.BufferObject(this._dragonBonesDataMap[name]);
                 }
 
-                _dragonBonesDataMap.Remove(name);
+                this._dragonBonesDataMap.Remove(name);
             }
         }
         /**
-         * @language zh_CN
          * 获取指定名称的贴图集数据列表。
-         * @param textureAtlasName 数据名称。
+         * @param name 数据名称。
          * @returns 贴图集数据列表。
-         * @see #ParseTextureAtlasData()
-         * @see #AddTextureAtlasData()
-         * @see #RemoveTextureAtlasData()
-         * @see DragonBones.textures.TextureAtlasData
+         * @see #parseTextureAtlasData()
+         * @see #addTextureAtlasData()
+         * @see #removeTextureAtlasData()
+         * @see dragonBones.TextureAtlasData
          * @version DragonBones 3.0
+         * @language zh_CN
          */
-        public List<TextureAtlasData> GetTextureAtlasData(string textureAtlasName)
+        public List<TextureAtlasData> GetTextureAtlasData(string name)
         {
-            return _textureAtlasDataMap.ContainsKey(textureAtlasName) ? _textureAtlasDataMap[textureAtlasName] : null;
+            return this._textureAtlasDataMap.ContainsKey(name) ? this._textureAtlasDataMap[name] : null;
         }
         /**
-         * @language zh_CN
          * 添加贴图集数据。
          * @param data 贴图集数据。
          * @param name 为数据指定一个名称，以便可以通过这个名称获取数据，如果未设置，则使用数据中的名称。
-         * @see #ParseTextureAtlasData()
-         * @see #GetTextureAtlasData()
-         * @see #RemoveTextureAtlasData()
-         * @see DragonBones.textures.TextureAtlasData
+         * @see #parseTextureAtlasData()
+         * @see #getTextureAtlasData()
+         * @see #removeTextureAtlasData()
+         * @see dragonBones.TextureAtlasData
          * @version DragonBones 3.0
+         * @language zh_CN
          */
         public void AddTextureAtlasData(TextureAtlasData data, string name = null)
         {
-            if (data != null)
+            name = !string.IsNullOrEmpty(name) ? name : data.name;
+            var textureAtlasList = (this._textureAtlasDataMap.ContainsKey(name)) ?
+                                    this._textureAtlasDataMap[name] :
+                                    (this._textureAtlasDataMap[name] = new List<TextureAtlasData>());
+            if (!textureAtlasList.Contains(data))
             {
-                name = !string.IsNullOrEmpty(name) ? name : data.name;
-                if (!string.IsNullOrEmpty(name))
-                {
-                    var textureAtlasList = _textureAtlasDataMap.ContainsKey(name) ? _textureAtlasDataMap[name] : (_textureAtlasDataMap[name] = new List<TextureAtlasData>());
-                    if (!textureAtlasList.Contains(data))
-                    {
-                        textureAtlasList.Add(data);
-                    }
-                }
-                else
-                {
-                    DragonBones.Assert(false, "Unnamed data.");
-                }
-            }
-            else
-            {
-                DragonBones.Assert(false, DragonBones.ARGUMENT_ERROR);
+                textureAtlasList.Add(data);
             }
         }
         /**
-         * @language zh_CN
          * 移除贴图集数据。
          * @param name 数据名称。
          * @param disposeData 是否释放数据。
-         * @see #ParseTextureAtlasData()
-         * @see #GetTextureAtlasData()
-         * @see #AddTextureAtlasData()
-         * @see DragonBones.textures.TextureAtlasData
+         * @see #parseTextureAtlasData()
+         * @see #getTextureAtlasData()
+         * @see #addTextureAtlasData()
+         * @see dragonBones.TextureAtlasData
          * @version DragonBones 3.0
+         * @language zh_CN
          */
-        virtual public void RemoveTextureAtlasData(string name, bool disposeData = true)
+        public virtual void RemoveTextureAtlasData(string name, bool disposeData = true)
         {
-            if (_textureAtlasDataMap.ContainsKey(name))
+            if (this._textureAtlasDataMap.ContainsKey(name))
             {
-                if (disposeData)
-                {
-                    foreach (var textureAtlasData in _textureAtlasDataMap[name])
+                var textureAtlasDataList = this._textureAtlasDataMap[name];
+                if (disposeData) {
+                    foreach (var textureAtlasData in textureAtlasDataList)
                     {
-                        textureAtlasData.ReturnToPool();
+                        this._dragonBones.BufferObject(textureAtlasData);
                     }
                 }
 
-                _textureAtlasDataMap.Remove(name);
+                this._textureAtlasDataMap.Remove(name);
             }
         }
         /**
+         * 获取骨架数据。
+         * @param name 骨架数据名称。
+         * @param dragonBonesName 龙骨数据名称。
+         * @see dragonBones.ArmatureData
+         * @version DragonBones 5.1
          * @language zh_CN
+         */
+        public virtual ArmatureData GetArmatureData(string name, string dragonBonesName = "")
+        {
+            var dataPackage = new BuildArmaturePackage();
+            if (!this._FillBuildArmaturePackage(dataPackage, dragonBonesName, name, "", ""))
+            {
+                return null;
+            }
+
+            return dataPackage.armature;
+        }
+        /**
          * 清除所有的数据。
          * @param disposeData 是否释放数据。
          * @version DragonBones 4.5
+         * @language zh_CN
          */
-        virtual public void Clear(bool disposeData = true)
+        public virtual void Clear(bool disposeData = true)
         {
             if (disposeData)
             {
-                foreach (var dragonBonesData in _dragonBonesDataMap.Values)
+                foreach (var dragonBoneData in this._dragonBonesDataMap.Values)
                 {
-                    dragonBonesData.ReturnToPool();
+                    this._dragonBones.BufferObject(dragonBoneData);
                 }
-
-                foreach (var textureAtlasDataList in _textureAtlasDataMap.Values)
+                
+                foreach (var textureAtlasDatas in this._textureAtlasDataMap.Values)
                 {
-                    foreach (var textureAtlasData in textureAtlasDataList)
+                    foreach (var textureAtlasData in textureAtlasDatas)
                     {
-                        textureAtlasData.ReturnToPool();
+                        this._dragonBones.BufferObject(textureAtlasData);
                     }
                 }
             }
@@ -507,70 +720,187 @@ namespace DragonBones
             _textureAtlasDataMap.Clear();
         }
         /**
-         * @language zh_CN
-         * 创建一个指定名称的骨架。
+         * 创建一个骨架。
          * @param armatureName 骨架数据名称。
          * @param dragonBonesName 龙骨数据名称，如果未设置，将检索所有的龙骨数据，当多个龙骨数据中包含同名的骨架数据时，可能无法创建出准确的骨架。
          * @param skinName 皮肤名称，如果未设置，则使用默认皮肤。
+         * @param textureAtlasName 贴图集数据名称，如果未设置，则使用龙骨数据名称。
          * @returns 骨架
-         * @see DragonBones.Armature
+         * @see dragonBones.ArmatureData
+         * @see dragonBones.Armature
          * @version DragonBones 3.0
+         * @language zh_CN
          */
-        public Armature BuildArmature(string armatureName, string dragonBonesName = null, string skinName = null, string textureAtlasName = null)
+        public virtual Armature BuildArmature(string armatureName, string dragonBonesName = null, string skinName = null, string textureAtlasName = null)
         {
             var dataPackage = new BuildArmaturePackage();
-            if (_fillBuildArmaturePackage(dataPackage, dragonBonesName, armatureName, skinName, textureAtlasName))
+            if (!this._FillBuildArmaturePackage(dataPackage, dragonBonesName, armatureName, skinName, textureAtlasName))
             {
-                var armature = _generateArmature(dataPackage);
-                _buildBones(dataPackage, armature);
-                _buildSlots(dataPackage, armature);
-
-                armature.InvalidUpdate(null, true);
-                armature.AdvanceTime(0.0f); // Update armature pose.
-
-                return armature;
+                Helper.Assert(false, "No armature data: " + armatureName + ", " + (dragonBonesName != null ? dragonBonesName : ""));
+                return null;
             }
 
-            DragonBones.Assert(false, "No armature data. " + armatureName + " " + dragonBonesName != null ? dragonBonesName : "");
+            var armature = this._BuildArmature(dataPackage);
+            this._BuildBones(dataPackage, armature);
+            this._BuildSlots(dataPackage, armature);
+            armature.InvalidUpdate(null, true);
+            // Update armature pose.
+            armature.AdvanceTime(0.0f); 
 
-            return null;
+            return armature;
         }
         /**
+         * 用指定资源替换指定插槽的显示对象。(用 "dragonBonesName/armatureName/slotName/displayName" 的资源替换 "slot" 的显示对象)
+         * @param dragonBonesName 指定的龙骨数据名称。
+         * @param armatureName 指定的骨架名称。
+         * @param slotName 指定的插槽名称。
+         * @param displayName 指定的显示对象名称。
+         * @param slot 指定的插槽实例。
+         * @param displayIndex 要替换的显示对象的索引，如果未设置，则替换当前正在显示的显示对象。
+         * @version DragonBones 4.5
          * @language zh_CN
-         * 将指定骨架的动画替换成其他骨架的动画。 (通常这些骨架应该具有相同的骨架结构)
+         */
+        public void ReplaceSlotDisplay(string dragonBonesName,
+                                        string armatureName,
+                                        string slotName,
+                                        string displayName,
+                                        Slot slot, int displayIndex = -1)
+        {
+            BuildArmaturePackage dataPackage = new BuildArmaturePackage();
+            if (!this._FillBuildArmaturePackage(dataPackage, dragonBonesName, armatureName, "", "") || dataPackage.skin == null)
+            {
+                return;
+            }
+
+            var displays = dataPackage.skin.GetDisplays(slotName);
+            if (displays == null)
+            {
+                return;
+            }
+
+            for (int i = 0, l = displays.Count; i < l; ++i)
+            {
+                var displayData = displays[i];
+                if (displayData != null && displayData.name == displayName)
+                {
+                    this._ReplaceSlotDisplay(dataPackage, displayData, slot, displayIndex);
+                    break;
+                }
+            }
+        }
+        /**
+         * 用指定资源列表替换插槽的显示对象列表。
+         * @param dragonBonesName 指定的 DragonBonesData 名称。
+         * @param armatureName 指定的骨架名称。
+         * @param slotName 指定的插槽名称。
+         * @param slot 指定的插槽实例。
+         * @version DragonBones 4.5
+         * @language zh_CN
+         */
+        public void ReplaceSlotDisplayList(string dragonBonesName, string armatureName, string slotName, Slot slot)
+        {
+            var dataPackage = new BuildArmaturePackage();
+            if (!this._FillBuildArmaturePackage(dataPackage, dragonBonesName, armatureName, "", "") || dataPackage.skin == null)
+            {
+                return;
+            }
+
+            var displays = dataPackage.skin.GetDisplays(slotName);
+            if (displays == null)
+            {
+                return;
+            }
+
+            var displayIndex = 0;
+            foreach (var displayData in displays)
+            {
+                this._ReplaceSlotDisplay(dataPackage, displayData, slot, displayIndex++);
+            }
+        }
+        /**
+         * 更换骨架皮肤。
+         * @param armature 骨架。
+         * @param skin 皮肤数据。
+         * @param exclude 不需要更新的插槽。
+         * @see dragonBones.Armature
+         * @see dragonBones.SkinData
+         * @version DragonBones 5.1
+         * @language zh_CN
+         */
+        public void ChangeSkin(Armature armature, SkinData skin, List<string> exclude = null)
+        {
+            foreach (var slot in armature.GetSlots())
+            {
+                if (exclude != null && exclude.Contains(slot.name))
+                {
+                    continue;
+                }
+
+                var displays = skin.GetDisplays(slot.name);
+                if (displays == null)
+                {
+                    continue;
+                }
+
+                var displayCount = displays.Count;
+                var displayList = slot.displayList; // Copy.
+                displayList.ResizeList(displayCount); // Modify displayList length.
+                for (int i = 0, l = displayCount; i < l; ++i)
+                {
+                    var displayData = displays[i];
+                    if (displayData != null)
+                    {
+                        displayList[i] = this._GetSlotDisplay(null, displayData, null, slot);
+                    }
+                    else
+                    {
+                        displayList[i] = null;
+                    }
+                }
+
+                slot.rawDisplayDatas = displays;
+                slot.displayList = displayList;
+            }
+        }
+        /**
+         * 将骨架的动画替换成其他骨架的动画。 (通常这些骨架应该具有相同的骨架结构)
          * @param toArmature 指定的骨架。
          * @param fromArmatreName 其他骨架的名称。
          * @param fromSkinName 其他骨架的皮肤名称，如果未设置，则使用默认皮肤。
          * @param fromDragonBonesDataName 其他骨架属于的龙骨数据名称，如果未设置，则检索所有的龙骨数据。
-         * @param ifRemoveOriginalAnimationList 是否移除原有的动画。 [true: 移除, false: 不移除]
-         * @returns 是否替换成功。 [true: 成功, false: 不成功]
-         * @see DragonBones.Armature
+         * @param replaceOriginalAnimation 是否替换原有的同名动画。
+         * @returns 是否替换成功。
+         * @see dragonBones.Armature
+         * @see dragonBones.ArmatureData
          * @version DragonBones 4.5
+         * @language zh_CN
          */
-        public bool CopyAnimationsToArmature(
-            Armature toArmature, string fromArmatreName, string fromSkinName = null,
-            string fromDragonBonesDataName = null, bool ifRemoveOriginalAnimationList = true
-        )
+        public bool CopyAnimationsToArmature(Armature toArmature,
+                                                string fromArmatreName,
+                                                string fromSkinName = null,
+                                                string fromDragonBonesDataName = null,
+                                                bool replaceOriginalAnimation = true)
         {
             var dataPackage = new BuildArmaturePackage();
-            if (_fillBuildArmaturePackage(dataPackage, fromDragonBonesDataName, fromArmatreName, fromSkinName, null))
+
+            if (this._FillBuildArmaturePackage(dataPackage, fromDragonBonesDataName, fromArmatreName, fromSkinName, ""))
             {
                 var fromArmatureData = dataPackage.armature;
-                if (ifRemoveOriginalAnimationList)
+                if (replaceOriginalAnimation)
                 {
                     toArmature.animation.animations = fromArmatureData.animations;
                 }
                 else
                 {
-                    var animations = new Dictionary<string, AnimationData>();
-                    foreach (var pair in toArmature.animation.animations)
+                    Dictionary<string, AnimationData> animations = new Dictionary<string, AnimationData>();
+                    foreach (var animationName in toArmature.animation.animations.Keys)
                     {
-                        animations[pair.Key] = toArmature.animation.animations[pair.Key];
+                        animations[animationName] = toArmature.animation.animations[animationName];
                     }
 
-                    foreach (var pair in fromArmatureData.animations)
+                    foreach (var animationName in fromArmatureData.animations.Keys)
                     {
-                        animations[pair.Key] = fromArmatureData.animations[pair.Key];
+                        animations[animationName] = fromArmatureData.animations[animationName];
                     }
 
                     toArmature.animation.animations = animations;
@@ -583,18 +913,18 @@ namespace DragonBones
                     {
                         var toSlot = slots[i];
                         var toSlotDisplayList = toSlot.displayList;
-                        for (int iA = 0, lA = toSlotDisplayList.Count; iA < lA; ++iA)
+                        for (int j = 0, lJ = toSlotDisplayList.Count; j < lJ; ++j)
                         {
-                            var toDisplayObject = toSlotDisplayList[iA];
+                            var toDisplayObject = toSlotDisplayList[j];
                             if (toDisplayObject is Armature)
                             {
-                                var displays = dataPackage.skin.GetSlot(toSlot.name).displays;
-                                if (iA < displays.Count)
+                                var displays = dataPackage.skin.GetDisplays(toSlot.name);
+                                if (displays != null && j < displays.Count)
                                 {
-                                    var fromDisplayData = displays[iA];
-                                    if (fromDisplayData.type == DisplayType.Armature)
+                                    var fromDisplayData = displays[j];
+                                    if (fromDisplayData != null && fromDisplayData.type == DisplayType.Armature)
                                     {
-                                        CopyAnimationsToArmature((Armature)toDisplayObject, fromDisplayData.path, fromSkinName, fromDragonBonesDataName, ifRemoveOriginalAnimationList);
+                                        this.CopyAnimationsToArmature(toDisplayObject as Armature, fromDisplayData.path, fromSkinName, fromDragonBonesDataName, replaceOriginalAnimation);
                                     }
                                 }
                             }
@@ -607,74 +937,20 @@ namespace DragonBones
 
             return false;
         }
-        /**
-         * @language zh_CN
-         * 用指定资源替换插槽的显示对象。
-         * @param dragonBonesName 指定的龙骨数据名称。
-         * @param armatureName 指定的骨架名称。
-         * @param slotName 指定的插槽名称。
-         * @param displayName 指定的显示对象名称。
-         * @param slot 指定的插槽实例。
-         * @param displayIndex 要替换的显示对象的索引，如果未设置，则替换当前正在显示的显示对象。
-         * @version DragonBones 4.5
-         */
-        public void ReplaceSlotDisplay(string dragonBonesName, string armatureName, string slotName, string displayName, Slot slot, int displayIndex = -1)
-        {
-            var dataPackage = new BuildArmaturePackage();
-            if (_fillBuildArmaturePackage(dataPackage, dragonBonesName, armatureName, null, null))
-            {
-                var slotDisplayDataSet = dataPackage.skin.GetSlot(slotName);
-                if (slotDisplayDataSet != null)
-                {
-                    foreach (var displayData in slotDisplayDataSet.displays)
-                    {
-                        if (displayData.name == displayName)
-                        {
-                            _replaceSlotDisplay(dataPackage, displayData, slot, displayIndex);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        /**
-         * @language zh_CN
-         * 用指定资源列表替换插槽的显示对象列表。
-         * @param dragonBonesName 指定的 DragonBonesData 名称。
-         * @param armatureName 指定的骨架名称。
-         * @param slotName 指定的插槽名称。
-         * @param slot 指定的插槽实例。
-         * @version DragonBones 4.5
-         */
-        public void ReplaceSlotDisplayList(string dragonBonesName, string armatureName, string slotName, Slot slot)
-        {
-            var dataPackage = new BuildArmaturePackage();
-            if (_fillBuildArmaturePackage(dataPackage, dragonBonesName, armatureName, null, null))
-            {
-                var skinSlotData = dataPackage.skin.GetSlot(slotName);
-                if (skinSlotData != null)
-                {
-                    for (int i = 0, l = skinSlotData.displays.Count; i < l; ++i)
-                    {
-                        var displayData = skinSlotData.displays[i];
-                        _replaceSlotDisplay(dataPackage, displayData, slot, i);
-                    }
-                }
-            }
-        }
-        /**
-         * @private
+
+        /** 
+         * @private 
          */
         public Dictionary<string, DragonBonesData> GetAllDragonBonesData()
         {
-            return _dragonBonesDataMap;
+            return this._dragonBonesDataMap;
         }
-        /**
-         * @private
+        /** 
+         * @private 
          */
         public Dictionary<string, List<TextureAtlasData>> GetAllTextureAtlasData()
         {
-            return _textureAtlasDataMap;
+                return this._textureAtlasDataMap;
         }
     }
 }
