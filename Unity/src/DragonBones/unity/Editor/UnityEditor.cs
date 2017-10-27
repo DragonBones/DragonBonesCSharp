@@ -74,7 +74,7 @@ namespace DragonBones
 						armatureComponent.transform.SetParent(canvas.transform);
 					}
 				}
-				armatureComponent.transform.localScale = Vector2.one*100f;
+				armatureComponent.transform.localScale = Vector2.one * 100.0f;
 				armatureComponent.transform.localPosition = Vector3.zero;
 				var dragonBonesJSON = AssetDatabase.LoadMainAssetAtPath(dragonBonesJSONPath) as TextAsset;
 
