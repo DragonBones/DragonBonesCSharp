@@ -75,10 +75,11 @@ namespace DragonBones
 
 			MeshFilter mf = go.GetComponent<MeshFilter>();
 			if(mf && mf.sharedMesh && 
-				mf.transform.parent!=null && 
-				mf.transform.parent.parent!=null &&
-				mf.transform.parent.parent.GetComponent<UnityArmatureComponent>()!=null)
-			{
+				mf.transform.parent!=null &&
+                mf.transform.parent.GetComponent<UnityArmatureComponent>() != null)
+                //mf.transform.parent.parent!=null &&
+                //mf.transform.parent.parent.GetComponent<UnityArmatureComponent>()!=null)
+            {
 				if(mf.sharedMesh.vertexCount==4)
                 {
 					GUI.Label(rect,textureImg);
