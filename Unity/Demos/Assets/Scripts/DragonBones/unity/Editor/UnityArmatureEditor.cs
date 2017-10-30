@@ -56,7 +56,7 @@ namespace DragonBones
                 // Play animation.
                 if (!string.IsNullOrEmpty(_armatureComponent.animationName))
                 {
-                    _armatureComponent.animation.Play(_armatureComponent.animationName, _armatureComponent.playerTimes);
+                    _armatureComponent.animation.Play(_armatureComponent.animationName, _armatureComponent.playTimes);
                 }
                 _armatureComponent.CollectBones();
             }
@@ -187,14 +187,14 @@ namespace DragonBones
                         {
 							_armatureComponent.animationName = _animationNames[animationIndex];
                             var animationData = _armatureComponent.animation.animations[_armatureComponent.animationName];
-                            _armatureComponent.playerTimes = (int)animationData.playTimes;
-                            _armatureComponent.animation.Play(_armatureComponent.animationName, _armatureComponent.playerTimes);
+                            _armatureComponent.playTimes = (int)animationData.playTimes;
+                            _armatureComponent.animation.Play(_armatureComponent.animationName, _armatureComponent.playTimes);
                             _UpdateParameters();
 						}
                         else
                         {
 							_armatureComponent.animationName = null;
-                            _armatureComponent.playerTimes = 0;
+                            _armatureComponent.playTimes = 0;
 							_armatureComponent.animation.Stop();
 						}
 
@@ -219,7 +219,7 @@ namespace DragonBones
 						{
 							if (GUILayout.Button("Play"))
 							{
-								_armatureComponent.animation.Play(null, _armatureComponent.playerTimes);
+								_armatureComponent.animation.Play(null, _armatureComponent.playTimes);
 							}
 						}
 					}
@@ -230,16 +230,16 @@ namespace DragonBones
                     //playTimes
                     EditorGUILayout.BeginHorizontal();
                     serializedObject.Update();
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty("_playerTimes"), false);
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty("_playTimes"), false);
                     serializedObject.ApplyModifiedProperties();
-                    var times = serializedObject.FindProperty("_playerTimes").intValue;
+                    var times = serializedObject.FindProperty("_playTimes").intValue;
                     if (_playTimes != times)
                     {
                         if (!string.IsNullOrEmpty(_armatureComponent.animationName))
                         {
                             _playTimes = times;
                             _armatureComponent.animation.Reset();
-                            _armatureComponent.animation.Play(_armatureComponent.animationName, _armatureComponent.playerTimes);
+                            _armatureComponent.animation.Play(_armatureComponent.animationName, _armatureComponent.playTimes);
                         }
                     }
                     EditorGUILayout.EndHorizontal();
