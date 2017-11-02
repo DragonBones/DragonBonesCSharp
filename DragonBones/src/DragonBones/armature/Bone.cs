@@ -142,8 +142,25 @@ namespace DragonBones
                     if (!this.boneData.inheritRotation)
                     {
                         this._parent.UpdateGlobalTransform();
-
+                                                
                         dR = this._parent.global.rotation; //
+
+                        flipY = _armature.flipY;
+                        if (flipX || flipY)
+                        {
+                            if (flipX && flipY)
+                            {
+                                dR += Transform.PI;
+                            }
+                            else
+                            {
+                                dR -= this._parent.global.rotation * 2.0f;
+                                if (flipX)
+                                {
+                                    dR += Transform.PI;
+                                }
+                            }
+                        }
 
                         if (DragonBones.yDown)
                         {

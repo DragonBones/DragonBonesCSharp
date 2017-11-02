@@ -44,7 +44,7 @@ namespace DragonBones
         [Tooltip("0 : Loop")]
         [Range(0, 100)]
         [SerializeField]
-        protected int _playerTimes = 0;
+        protected int _playTimes = 0;
 
         [Range(-2f, 2f)]
         [SerializeField]
@@ -91,7 +91,7 @@ namespace DragonBones
             animationName = null;
             _sortingLayerName = "Default";
             _sortingOrder = 0;
-            _playerTimes = 0;
+            _playTimes = 0;
             _timeScale = 1.0f;
             _zSpace = 0.0f;
             isUGUI = false;
@@ -275,16 +275,16 @@ namespace DragonBones
             }
         }
 
-        public int playerTimes
+        public int playTimes
         {
             set
             {
-                _playerTimes = value;
+                _playTimes = value;
             }
 
             get
             {
-                return _playerTimes;
+                return _playTimes;
             }
         }
         
@@ -403,7 +403,7 @@ namespace DragonBones
                 }
                 if (!string.IsNullOrEmpty(animationName))
                 {
-                    _armature.animation.Play(animationName, _playerTimes);
+                    _armature.animation.Play(animationName, _playTimes);
                 }
 
 				CollectBones();
