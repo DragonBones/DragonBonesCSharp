@@ -335,7 +335,7 @@ namespace DragonBones
 				string name = path.Substring(path.LastIndexOf("/")+1);
 				if(string.IsNullOrEmpty(data.dataName) || !data.dataName.Equals(name))
                 {
-					data.dataName = name;
+					//data.dataName = name;
 					isDirty = true;
 				}
 

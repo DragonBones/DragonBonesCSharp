@@ -525,6 +525,10 @@ namespace DragonBones
 			if (data.dragonBonesJSON != null)
 			{
                 dragonBonesData = LoadDragonBonesData(data.dragonBonesJSON, data.dataName, armatureScale);
+                if (string.IsNullOrEmpty(data.dataName))
+                {
+                    data.dataName = dragonBonesData.name;
+                }
 
                 if (!string.IsNullOrEmpty(data.dataName) && dragonBonesData != null && data.textureAtlas != null)
 				{
