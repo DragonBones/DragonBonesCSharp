@@ -14,7 +14,6 @@ namespace DragonBones
         void Update()
         {
             UnityFactory.factory._dragonBones.AdvanceTime(Time.deltaTime);
-            //UnityFactory._dragonBonesInstance.AdvanceTime(Time.deltaTime);
         }
     }
 
@@ -54,7 +53,7 @@ namespace DragonBones
                 {
                     _factory = new UnityFactory();
                 }
-
+                
                 return _factory;
             }
         }
@@ -95,6 +94,8 @@ namespace DragonBones
                         _gameObject.hideFlags = HideFlags.HideInHierarchy;
                     }
                 }
+
+                GameObject.DontDestroyOnLoad(_gameObject);
 
                 var clockHandler = _gameObject.GetComponent<ClockHandler>();
                 if (clockHandler == null)
