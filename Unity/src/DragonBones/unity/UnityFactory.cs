@@ -629,24 +629,25 @@ namespace DragonBones
                 BinaryDataParser.jsonParseDelegate = MiniJSON.Json.Deserialize;
                 data = ParseDragonBonesData(dragonBonesJSON.bytes, name, scale); // Unity default Scale Factor.
                 //
-                name = dragonBonesJSON.name;
+                //name = dragonBonesJSON.name;
             }
             else
             {
                 data = ParseDragonBonesData((Dictionary<string, object>)MiniJSON.Json.Deserialize(dragonBonesJSON.text), name, scale); // Unity default Scale Factor.
 
-                name = dragonBonesJSON.name;
+                //name = dragonBonesJSON.name;
             }
 
-            int index = name.LastIndexOf("_ske");
-            //有并且在最后
-            if (index > 0 && index == name.Length - 4)
-            {
-                name = name.Substring(0, index);
-                data.name = name;
-            }
+            //int index = name.LastIndexOf("_ske");
+            ////有并且在最后
+            //if (index > 0 && index == name.Length - 4)
+            //{
+            //    name = name.Substring(0, index);
+            //    data.name = name;
+            //}
 
-            _dragonBonesDataMap[name] = data;
+            //_dragonBonesDataMap[name] = data;
+            _dragonBonesDataMap[data.name] = data;
             return data;
         }
 
@@ -676,10 +677,10 @@ namespace DragonBones
             }
             else
             {
-                if (string.IsNullOrEmpty(name))
-                {
-                    name = UnityFactoryHelper.GetTextureAtlasNameByPath(textureAtlasJSONPath);
-                }
+                //if (string.IsNullOrEmpty(name))
+                //{
+                //    name = UnityFactoryHelper.GetTextureAtlasNameByPath(textureAtlasJSONPath);
+                //}
 
                 TextAsset textureAtlasJSON = Resources.Load<TextAsset>(textureAtlasJSONPath);
                 if (textureAtlasJSON != null)
@@ -689,10 +690,10 @@ namespace DragonBones
 
                     if (textureAtlasData != null)
                     {
-                        if (!string.IsNullOrEmpty(name))
-                        {
-                            textureAtlasData.name = name;
-                        }
+                        //if (!string.IsNullOrEmpty(name))
+                        //{
+                        //    textureAtlasData.name = name;
+                        //}
 
                         textureAtlasData.imagePath = UnityFactoryHelper.GetTextureAtlasImagePath(textureAtlasJSONPath, textureAtlasData.imagePath);
 

@@ -218,7 +218,8 @@ namespace DragonBones
             }
             else
             {
-                list.Capacity = count;
+                //fixed gc,may be memory will grow
+                //list.Capacity = count;
                 for (int i = list.Count, l = count; i < l; ++i)
                 {
                     list.Add(value);
