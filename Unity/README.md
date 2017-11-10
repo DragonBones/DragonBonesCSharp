@@ -3,13 +3,12 @@
 <h2 align="center">English          <a href="./ReadMe-zh_CN.md">中文版</a></h2>
 </p>
 
-## How to use [Demos](./Demos/)
+## How to use
 
-1. Create a Unity project and import [Demos files](./Demos/) to override the project files.
-2. Import the [DragonBones common source code](../DragonBones/src/) to project Assets/Scripts.
-3. Import the [DragonBones Unity source code](./src/) to project Assets/Scripts.
-4. Import the [3rdParty source code](../3rdParty/) to project Assets/Scripts.
-5. Run project and have fun.
+1. Import the [DragonBones common source code](../DragonBones/src/) to project Assets/Scripts.
+2. Import the [DragonBones Unity source code](./src/) to project Assets/Scripts.
+3. Import the [3rdParty source code](../3rdParty/) to project Assets/Scripts.
+4. Run project and have fun.
 
 *Notice*
 * Maker sure project structure like this:

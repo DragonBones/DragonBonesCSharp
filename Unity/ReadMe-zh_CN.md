@@ -5,13 +5,12 @@
 </p>
 
 
-## [Demos](./Demos/) 使用方法
+## 使用方法
 
-1. 创建一个Unity项目，导入[Demos files](./Demos/)
-2. 复制[DragonBones common source code](../DragonBones/src/)中的DragonBones目录到项目中的Assets/Scripts目录下。
-3. 复制[DragonBones Unity source code](./src/)中的DragonBones目录替换覆盖到项目中的Assets/Scripts目录下。
-4. 复制[3rdParty source code](../3rdParty/)中的rapidjson目录到项目的Assets/Scripts目录下。
-5. 运行就行了。
+1. 复制[DragonBones common source code](../DragonBones/src/)中的DragonBones目录到项目中的Assets/Scripts目录下。
+2. 复制[DragonBones Unity source code](./src/)中的DragonBones目录替换覆盖到项目中的Assets/Scripts目录下。
+3. 复制[3rdParty source code](../3rdParty/)中的rapidjson目录到项目的Assets/Scripts目录下。
+4. 运行就行了。
 
 *注意事项*
 * 确保项目的结构如下:
