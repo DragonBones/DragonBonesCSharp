@@ -27,10 +27,6 @@ namespace DragonBones
          */
         public string displayController;
         /**
-         * @readonly
-         */
-        public SlotData slotData;
-        /**
          * @private
          */
         protected bool _displayDirty;
@@ -119,6 +115,10 @@ namespace DragonBones
          * @private
          */
         protected readonly List<Bone> _meshBones = new List<Bone>();
+        /**
+         * @readonly
+         */
+        internal SlotData _slotData;
         /**
          * @private
          */
@@ -209,7 +209,6 @@ namespace DragonBones
             }
 
             this.displayController = null;
-            this.slotData = null; //
 
             this._displayDirty = false;
             this._zOrderDirty = false;
@@ -231,6 +230,7 @@ namespace DragonBones
             this._displayList.Clear();
             this._displayDatas.Clear();
             this._meshBones.Clear();
+            this._slotData = null; //
             this._rawDisplayDatas = null; //
             this._displayData = null;
             this._textureData = null;
@@ -371,7 +371,7 @@ namespace DragonBones
                 else if (this._textureData != null)
                 {
                     var imageDisplayData = this._displayData as ImageDisplayData;
-                    var scale = this._textureData.parent.scale * this._armature.armatureData.scale;
+                    var scale = this._textureData.parent.scale * this._armature._armatureData.scale;
                     var frame = this._textureData.frame;
 
                     this._pivotX = imageDisplayData.pivot.x;
@@ -753,20 +753,19 @@ namespace DragonBones
          */
         internal void Init(SlotData slotData, List<DisplayData> displayDatas, object rawDisplay, object meshDisplay)
         {
-            if (this.slotData != null)
+            if (this._slotData != null)
             {
                 return;
             }
 
-            this.slotData = slotData;
-            this.name = this.slotData.name;
-
+            //
             this._visibleDirty = true;
             this._blendModeDirty = true;
             this._colorDirty = true;
-            this._blendMode = this.slotData.blendMode;
-            this._zOrder = this.slotData.zOrder;
-            this._colorTransform.CopyFrom(this.slotData.color);
+            this._slotData = slotData;
+            this._blendMode = this._slotData.blendMode;
+            this._zOrder = this._slotData.zOrder;
+            this._colorTransform.CopyFrom(this._slotData.color);
             this._rawDisplay = rawDisplay;
             this._meshDisplay = meshDisplay;
 
@@ -902,12 +901,12 @@ namespace DragonBones
 
                     if (isCache && this._cachedFrameIndices != null)
                     {
-                        this._cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex] = this._armature.armatureData.SetCacheFrame(this.globalTransformMatrix, this.global);
+                        this._cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex] = this._armature._armatureData.SetCacheFrame(this.globalTransformMatrix, this.global);
                     }
                 }
                 else
                 {
-                    this._armature.armatureData.GetCacheFrame(this.globalTransformMatrix, this.global, this._cachedFrameIndex);
+                    this._armature._armatureData.GetCacheFrame(this.globalTransformMatrix, this.global, this._cachedFrameIndex);
                 }
 
                 this._UpdateTransform(false);
@@ -1070,6 +1069,20 @@ namespace DragonBones
             this._displayDirty = true;
             this._transformDirty = true;
         }
+        public bool visible
+        {
+            get { return this._visible; }
+            set
+            {
+                if (this._visible == value)
+                {
+                    return;
+                }
+
+                this._visible = value;
+                this._UpdateVisible();
+            }
+        }
         /**
          * 此时显示的显示对象在显示列表中的索引。
          * @version DragonBones 4.5
@@ -1085,6 +1098,11 @@ namespace DragonBones
                     this.Update(-1);
                 }
             }
+        }
+
+        public string name
+        {
+            get { return this._slotData.name; }
         }
 
         /**
@@ -1131,6 +1149,11 @@ namespace DragonBones
                 }
             }
         }
+        public SlotData slotData
+        {
+            get { return this._slotData; }
+        }
+
         public List<DisplayData> rawDisplayDatas
         {
             get { return this._rawDisplayDatas; }

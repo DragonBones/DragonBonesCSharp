@@ -628,8 +628,6 @@ namespace DragonBones
             {
                 constraint.root = bone.parent;
             }
-
-            bone.constraints.Add(constraint);
         }
 
         private SlotData _ParseSlot(Dictionary<string, object> rawData, int zOrder)
@@ -1422,7 +1420,7 @@ namespace DragonBones
                 displayTimeline = this._ParseTimeline(
                     rawData, null, ObjectDataParser.DISPLAY_FRAME, TimelineType.SlotDisplay,
                     false, false, 0,
-                    this._ParseSlotDisplayIndexFrame
+                    this._ParseSlotDisplayFrame
                 );
             }
             else
@@ -1430,7 +1428,7 @@ namespace DragonBones
                 displayTimeline = this._ParseTimeline(
                     rawData, null, ObjectDataParser.FRAME, TimelineType.SlotDisplay,
                     false, false, 0,
-                    this._ParseSlotDisplayIndexFrame
+                    this._ParseSlotDisplayFrame
                 );
             }
 
@@ -1754,7 +1752,7 @@ namespace DragonBones
         /**
          * @private
          */
-        protected int _ParseSlotDisplayIndexFrame(Dictionary<string, object> rawData, int frameStart, int frameCount)
+        protected int _ParseSlotDisplayFrame(Dictionary<string, object> rawData, int frameStart, int frameCount)
         {
             var frameOffset = this._ParseFrame(rawData, frameStart, frameCount);
             
@@ -1929,10 +1927,22 @@ namespace DragonBones
             return frameOffset;
         }
 
-        /**
-         * @private
-         */
-        protected List<ActionData> _ParseActionData(object rawData, ActionType type, BoneData bone = null, SlotData slot = null)
+        protected int _ParseIKConstraintFrame(Dictionary<string, object> rawData, int frameStart, int frameCount)
+        {
+            var frameOffset = this._ParseTweenFrame(rawData, frameStart, frameCount);
+
+            var frameIntOffset = this._frameIntArray.Count;
+            this._frameIntArray.ResizeList(this._frameIntArray.Count + 2);
+            this._frameIntArray[frameIntOffset++] = (short)(ObjectDataParser._GetBoolean(rawData, ObjectDataParser.BEND_POSITIVE, true) ? 1 : 0);
+            this._frameIntArray[frameIntOffset++] = (short)Math.Round(ObjectDataParser._GetNumber(rawData, ObjectDataParser.WEIGHT, 1.0f) * 100.0);
+
+            return frameOffset;
+        }
+
+    /**
+     * @private
+     */
+    protected List<ActionData> _ParseActionData(object rawData, ActionType type, BoneData bone = null, SlotData slot = null)
         {
             var actions = new List<ActionData>();
             if (rawData is string)

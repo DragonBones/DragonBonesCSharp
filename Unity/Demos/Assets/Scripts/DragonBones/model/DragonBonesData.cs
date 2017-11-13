@@ -135,7 +135,7 @@ namespace DragonBones
         {
             if (this.armatures.ContainsKey(value.name))
             {
-                Helper.Assert(false, "Replace armature: " + value.name);
+                Helper.Assert(false, "Same armature: " + value.name);
                 this.armatures[value.name].ReturnToPool();
             }
 

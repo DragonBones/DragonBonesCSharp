@@ -85,8 +85,8 @@ namespace coreElement
             _weaponLeft = _armatureComponent.armature.GetSlot("weapon_l").childArmature;
             _weaponRight = _armatureComponent.armature.GetSlot("weapon_r").childArmature;
 
-            _weaponLeft.proxy.AddEventListener(EventObject.FRAME_EVENT, _frameEventHandler);
-            _weaponRight.proxy.AddEventListener(EventObject.FRAME_EVENT, _frameEventHandler);
+            _weaponLeft.eventDispatcher.AddDBEventListener(EventObject.FRAME_EVENT, _frameEventHandler);
+            _weaponRight.eventDispatcher.AddDBEventListener(EventObject.FRAME_EVENT, _frameEventHandler);
 
             _armatureComponent.animation.Reset();
             _armatureComponent.animation.Play("idle");
@@ -227,12 +227,12 @@ namespace coreElement
                 _weaponLeftIndex = 0;
             }
 
-            _weaponLeft.proxy.RemoveEventListener(DragonBones.EventObject.FRAME_EVENT, _frameEventHandler);
+            _weaponLeft.eventDispatcher.RemoveDBEventListener(DragonBones.EventObject.FRAME_EVENT, _frameEventHandler);
 
             var weaponName = WEAPON_LEFT_LIST[_weaponLeftIndex];
             _weaponLeft = UnityFactory.factory.BuildArmature(weaponName);
             _armatureComponent.armature.GetSlot("weapon_l").childArmature = _weaponLeft;
-            _weaponLeft.proxy.AddEventListener(DragonBones.EventObject.FRAME_EVENT, _frameEventHandler);
+            _weaponLeft.eventDispatcher.AddDBEventListener(DragonBones.EventObject.FRAME_EVENT, _frameEventHandler);
         }
 
         private void _switchWeaponRight()
@@ -243,12 +243,12 @@ namespace coreElement
                 _weaponRightIndex = 0;
             }
 
-            _weaponRight.proxy.RemoveEventListener(EventObject.FRAME_EVENT, _frameEventHandler);
+            _weaponRight.eventDispatcher.RemoveDBEventListener(EventObject.FRAME_EVENT, _frameEventHandler);
 
             var weaponName = WEAPON_RIGHT_LIST[_weaponRightIndex];
             _weaponRight = UnityFactory.factory.BuildArmature(weaponName);
             _armatureComponent.armature.GetSlot("weapon_r").childArmature = _weaponRight;
-            _weaponRight.proxy.AddEventListener(EventObject.FRAME_EVENT, _frameEventHandler);
+            _weaponRight.eventDispatcher.AddDBEventListener(EventObject.FRAME_EVENT, _frameEventHandler);
         }
 
         public void _switchSkin()

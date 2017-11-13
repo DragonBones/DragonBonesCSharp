@@ -4,32 +4,6 @@ using System.Collections.Generic;
 namespace DragonBones
 {
     /**
-     * @private 
-     */
-    public class CanvasData : BaseObject
-    {
-        public bool hasBackground;
-        public int color;
-        public float x;
-        public float y;
-        public float width;
-        public float height;
-
-        /**
-         * @private
-         */
-        protected override void _OnClear()
-        {
-            this.hasBackground = false;
-            this.color = 0x000000;
-            this.x = 0.0f;
-            this.y = 0.0f;
-            this.width = 0.0f;
-            this.height = 0.0f;
-        }
-    }
-
-    /**
      * 骨架数据。
      * @version DragonBones 3.0
      * @language zh_CN
@@ -101,6 +75,8 @@ namespace DragonBones
          * @language zh_CN
          */
         public readonly Dictionary<string, SlotData> slots = new Dictionary<string, SlotData>();
+
+        public readonly Dictionary<string, ConstraintData> constraints = new Dictionary<string, ConstraintData>();
         /**
          * 所有皮肤数据。
          * @see dragonBones.SkinData
@@ -168,6 +144,11 @@ namespace DragonBones
                 this.slots[k].ReturnToPool();
             }
 
+            foreach (var k in this.constraints.Keys)
+            {
+                this.constraints[k].ReturnToPool();
+            }
+
             foreach (var k in this.skins.Keys)
             {
                 this.skins[k].ReturnToPool();
@@ -201,6 +182,7 @@ namespace DragonBones
             this.actions.Clear();
             this.bones.Clear();
             this.slots.Clear();
+            this.constraints.Clear();
             this.skins.Clear();
             this.animations.Clear();
             this.defaultSkin = null;
@@ -238,22 +220,39 @@ namespace DragonBones
                     continue;
                 }
 
-                if (bone.constraints.Count > 0)
-                {
-                    var flag = false;
-                    foreach (var constraint in bone.constraints)
-                    {
-                        if (!this.sortedBones.Contains(constraint.target))
-                        {
-                            flag = true;
-                        }
-                    }
+                //if (bone.constraints.Count > 0)
+                //{
+                //    var flag = false;
+                //    foreach (var constraint in bone.constraints)
+                //    {
+                //        if (!this.sortedBones.Contains(constraint.target))
+                //        {
+                //            flag = true;
+                //        }
+                //    }
 
-                    if (flag)
+                //    if (flag)
+                //    {
+                //        continue;
+                //    }
+                //}
+
+                var flag = false;
+                foreach (var constraint in this.constraints.Values)
+                {
+                    // Wait constraint.
+                    if (constraint.bone == bone && !this.sortedBones.Contains(constraint.target))
                     {
-                        continue;
+                        flag = true;
+                        break;
                     }
                 }
+
+                if (flag)
+                {
+                    continue;
+                }
+
 
                 if (bone.parent != null && !this.sortedBones.Contains(bone.parent))
                 {
@@ -337,7 +336,7 @@ namespace DragonBones
             {
                 if (this.bones.ContainsKey(value.name))
                 {
-                    Helper.Assert(false, "Replace bone: " + value.name);
+                    Helper.Assert(false, "Same bone: " + value.name);
                     this.bones[value.name].ReturnToPool();
                 }
 
@@ -354,12 +353,25 @@ namespace DragonBones
             {
                 if (this.slots.ContainsKey(value.name))
                 {
-                    Helper.Assert(false, "Replace slot: " + value.name);
+                    Helper.Assert(false, "Same slot: " + value.name);
                     this.slots[value.name].ReturnToPool();
                 }
 
                 this.slots[value.name] = value;
                 this.sortedSlots.Add(value);
+            }
+        }
+        public void AddConstraint(ConstraintData value)
+        {
+            if (value != null && !string.IsNullOrEmpty(value.name))
+            {
+                if (this.constraints.ContainsKey(value.name))
+                {
+                    Helper.Assert(false, "Same constraint: " + value.name);
+                    this.slots[value.name].ReturnToPool();
+                }
+
+                this.constraints[value.name] = value;
             }
         }
         /**
@@ -371,7 +383,7 @@ namespace DragonBones
             {
                 if (this.skins.ContainsKey(value.name))
                 {
-                    Helper.Assert(false, "Replace slot: " + value.name);
+                    Helper.Assert(false, "Same slot: " + value.name);
                     this.skins[value.name].ReturnToPool();
                 }
 
@@ -392,7 +404,7 @@ namespace DragonBones
             {
                 if (this.animations.ContainsKey(value.name))
                 {
-                    Helper.Assert(false, "Replace animation: " + value.name);
+                    Helper.Assert(false, "Same animation: " + value.name);
                     this.animations[value.name].ReturnToPool();
                 }
 
@@ -506,10 +518,6 @@ namespace DragonBones
         /**
          * @private
          */
-        public readonly List<ConstraintData> constraints = new List<ConstraintData>();
-        /**
-         * @private
-         */
         public UserData userData = null; // Initial value.
         /**
          * 所属的父骨骼数据。
@@ -523,11 +531,6 @@ namespace DragonBones
          */
         protected override void _OnClear()
         {
-            foreach (var constraint in this.constraints)
-            {
-                constraint.ReturnToPool();
-            }
-
             if (this.userData != null)
             {
                 this.userData.ReturnToPool();
@@ -540,17 +543,8 @@ namespace DragonBones
             this.length = 0.0f;
             this.name = "";
             this.transform.Identity();
-            this.constraints.Clear();
             this.userData = null;
             this.parent = null;
-        }
-
-        /**
-         * @private
-         */
-        internal void AddConstraint(ConstraintData value)
-        {
-            this.constraints.Add(value);
         }
     }
 
@@ -626,96 +620,5 @@ namespace DragonBones
             this.userData = null;
             this.parent = null; //
         }
-    }
-    /**
-     * 皮肤数据。（通常一个骨架数据至少包含一个皮肤数据）
-     * @version DragonBones 3.0
-     * @language zh_CN
-     */
-    public class SkinData : BaseObject
-    {
-        /**
-         * 数据名称。
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
-        public string name;
-        /**
-         * @private
-         */
-        public readonly Dictionary<string, List<DisplayData>> displays = new Dictionary<string, List<DisplayData>>();
-        /**
-         * @private
-         */
-        public ArmatureData parent;
-
-        protected override void _OnClear()
-        {
-            foreach (var list in this.displays.Values)
-            {
-                foreach (var display in list)
-                {
-                    display.ReturnToPool();
-                }
-            }
-
-            this.name = "";
-            this.displays.Clear();
-            this.parent = null;
-        }
-
-        /**
-         * @private
-         */
-        public void AddDisplay(string slotName, DisplayData value)
-        {
-            if (!string.IsNullOrEmpty(slotName) && value != null && !string.IsNullOrEmpty(value.name))
-            {
-                if (!this.displays.ContainsKey(slotName))
-                {
-                    this.displays[slotName] = new List<DisplayData>();
-                }
-
-                if (value != null)
-                {
-                    value.parent = this;
-                }
-
-                var slotDisplays = this.displays[slotName]; // TODO clear prev
-                slotDisplays.Add(value);
-            }
-        }
-        /**
-         * @private
-         */
-        public DisplayData GetDisplay(string slotName, string displayName)
-        {
-            var slotDisplays = this.GetDisplays(slotName);
-            if (slotDisplays != null)
-            {
-                foreach (var display in slotDisplays)
-                {
-                    if (display != null && display.name == displayName)
-                    {
-                        return display;
-                    }
-                }
-            }
-
-            return null;
-        }
-        /**
-         * @private
-         */
-        public List<DisplayData> GetDisplays(string slotName)
-        {
-            if (string.IsNullOrEmpty(slotName) || !this.displays.ContainsKey(slotName))
-            {
-                return null;
-            }
-
-            return this.displays[slotName];
-        }
-
     }
 }

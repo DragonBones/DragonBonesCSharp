@@ -131,6 +131,8 @@ namespace DragonBones
         SlotColor = 21,
         SlotFFD = 22,
 
+        IKConstraint = 30,
+
         AnimationTime = 40,
         AnimationWeight = 41
     }
@@ -256,7 +258,7 @@ namespace DragonBones
         public static bool yDown = true;
         public static bool debug = false;
         public static bool debugDraw = false;
-        public static readonly string VERSION = "5.5.0";
+        public static readonly string VERSION = "5.6.0";
         
         private readonly WorldClock _clock = new WorldClock();
         private readonly List<EventObject> _events = new List<EventObject>();
@@ -292,10 +294,10 @@ namespace DragonBones
                     if (armature.armatureData != null)
                     { 
                         // May be armature disposed before advanceTime.
-                        armature.proxy.DispatchEvent(eventObject.type, eventObject);
+                        armature.eventDispatcher.DispatchDBEvent(eventObject.type, eventObject);
                         if (eventObject.type == EventObject.SOUND_EVENT)
                         {
-                            this._eventManager.DispatchEvent(eventObject.type, eventObject);
+                            this._eventManager.DispatchDBEvent(eventObject.type, eventObject);
                         }
                     }
 

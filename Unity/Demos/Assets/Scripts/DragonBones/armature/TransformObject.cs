@@ -24,12 +24,6 @@ namespace DragonBones
          */
         protected static readonly Point _helpPoint = new Point();
         /**
-         * 对象的名称。
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
-        public string name;
-        /**
          * 相对于骨架坐标系的矩阵。
          * @version DragonBones 3.0
          * @language zh_CN
@@ -82,7 +76,6 @@ namespace DragonBones
          */
         protected override void _OnClear()
         {
-            this.name = "";
             this.globalTransformMatrix.Identity();
             this.global.Identity();
             this.offset.Identity();

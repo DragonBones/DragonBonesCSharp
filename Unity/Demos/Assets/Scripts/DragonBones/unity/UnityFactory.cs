@@ -889,7 +889,7 @@ namespace DragonBones
                     (newDisplayData as MeshDisplayData).weight = (prevDispalyData as MeshDisplayData).weight;
                 }
 
-                _ReplaceSlotDisplay(dataPackage, newDisplayData, slot, displayIndex);
+                ReplaceDisplay(slot, newDisplayData, displayIndex);
                 
             }
 		}

@@ -27,14 +27,6 @@ namespace DragonBones
          */
         public bool inheritAnimation;
         /**
-         * 获取骨架数据。
-         * @see dragonBones.ArmatureData
-         * @version DragonBones 4.5
-         * @readonly
-         * @language zh_CN
-         */
-        public ArmatureData armatureData;
-        /**
          * 用于存储临时数据。
          * @version DragonBones 3.0
          * @language zh_CN
@@ -55,14 +47,23 @@ namespace DragonBones
         internal int _cacheFrameIndex;
         private readonly List<Bone> _bones = new List<Bone>();
         private readonly List<Slot> _slots = new List<Slot>();
+        internal readonly List<Constraint> _constraints = new List<Constraint>();
         private readonly List<ActionData> _actions = new List<ActionData>();
+        /**
+         * 获取骨架数据。
+         * @see dragonBones.ArmatureData
+         * @version DragonBones 4.5
+         * @readonly
+         * @language zh_CN
+         */
+        public ArmatureData _armatureData;
         private Animation _animation = null; // Initial value.
         private IArmatureProxy _proxy = null; // Initial value.
         private object _display;
         /**
          * @private
          */
-        public TextureAtlasData _replaceTextureAtlasData = null; // Initial value.
+        internal TextureAtlasData _replaceTextureAtlasData = null; // Initial value.
         private object _replacedTexture;
         /**
          * @internal
@@ -97,6 +98,11 @@ namespace DragonBones
                 slot.ReturnToPool();
             }
 
+            foreach (var constraint in this._constraints)
+            {
+                constraint.ReturnToPool();
+            }
+
             if (this._animation != null)
             {
                 this._animation.ReturnToPool();
@@ -113,7 +119,6 @@ namespace DragonBones
             }
 
             this.inheritAnimation = true;
-            this.armatureData = null; //
             this.userData = null;
 
             this._lockUpdate = false;
@@ -125,7 +130,9 @@ namespace DragonBones
             this._cacheFrameIndex = -1;
             this._bones.Clear();
             this._slots.Clear();
+            this._constraints.Clear();
             this._actions.Clear();
+            this._armatureData = null; //
             this._animation = null; //
             this._proxy = null; //
             this._display = null;
@@ -166,9 +173,9 @@ namespace DragonBones
                 { 
                     // Wait constraint.
                     var flag = false;
-                    foreach (var constraint in bone.constraints)
+                    foreach (var constraint in this._constraints)
                     {
-                        if (!this._bones.Contains(constraint.target))
+                        if (constraint._bone == bone && !this._bones.Contains(constraint._target))
                         {
                             flag = true;
                             break;
@@ -203,7 +210,7 @@ namespace DragonBones
          */
         internal void _SortZOrder(short[] slotIndices, int offset)
         {
-            var slotDatas = this.armatureData.sortedSlots;
+            var slotDatas = this._armatureData.sortedSlots;
             var isOriginal = slotIndices == null;
 
             if (this._zOrderDirty || !isOriginal)
@@ -238,7 +245,6 @@ namespace DragonBones
             {
                 this._bonesDirty = true;
                 this._bones.Add(value);
-                this._animation._timelineDirty = true;
             }
         }
         /**
@@ -250,7 +256,6 @@ namespace DragonBones
             if (this._bones.Contains(value))
             {
                 this._bones.Remove(value);
-                this._animation._timelineDirty = true;
             }
         }
         /**
@@ -263,7 +268,6 @@ namespace DragonBones
             {
                 this._slotsDirty = true;
                 this._slots.Add(value);
-                this._animation._timelineDirty = true;
             }
         }
         /**
@@ -275,7 +279,6 @@ namespace DragonBones
             if (this._slots.Contains(value))
             {
                 this._slots.Remove(value);
-                this._animation._timelineDirty = true;
             }
         }
         /**
@@ -303,7 +306,7 @@ namespace DragonBones
          */
         public void Dispose()
         {
-            if (this.armatureData != null)
+            if (this._armatureData != null)
             {
                 this._lockUpdate = true;
 
@@ -316,14 +319,14 @@ namespace DragonBones
         /**
          * @private
          */
-        public void Init(ArmatureData armatureData, IArmatureProxy proxy, object display, DragonBones dragonBones)
+        internal void Init(ArmatureData armatureData, IArmatureProxy proxy, object display, DragonBones dragonBones)
         {
-            if (this.armatureData != null)
+            if (this._armatureData != null)
             {
                 return;
             }
 
-            this.armatureData = armatureData;
+            this._armatureData = armatureData;
             this._animation = BaseObject.BorrowObject<Animation>();
             this._proxy = proxy;
             this._display = display;
@@ -331,7 +334,7 @@ namespace DragonBones
 
             this._proxy.DBInit(this);
             this._animation.Init(this);
-            this._animation.animations = this.armatureData.animations;
+            this._animation.animations = this._armatureData.animations;
         }
         /**
          * 更新骨架和动画。
@@ -348,12 +351,12 @@ namespace DragonBones
                 return;
             }
 
-            if (this.armatureData == null)
+            if (this._armatureData == null)
             {
                 Helper.Assert(false, "The armature has been disposed.");
                 return;
             }
-            else if (this.armatureData.parent == null)
+            else if (this._armatureData.parent == null)
             {
                 Helper.Assert(false, "The armature data has been disposed.\nPlease make sure dispose armature before call factory.clear().");
                 return;
@@ -361,7 +364,7 @@ namespace DragonBones
 
             var prevCacheFrameIndex = this._cacheFrameIndex;
 
-            // Update nimation.
+            // Update animation.
             this._animation.AdvanceTime(passedTime);
 
             // Sort bones and slots.
@@ -418,9 +421,8 @@ namespace DragonBones
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public void InvalidUpdate(string boneName = null, bool updateSlotDisplay = false)
+        public void InvalidUpdate(string boneName = null, bool updateSlot = false)
         {
-
             if (!string.IsNullOrEmpty(boneName))
             {
                 Bone bone = this.GetBone(boneName);
@@ -428,7 +430,7 @@ namespace DragonBones
                 {
                     bone.InvalidUpdate();
 
-                    if (updateSlotDisplay)
+                    if (updateSlot)
                     {
                         foreach (var slot in this._slots)
                         {
@@ -447,7 +449,7 @@ namespace DragonBones
                     bone.InvalidUpdate();
                 }
 
-                if (updateSlotDisplay)
+                if (updateSlot)
                 {
                     foreach (var slot in this._slots)
                     {
@@ -707,6 +709,13 @@ namespace DragonBones
             value._SetParent(null);
             value._SetArmature(null);
         }
+        internal void AddConstraint(Constraint constraint)
+        {
+            if (!this._constraints.Contains(constraint))
+            {
+                this._constraints.Add(constraint);
+            }
+        }
         /**
          * 获取所有骨骼。
          * @see dragonBones.Bone
@@ -768,12 +777,12 @@ namespace DragonBones
          */
         public uint cacheFrameRate
         {
-            get { return this.armatureData.cacheFrameRate; }
+            get { return this._armatureData.cacheFrameRate; }
             set
             {
-                if (this.armatureData.cacheFrameRate != value)
+                if (this._armatureData.cacheFrameRate != value)
                 {
-                    this.armatureData.CacheFrames(value);
+                    this._armatureData.CacheFrames(value);
 
                     // Set child armature frameRate.
                     foreach (var slot in this._slots)
@@ -795,7 +804,11 @@ namespace DragonBones
          */
         public string name
         {
-            get { return this.armatureData.name; }
+            get { return this._armatureData.name; }
+        }
+        public ArmatureData armatureData
+        {
+            get { return this._armatureData; }
         }
         /**
          * 获得动画控制器。
@@ -811,6 +824,11 @@ namespace DragonBones
          * @pivate
          */
         public IArmatureProxy proxy
+        {
+            get { return this._proxy; }
+        }
+
+        public IEventDispatcher<EventObject> eventDispatcher
         {
             get { return this._proxy; }
         }

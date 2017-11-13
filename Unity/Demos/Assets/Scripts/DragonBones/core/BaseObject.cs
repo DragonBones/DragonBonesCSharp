@@ -10,7 +10,7 @@ namespace DragonBones
     abstract public class BaseObject
     {
         private static uint _hashCode = 0;
-        private static uint _defaultMaxCount = 1000;
+        private static uint _defaultMaxCount = 3000;
         private static readonly Dictionary<System.Type, uint> _maxCountMap = new Dictionary<System.Type, uint>();
         private static readonly Dictionary<System.Type, List<BaseObject>> _poolsMap = new Dictionary<System.Type, List<BaseObject>>();
 
