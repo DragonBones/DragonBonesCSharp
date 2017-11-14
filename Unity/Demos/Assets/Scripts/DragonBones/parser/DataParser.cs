@@ -40,8 +40,10 @@ namespace DragonBones
         protected const string USER_DATA = "userData";
         protected const string ARMATURE = "armature";
         protected const string BONE = "bone";
-        protected const string IK = "ik";
         protected const string SLOT = "slot";
+        protected const string CONSTRAINT = "constraint";
+        protected const string IK = "ik";
+        
         protected const string SKIN = "skin";
         protected const string DISPLAY = "display";
         protected const string ANIMATION = "animation";

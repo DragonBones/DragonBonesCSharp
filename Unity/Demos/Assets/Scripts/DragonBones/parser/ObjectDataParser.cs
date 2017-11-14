@@ -394,17 +394,17 @@ namespace DragonBones
             this._armature = armature;
 
             //CANVAS功能为完全实现，这里先注释
-            /*if (rawDic != null && rawDic.ContainsKey(ObjectDataParser.CANVAS)) 
+            if (rawData != null && rawData.ContainsKey(ObjectDataParser.CANVAS))
             {
-                var rawCanvas = rawDic[ObjectDataParser.CANVAS];
+                var rawCanvas = rawData[ObjectDataParser.CANVAS] as Dictionary<string, object>;
                 var canvas = BaseObject.BorrowObject<CanvasData>();
 
-                if (rawDic.ContainsKey(ObjectDataParser.COLOR)) 
+                if (rawData.ContainsKey(ObjectDataParser.COLOR))
                 {
                     canvas.hasBackground = true;
                 }
-                else 
-{
+                else
+                {
                     canvas.hasBackground = false;
                 }
 
@@ -415,7 +415,7 @@ namespace DragonBones
                 canvas.height = ObjectDataParser._GetNumber(rawCanvas, ObjectDataParser.HEIGHT, 0) * armature.scale;
 
                 armature.canvas = canvas;
-            }*/
+            }
 
             if (rawData.ContainsKey(ObjectDataParser.AABB))
             {
@@ -474,7 +474,11 @@ namespace DragonBones
                 var rawIKS = rawData[ObjectDataParser.IK] as List<object>;
                 foreach (Dictionary<string, object> rawIK in rawIKS)
                 {
-                    this._ParseIKConstraint(rawIK);
+                    var constraint = this._ParseIKConstraint(rawIK);
+                    if (constraint != null)
+                    {
+                        armature.AddConstraint(constraint);
+                    }
                 }
             }
 
@@ -601,23 +605,23 @@ namespace DragonBones
         /**
          * @private
          */
-        protected void _ParseIKConstraint(Dictionary<string, object> rawData)
+        protected ConstraintData _ParseIKConstraint(Dictionary<string, object> rawData)
         {
             var bone = _armature.GetBone(_GetString(rawData, BONE, ""));
             if (bone == null)
             {
-                return;
+                return null;
             }
 
             var target = this._armature.GetBone(ObjectDataParser._GetString(rawData, ObjectDataParser.TARGET, ""));
             if (target == null)
             {
-                return;
+                return null;
             }
 
             var constraint = BaseObject.BorrowObject<IKConstraintData>();
-            constraint.bendPositive = ObjectDataParser._GetBoolean(rawData, ObjectDataParser.BEND_POSITIVE, true);
             constraint.scaleEnabled = ObjectDataParser._GetBoolean(rawData, ObjectDataParser.SCALE, false);
+            constraint.bendPositive = ObjectDataParser._GetBoolean(rawData, ObjectDataParser.BEND_POSITIVE, true);
             constraint.weight = ObjectDataParser._GetNumber(rawData, ObjectDataParser.WEIGHT, 1.0f);
             constraint.name = ObjectDataParser._GetString(rawData, ObjectDataParser.NAME, "");
             constraint.bone = bone;
@@ -628,6 +632,8 @@ namespace DragonBones
             {
                 constraint.root = bone.parent;
             }
+
+            return constraint;
         }
 
         private SlotData _ParseSlot(Dictionary<string, object> rawData, int zOrder)
@@ -1156,6 +1162,31 @@ namespace DragonBones
                     this._skin = null;
                     this._slot = null; //
                     this._mesh = null; //
+                }
+            }
+
+            if (rawData.ContainsKey(ObjectDataParser.IK))
+            {
+                var rawTimelines = rawData[ObjectDataParser.IK] as List<object>;
+                foreach (Dictionary<string, object> rawTimeline in rawTimelines)
+                {
+                    var constraintName = ObjectDataParser._GetString(rawTimeline, ObjectDataParser.NAME, "");
+                    var constraint = this._armature.GetConstraint(constraintName);
+                    if (constraint == null)
+                    {
+                        continue;
+                    }
+
+                    var timeline = this._ParseTimeline(
+                        rawTimeline, null, ObjectDataParser.FRAME, TimelineType.IKConstraint,
+                        true, false, 2,
+                        this._ParseIKConstraintFrame
+                    );
+
+                    if (timeline != null)
+                    {
+                        this._animation.AddConstraintTimeline(constraint, timeline);
+                    }
                 }
             }
 

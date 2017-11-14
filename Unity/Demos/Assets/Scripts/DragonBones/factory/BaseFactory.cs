@@ -218,16 +218,15 @@ namespace DragonBones
                 {
                     armature.AddBone(bone, string.Empty);
                 }
+            }
 
-                var constraints = dataPackage.armature.constraints;
-
-                foreach (var constraintData in constraints.Values)
-                {
-                    // TODO more constraint type.
-                    var constraint = BaseObject.BorrowObject<IKConstraint>();
-                    constraint.Init(constraintData, armature);
-                    armature.AddConstraint(constraint);
-                }
+            var constraints = dataPackage.armature.constraints;
+            foreach (var constraintData in constraints.Values)
+            {
+                // TODO more constraint type.
+                var constraint = BaseObject.BorrowObject<IKConstraint>();
+                constraint.Init(constraintData, armature);
+                armature.AddConstraint(constraint);
             }
         }
         /**
@@ -290,7 +289,7 @@ namespace DragonBones
             }
         }
 
-        protected virtual Armature _BuildChildArmatrue(BuildArmaturePackage dataPackage, Slot slot, DisplayData displayData)
+        protected virtual Armature _BuildChildArmature(BuildArmaturePackage dataPackage, Slot slot, DisplayData displayData)
         {
             return this.BuildArmature(displayData.path, dataPackage != null ? dataPackage.dataName : "", "", dataPackage != null ? dataPackage.textureAtlasName : "");
         }
@@ -350,7 +349,7 @@ namespace DragonBones
                 case DisplayType.Armature:
                     {
                         var armatureDisplayData = displayData as ArmatureDisplayData;
-                        var childArmature = this._BuildChildArmatrue(dataPackage, slot, displayData);
+                        var childArmature = this._BuildChildArmature(dataPackage, slot, displayData);
                         //var childArmature = this.BuildArmature(armatureDisplayData.path, dataName, null, dataPackage != null ? dataPackage.textureAtlasName : null);
                         if (childArmature != null)
                         {

@@ -169,7 +169,7 @@ namespace DragonBones
                     continue;
                 }
 
-                if (bone.constraints.Count > 0)
+                if (bone._hasConstraint)
                 { 
                     // Wait constraint.
                     var flag = false;

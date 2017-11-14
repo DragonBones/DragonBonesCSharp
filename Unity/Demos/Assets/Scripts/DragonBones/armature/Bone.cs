@@ -27,11 +27,6 @@ namespace DragonBones
          * @internal
          * @private
          */
-        internal readonly List<Constraint> constraints = new List<Constraint>();
-        /**
-         * @internal
-         * @private
-         */
         internal bool _transformDirty;
         /**
          * @internal
@@ -79,14 +74,8 @@ namespace DragonBones
         {
             base._OnClear();
 
-            foreach (var constraint in this.constraints)
-            {
-                constraint.ReturnToPool();
-            }
-
             this.offsetMode = OffsetMode.Additive;
             this.animationPose.Identity();
-            this.constraints.Clear();
 
             this._transformDirty = false;
             this._childrenTransformDirty = false;
@@ -389,9 +378,12 @@ namespace DragonBones
                     if (this._hasConstraint)
                     {
                         // Update constraints.
-                        foreach (var constraint in this.constraints)
+                        foreach (var constraint in this._armature._constraints)
                         {
-                            constraint.Update();
+                            if (constraint._bone == this)
+                            {
+                                constraint.Update();
+                            }
                         }
                     }
 
@@ -420,9 +412,12 @@ namespace DragonBones
                 if (this._hasConstraint)
                 { 
                     // Update constraints.
-                    foreach (var constraint in this.constraints)
+                    foreach (var constraint in this._armature._constraints)
                     {
-                        constraint.Update();
+                        if (constraint._bone == this)
+                        {
+                            constraint.Update();
+                        }
                     }
                 }
 
@@ -476,17 +471,6 @@ namespace DragonBones
                 this._localDirty = false;
                 this._transformDirty = true;
                 this._UpdateGlobalTransformMatrix(true);
-            }
-        }
-        /**
-         * @internal
-         * @private
-         */
-        internal void AddConstraint(Constraint constraint)
-        {
-            if (!this.constraints.Contains(constraint))
-            {
-                this.constraints.Add(constraint);
             }
         }
         /**

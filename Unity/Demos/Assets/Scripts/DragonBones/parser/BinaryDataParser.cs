@@ -323,6 +323,29 @@ namespace DragonBones
                 }
             }
 
+            if (rawData.ContainsKey(ObjectDataParser.CONSTRAINT))
+            {
+                var rawTimeliness = rawData[ObjectDataParser.CONSTRAINT] as Dictionary<string, object>;
+                foreach (var k in rawTimeliness.Keys)
+                {
+                    var rawTimelines = rawTimeliness[k] as List<object>;
+
+                    var constraint = this._armature.GetConstraint(k);
+                    if (constraint == null)
+                    {
+                        continue;
+                    }
+
+                    for (int i = 0, l = rawTimelines.Count; i < l; i += 2)
+                    {
+                        var timelineType = rawTimelines[i];
+                        var timelineOffset = rawTimelines[i + 1];
+                        var timeline = this._ParseBinaryTimeline((TimelineType)timelineType, (uint)timelineOffset);
+                        this._animation.AddConstraintTimeline(constraint, timeline);
+                    }
+                }
+            }
+
             this._animation = null;
 
             return animation;

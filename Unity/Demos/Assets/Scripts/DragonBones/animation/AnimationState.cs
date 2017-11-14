@@ -426,15 +426,18 @@ namespace DragonBones
                             {
                                 foreach (var displayData in slot.rawDisplayDatas)
                                 {
-                                    var meshOffset = (displayData as MeshDisplayData).offset;
-                                    if (displayData != null && displayData.type == DisplayType.Mesh && !ffdFlags.Contains(meshOffset))
+                                    if (displayData != null && displayData.type == DisplayType.Mesh)
                                     {
-                                        var timeline = BaseObject.BorrowObject<SlotFFDTimelineState>();
-                                        timeline.meshOffset = (uint)meshOffset; //
-                                        timeline.slot = slot;
-                                        timeline.Init(this._armature, this, null);
-                                        this._slotTimelines.Add(timeline);
-                                        this._poseTimelines.Add(timeline);
+                                        var meshOffset = (displayData as MeshDisplayData).offset;
+                                        if (!ffdFlags.Contains(meshOffset))
+                                        {
+                                            var timeline = BaseObject.BorrowObject<SlotFFDTimelineState>();
+                                            timeline.meshOffset = (uint)meshOffset; //
+                                            timeline.slot = slot;
+                                            timeline.Init(this._armature, this, null);
+                                            this._slotTimelines.Add(timeline);
+                                            this._poseTimelines.Add(timeline);
+                                        }
                                     }
                                 }
                             }

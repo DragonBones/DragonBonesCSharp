@@ -219,24 +219,7 @@ namespace DragonBones
                 {
                     continue;
                 }
-
-                //if (bone.constraints.Count > 0)
-                //{
-                //    var flag = false;
-                //    foreach (var constraint in bone.constraints)
-                //    {
-                //        if (!this.sortedBones.Contains(constraint.target))
-                //        {
-                //            flag = true;
-                //        }
-                //    }
-
-                //    if (flag)
-                //    {
-                //        continue;
-                //    }
-                //}
-
+                
                 var flag = false;
                 foreach (var constraint in this.constraints.Values)
                 {
@@ -453,6 +436,10 @@ namespace DragonBones
         public SlotData GetSlot(string name)
         {
             return (!string.IsNullOrEmpty(name) && slots.ContainsKey(name)) ? slots[name] : null;
+        }
+        public ConstraintData GetConstraint(string name)
+        {
+            return this.constraints.ContainsKey(name) ? this.constraints[name] : null;
         }
         /**
          * 获取皮肤数据。
