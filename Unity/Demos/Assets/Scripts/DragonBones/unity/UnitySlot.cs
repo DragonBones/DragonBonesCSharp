@@ -217,6 +217,10 @@ namespace DragonBones
                         _renderer.sortingOrder = _zOrder;
                     }
                 }
+                else
+                {
+                    _renderDisplay.transform.SetSiblingIndex(_zOrder);
+                }
             }
         }
 

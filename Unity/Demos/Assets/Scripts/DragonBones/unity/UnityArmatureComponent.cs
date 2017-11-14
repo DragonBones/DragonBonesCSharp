@@ -492,7 +492,8 @@ namespace DragonBones
                 }
             }
             
-            if (zorderIsDirty)
+            //QQ
+            if (false && zorderIsDirty)
             {
                 _sortedSlots = new List<Slot>(_armature.GetSlots());
                 _sortedSlots.Sort(delegate (Slot x, Slot y)
@@ -506,7 +507,7 @@ namespace DragonBones
                     var display = slot.display as GameObject;
                     if (display != null)
                     {
-                        display.transform.SetSiblingIndex(i);
+                        display.transform.SetSiblingIndex(i * 2);
                         if (!isUGUI && sortingMode == SortingMode.SortByOrder)
                         {
                             UnitySlot us = slot as UnitySlot;
