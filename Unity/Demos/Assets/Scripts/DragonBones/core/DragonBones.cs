@@ -291,7 +291,7 @@ namespace DragonBones
                 {
                     var eventObject = this._events[i];
                     var armature = eventObject.armature;
-                    if (armature.armatureData != null)
+                    if (armature._armatureData != null)
                     { 
                         // May be armature disposed before advanceTime.
                         armature.eventDispatcher.DispatchDBEvent(eventObject.type, eventObject);

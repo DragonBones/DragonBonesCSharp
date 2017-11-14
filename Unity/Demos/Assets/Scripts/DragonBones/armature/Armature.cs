@@ -680,6 +680,25 @@ namespace DragonBones
         /**
          * @deprecated
          */
+        public void AddSlot(Slot value, string parentName)
+        {
+            var bone = this.GetBone(parentName);
+
+            Helper.Assert(value != null && bone != null, "slot value is null");
+
+            value._SetArmature(this);
+            value._SetParent(bone);
+        }
+        internal void AddConstraint(Constraint constraint)
+        {
+            if (!this._constraints.Contains(constraint))
+            {
+                this._constraints.Add(constraint);
+            }
+        }
+        /**
+         * @deprecated
+         */
         public void RemoveBone(Bone value)
         {
             Helper.Assert(value != null && value.armature == this, "bone is null");
@@ -690,31 +709,12 @@ namespace DragonBones
         /**
          * @deprecated
          */
-        public void AddSlot(Slot value, string parentName)
-        {
-            var bone = this.GetBone(parentName);
-
-            Helper.Assert(value != null && bone != null, "slot value is null");
-
-            value._SetArmature(this);
-            value._SetParent(bone);
-        }
-        /**
-         * @deprecated
-         */
         public void RemoveSlot(Slot value)
         {
             Helper.Assert(value != null && value.armature == this, "remove slot is null");
 
             value._SetParent(null);
             value._SetArmature(null);
-        }
-        internal void AddConstraint(Constraint constraint)
-        {
-            if (!this._constraints.Contains(constraint))
-            {
-                this._constraints.Add(constraint);
-            }
         }
         /**
          * 获取所有骨骼。

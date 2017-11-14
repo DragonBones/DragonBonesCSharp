@@ -758,11 +758,11 @@ namespace DragonBones
                 return;
             }
 
+            this._slotData = slotData;
             //
             this._visibleDirty = true;
             this._blendModeDirty = true;
             this._colorDirty = true;
-            this._slotData = slotData;
             this._blendMode = this._slotData.blendMode;
             this._zOrder = this._slotData.zOrder;
             this._colorTransform.CopyFrom(this._slotData.color);

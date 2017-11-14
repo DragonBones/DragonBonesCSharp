@@ -859,7 +859,7 @@ namespace DragonBones
          */
         public bool ReplaceAnimation(Armature armature,
                                     ArmatureData armatureData,
-                                    bool replaceAnimation = true)
+                                    bool isReplaceAll = true)
         {
 
             var skinData = armatureData.defaultSkin;
@@ -868,17 +868,26 @@ namespace DragonBones
                 return false;
             }
 
-            if (replaceAnimation)
+            if (isReplaceAll)
             {
                 armature.animation.animations = armatureData.animations;
             }
             else
             {
-                //QQ
-                //for ()
-                //{
+                var rawAnimations = armature.animation.animations;
+                Dictionary<string, AnimationData> animations = new Dictionary<string, AnimationData>();
 
-                //}
+                foreach (var k in rawAnimations.Keys)
+                {
+                    animations[k] = rawAnimations[k];
+                }
+
+                foreach (var k in armatureData.animations.Keys)
+                {
+                    animations[k] = armatureData.animations[k];
+                }
+
+                armature.animation.animations = animations;
             }
 
             foreach (var slot in armature.GetSlots())
@@ -894,17 +903,15 @@ namespace DragonBones
                             var displayData = displayDatas[index];
                             if (displayData != null && displayData.type == DisplayType.Armature)
                             {
-                                //var armatureData = this.GetArmatureData(displayData.path, displayData.parent.parent.parent.name);
+                                var childArmatureData = this.GetArmatureData(displayData.path, displayData.parent.parent.parent.name);
 
-                                if (armatureData != null)
+                                if (childArmatureData != null)
                                 {
-                                    this.ReplaceAnimation(display as Armature, armatureData);
+                                    this.ReplaceAnimation(display as Armature, childArmatureData, isReplaceAll);
                                 }
                             }
                         }
                     }
-
-                    index++;
                 }
             }
 

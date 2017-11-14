@@ -11,8 +11,8 @@ namespace DragonBones
 
         public static JsonParseDelegate jsonParseDelegate;
 
-        private byte[] _binary;
         private int _binaryOffset;
+        private byte[] _binary;
         private short[] _intArrayBuffer;
         private float[] _floatArrayBuffer;
         private short[] _frameIntArrayBuffer;
@@ -417,8 +417,8 @@ namespace DragonBones
                 reader.Close();
                 ms.Dispose();
 
-                this._binary = bytes;
                 this._binaryOffset = 8 + 4 + headerLength;
+                this._binary = bytes;
             }
 
             jsonParseDelegate = null;

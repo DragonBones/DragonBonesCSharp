@@ -27,7 +27,7 @@ namespace DragonBones
             this._root = null; //
         }
 
-        public abstract void Init(ConstraintData data, Armature armature);
+        public abstract void Init(ConstraintData constraintData, Armature armature);
         public abstract void Update();
         public abstract void InvalidUpdate();
 
@@ -64,13 +64,13 @@ namespace DragonBones
             // const boneLength = this.bone.boneData.length;
             // const x = globalTransformMatrix.a * boneLength; 
 
-            var ikRadian = (float)Math.Atan2(ikGlobal.y - global.y, ikGlobal.x - global.x);
+            var radian = (float)Math.Atan2(ikGlobal.y - global.y, ikGlobal.x - global.x);
             if (global.scaleX < 0.0f)
             {
-                ikRadian += (float)Math.PI;
+                radian += (float)Math.PI;
             }
 
-            global.rotation += (ikRadian - global.rotation) * this._weight;
+            global.rotation += (radian - global.rotation) * this._weight;
             global.ToMatrix(globalTransformMatrix);
         }
 
@@ -93,6 +93,8 @@ namespace DragonBones
             var dY = global.y - parentGlobal.y;
             var lPP = dX * dX + dY * dY;
             var lP = (float)Math.Sqrt(lPP);
+            var rawRadian = global.rotation;
+            var rawParentRadian = parentGlobal.rotation;
             var rawRadianA = (float)Math.Atan2(dY, dX);
 
             dX = ikGlobal.x - parentGlobal.x;
@@ -100,16 +102,16 @@ namespace DragonBones
             var lTT = dX * dX + dY * dY;
             var lT = (float)Math.Sqrt(lTT);
 
-            var ikRadianA = 0.0f;
+            var radianA = 0.0f;
             if (lL + lP <= lT || lT + lL <= lP || lT + lP <= lL)
             {
-                ikRadianA = (float)Math.Atan2(ikGlobal.y - parentGlobal.y, ikGlobal.x - parentGlobal.x);
+                radianA = (float)Math.Atan2(ikGlobal.y - parentGlobal.y, ikGlobal.x - parentGlobal.x);
                 if (lL + lP <= lT)
                 {
                 }
                 else if (lP < lL)
                 {
-                    ikRadianA += (float)Math.PI;
+                    radianA += (float)Math.PI;
                 }
             }
             else
@@ -139,25 +141,24 @@ namespace DragonBones
                     global.y = hY + rY;
                 }
 
-                ikRadianA = (float)Math.Atan2(global.y - parentGlobal.y, global.x - parentGlobal.x);
+                radianA = (float)Math.Atan2(global.y - parentGlobal.y, global.x - parentGlobal.x);
             }
 
-            var dR = (ikRadianA - rawRadianA) * this._weight;
-            parentGlobal.rotation += dR;
+            var dR = Transform.NormalizeRadian(radianA - rawRadianA);
+            parentGlobal.rotation = rawParentRadian + dR * this._weight;
             parentGlobal.ToMatrix(parent.globalTransformMatrix);
-
-            var parentRadian = rawRadianA + dR;
-            global.x = parentGlobal.x + (float)Math.Cos(parentRadian) * lP;
-            global.y = parentGlobal.y + (float)Math.Sin(parentRadian) * lP;
-
-            var ikRadianB = (float)Math.Atan2(ikGlobal.y - global.y, ikGlobal.x - global.x);
-            if (global.scaleX < 0.0)
+            //
+            var currentRadianA = rawRadianA + dR * this._weight;
+            global.x = parentGlobal.x + (float)Math.Cos(currentRadianA) * lP;
+            global.y = parentGlobal.y + (float)Math.Sin(currentRadianA) * lP;
+            //
+            var radianB = (float)Math.Atan2(ikGlobal.y - global.y, ikGlobal.x - global.x);
+            if (global.scaleX < 0.0f)
             {
-                ikRadianB += (float)Math.PI;
+                radianB += (float)Math.PI;
             }
 
-            dR = (ikRadianB - global.rotation) * this._weight;
-            global.rotation += dR;
+            global.rotation = parentGlobal.rotation + rawRadian - rawParentRadian + Transform.NormalizeRadian(radianB - dR - rawRadian) * this._weight;
             global.ToMatrix(globalTransformMatrix);
         }
 

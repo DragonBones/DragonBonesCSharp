@@ -471,15 +471,11 @@ namespace DragonBones
          */
         internal void UpdateByConstraint()
         {
-            if (this._localDirty)
+            if (this._localDirty && (this._transformDirty || (this._parent != null && this._parent._childrenTransformDirty)))
             {
                 this._localDirty = false;
-                if (this._transformDirty || (this._parent != null && this._parent._childrenTransformDirty))
-                {
-                    this._UpdateGlobalTransformMatrix(true);
-                }
-
                 this._transformDirty = true;
+                this._UpdateGlobalTransformMatrix(true);
             }
         }
         /**
