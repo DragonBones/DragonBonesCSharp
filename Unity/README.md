@@ -1,19 +1,20 @@
 # DragonBones Unity Library
-<p align="center">
-<h2 align="center">English          <a href="./ReadMe-zh_CN.md">中文版</a></h2>
-</p>
+[中文 README](./README-zh_CN.md)
+## [Demos](./Demos/)
+* [Hello DragonBones](./Demos/Assets/Scripts/Demos/HelloDragonBones.cs)
 
 ## How to use
+1. Create a Unity project.
+2. Copy [DragonBones common source code](../DragonBones/src/), [Dragonbones Unity source code](./src/), [3rdParty source code](../3rdParty/) all folders and files to the project's Assets/Scripts folder.
+3. Run project and have fun.
 
-1. Import the [DragonBones common source code](../DragonBones/src/) to project Assets/Scripts.
-2. Import the [DragonBones Unity source code](./src/) to project Assets/Scripts.
-3. Import the [3rdParty source code](../3rdParty/) to project Assets/Scripts.
-4. Run project and have fun.
-
-*Notice*
+## Notice
+* If you are upgrading the overwrite source file, there may be changes to the folder or file name, you need to pay attention to the following several situations:
+    * Check for additional legacy source folders and file residues that cause redefinition and recommend that you delete all old source folders and files before upgrading.
+    * Check other compilation errors that may result from folders or files name change.
 * Maker sure project structure like this:
 ```
-project
+Your project
     |-- Assets
         |-- Scripts
             |-- DragonBones
@@ -22,38 +23,12 @@ project
                 |-- ...
                 |-- unity
                 |-- ...
-            |-- 3rdParty Scripts
-            |-- Demos Scripts
+            |-- 3rdParty
+            |-- Demos
             |-- ...
         |-- Resources
-            |-- DragonBonesData files
+            |-- Local DragonBonesData files
             |-- ...
         |-- ...
     |-- ...
-```
-
-## How to create a new Unity project with DragonBones animation
-
-1. Create a new project in Unity.
-2. Import DragonBones [core library](../DragonBones/src/) and [unity library](./src/) into your project "[Project]/Assets/Scripts/".
-3. Import the [3rdParty source code](../3rdParty/) to your project "[Project]/Assets/Scripts/".
-4. Export DB animation files with DragonBones Pro to your project "[Project]/Assets/Resources/".
-5. Create a new C# script like following:
-```
-public class HelloDragonBones :MonoBehaviour
-{
-    void Start()
-    {
-        // Load data.
-       UnityFactory.factory.LoadDragonBonesData("Ubbie/Ubbie"); // DragonBones file path (without suffix)
-       UnityFactory.factory.LoadTextureAtlasData("Ubbie/texture"); //Texture atlas file path (without suffix) 
-        // Create armature.
-        var armatureComponent =UnityFactory.factory.BuildArmatureComponent("ubbie"); // Input armature name
-        // Play animation.
-       armatureComponent.animation.Play("walk");
-        
-        // Change armatureposition.
-       armatureComponent.transform.localPosition = new Vector3(0.0f, 0.0f,0.0f);
-    }
-}
 ```
