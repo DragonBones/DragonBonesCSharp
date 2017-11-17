@@ -129,7 +129,18 @@ namespace DragonBones
          */
         public bool Contains(IAnimatable value)
         {
-            return _animatebles.Contains(value);
+            if (value == this)
+            {
+                return false;
+            }
+
+            IAnimatable ancestor = value;
+            while (ancestor != this && ancestor != null)
+            {
+                ancestor = ancestor.clock;
+            }
+
+            return ancestor == this;
         }
         /**
          * 添加 IAnimatable 实例。

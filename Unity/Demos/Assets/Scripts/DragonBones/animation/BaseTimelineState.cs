@@ -181,7 +181,7 @@ namespace DragonBones
             this._position = this._animationState._position;
             this._duration = this._animationState._duration;
             this._dragonBonesData = this._armature.armatureData.parent;
-            this._animationData = this._animationState.animationData;
+            this._animationData = this._animationState._animationData;
 
             if (this._timelineData != null)
             {
@@ -206,7 +206,7 @@ namespace DragonBones
 
         public virtual void Update(float passedTime)
         {
-            if (this.playState <= 0 && this._SetCurrentTime(passedTime))
+            if (this._SetCurrentTime(passedTime))
             {
                 if (this._frameCount > 1)
                 {
@@ -404,4 +404,16 @@ namespace DragonBones
             this.slot = null; //
         }
     }
+
+    internal abstract class ConstraintTimelineState : TweenTimelineState
+    {
+        public Constraint constraint;
+
+        protected override void _OnClear()
+        {
+            base._OnClear();
+
+            this.constraint = null; //
+        }
+}
 }

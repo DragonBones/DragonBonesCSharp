@@ -305,32 +305,32 @@ namespace DragonBones
 
             if (this._displayIndex >= 0 && this._display != null && currentTextureData != null)
             {
-                if (this._armature.replacedTexture != null && this._rawDisplayDatas.Contains(this._displayData))
-                {
-                    var currentTextureAtlasData = currentTextureData.parent as UnityTextureAtlasData;
-                    if (this._armature._replaceTextureAtlasData == null)
-                    {
-                        currentTextureAtlasData = BaseObject.BorrowObject<UnityTextureAtlasData>();
-                        currentTextureAtlasData.CopyFrom(currentTextureData.parent);
+                //if (this._armature.replacedTexture != null && this._rawDisplayDatas.Contains(this._displayData))
+                //{
+                //    var currentTextureAtlasData = currentTextureData.parent as UnityTextureAtlasData;
+                //    if (this._armature._replaceTextureAtlasData == null)
+                //    {
+                //        currentTextureAtlasData = BaseObject.BorrowObject<UnityTextureAtlasData>();
+                //        currentTextureAtlasData.CopyFrom(currentTextureData.parent);
 
-                        if (_proxy.isUGUI)
-                        {
-                            currentTextureAtlasData.uiTexture = _armature.replacedTexture as Material;
-                        }
-                        else
-                        {
-                            currentTextureAtlasData.texture = _armature.replacedTexture as Material;
-                        }
+                //        if (_proxy.isUGUI)
+                //        {
+                //            currentTextureAtlasData.uiTexture = _armature.replacedTexture as Material;
+                //        }
+                //        else
+                //        {
+                //            currentTextureAtlasData.texture = _armature.replacedTexture as Material;
+                //        }
 
-                        this._armature._replaceTextureAtlasData = currentTextureAtlasData;
-                    }
-                    else
-                    {
-                        currentTextureAtlasData = this._armature._replaceTextureAtlasData as UnityTextureAtlasData;
-                    }
+                //        this._armature._replaceTextureAtlasData = currentTextureAtlasData;
+                //    }
+                //    else
+                //    {
+                //        currentTextureAtlasData = this._armature._replaceTextureAtlasData as UnityTextureAtlasData;
+                //    }
 
-                    currentTextureData = currentTextureAtlasData.GetTexture(currentTextureData.name) as UnityTextureData;
-                }
+                //    currentTextureData = currentTextureAtlasData.GetTexture(currentTextureData.name) as UnityTextureData;
+                //}
                 
                 var currentTextureAtlas = _proxy.isUGUI ? currentTextureAtlasData.uiTexture : currentTextureAtlasData.texture;
                 if (currentTextureAtlas != null)

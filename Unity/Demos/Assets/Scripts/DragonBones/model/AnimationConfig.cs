@@ -41,6 +41,13 @@ namespace DragonBones
          * @language zh_CN
          */
         public float fadeOutTime;
+        /**
+         * 是否暂停淡入的动画，直到淡入过程结束。
+         * @default true
+         * @version DragonBones 5.0
+         * @language zh_CN
+         */
+        public bool pauseFadeIn;
 
         /**
          * 否能触发行为。
@@ -63,13 +70,6 @@ namespace DragonBones
          * @language zh_CN
          */
         public bool displayControl;
-        /**
-         * 是否暂停淡入的动画，直到淡入过程结束。
-         * @default true
-         * @version DragonBones 5.0
-         * @language zh_CN
-         */
-        public bool pauseFadeIn;
         /**
          * 是否将没有动画的对象重置为初始值。
          * @default true
@@ -121,6 +121,13 @@ namespace DragonBones
          */
         public float timeScale;
         /**
+         * 混合权重。
+         * @default 1
+         * @version DragonBones 5.0
+         * @language zh_CN
+         */
+        public float weight;
+        /**
          * 淡入时间。 [-1: 使用动画数据默认值, [0~N]: 淡入时间] (以秒为单位)
          * @default -1
          * @version DragonBones 5.0
@@ -134,13 +141,6 @@ namespace DragonBones
          * @language zh_CN
          */
         public float autoFadeOutTime;
-        /**
-         * 混合权重。
-         * @default 1
-         * @version DragonBones 5.0
-         * @language zh_CN
-         */
-        public float weight;
         /**
          * 动画状态名。
          * @version DragonBones 5.0
@@ -184,9 +184,9 @@ namespace DragonBones
             this.position = 0.0f;
             this.duration = -1.0f;
             this.timeScale = -100.0f;
+            this.weight = 1.0f;
             this.fadeInTime = -1.0f;
             this.autoFadeOutTime = -1.0f;
-            this.weight = 1.0f;
             this.name = "";
             this.animation = "";
             this.group = "";

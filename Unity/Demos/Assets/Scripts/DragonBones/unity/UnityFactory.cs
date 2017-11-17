@@ -199,7 +199,7 @@ namespace DragonBones
             return armature;
         }
         
-        override protected Armature _BuildChildArmatrue(BuildArmaturePackage dataPackage, Slot slot, DisplayData displayData)
+        override protected Armature _BuildChildArmature(BuildArmaturePackage dataPackage, Slot slot, DisplayData displayData)
         {
             var childDisplayName = slot.slotData.name + " (" + displayData.path + ")"; //
             var proxy = slot.armature.proxy as UnityArmatureComponent;
@@ -211,7 +211,14 @@ namespace DragonBones
             }
             else
             {
-                childArmature =  BuildArmatureComponent(displayData.path, dataPackage.dataName, null, dataPackage.textureAtlasName, childTransform.gameObject).armature;
+                if (dataPackage != null)
+                {
+                    childArmature = BuildArmatureComponent(displayData.path, dataPackage != null ? dataPackage.dataName : "", null, dataPackage.textureAtlasName, childTransform.gameObject).armature;
+                }
+                else
+                {
+                    childArmature = BuildArmatureComponent(displayData.path, null, null, null, childTransform.gameObject).armature;
+                }
             }
 
             //
@@ -889,7 +896,7 @@ namespace DragonBones
                     (newDisplayData as MeshDisplayData).weight = (prevDispalyData as MeshDisplayData).weight;
                 }
 
-                _ReplaceSlotDisplay(dataPackage, newDisplayData, slot, displayIndex);
+                ReplaceDisplay(slot, newDisplayData, displayIndex);
                 
             }
 		}

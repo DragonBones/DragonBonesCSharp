@@ -109,7 +109,7 @@ namespace DragonBones
             {
                 if (this.textures.ContainsKey(value.name))
                 {
-                    Helper.Assert(false, "Replace texture: " + value.name);
+                    Helper.Assert(false, "Same texture: " + value.name);
                     this.textures[value.name].ReturnToPool();
                 }
 

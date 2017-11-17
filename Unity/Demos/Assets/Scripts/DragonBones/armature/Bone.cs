@@ -27,15 +27,6 @@ namespace DragonBones
          * @internal
          * @private
          */
-        internal readonly List<Constraint> constraints = new List<Constraint>();
-        /**
-         * @readonly
-         */
-        public BoneData boneData;
-        /**
-         * @internal
-         * @private
-         */
         internal bool _transformDirty;
         /**
          * @internal
@@ -48,6 +39,8 @@ namespace DragonBones
          */
         internal bool _blendDirty;
         private bool _localDirty;
+
+        internal bool _hasConstraint;
         private bool _visible;
         private int _cachedFrameIndex;
         /**
@@ -65,8 +58,10 @@ namespace DragonBones
          * @private
          */
         internal float _blendLayerWeight;
-        private readonly List<Bone> _bones = new List<Bone>();
-        private readonly List<Slot> _slots = new List<Slot>();
+        /**
+         * @readonly
+         */
+        internal BoneData _boneData;
         /**
          * @internal
          * @private
@@ -79,27 +74,20 @@ namespace DragonBones
         {
             base._OnClear();
 
-            foreach (var constraint in this.constraints)
-            {
-                constraint.ReturnToPool();
-            }
-
             this.offsetMode = OffsetMode.Additive;
             this.animationPose.Identity();
-            this.constraints.Clear();
-            this.boneData = null; //
 
             this._transformDirty = false;
             this._childrenTransformDirty = false;
             this._blendDirty = false;
             this._localDirty = true;
+            this._hasConstraint = false;
             this._visible = true;
             this._cachedFrameIndex = -1;
             this._blendLayer = 0;
             this._blendLeftWeight = 1.0f;
             this._blendLayerWeight = 0.0f;
-            this._bones.Clear();
-            this._slots.Clear();
+            this._boneData = null; //
             this._cachedFrameIndices = null;
         }
         /**
@@ -112,7 +100,7 @@ namespace DragonBones
             var global = this.global;
             var globalTransformMatrix = this.globalTransformMatrix;
             var inherit = this._parent != null;
-            var dR = 0.0f;
+            var rotation = 0.0f;
 
             if (this.offsetMode == OffsetMode.Additive)
             {
@@ -137,45 +125,36 @@ namespace DragonBones
             if (inherit)
             {
                 var parentMatrix = this._parent.globalTransformMatrix;
-                if (this.boneData.inheritScale)
+                if (this._boneData.inheritScale)
                 {
-                    if (!this.boneData.inheritRotation)
+                    if (!this._boneData.inheritRotation)
                     {
                         this._parent.UpdateGlobalTransform();
-                                                
-                        dR = this._parent.global.rotation; //
 
-                        flipY = _armature.flipY;
-                        if (flipX || flipY)
+                        if (flipX && flipY)
                         {
-                            if (flipX && flipY)
-                            {
-                                dR += Transform.PI;
-                            }
-                            else
-                            {
-                                dR -= this._parent.global.rotation * 2.0f;
-                                if (flipX)
-                                {
-                                    dR += Transform.PI;
-                                }
-                            }
+                            rotation = global.rotation - (this._parent.global.rotation + Transform.PI);
                         }
-
-                        if (DragonBones.yDown)
+                        else if (flipX)
                         {
-                            global.rotation -= dR;
+                            rotation = global.rotation + this._parent.global.rotation + Transform.PI;
+                        }
+                        else if (flipY)
+                        {
+                            rotation = global.rotation + this._parent.global.rotation;
                         }
                         else
                         {
-                            global.rotation += dR;
+                            rotation = global.rotation - this._parent.global.rotation;
                         }
+
+                        global.rotation = rotation;
                     }
 
                     global.ToMatrix(globalTransformMatrix);
                     globalTransformMatrix.Concat(parentMatrix);
 
-                    if (this.boneData.inheritTranslation)
+                    if (this._boneData.inheritTranslation)
                     {
                         global.x = globalTransformMatrix.tx;
                         global.y = globalTransformMatrix.ty;
@@ -197,7 +176,7 @@ namespace DragonBones
                 }
                 else
                 {
-                    if (this.boneData.inheritTranslation)
+                    if (this._boneData.inheritTranslation)
                     {
                         var x = global.x;
                         var y = global.y;
@@ -217,46 +196,51 @@ namespace DragonBones
                         }
                     }
 
-                    if (this.boneData.inheritRotation)
+                    if (this._boneData.inheritRotation)
                     {
                         this._parent.UpdateGlobalTransform();
-                        dR = this._parent.global.rotation;
-
-                        if (this._parent.global.scaleX < 0.0f)
+                        if (this._parent.global.scaleX < 0.0)
                         {
-                            dR += (float)Math.PI;
+                            rotation = global.rotation + this._parent.global.rotation + Transform.PI;
+                        }
+                        else
+                        {
+                            rotation = global.rotation + this._parent.global.rotation;
                         }
 
-                        if (parentMatrix.a * parentMatrix.d - parentMatrix.b * parentMatrix.c < 0.0f)
+                        if (parentMatrix.a * parentMatrix.d - parentMatrix.b * parentMatrix.c < 0.0)
                         {
-                            dR -= global.rotation * 2.0f;
+                            rotation -= global.rotation * 2.0f;
 
-                            if (flipX != flipY || this.boneData.inheritReflection)
+                            if (flipX != flipY || this._boneData.inheritReflection)
                             {
-                                global.skew += (float)Math.PI;
+                                global.skew += Transform.PI;
                             }
                         }
 
-                        global.rotation += dR;
+                        global.rotation = rotation;
                     }
                     else if (flipX || flipY)
                     {
                         if (flipX && flipY)
                         {
-                            dR = (float)Math.PI;
+                            rotation = global.rotation + Transform.PI;
                         }
                         else
                         {
-                            dR = -global.rotation * 2.0f;
                             if (flipX)
                             {
-                                dR += (float)Math.PI;
+                                rotation = Transform.PI - global.rotation;
+                            }
+                            else
+                            {
+                                rotation = -global.rotation;
                             }
 
-                            global.skew += (float)Math.PI;
+                            global.skew += Transform.PI;
                         }
 
-                        global.rotation += dR;
+                        global.rotation = rotation;
                     }
 
                     global.ToMatrix(globalTransformMatrix);
@@ -278,20 +262,23 @@ namespace DragonBones
 
                     if (flipX && flipY)
                     {
-                        dR = (float)Math.PI;
+                        rotation = global.rotation + Transform.PI;
                     }
                     else
                     {
-                        dR = -global.rotation * 2.0f;
                         if (flipX)
                         {
-                            dR += (float)Math.PI;
+                            rotation = Transform.PI - global.rotation;
+                        }
+                        else
+                        {
+                            rotation = -global.rotation;
                         }
 
-                        global.skew += (float)Math.PI;
+                        global.skew += Transform.PI;
                     }
 
-                    global.rotation += dR;
+                    global.rotation = rotation;
                 }
 
                 global.ToMatrix(globalTransformMatrix);
@@ -314,8 +301,8 @@ namespace DragonBones
 
             if (this._armature != null)
             {
-                oldSlots = this.GetSlots();
-                oldBones = this.GetBones();
+                oldSlots = this._armature.GetSlots();
+                oldBones = this._armature.GetBones();
                 this._armature._RemoveBoneFromBoneList(this);
             }
 
@@ -354,14 +341,14 @@ namespace DragonBones
          */
         internal void Init(BoneData boneData)
         {
-            if (this.boneData != null)
+            if (this._boneData != null)
             {
                 return;
             }
 
-            this.boneData = boneData;
-            this.name = this.boneData.name;
-            this.origin = this.boneData.transform;
+            this._boneData = boneData;
+            //
+            this.origin = this._boneData.transform;
         }
         /**
          * @internal
@@ -388,12 +375,15 @@ namespace DragonBones
                 }
                 else
                 {
-                    if (this.constraints.Count > 0)
+                    if (this._hasConstraint)
                     {
                         // Update constraints.
-                        foreach (var constraint in this.constraints)
+                        foreach (var constraint in this._armature._constraints)
                         {
-                            constraint.Update();
+                            if (constraint._bone == this)
+                            {
+                                constraint.Update();
+                            }
                         }
                     }
 
@@ -419,12 +409,15 @@ namespace DragonBones
             }
             else
             {
-                if (this.constraints.Count > 0)
+                if (this._hasConstraint)
                 { 
                     // Update constraints.
-                    foreach (var constraint in this.constraints)
+                    foreach (var constraint in this._armature._constraints)
                     {
-                        constraint.Update();
+                        if (constraint._bone == this)
+                        {
+                            constraint.Update();
+                        }
                     }
                 }
 
@@ -452,12 +445,12 @@ namespace DragonBones
 
                     if (isCache && this._cachedFrameIndices != null)
                     {
-                        this._cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex] = this._armature.armatureData.SetCacheFrame(this.globalTransformMatrix, this.global);
+                        this._cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex] = this._armature._armatureData.SetCacheFrame(this.globalTransformMatrix, this.global);
                     }
                 }
                 else
                 {
-                    this._armature.armatureData.GetCacheFrame(this.globalTransformMatrix, this.global, this._cachedFrameIndex);
+                    this._armature._armatureData.GetCacheFrame(this.globalTransformMatrix, this.global, this._cachedFrameIndex);
                 }
             }
             else if (this._childrenTransformDirty)
@@ -473,26 +466,11 @@ namespace DragonBones
          */
         internal void UpdateByConstraint()
         {
-            if (this._localDirty)
+            if (this._localDirty && (this._transformDirty || (this._parent != null && this._parent._childrenTransformDirty)))
             {
                 this._localDirty = false;
-                if (this._transformDirty || (this._parent != null && this._parent._childrenTransformDirty))
-                {
-                    this._UpdateGlobalTransformMatrix(true);
-                }
-
                 this._transformDirty = true;
-            }
-        }
-        /**
-         * @internal
-         * @private
-         */
-        internal void AddConstraint(Constraint constraint)
-        {
-            if (!this.constraints.Contains(constraint))
-            {
-                this.constraints.Add(constraint);
+                this._UpdateGlobalTransformMatrix(true);
             }
         }
         /**
@@ -511,14 +489,14 @@ namespace DragonBones
          * @version DragonBones 3.0
          * @language zh_CN
          */
-        public bool Contains(TransformObject child)
+        public bool Contains(TransformObject value)
         {
-            if (child == this)
+            if (value == this)
             {
                 return false;
             }
 
-            TransformObject ancestor = child;
+            TransformObject ancestor = value;
             while (ancestor != this && ancestor != null)
             {
                 ancestor = ancestor.parent;
@@ -526,45 +504,11 @@ namespace DragonBones
 
             return ancestor == this;
         }
-        /**
-         * 所有的子骨骼。
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
-        public List<Bone> GetBones()
+        public BoneData boneData
         {
-            this._bones.Clear();
-
-            foreach (var bone in this._armature.GetBones())
-            {
-                if (bone.parent == this)
-                {
-                    this._bones.Add(bone);
-                }
-            }
-
-            return this._bones;
+            get { return this._boneData; }
         }
-        /**
-         * 所有的插槽。
-         * @see dragonBones.Slot
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
-        public List<Slot> GetSlots()
-        {
-            this._slots.Clear();
-
-            foreach (var slot in this._armature.GetSlots())
-            {
-                if (slot.parent == this)
-                {
-                    this._slots.Add(slot);
-                }
-            }
-
-            return this._slots;
-        }
+       
         /**
          * 控制此骨骼所有插槽的可见。
          * @default true
@@ -591,6 +535,27 @@ namespace DragonBones
                         slot._UpdateVisible();
                     }
                 }
+            }
+        }
+
+        public string name
+        {
+            get { return this._boneData.name; }
+        }
+
+        public Slot slot
+        {
+            get
+            {
+                foreach(var slot in this._armature.GetSlots())
+                {
+                    if (slot.parent == this)
+                    {
+                        return slot;
+                    }
+                }
+                
+                return null;
             }
         }
     }

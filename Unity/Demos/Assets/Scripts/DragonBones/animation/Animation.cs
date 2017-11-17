@@ -22,11 +22,6 @@ namespace DragonBones
 
         // Update bones and slots cachedFrameIndices.
         private bool _animationDirty;
-        /**
-         * @internal
-         * @private
-         */
-        internal bool _timelineDirty; // Updata animationStates timelineStates.
         private float _inheritTimeScale;
         private readonly List<string> _animationNames = new List<string>();
         private readonly List<AnimationState> _animationStates = new List<AnimationState>();
@@ -52,7 +47,6 @@ namespace DragonBones
             this.timeScale = 1.0f;
 
             this._animationDirty = false;
-            this._timelineDirty = false;
             this._inheritTimeScale = 1.0f;
             this._animationNames.Clear();
             this._animationStates.Clear();
@@ -159,7 +153,7 @@ namespace DragonBones
                 }
                 else
                 {
-                    var animationData = animationState.animationData;
+                    var animationData = animationState._animationData;
                     var cacheFrameRate = animationData.cacheFrameRate;
 
                     if (this._animationDirty && cacheFrameRate > 0.0f)
@@ -175,11 +169,6 @@ namespace DragonBones
                         {
                             slot._cachedFrameIndices = animationData.GetSlotCachedFrameIndices(slot.name);
                         }
-                    }
-
-                    if (this._timelineDirty)
-                    {
-                        animationState.UpdateTimelines();
                     }
 
                     animationState.AdvanceTime(passedTime, cacheFrameRate);
@@ -208,11 +197,6 @@ namespace DragonBones
                             this._animationStates[i - r] = animationState;
                         }
 
-                        if (this._timelineDirty)
-                        {
-                            animationState.UpdateTimelines();
-                        }
-
                         animationState.AdvanceTime(passedTime, 0.0f);
                     }
 
@@ -233,8 +217,6 @@ namespace DragonBones
             {
                 this._armature._cacheFrameIndex = -1;
             }
-
-            this._timelineDirty = false;
         }
         /**
          * 清除所有动画状态。
@@ -250,7 +232,6 @@ namespace DragonBones
             }
 
             this._animationDirty = false;
-            this._timelineDirty = false;
             this._animationConfig.Clear();
             this._animationStates.Clear();
             this._lastAnimationState = null;
@@ -311,7 +292,7 @@ namespace DragonBones
             {
                 foreach (var aniState in this._animationStates)
                 {
-                    if (aniState.animationData == animationData)
+                    if (aniState._animationData == animationData)
                     {
                         return aniState;
                     }
@@ -760,8 +741,8 @@ namespace DragonBones
 
                 foreach (var k in value)
                 {
-                    this._animations[k.Key] = value[k.Key];
                     this._animationNames.Add(k.Key);
+                    this._animations[k.Key] = value[k.Key];
                 }
             }
         }

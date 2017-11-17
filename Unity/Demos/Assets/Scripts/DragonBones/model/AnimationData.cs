@@ -13,15 +13,15 @@ namespace DragonBones
         /**
          * @private
          */
-        public uint frameIntOffset; // FrameIntArray.
+        public uint frameIntOffset;
         /**
          * @private
          */
-        public uint frameFloatOffset; // FrameFloatArray.
+        public uint frameFloatOffset;
         /**
          * @private
          */
-        public uint frameOffset; // FrameArray.
+        public uint frameOffset;
         /**
          * 持续的帧数。 ([1~N])
          * @version DragonBones 3.0
@@ -75,6 +75,10 @@ namespace DragonBones
         /**
          * @private
          */
+        public readonly Dictionary<string, List<TimelineData>> constraintTimelines = new Dictionary<string, List<TimelineData>>();
+        /**
+         * @private
+         */
         public readonly Dictionary<string, List<int>> boneCachedFrameIndices = new Dictionary<string, List<int>>();
         /**
          * @private
@@ -116,6 +120,14 @@ namespace DragonBones
                 }
             }
 
+            foreach (var pair in constraintTimelines)
+            {
+                for (int i = 0; i < pair.Value.Count; ++i)
+                {
+                    pair.Value[i].ReturnToPool();
+                }
+            }
+
             if (this.actionTimeline != null)
             {
                 this.actionTimeline.ReturnToPool();
@@ -138,6 +150,7 @@ namespace DragonBones
             this.name = "";
             this.boneTimelines.Clear();
             this.slotTimelines.Clear();
+            this.constraintTimelines.Clear();
             this.boneCachedFrameIndices.Clear();
             this.slotCachedFrameIndices.Clear();
             this.cachedFrames.Clear();
@@ -230,16 +243,43 @@ namespace DragonBones
         /**
          * @private
          */
-        public List<TimelineData> GetBoneTimeline(string name)
+        public void AddConstraintTimeline(ConstraintData constraint, TimelineData timeline)
+        {
+            if (constraint == null || timeline == null)
+            {
+                return;
+            }
+
+            if (!this.constraintTimelines.ContainsKey(constraint.name))
+            {
+                this.constraintTimelines[constraint.name] = new List<TimelineData>();
+            }
+
+            var timelines = this.constraintTimelines[constraint.name];
+            if (!timelines.Contains(timeline))
+            {
+                timelines.Add(timeline);
+            }
+        }
+
+        /**
+         * @private
+         */
+        public List<TimelineData> GetBoneTimelines(string name)
         {
             return this.boneTimelines.ContainsKey(name) ? this.boneTimelines[name] : null;
         }
         /**
          * @private
          */
-        public List<TimelineData> GetSlotTimeline(string name)
+        public List<TimelineData> GetSlotTimelines(string name)
         {
             return slotTimelines.ContainsKey(name) ? slotTimelines[name] : null;
+        }
+
+        public List<TimelineData> GetConstraintTimelines(string name)
+        {
+            return constraintTimelines.ContainsKey(name) ? constraintTimelines[name] : null;
         }
         /**
          * @private

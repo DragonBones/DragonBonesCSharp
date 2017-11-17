@@ -25,17 +25,17 @@
      */
     public class IKConstraintData : ConstraintData
     {
-        public bool bendPositive;
         public bool scaleEnabled;
+        public bool bendPositive;
         public float weight;
 
         protected override void _OnClear()
         {
             base._OnClear();
 
-            this.bendPositive = false;
             this.scaleEnabled = false;
+            this.bendPositive = false;
             this.weight = 1.0f;
         }
-}
+    }
 }
