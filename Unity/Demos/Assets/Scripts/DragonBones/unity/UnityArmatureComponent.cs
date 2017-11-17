@@ -345,13 +345,15 @@ namespace DragonBones
          */
         void Awake()
 		{
+            #if UNITY_EDITOR
             if (_isPrefab())
             {
                 return;
             }
+            #endif
 
-			#if UNITY_5_6_OR_NEWER
-			if(!isUGUI)
+            #if UNITY_5_6_OR_NEWER
+            if (!isUGUI)
             {
 				_sortingGroup = GetComponent<UnityEngine.Rendering.SortingGroup>();
 				if(_sortingGroup)
