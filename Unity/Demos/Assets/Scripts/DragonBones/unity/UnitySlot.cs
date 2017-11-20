@@ -28,6 +28,10 @@ namespace DragonBones
 		private MeshFilter _meshFilter = null;
 		private UnityUGUIDisplay _uiDisplay = null;
 
+        //QQ
+        private BlendMode _preBlendMode;
+        private BlendModes.BlendModeEffect _blendModeEffect;
+
 		public Mesh mesh
         {
 			get { return _mesh;}
@@ -128,11 +132,23 @@ namespace DragonBones
             if (_renderDisplay.transform.parent != container.transform)
             {
                 _renderDisplay.transform.SetParent(container.transform);
+
                 
+
+
                 _helpVector3.Set(0.0f, 0.0f, -_zOrder * (_proxy.zSpace + 0.001f));
 
                 _SetZorder(_helpVector3);
             }
+
+            //QQ
+            _blendModeEffect = _renderDisplay.GetComponent<BlendModes.BlendModeEffect>();
+            if (_blendModeEffect == null)
+            {
+                _blendModeEffect = _renderDisplay.AddComponent<BlendModes.BlendModeEffect>();
+            }
+
+            _blendModeEffect.RenderMode = BlendModes.RenderMode.Grab;
         }
         /**
          * @private
@@ -142,9 +158,6 @@ namespace DragonBones
             var container = _proxy;
             var prevDisplay = value as GameObject;
 			int index = prevDisplay.transform.GetSiblingIndex();
-            //QQ
-            //prevDisplay.hideFlags = HideFlags.HideInHierarchy;
-            //prevDisplay.transform.SetParent(null, false);
             prevDisplay.SetActive(false);
 
             _renderDisplay.hideFlags = HideFlags.None;
@@ -180,24 +193,6 @@ namespace DragonBones
          */
         private void _SetZorder(Vector3 zorderPos)
         {
-#if UNITY_5_6_OR_NEWER
-            //var sortingGroup = _proxy.GetComponent<UnityEngine.Rendering.SortingGroup>();
-            //if (sortingGroup == null)
-            //{
-            //    sortingGroup = _proxy.GetComponent<UnityEngine.Rendering.SortingGroup>();
-            //}
-
-            ////childArmature zorder
-            //if (_childArmature != null)
-            //{
-            //    var childProxy = _childArmature.proxy as UnityArmatureComponent;
-            //    var childSortingGroup = childProxy.GetComponent<UnityEngine.Rendering.SortingGroup>();
-            //    if (childSortingGroup != null)
-            //    {
-            //        childSortingGroup.sortingOrder = _zOrder;
-            //    }
-            //}
-#endif
             if (_renderDisplay != null)
             {
                 _renderDisplay.transform.localPosition = zorderPos;
@@ -236,18 +231,28 @@ namespace DragonBones
          */
         override protected void _UpdateBlendMode()
         {
+            if (_preBlendMode == _blendMode)
+            {
+                //return;
+            }
             // TODO
             switch (_blendMode)
             {
                 case BlendMode.Normal:
+                    _blendModeEffect.SelectiveBlending = false;
+                    _blendModeEffect.BlendMode = BlendModes.BlendMode.Normal;
                     break;
 
                 case BlendMode.Add:
+                    _blendModeEffect.SelectiveBlending = true;
+                    _blendModeEffect.BlendMode = BlendModes.BlendMode.LinearDodge;
                     break;
 
                 default:
                     break;
             }
+
+            _preBlendMode = _blendMode;
         }
         /**
          * @private
@@ -498,6 +503,8 @@ namespace DragonBones
                         
                         _meshFilter.sharedMesh = _mesh;
                         _renderer.sharedMaterial = currentTextureAtlas;
+
+                        _blendModeEffect.Texture = _renderer.sharedMaterial.mainTexture as Texture2D;
                     }
 
                     this._blendModeDirty = true;
