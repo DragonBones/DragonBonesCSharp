@@ -701,7 +701,12 @@ namespace DragonBones
                 var intArray = this._dragonBonesData.intArray;
                 var frameIntArray = this._dragonBonesData.frameIntArray;
                 var valueOffset = this._animationData.frameIntOffset + this._frameValueOffset + this._frameIndex * 1; // ...(timeline value offset)|x|x|(Value offset)|(Next offset)|x|x|...
-                var colorOffset = frameIntArray[valueOffset];
+                int colorOffset = frameIntArray[valueOffset];
+
+                if (colorOffset < 0)
+                {
+                    colorOffset += short.MaxValue;
+                }
                 this._current[0] = intArray[colorOffset++];
                 this._current[1] = intArray[colorOffset++];
                 this._current[2] = intArray[colorOffset++];
@@ -720,6 +725,11 @@ namespace DragonBones
                     else
                     {
                         colorOffset = frameIntArray[valueOffset + 1 * 1];
+                    }
+
+                    if (colorOffset < 0)
+                    {
+                        colorOffset += short.MaxValue;
                     }
 
                     this._delta[0] = intArray[colorOffset++] - this._current[0];
