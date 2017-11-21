@@ -162,7 +162,7 @@ namespace DragonBones
 					_armatureComponent.unityData = data;
 
 					var armatureName = dragonBonesData.armatureNames[0];
-					ChangeArmatureData(_armatureComponent, armatureName, dragonBonesData.name);
+					ChangeArmatureData(_armatureComponent, armatureName, _armatureComponent.unityData.dataName);
 
 					_armatureComponent.gameObject.name = armatureName;
 

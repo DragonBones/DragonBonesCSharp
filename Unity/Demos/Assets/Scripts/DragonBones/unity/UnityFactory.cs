@@ -518,11 +518,7 @@ namespace DragonBones
 			if (data.dragonBonesJSON != null)
 			{
                 dragonBonesData = LoadDragonBonesData(data.dragonBonesJSON, data.dataName, armatureScale);
-                if (string.IsNullOrEmpty(data.dataName))
-                {
-                    data.dataName = dragonBonesData.name;
-                }
-
+                
                 if (!string.IsNullOrEmpty(data.dataName) && dragonBonesData != null && data.textureAtlas != null)
 				{
 #if UNITY_EDITOR
@@ -644,7 +640,9 @@ namespace DragonBones
                 data = ParseDragonBonesData((Dictionary<string, object>)MiniJSON.Json.Deserialize(dragonBonesJSON.text), name, scale); // Unity default Scale Factor.
             }
             //
-            _dragonBonesDataMap[data.name] = data;
+            name = !string.IsNullOrEmpty(name) ? name : data.name;
+            //
+            _dragonBonesDataMap[name] = data;
             return data;
         }
         /// <summary>

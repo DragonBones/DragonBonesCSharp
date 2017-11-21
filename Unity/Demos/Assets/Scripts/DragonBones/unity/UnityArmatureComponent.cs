@@ -372,7 +372,7 @@ namespace DragonBones
 				var dragonBonesData = UnityFactory.factory.LoadData(unityData, isUGUI);
 				if (dragonBonesData != null && !string.IsNullOrEmpty(armatureName))
 				{
-					UnityFactory.factory.BuildArmatureComponent(armatureName, dragonBonesData.name, null, unityData.dataName, gameObject , isUGUI);
+					UnityFactory.factory.BuildArmatureComponent(armatureName, unityData.dataName, null, null, gameObject , isUGUI);
 				}
 			}
             
