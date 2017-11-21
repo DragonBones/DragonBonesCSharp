@@ -48,8 +48,9 @@ namespace DragonBones
         //
         private GameObject _armatureGameObject = null;
         private bool _isUGUI = false;
-        private readonly Dictionary<string, DragonBonesData> _pathDragonBonesDataMap = new Dictionary<string, DragonBonesData>();
-        private readonly Dictionary<string, TextureAtlasData> _pathTextureAtlasDataMap = new Dictionary<string, TextureAtlasData>();
+
+        //
+        private readonly List<UnityDragonBonesData> _cacheUnityDragonBonesData = new List<UnityDragonBonesData>();
 
         /// <summary>
         /// A global factory instance that can be used directly.
@@ -458,48 +459,6 @@ namespace DragonBones
         }
         
         /// <inheritDoc/>
-        public override void RemoveDragonBonesData(string name, bool disposeData = true)
-        {
-            var dragonBonesData = GetDragonBonesData(name);
-            if (_pathDragonBonesDataMap.ContainsValue(dragonBonesData))
-            {
-                foreach (var pair in _pathDragonBonesDataMap)
-                {
-                    if (pair.Value == dragonBonesData)
-                    {
-                        _pathDragonBonesDataMap.Remove(pair.Key);
-                        break;
-                    }
-                }
-            }
-
-            base.RemoveDragonBonesData(name, disposeData);
-        }
-        /// <inheritDoc/>
-        public override void RemoveTextureAtlasData(string name, bool disposeData = true)
-        {
-            var textureAtlasDataList = GetTextureAtlasData(name);
-            if (textureAtlasDataList != null)
-            {
-                foreach (var textureAtlasData in textureAtlasDataList)
-                {
-                    if (_pathTextureAtlasDataMap.ContainsValue(textureAtlasData))
-                    {
-                        foreach (var pair in _pathTextureAtlasDataMap)
-                        {
-                            if (pair.Value == textureAtlasData)
-                            {
-                                _pathTextureAtlasDataMap.Remove(pair.Key);
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-
-            base.RemoveTextureAtlasData(name, disposeData);
-        }
-        /// <inheritDoc/>
         public override void Clear(bool disposeData = true)
         {
             base.Clear(disposeData);
@@ -507,8 +466,8 @@ namespace DragonBones
             _armatureGameObject = null;
             _isUGUI = false;
 
-            _pathDragonBonesDataMap.Clear();
-            _pathTextureAtlasDataMap.Clear();
+            //
+            _cacheUnityDragonBonesData.Clear();
         }
 
         /// <summary>
@@ -591,12 +550,12 @@ namespace DragonBones
 						}
 					}
 #endif
-					for(int i = 0; i < data.textureAtlas.Length; ++i)
+					for (int i = 0; i < data.textureAtlas.Length; ++i)
 					{
                         LoadTextureAtlasData(data.textureAtlas[i], data.dataName, texScale,isUGUI);
 					}
 #if UNITY_EDITOR
-					if(isDirty)
+					if (isDirty)
                     {
 						AssetDatabase.Refresh();
 						EditorUtility.SetDirty(data);
@@ -632,19 +591,9 @@ namespace DragonBones
         {
             dragonBonesJSONPath = UnityFactoryHelper.CheckResourecdPath(dragonBonesJSONPath);
 
-            if (_pathDragonBonesDataMap.ContainsKey(dragonBonesJSONPath))
-            {
-                return _pathDragonBonesDataMap[dragonBonesJSONPath];
-            }
-
             TextAsset dragonBonesJSON = Resources.Load<TextAsset>(dragonBonesJSONPath);
 
             DragonBonesData dragonBonesData = LoadDragonBonesData(dragonBonesJSON, name);
-            
-            if (dragonBonesData != null)
-            {
-                _pathDragonBonesDataMap[dragonBonesJSONPath] = dragonBonesData;
-            }
 
             return dragonBonesData;
         }
@@ -723,33 +672,25 @@ namespace DragonBones
         {
             textureAtlasJSONPath = UnityFactoryHelper.CheckResourecdPath(textureAtlasJSONPath);
 
-            UnityTextureAtlasData textureAtlasData = null;
+            TextAsset textureAtlasJSON = Resources.Load<TextAsset>(textureAtlasJSONPath);
 
-            if (_pathTextureAtlasDataMap.ContainsKey(textureAtlasJSONPath))
+            //
+            if (textureAtlasJSON != null)
             {
-                textureAtlasData = _pathTextureAtlasDataMap[textureAtlasJSONPath] as UnityTextureAtlasData;
-                _RefreshTextureAtlas(textureAtlasData, isUGUI);
-            }
-            else
-            {
-                TextAsset textureAtlasJSON = Resources.Load<TextAsset>(textureAtlasJSONPath);
-                if (textureAtlasJSON != null)
+                Dictionary<string, object> textureJSONData = (Dictionary<string, object>)MiniJSON.Json.Deserialize(textureAtlasJSON.text);
+                UnityTextureAtlasData textureAtlasData = ParseTextureAtlasData(textureJSONData, null, name, scale) as UnityTextureAtlasData;
+
+                if (textureAtlasData != null)
                 {
-                    Dictionary<string, object> textureJSONData = (Dictionary<string, object>)MiniJSON.Json.Deserialize(textureAtlasJSON.text);
-                    textureAtlasData = ParseTextureAtlasData(textureJSONData, null, name, scale) as UnityTextureAtlasData;
+                    textureAtlasData.imagePath = UnityFactoryHelper.GetTextureAtlasImagePath(textureAtlasJSONPath, textureAtlasData.imagePath);
 
-                    if (textureAtlasData != null)
-                    {
-                        textureAtlasData.imagePath = UnityFactoryHelper.GetTextureAtlasImagePath(textureAtlasJSONPath, textureAtlasData.imagePath);
-
-                        _RefreshTextureAtlas(textureAtlasData, isUGUI);
-
-                        _pathTextureAtlasDataMap[textureAtlasJSONPath] = textureAtlasData;
-                    }
+                    _RefreshTextureAtlas(textureAtlasData, isUGUI);
                 }
+
+                return textureAtlasData;
             }
 
-            return textureAtlasData;
+            return null;
         }
         /// <summary>
         /// Parse the TextureAtlas to a UnityTextureAtlasData instance and cache it to the factory.
@@ -774,68 +715,44 @@ namespace DragonBones
         /// <language>zh_CN</language>
         public UnityTextureAtlasData LoadTextureAtlasData(UnityDragonBonesData.TextureAtlas textureAtlas, string name, float scale = 1.0f,bool isUGUI = false)
 		{
-			UnityTextureAtlasData textureAtlasData = null;
-			if (_pathTextureAtlasDataMap.ContainsKey(name+textureAtlas.texture.name))
-			{
-				textureAtlasData = _pathTextureAtlasDataMap[name+textureAtlas.texture.name] as UnityTextureAtlasData;
-#if UNITY_EDITOR
-				if(!Application.isPlaying)
-                {
-					textureAtlasData.imagePath = AssetDatabase.GetAssetPath(textureAtlas.texture);
-					textureAtlasData.imagePath = textureAtlasData.imagePath.Substring(0,textureAtlasData.imagePath.Length-4);
-				}
-#endif
-                _RefreshTextureAtlas(textureAtlasData, isUGUI, true);
+            Dictionary<string, object> textureJSONData = (Dictionary<string, object>)MiniJSON.Json.Deserialize(textureAtlas.textureAtlasJSON.text);
+            UnityTextureAtlasData textureAtlasData = ParseTextureAtlasData(textureJSONData, null, name, scale) as UnityTextureAtlasData;
 
-                if (isUGUI)
-                {
-                    textureAtlas.uiMaterial = textureAtlasData.uiTexture;
-                }
-                else
-                {
-                    textureAtlas.material = textureAtlasData.texture;
-                }
-			}
-			else
-			{
-				Dictionary<string, object> textureJSONData = (Dictionary<string, object>)MiniJSON.Json.Deserialize(textureAtlas.textureAtlasJSON.text);
-				textureAtlasData = ParseTextureAtlasData(textureJSONData, null, name, scale) as UnityTextureAtlasData;
-	
-				if(textureJSONData.ContainsKey("width"))
-                {
-					textureAtlasData.width = uint.Parse(textureJSONData["width"].ToString());
-				}
-				if(textureJSONData.ContainsKey("height"))
-                {
-					textureAtlasData.height = uint.Parse(textureJSONData["height"].ToString());
-				}
+            if (textureJSONData.ContainsKey("width"))
+            {
+                textureAtlasData.width = uint.Parse(textureJSONData["width"].ToString());
+            }
 
-				if (textureAtlasData != null)
-				{
-					textureAtlasData.uiTexture = textureAtlas.uiMaterial;
-					textureAtlasData.texture = textureAtlas.material;
+            if (textureJSONData.ContainsKey("height"))
+            {
+                textureAtlasData.height = uint.Parse(textureJSONData["height"].ToString());
+            }
+
+            if (textureAtlasData != null)
+            {
+                textureAtlasData.uiTexture = textureAtlas.uiMaterial;
+                textureAtlasData.texture = textureAtlas.material;
 #if UNITY_EDITOR
-					if(!Application.isPlaying)
+                if (!Application.isPlaying)
+                {
+                    textureAtlasData.imagePath = AssetDatabase.GetAssetPath(textureAtlas.texture);
+                    textureAtlasData.imagePath = textureAtlasData.imagePath.Substring(0, textureAtlasData.imagePath.Length - 4);
+                    _RefreshTextureAtlas(textureAtlasData, isUGUI, true);
+                    if (isUGUI)
                     {
-						textureAtlasData.imagePath = AssetDatabase.GetAssetPath(textureAtlas.texture);
-						textureAtlasData.imagePath = textureAtlasData.imagePath.Substring(0,textureAtlasData.imagePath.Length-4);
-                        _RefreshTextureAtlas(textureAtlasData, isUGUI, true);
-                        if (isUGUI)
-                        {
-                            textureAtlas.uiMaterial = textureAtlasData.uiTexture;
-                        }
-                        else
-                        {
-                            textureAtlas.material = textureAtlasData.texture;
-                        }
-					}
+                        textureAtlas.uiMaterial = textureAtlasData.uiTexture;
+                    }
+                    else
+                    {
+                        textureAtlas.material = textureAtlasData.texture;
+                    }
+                }
 #endif
 
-					textureAtlasData.name = name;
-					_pathTextureAtlasDataMap[name+textureAtlas.texture.name] = textureAtlasData;
-				}
-			}
-			return textureAtlasData;
+                textureAtlasData.name = name;
+            }
+
+            return textureAtlasData;
 		}
         /// <summary>
         /// Refresh the Armature textureAtlas data.
@@ -1030,6 +947,39 @@ namespace DragonBones
                 
    //         }
 		}
+
+        //
+        public UnityDragonBonesData GetCacheUnityDragonBonesData(string draonBonesName)
+        {
+            if (string.IsNullOrEmpty(draonBonesName))
+            {
+                return null;
+            }
+
+            for (int i = 0; i < this._cacheUnityDragonBonesData.Count; i++)
+            {
+                if (this._cacheUnityDragonBonesData[i].dataName == draonBonesName)
+                {
+                    return this._cacheUnityDragonBonesData[i];
+                }
+            }
+
+            return null;
+        }
+
+        public void AddCacheUnityDragonBonesData(UnityDragonBonesData unityData)
+        {
+            for (int i = 0; i < this._cacheUnityDragonBonesData.Count; i++)
+            {
+                if (this._cacheUnityDragonBonesData[i].dataName == unityData.dataName)
+                {
+                    this._cacheUnityDragonBonesData[i] = unityData;
+                    return;
+                }
+            }
+
+            this._cacheUnityDragonBonesData.Add(unityData);
+        }
     }
 
     /// <summary>

@@ -3,7 +3,7 @@
 namespace DragonBones
 {
     [System.Serializable]
-	public class UnityDragonBonesData:ScriptableObject
+	public class UnityDragonBonesData : ScriptableObject
     {
 
 		[System.Serializable]
@@ -26,16 +26,16 @@ namespace DragonBones
          * 从UnityFactory中移除。
          * @param disposeData
          */
-		public void RemoveFromFactory(bool disposeData=true)
+		public void RemoveFromFactory(bool disposeData =true)
 		{
-			UnityFactory.factory.RemoveDragonBonesData(dataName,disposeData);
+			UnityFactory.factory.RemoveDragonBonesData(dataName, disposeData);
 			if(textureAtlas != null)
             {
 				foreach(TextureAtlas ta in textureAtlas)
                 {
 					if(ta != null && ta.texture != null)
                     {
-						UnityFactory.factory.RemoveTextureAtlasData(dataName+ta.texture.name,disposeData);
+						UnityFactory.factory.RemoveTextureAtlasData(ta.texture.name,disposeData);
 					}
 				}
 			}
