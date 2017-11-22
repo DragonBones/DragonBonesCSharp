@@ -98,6 +98,7 @@ namespace DragonBones
 				var textureAtlasJSONs = new List<string>();
 				GetTextureAtlasConfigs(textureAtlasJSONs, AssetDatabase.GetAssetPath(dragonBonesSke.GetInstanceID()));
 				UnityDragonBonesData.TextureAtlas[] textureAtlas = new UnityDragonBonesData.TextureAtlas[textureAtlasJSONs.Count];
+
 				for(int i=0;i<textureAtlasJSONs.Count;++i)
                 {
 					string path = textureAtlasJSONs[i];
@@ -112,6 +113,8 @@ namespace DragonBones
 					ta.uiMaterial = AssetDatabase.LoadAssetAtPath<Material>(path+"_UI_Mat.mat");
 					textureAtlas[i] = ta;
 				}
+
+                //
 				CreateUnityDragonBonesData(dragonBonesSke,textureAtlas);
 			}
 		}
@@ -145,22 +148,7 @@ namespace DragonBones
 			{
 				var textureAtlasJSONs = new List<string>();
 				UnityEditor.GetTextureAtlasConfigs(textureAtlasJSONs, AssetDatabase.GetAssetPath(dragonBoneJSON.GetInstanceID()));
-                /*UnityDragonBonesData.TextureAtlas[] textureAtlas = new UnityDragonBonesData.TextureAtlas[textureAtlasJSONs.Count];
-				for(int i = 0;i < textureAtlasJSONs.Count; ++i)
-                {
-					string path = textureAtlasJSONs[i];
-					//load textureAtlas data
-					UnityDragonBonesData.TextureAtlas ta = new UnityDragonBonesData.TextureAtlas();
-					ta.textureAtlasJSON = AssetDatabase.LoadAssetAtPath<TextAsset>(path);
-					//load texture
-					path = path.Substring(0,path.LastIndexOf(".json"));
-					ta.texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path+".png");
-					//load material
-					ta.material = AssetDatabase.LoadAssetAtPath<Material>(path+"_Mat.mat");
-					ta.uiMaterial = AssetDatabase.LoadAssetAtPath<Material>(path+"_UI_Mat.mat");
-					textureAtlas[i] = ta;
-				}*/
-
+               
                 UnityDragonBonesData.TextureAtlas[] textureAtlas = UnityEditor.GetTextureAtlasByJSONs(textureAtlasJSONs);
 
                 UnityDragonBonesData data = UnityEditor.CreateUnityDragonBonesData(dragonBoneJSON, textureAtlas);
@@ -174,7 +162,7 @@ namespace DragonBones
 					_armatureComponent.unityData = data;
 
 					var armatureName = dragonBonesData.armatureNames[0];
-					ChangeArmatureData(_armatureComponent, armatureName, dragonBonesData.name);
+					ChangeArmatureData(_armatureComponent, armatureName, _armatureComponent.unityData.dataName);
 
 					_armatureComponent.gameObject.name = armatureName;
 
@@ -313,29 +301,47 @@ namespace DragonBones
 			}
 		}
 
-		public static UnityDragonBonesData CreateUnityDragonBonesData(TextAsset dragonBonesAsset,UnityDragonBonesData.TextureAtlas[] textureAtlas){
+		public static UnityDragonBonesData CreateUnityDragonBonesData(TextAsset dragonBonesAsset,UnityDragonBonesData.TextureAtlas[] textureAtlas)
+        {
 			if(dragonBonesAsset != null)
             {
 				bool isDirty = false;
 				string path = AssetDatabase.GetAssetPath(dragonBonesAsset);
-				path = path.Substring(0,path.Length-5);
+				path = path.Substring(0, path.Length -5);
 				int index = path.LastIndexOf("_ske");
-				if(index>0)
+				if(index > 0)
                 {
 					path = path.Substring(0,index);
-				}
-				string dataPath = path+"_Data.asset";
-				UnityDragonBonesData data = AssetDatabase.LoadAssetAtPath<UnityDragonBonesData>(dataPath);
+                }
+                //
+                string dataPath = path + "_Data.asset";
+
+                var jsonObject = (Dictionary<string, object>)MiniJSON.Json.Deserialize(dragonBonesAsset.text);
+                var dataName = jsonObject.ContainsKey("name") ? jsonObject["name"] as string : "";
+
+                //先从缓存里面取
+                UnityDragonBonesData data = UnityFactory.factory.GetCacheUnityDragonBonesData(dataName);
+
+                //缓存中没有，从资源里面取
+                if (data == null)
+                {
+                    data = AssetDatabase.LoadAssetAtPath<UnityDragonBonesData>(dataPath);
+                }
+
+                //资源里面也没有，那么重新创建
 				if(data == null)
                 {
 					data = UnityDragonBonesData.CreateInstance<UnityDragonBonesData>();
+                    data.dataName = dataName;
 					AssetDatabase.CreateAsset(data,dataPath);
 					isDirty = true;
 				}
-				string name = path.Substring(path.LastIndexOf("/")+1);
-				if(string.IsNullOrEmpty(data.dataName) || !data.dataName.Equals(name))
+
+                //
+				if(string.IsNullOrEmpty(data.dataName) || !data.dataName.Equals(dataName))
                 {
-					//data.dataName = name;
+                    //走到这里，说明原先已经创建了，之后手动改了名字,既然又走了创建流程，那么名字也重置下
+					data.dataName = dataName;
 					isDirty = true;
 				}
 
@@ -344,23 +350,7 @@ namespace DragonBones
                     data.dragonBonesJSON = dragonBonesAsset;
                     isDirty = true;
                 }
-				//if(dragonBonesAsset.text=="DBDT")
-				//{
-				//	if(data.dragonBonesBinary!=dragonBonesAsset)
-    //                {
-				//		data.dragonBonesBinary = dragonBonesAsset;
-				//		isDirty = true;
-				//	}
-				//}
-				//else
-				//{
-				//	if(data.dragonBonesJSON!=dragonBonesAsset)
-    //                {
-				//		data.dragonBonesJSON = dragonBonesAsset;
-				//		isDirty = true;
-				//	}
-				//}
-
+				
 				if(textureAtlas!=null && textureAtlas.Length>0 && textureAtlas[0]!=null && textureAtlas[0].texture!=null)
                 {
 					if(data.textureAtlas == null || data.textureAtlas.Length!=textureAtlas.Length)
@@ -384,11 +374,15 @@ namespace DragonBones
 					}
 					data.textureAtlas = textureAtlas;
 				}
+
 				if(isDirty)
                 {
 					AssetDatabase.Refresh();
 					EditorUtility.SetDirty(data);
 				}
+
+                //
+                UnityFactory.factory.AddCacheUnityDragonBonesData(data);
 
 				AssetDatabase.SaveAssets();
 				return data;

@@ -372,7 +372,7 @@ namespace DragonBones
 				var dragonBonesData = UnityFactory.factory.LoadData(unityData, isUGUI);
 				if (dragonBonesData != null && !string.IsNullOrEmpty(armatureName))
 				{
-					UnityFactory.factory.BuildArmatureComponent(armatureName, dragonBonesData.name, null, unityData.dataName, gameObject , isUGUI);
+					UnityFactory.factory.BuildArmatureComponent(armatureName, unityData.dataName, null, null, gameObject , isUGUI);
 				}
 			}
             
@@ -495,34 +495,34 @@ namespace DragonBones
             }
             
             //QQ
-            if (false && zorderIsDirty)
-            {
-                _sortedSlots = new List<Slot>(_armature.GetSlots());
-                _sortedSlots.Sort(delegate (Slot x, Slot y)
-                         {
-                             return x._zOrder - y._zOrder;
-                         });
+            //if (false && zorderIsDirty)
+            //{
+            //    _sortedSlots = new List<Slot>(_armature.GetSlots());
+            //    _sortedSlots.Sort(delegate (Slot x, Slot y)
+            //             {
+            //                 return x._zOrder - y._zOrder;
+            //             });
 
-                for (int i = 0; i < _sortedSlots.Count; ++i)
-                {
-                    Slot slot = _sortedSlots[i];
-                    var display = slot.display as GameObject;
-                    if (display != null)
-                    {
-                        display.transform.SetSiblingIndex(i * 2);
-                        if (!isUGUI && sortingMode == SortingMode.SortByOrder)
-                        {
-                            UnitySlot us = slot as UnitySlot;
-                            if (us.meshRenderer != null)
-                            {
-                                us.meshRenderer.sortingOrder = i;
-                            }
-                        }
-                    }
-                }
+            //    for (int i = 0; i < _sortedSlots.Count; ++i)
+            //    {
+            //        Slot slot = _sortedSlots[i];
+            //        var display = slot.display as GameObject;
+            //        if (display != null)
+            //        {
+            //            display.transform.SetSiblingIndex(i * 2);
+            //            if (!isUGUI && sortingMode == SortingMode.SortByOrder)
+            //            {
+            //                UnitySlot us = slot as UnitySlot;
+            //                if (us.meshRenderer != null)
+            //                {
+            //                    us.meshRenderer.sortingOrder = i;
+            //                }
+            //            }
+            //        }
+            //    }
 
-                zorderIsDirty = false;
-            }
+            //    zorderIsDirty = false;
+            //}
 
             if (unityBones!=null)
             {
