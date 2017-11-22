@@ -69,7 +69,7 @@ public class ReplaceSlotDisplay : MonoBehaviour
                 case "meshB":
                     // Normal to mesh.
                     UnityFactory.factory.ReplaceSlotDisplay(
-                        "ReplaceSlotDisplay",
+                        "replace",
                         "MyMesh",
                         "meshB",
                         "weapon_1004_1",

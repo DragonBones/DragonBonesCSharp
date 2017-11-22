@@ -140,14 +140,17 @@ namespace DragonBones
             {
                 if (textureAtlas != null)
                 {
-                    if ((textureAtlas as Material).name.IndexOf("UI_Mat") > -1)
-                    {
-                        (textureAtlasData as UnityTextureAtlasData).uiTexture = textureAtlas as Material;
-                    }
-                    else
-                    {
-                        (textureAtlasData as UnityTextureAtlasData).texture = textureAtlas as Material;
-                    }
+                    //if ((textureAtlas as Material).name.IndexOf("UI_Mat") > -1)
+                    //{
+                    //    (textureAtlasData as UnityTextureAtlasData).uiTexture = textureAtlas as Material;
+                    //}
+                    //else
+                    //{
+                    //    (textureAtlasData as UnityTextureAtlasData).texture = textureAtlas as Material;
+                    //}
+
+                    (textureAtlasData as UnityTextureAtlasData).uiTexture = (textureAtlas as UnityDragonBonesData.TextureAtlas).uiMaterial;
+                    (textureAtlasData as UnityTextureAtlasData).texture = (textureAtlas as UnityDragonBonesData.TextureAtlas).material;
                 }
             }
             else
@@ -518,7 +521,7 @@ namespace DragonBones
 			if (data.dragonBonesJSON != null)
 			{
                 dragonBonesData = LoadDragonBonesData(data.dragonBonesJSON, data.dataName, armatureScale);
-                
+
                 if (!string.IsNullOrEmpty(data.dataName) && dragonBonesData != null && data.textureAtlas != null)
 				{
 #if UNITY_EDITOR
@@ -546,10 +549,46 @@ namespace DragonBones
 						}
 					}
 #endif
-					for (int i = 0; i < data.textureAtlas.Length; ++i)
-					{
-                        LoadTextureAtlasData(data.textureAtlas[i], data.dataName, texScale,isUGUI);
-					}
+
+                    var textureAtlasDatas = this.GetTextureAtlasData(data.dataName);
+                    if (textureAtlasDatas != null)
+                    {
+                        for (int i = 0, l = textureAtlasDatas.Count; i < l; ++i)
+                        {
+                            if (i < data.textureAtlas.Length)
+                            {
+                                var textureAtlasData = textureAtlasDatas[i] as UnityTextureAtlasData;
+                                var textureAtlas = data.textureAtlas[i];
+
+                                textureAtlasData.uiTexture = textureAtlas.uiMaterial;
+                                textureAtlasData.texture = textureAtlas.material;
+#if UNITY_EDITOR
+                                if (!Application.isPlaying)
+                                {
+                                    textureAtlasData.imagePath = AssetDatabase.GetAssetPath(textureAtlas.texture);
+                                    textureAtlasData.imagePath = textureAtlasData.imagePath.Substring(0, textureAtlasData.imagePath.Length - 4);
+                                    _RefreshTextureAtlas(textureAtlasData, isUGUI, true);
+                                    if (isUGUI)
+                                    {
+                                        textureAtlas.uiMaterial = textureAtlasData.uiTexture;
+                                    }
+                                    else
+                                    {
+                                        textureAtlas.material = textureAtlasData.texture;
+                                    }
+                                }
+#endif
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < data.textureAtlas.Length; ++i)
+                        {
+                            LoadTextureAtlasData(data.textureAtlas[i], data.dataName, texScale, isUGUI);
+                        }
+                    }
+                    
 #if UNITY_EDITOR
 					if (isDirty)
                     {
@@ -711,7 +750,7 @@ namespace DragonBones
         /// <returns></returns>
         /// <version>DragonBones 4.5</version>
         /// <language>zh_CN</language>
-        public UnityTextureAtlasData LoadTextureAtlasData(UnityDragonBonesData.TextureAtlas textureAtlas, string name, float scale = 1.0f,bool isUGUI = false)
+        public UnityTextureAtlasData LoadTextureAtlasData(UnityDragonBonesData.TextureAtlas textureAtlas, string name, float scale = 1.0f, bool isUGUI = false)
 		{
             Dictionary<string, object> textureJSONData = (Dictionary<string, object>)MiniJSON.Json.Deserialize(textureAtlas.textureAtlasJSON.text);
             UnityTextureAtlasData textureAtlasData = ParseTextureAtlasData(textureJSONData, null, name, scale) as UnityTextureAtlasData;
@@ -746,8 +785,6 @@ namespace DragonBones
                     }
                 }
 #endif
-
-                textureAtlasData.name = name;
             }
 
             return textureAtlasData;
