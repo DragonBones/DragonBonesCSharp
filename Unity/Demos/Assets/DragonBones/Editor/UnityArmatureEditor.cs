@@ -157,13 +157,13 @@ namespace DragonBones
 						var armatureName = _armatureNames[_armatureIndex];
 						UnityEditor.ChangeArmatureData(_armatureComponent, armatureName, dragonBonesData.name);
                         _UpdateParameters();
-						if(_armatureComponent.bonesRoot!=null && _armatureComponent.unityBones!=null)
+						if(_armatureComponent.bonesRoot != null && _armatureComponent.unityBones != null)
                         {
 							_armatureComponent.ShowBones();
 						}
 
 						_armatureComponent.gameObject.name = armatureName;
-						_armatureComponent.zorderIsDirty = true;
+						//_armatureComponent.zorderIsDirty = true;
 
 						EditorUtility.SetDirty(_armatureComponent);
 						if (!Application.isPlaying && !_IsPrefab())

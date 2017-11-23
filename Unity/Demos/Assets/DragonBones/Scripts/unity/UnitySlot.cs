@@ -163,12 +163,12 @@ namespace DragonBones
         override protected void _UpdateZOrder()
         {
             _helpVector3.Set(_renderDisplay.transform.localPosition.x, _renderDisplay.transform.localPosition.y, -_zOrder * (_proxy.zSpace + 0.001f));
-			if(_renderDisplay.transform.localPosition.z != _helpVector3.z)
-            {
-				_proxy.zorderIsDirty = true;
-			}
-            
+
             _SetZorder(_helpVector3);
+            //if(_renderDisplay.transform.localPosition.z != _helpVector3.z)
+            //         {
+            //	_proxy.zorderIsDirty = true;
+            //}
         }
 
         /**

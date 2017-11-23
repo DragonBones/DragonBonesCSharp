@@ -78,7 +78,6 @@ namespace DragonBones
 
 			foreach(string skeletonPath in skeletonPaths)
             {
-
 				List<string> imgPaths = new List<string>();
 				List<string> atlPaths = new List<string>();
 				foreach(string atlasPath in atlasPaths)
@@ -123,7 +122,7 @@ namespace DragonBones
 				if(ta)
                 {
 					TextureDataClass tdc = JsonUtility.FromJson<TextureDataClass>(ta.text);
-					if(tdc!=null && (tdc.width==0 || tdc.height==0))
+					if(tdc != null && (tdc.width == 0 || tdc.height == 0))
                     {
 						//add width and height
 						string imgPath = path.Substring(0,path.IndexOf(".json"))+".png";

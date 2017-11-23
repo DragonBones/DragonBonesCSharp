@@ -11,29 +11,19 @@ namespace DragonBones
 		SortByZ,
 		SortByOrder
 	}
-
-    /**
-     * @inheritDoc
-     */
-	[ExecuteInEditMode,DisallowMultipleComponent]
+    
+    ///<inheritDoc/>
+    [ExecuteInEditMode,DisallowMultipleComponent]
     public class UnityArmatureComponent : DragonBoneEventDispatcher, IArmatureProxy
     {
-        private bool _disposeProxy = true;
-        /**
-         * @private
-         */
+        private bool _disposeProxy = true;        
+        ///<private/>
         internal Armature _armature = null;
-        /**
-         * @private
-         */
+        ///<private/>
         public UnityDragonBonesData unityData = null;
-        /**
-         * @private
-         */
+        ///<private/>
         public string armatureName = null;
-        /**
-         * @private
-         */
+        ///<private/>
         public string animationName = null;
 
         internal readonly ColorTransform _colorTransform = new ColorTransform();
@@ -53,7 +43,7 @@ namespace DragonBones
         [SerializeField]
         protected float _zSpace = 0.0f;
         public bool isUGUI = false;
-        public bool zorderIsDirty = false;
+        //public bool zorderIsDirty = false;
         
         public SortingMode sortingMode = SortingMode.SortByZ;
         public bool flipX = false;
@@ -64,9 +54,7 @@ namespace DragonBones
         public bool boneHierarchy = false;
 
         private List<Slot> _sortedSlots = null;
-        /**
-         * @private
-         */
+        ///<private/>
         public void DBClear()
         {
             bonesRoot = null;
@@ -91,7 +79,7 @@ namespace DragonBones
             _timeScale = 1.0f;
             _zSpace = 0.0f;
             isUGUI = false;
-            zorderIsDirty = false;
+            //zorderIsDirty = false;
             sortingMode = SortingMode.SortByZ;
             flipX = false;
             flipY = false;
@@ -109,9 +97,8 @@ namespace DragonBones
         {
 
         }
-        /**
-         * @inheritDoc
-         */
+        
+        ///<inheritDoc/>
         public void Dispose(bool disposeProxy = true)
         {
             _disposeProxy = disposeProxy;
@@ -121,24 +108,37 @@ namespace DragonBones
                 _armature.Dispose();
             }
         }
-        /**
-         * @language zh_CN
-         * 获取骨架。
-         * @readOnly
-         * @see DragonBones.Armature
-         * @version DragonBones 4.5
-         */
+        /// <summary>
+        /// Get the Armature.
+        /// </summary>
+        /// <readOnly/>
+        /// <version>DragonBones 4.5</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// 获取骨架。
+        /// </summary>
+        /// <readOnly/>
+        /// <version>DragonBones 4.5</version>
+        /// <language>zh_CN</language>
         public Armature armature
         {
             get { return _armature; }
         }
-        /**
-         * @language zh_CN
-         * 获取动画控制器。
-         * @readOnly
-         * @see DragonBones.Animation
-         * @version DragonBones 4.5
-         */
+
+        /// <summary>
+        /// Get the animation player
+        /// </summary>
+        /// <readOnly/>
+        /// <version>DragonBones 4.5</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// 获取动画播放器。
+        /// </summary>
+        /// <readOnly/>
+        /// <version>DragonBones 4.5</version>
+        /// <language>zh_CN</language>
         public new Animation animation
         {
             get { return _armature != null ? _armature.animation : null; }
@@ -352,9 +352,7 @@ namespace DragonBones
 		}
 		#endif
 
-		/**
-         * @private
-         */
+		///<private/>
         void Awake()
 		{
             #if UNITY_EDITOR
@@ -377,8 +375,7 @@ namespace DragonBones
 			}
 			#endif
 
-			zorderIsDirty = true;
-            //if(unityData != null && (unityData.dragonBonesJSON != null || unityData.dragonBonesBinary != null) && unityData.textureAtlas != null)
+			//zorderIsDirty = true;
             if (unityData != null && unityData.dragonBonesJSON != null && unityData.textureAtlas != null)
             {
 				var dragonBonesData = UnityFactory.factory.LoadData(unityData, isUGUI);
@@ -550,9 +547,7 @@ namespace DragonBones
 			}
 		}
 
-        /**
-         * @private
-         */
+        ///<private/>
         void OnDestroy()
         {
             if (_armature != null)
@@ -595,7 +590,7 @@ namespace DragonBones
 		public void ShowBones()
         {
 			RemoveBones();
-			if(bonesRoot==null)
+			if(bonesRoot == null)
             {
 				GameObject go = new GameObject("Bones");
 				go.transform.SetParent(transform);
@@ -606,7 +601,7 @@ namespace DragonBones
 				go.hideFlags = HideFlags.NotEditable;
 			}
 
-			if(armature!=null)
+			if(armature != null)
 			{
 				unityBones = new List<UnityBone>();
 				foreach(Bone bone in armature.GetBones())
