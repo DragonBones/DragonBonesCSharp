@@ -179,6 +179,8 @@ namespace DragonBones
             if (_renderDisplay != null)
             {
                 _renderDisplay.transform.localPosition = zorderPos;
+                _renderDisplay.transform.SetSiblingIndex(_zOrder);
+
                 if (!_proxy.isUGUI)
                 {
                     if (_renderer == null)
@@ -194,10 +196,6 @@ namespace DragonBones
                     {
                         _renderer.sortingOrder = _zOrder;
                     }
-                }
-                else
-                {
-                    _renderDisplay.transform.SetSiblingIndex(_zOrder);
                 }
             }
         }

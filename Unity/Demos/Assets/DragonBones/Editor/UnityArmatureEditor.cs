@@ -8,18 +8,20 @@ using UnityEditor.SceneManagement;
 namespace DragonBones
 {
     [CustomEditor(typeof(UnityArmatureComponent))]
-	public class UnityArmatureEditor : Editor
+    public class UnityArmatureEditor : Editor
     {
-		private int _armatureIndex = -1;
-		private int _animationIndex = -1;
-		private int _sortingLayerIndex = -1;
+        private int _armatureIndex = -1;
+        private int _animationIndex = -1;
+        private int _sortingModeIndex = -1;
+        private int _sortingLayerIndex = -1;
         private int _playTimes = 0;
-		private long _nowTime = 0;
-		private List<string> _armatureNames = null;
-		private List<string> _animationNames = null;
-		private List<string> _sortingLayerNames = null;
-		private UnityArmatureComponent _armatureComponent = null;
+        private long _nowTime = 0;
+        private List<string> _armatureNames = null;
+        private List<string> _animationNames = null;
+        private List<string> _sortingLayerNames = null;
+        private UnityArmatureComponent _armatureComponent = null;
 
+        private List<string> _sortingMode = new List<string> { SortingMode.SortByZ.ToString(), SortingMode.SortByOrder.ToString()};
         void OnEnable()
 		{
             _armatureComponent = target as UnityArmatureComponent;
@@ -30,6 +32,7 @@ namespace DragonBones
 
 			// 
 			_nowTime = System.DateTime.Now.Ticks;
+            _sortingModeIndex = (int)_armatureComponent.sortingMode;
 			_sortingLayerNames = _GetSortingLayerNames();
 			_sortingLayerIndex = _sortingLayerNames.IndexOf(_armatureComponent.sortingLayerName);
 
@@ -255,12 +258,24 @@ namespace DragonBones
 					if(!haveSpriteGorup)
 					{
 						//sort mode
-						serializedObject.Update();
-						EditorGUILayout.PropertyField(serializedObject.FindProperty("sortingMode"), true);
-						serializedObject.ApplyModifiedProperties();
+						//serializedObject.Update();
+						//EditorGUILayout.PropertyField(serializedObject.FindProperty("_sortingMode"), true);
+						//serializedObject.ApplyModifiedProperties();
 
-						// Sorting Layer
-						_sortingLayerIndex = EditorGUILayout.Popup("Sorting Layer", _sortingLayerIndex, _sortingLayerNames.ToArray());
+                        _sortingModeIndex = EditorGUILayout.Popup("Sorting Mode", _sortingModeIndex, _sortingMode.ToArray());
+                        if (_sortingModeIndex != (int)_armatureComponent.sortingMode)
+                        {
+                            Undo.RecordObject(_armatureComponent, "Sorting Mode");
+                            _armatureComponent.sortingMode = (SortingMode)_sortingModeIndex;
+                            EditorUtility.SetDirty(_armatureComponent);
+                            if (!Application.isPlaying && !_IsPrefab())
+                            {
+                                EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
+                            }
+                        }
+
+                        // Sorting Layer
+                        _sortingLayerIndex = EditorGUILayout.Popup("Sorting Layer", _sortingLayerIndex, _sortingLayerNames.ToArray());
 						if (_sortingLayerNames[_sortingLayerIndex] != _armatureComponent.sortingLayerName)
 						{
 							Undo.RecordObject(_armatureComponent, "Sorting Layer");
@@ -307,8 +322,6 @@ namespace DragonBones
 				bool flipY = _armatureComponent.flipY;
 				_armatureComponent.flipX = GUILayout.Toggle(_armatureComponent.flipX, "X",GUILayout.Width(30));
 				_armatureComponent.flipY = GUILayout.Toggle(_armatureComponent.flipY, "Y",GUILayout.Width(30));
-				_armatureComponent.armature.flipX = _armatureComponent.flipX;
-				_armatureComponent.armature.flipY = _armatureComponent.flipY;
 				if(_armatureComponent.flipX != flipX || _armatureComponent.flipY != flipY)
                 {
 					EditorUtility.SetDirty(_armatureComponent);

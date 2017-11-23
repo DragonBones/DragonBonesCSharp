@@ -6,16 +6,26 @@ using UnityEditor;
 
 namespace DragonBones
 {
+    /// <summary>
+    /// 龙骨插槽排序模式
+    /// </summary>
 	public enum SortingMode
     {
+        /// <summary>
+        /// 按照插槽显示对象的z值排序
+        /// </summary>
 		SortByZ,
-		SortByOrder
-	}
+        /// <summary>
+        /// 按照插槽显示对象的sortingOrder排序
+        /// </summary>
+		SortByOrder,
+    }
     
     ///<inheritDoc/>
     [ExecuteInEditMode,DisallowMultipleComponent]
     public class UnityArmatureComponent : DragonBoneEventDispatcher, IArmatureProxy
     {
+        ///<private/>
         private bool _disposeProxy = true;        
         ///<private/>
         internal Armature _armature = null;
@@ -23,31 +33,38 @@ namespace DragonBones
         public UnityDragonBonesData unityData = null;
         ///<private/>
         public string armatureName = null;
-        ///<private/>
-        public string animationName = null;
+        /// <summary>
+        /// 是否是UGUI模式
+        /// </summary>
+        public bool isUGUI = false;
 
         internal readonly ColorTransform _colorTransform = new ColorTransform();
-        [SerializeField]
-        internal string _sortingLayerName = "Default";
-        [SerializeField]
-        internal int _sortingOrder = 0;
 
+        ///<private/>
+        public string animationName = null;
         [Tooltip("0 : Loop")]
         [Range(0, 100)]
         [SerializeField]
         protected int _playTimes = 0;
-
         [Range(-2f, 2f)]
         [SerializeField]
         protected float _timeScale = 1.0f;
+
+        [SerializeField]
+        protected SortingMode _sortingMode = SortingMode.SortByZ;
+        [SerializeField]
+        protected string _sortingLayerName = "Default";
+        [SerializeField]
+        protected int _sortingOrder = 0;
         [SerializeField]
         protected float _zSpace = 0.0f;
-        public bool isUGUI = false;
+
         //public bool zorderIsDirty = false;
-        
-        public SortingMode sortingMode = SortingMode.SortByZ;
-        public bool flipX = false;
-        public bool flipY = false;
+        [SerializeField]
+        protected bool _flipX = false;
+        [SerializeField]
+        protected bool _flipY = false;
+
         public bool addNormal = false;
         public GameObject bonesRoot;
         public List<UnityBone> unityBones = null;
@@ -73,6 +90,7 @@ namespace DragonBones
             armatureName = null;
             animationName = null;
             _colorTransform.Identity();
+            _sortingMode = SortingMode.SortByZ;
             _sortingLayerName = "Default";
             _sortingOrder = 0;
             _playTimes = 0;
@@ -80,9 +98,8 @@ namespace DragonBones
             _zSpace = 0.0f;
             isUGUI = false;
             //zorderIsDirty = false;
-            sortingMode = SortingMode.SortByZ;
-            flipX = false;
-            flipY = false;
+            _flipX = false;
+            _flipY = false;
             addNormal = false;
             unityBones = null;
             boneHierarchy = false;
@@ -142,6 +159,45 @@ namespace DragonBones
         public new Animation animation
         {
             get { return _armature != null ? _armature.animation : null; }
+        }
+
+        public SortingMode sortingMode
+        {
+            get { return _sortingMode; }
+            set
+            {
+                if (_sortingMode == value)
+                {
+                    return;
+                }
+
+                _sortingMode = value;
+
+                if (!isUGUI && _armature != null)
+                {
+                    foreach (UnitySlot slot in _armature.GetSlots())
+                    {
+                        if (slot.childArmature == null)
+                        {
+                            if (slot.meshRenderer != null)
+                            {
+                                if (sortingMode == SortingMode.SortByOrder)
+                                {
+                                    slot.meshRenderer.sortingOrder = slot._zOrder;
+                                }
+                                else
+                                {
+                                    slot.meshRenderer.sortingOrder = sortingOrder;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            (slot.childArmature.proxy as UnityArmatureComponent).sortingMode = _sortingMode;
+                        }
+                    }
+                }
+            }
         }
         
         
@@ -224,7 +280,6 @@ namespace DragonBones
 				}
             }
         }
-
         
         public float zSpace
         {
@@ -263,7 +318,7 @@ namespace DragonBones
 									us.meshRenderer.sortingOrder = sortingOrder;
 								}
 
-								us.meshRenderer.sortingOrder = sortingOrder;
+								//us.meshRenderer.sortingOrder = sortingOrder;
 							}
 						}
 					}
@@ -318,6 +373,45 @@ namespace DragonBones
 				return _sortedSlots;
 			}
 		}
+
+		#if UNITY_5_6_OR_NEWER
+		internal UnityEngine.Rendering.SortingGroup _sortingGroup;
+		public UnityEngine.Rendering.SortingGroup sortingGroup
+        {
+			get { return _sortingGroup; }
+		}
+        #endif
+
+        public bool flipX
+        {
+            get { return _flipX; }
+            set
+            {
+                if (_flipX == value)
+                {
+                    return;
+                }
+
+                _flipX = value;
+                armature.flipX = _flipX;
+            }
+        }
+
+        public bool flipY
+        {
+            get { return _flipY; }
+            set
+            {
+                if (_flipY == value)
+                {
+                    return;
+                }
+
+                _flipY = value;
+                armature.flipY = _flipY;
+            }
+        }
+
         /// <summary>
         /// 骨架之间颜色传递
         /// </summary>
@@ -327,7 +421,7 @@ namespace DragonBones
             set
             {
                 this._colorTransform.CopyFrom(value);
-                
+
                 foreach (var slot in this._armature.GetSlots())
                 {
                     slot._colorDirty = true;
@@ -335,17 +429,8 @@ namespace DragonBones
             }
         }
 
-		#if UNITY_5_6_OR_NEWER
-		internal UnityEngine.Rendering.SortingGroup _sortingGroup;
-		public UnityEngine.Rendering.SortingGroup sortingGroup
-        {
-			get { return _sortingGroup; }
-		}
-		#endif
-
-
-		#if UNITY_EDITOR
-		private bool _isPrefab()
+#if UNITY_EDITOR
+        private bool _isPrefab()
         {
 			return PrefabUtility.GetPrefabParent(gameObject) == null 
 				&& PrefabUtility.GetPrefabObject(gameObject) != null;
