@@ -6,7 +6,6 @@ using UnityEditor;
 
 namespace DragonBones
 {
-
 	public enum SortingMode
     {
 		SortByZ,
@@ -36,6 +35,8 @@ namespace DragonBones
          * @private
          */
         public string animationName = null;
+
+        internal readonly ColorTransform _colorTransform = new ColorTransform();
         [SerializeField]
         internal string _sortingLayerName = "Default";
         [SerializeField]
@@ -89,6 +90,7 @@ namespace DragonBones
             unityData = null;
             armatureName = null;
             animationName = null;
+            _colorTransform.Identity();
             _sortingLayerName = "Default";
             _sortingOrder = 0;
             _playTimes = 0;
@@ -143,7 +145,7 @@ namespace DragonBones
          * @see DragonBones.Animation
          * @version DragonBones 4.5
          */
-        new public Animation animation
+        public new Animation animation
         {
             get { return _armature != null ? _armature.animation : null; }
         }
@@ -322,6 +324,22 @@ namespace DragonBones
 				return _sortedSlots;
 			}
 		}
+        /// <summary>
+        /// 骨架之间颜色传递
+        /// </summary>
+        public ColorTransform color
+        {
+            get { return this._colorTransform; }
+            set
+            {
+                this._colorTransform.CopyFrom(value);
+                
+                foreach (var slot in this._armature.GetSlots())
+                {
+                    slot._colorDirty = true;
+                }
+            }
+        }
 
 		#if UNITY_5_6_OR_NEWER
 		internal UnityEngine.Rendering.SortingGroup _sortingGroup;

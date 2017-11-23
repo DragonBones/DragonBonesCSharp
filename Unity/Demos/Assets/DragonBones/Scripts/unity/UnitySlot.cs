@@ -228,15 +228,7 @@ namespace DragonBones
                 return;
             }
 
-            if (_childArmature != null)
-            {
-                foreach (var slot in _childArmature.GetSlots())
-                {
-                    slot._blendMode = _blendMode;
-                    slot._UpdateBlendMode();
-                }
-            }
-            else
+            if (_childArmature == null)
             {
                 if (_uiDisplay != null)
                 {
@@ -247,6 +239,14 @@ namespace DragonBones
                     _renderer.sharedMaterial = (this._textureData as UnityTextureData).GetMaterial(_blendMode);
                 }
             }
+            else
+            {                
+                foreach (var slot in _childArmature.GetSlots())
+                {
+                    slot._blendMode = _blendMode;
+                    slot._UpdateBlendMode();
+                }
+            }
 
             _currentBlendMode = _blendMode;
         }
@@ -255,22 +255,31 @@ namespace DragonBones
          */
         override protected void _UpdateColor()
         {
-            if (_mesh != null)
+            if (this._childArmature == null)
             {
-                if (_colors == null || _colors.Length != _mesh.vertexCount)
+                if (_mesh != null)
                 {
-                    _colors = new Color32[_mesh.vertexCount];
-                }
+                    if (_colors == null || _colors.Length != _mesh.vertexCount)
+                    {
+                        _colors = new Color32[_mesh.vertexCount];
+                    }
 
-                for (int i = 0, l = _mesh.vertexCount; i < l; ++i)
-                {
-                    _colors[i].r = (byte)(_colorTransform.redMultiplier * 255);
-                    _colors[i].g = (byte)(_colorTransform.greenMultiplier * 255);
-                    _colors[i].b = (byte)(_colorTransform.blueMultiplier * 255);
-                    _colors[i].a = (byte)(_colorTransform.alphaMultiplier * 255);
+                    for (int i = 0, l = _mesh.vertexCount; i < l; ++i)
+                    {
+                        _colors[i].r = (byte)(_colorTransform.redMultiplier * _proxy._colorTransform.redMultiplier * 255);
+                        _colors[i].g = (byte)(_colorTransform.greenMultiplier * _proxy._colorTransform.greenMultiplier * 255);
+                        _colors[i].b = (byte)(_colorTransform.blueMultiplier * _proxy._colorTransform.blueMultiplier * 255);
+                        _colors[i].a = (byte)(_colorTransform.alphaMultiplier * _proxy._colorTransform.alphaMultiplier * 255);
+                    }
+                    _mesh.colors32 = _colors;
                 }
-                _mesh.colors32 = _colors;
             }
+            else
+            {
+                //set all childArmature color dirty
+                (this._childArmature.proxy as UnityArmatureComponent).color = _colorTransform;
+            }
+            
         }
         /**
          * @private
