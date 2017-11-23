@@ -189,11 +189,7 @@ namespace DragonBones
                         childSlotDisplay.transform.SetParent(armatureDisplay.transform, false);
                     }
 
-#if UNITY_EDITOR
-                    UnityEngine.GameObject.DestroyImmediate(slotRoot.gameObject);
-#else
-                    UnityEngine.Object.Destroy(slotRoot.gameObject);
-#endif
+                    UnityFactoryHelper.DestroyUnityObject(slotRoot.gameObject);
                 }
             }
             
@@ -1126,6 +1122,15 @@ namespace DragonBones
             }
 
             return name;
+        }
+
+        internal static void DestroyUnityObject(UnityEngine.Object obj)
+        {
+#if UNITY_EDITOR
+            UnityEngine.Object.DestroyImmediate(obj);
+#else
+            UnityEngine.Object.Destroy(obj);
+#endif
         }
     }
 }

@@ -74,7 +74,7 @@ namespace DragonBones
 			_unityArmature = GetComponent<UnityArmatureComponent>();
 			if(_unityArmature.isUGUI)
             {
-				Destroy(gameObject);
+				UnityFactoryHelper.DestroyUnityObject(gameObject);
 				return;
 			}
 

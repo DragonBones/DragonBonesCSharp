@@ -69,21 +69,15 @@ namespace DragonBones
          */
         public void DBClear()
         {
-            //Object.Destroy(bonesRoot);
             bonesRoot = null;
             if (_armature != null)
             {
                 _armature = null;
                 if (_disposeProxy)
                 {
-#if UNITY_EDITOR
-                    Object.DestroyImmediate(gameObject);
-#else
-                    Object.Destroy(gameObject);
-#endif
+                    UnityFactoryHelper.DestroyUnityObject(gameObject);
                 }
             }
-
 
             _disposeProxy = true;
             _armature = null;

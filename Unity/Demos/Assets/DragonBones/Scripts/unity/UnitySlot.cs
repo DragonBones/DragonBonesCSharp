@@ -79,11 +79,7 @@ namespace DragonBones
 
             if (_mesh != null)
             {
-#if UNITY_EDITOR
-                //Object.DestroyImmediate(_mesh);
-#else
-                Object.Destroy(_mesh);
-#endif
+                UnityFactoryHelper.DestroyUnityObject(_mesh);
             }
 
             _skewed = false;
@@ -109,12 +105,7 @@ namespace DragonBones
          */
         override protected void _DisposeDisplay(object value)
         {
-            var gameObject = value as GameObject;
-#if UNITY_EDITOR
-            Object.DestroyImmediate(gameObject);
-#else
-            Object.Destroy(gameObject);
-#endif
+            UnityFactoryHelper.DestroyUnityObject(value as GameObject);
         }
         /**
          * @private
