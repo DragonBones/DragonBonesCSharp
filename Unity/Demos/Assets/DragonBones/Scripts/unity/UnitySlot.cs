@@ -27,8 +27,7 @@ namespace DragonBones
 		private MeshRenderer _renderer = null;
 		private MeshFilter _meshFilter = null;
 		private UnityUGUIDisplay _uiDisplay = null;
-
-        //QQ
+        
         private BlendMode _currentBlendMode;
 
 		public Mesh mesh
@@ -125,11 +124,7 @@ namespace DragonBones
             {
                 _renderDisplay.transform.SetParent(container.transform);
 
-                
-
-
                 _helpVector3.Set(0.0f, 0.0f, -_zOrder * (_proxy.zSpace + 0.001f));
-
                 _SetZorder(_helpVector3);
             }
         }
@@ -165,10 +160,6 @@ namespace DragonBones
             _helpVector3.Set(_renderDisplay.transform.localPosition.x, _renderDisplay.transform.localPosition.y, -_zOrder * (_proxy.zSpace + 0.001f));
 
             _SetZorder(_helpVector3);
-            //if(_renderDisplay.transform.localPosition.z != _helpVector3.z)
-            //         {
-            //	_proxy.zorderIsDirty = true;
-            //}
         }
 
         /**
@@ -304,33 +295,6 @@ namespace DragonBones
 
             if (this._displayIndex >= 0 && this._display != null && currentTextureData != null)
             {
-                //if (this._armature.replacedTexture != null && this._rawDisplayDatas.Contains(this._displayData))
-                //{
-                //    var currentTextureAtlasData = currentTextureData.parent as UnityTextureAtlasData;
-                //    if (this._armature._replaceTextureAtlasData == null)
-                //    {
-                //        currentTextureAtlasData = BaseObject.BorrowObject<UnityTextureAtlasData>();
-                //        currentTextureAtlasData.CopyFrom(currentTextureData.parent);
-
-                //        if (_proxy.isUGUI)
-                //        {
-                //            currentTextureAtlasData.uiTexture = _armature.replacedTexture as Material;
-                //        }
-                //        else
-                //        {
-                //            currentTextureAtlasData.texture = _armature.replacedTexture as Material;
-                //        }
-
-                //        this._armature._replaceTextureAtlasData = currentTextureAtlasData;
-                //    }
-                //    else
-                //    {
-                //        currentTextureAtlasData = this._armature._replaceTextureAtlasData as UnityTextureAtlasData;
-                //    }
-
-                //    currentTextureData = currentTextureAtlasData.GetTexture(currentTextureData.name) as UnityTextureData;
-                //}
-                
                 var currentTextureAtlas = _proxy.isUGUI ? currentTextureAtlasData.uiTexture : currentTextureAtlasData.texture;
                 if (currentTextureAtlas != null)
                 {
@@ -576,8 +540,8 @@ namespace DragonBones
                                 yL += this._ffdVertices[iF++];
                             }
 
-                            xG += (matrix.a * xL + matrix.c * yL + matrix.tx) * weight; /** (1.0f / scale)) * weight;*/
-                            yG += (matrix.b * xL + matrix.d * yL + matrix.ty) * weight; /** (1.0f / scale)) * weight;*/
+                            xG += (matrix.a * xL + matrix.c * yL + matrix.tx) * weight;
+                            yG += (matrix.b * xL + matrix.d * yL + matrix.ty) * weight;
                         }
                     }
 
@@ -601,12 +565,11 @@ namespace DragonBones
                 {
                     vertexOffset += 65536; // Fixed out of bouds bug. 
                 }
-
-                //Vector3[] vertices = new Vector3[vertextCount];
+                
                 for (int i = 0, iV = 0, iF = 0, l = vertextCount; i < l; ++i)
                 {
-                    _vertices[i].x = (floatArray[vertexOffset + (iV++)] * scale + this._ffdVertices[iF++])/* * scale*/;
-                    _vertices[i].y = - (floatArray[vertexOffset + (iV++)] * scale + this._ffdVertices[iF++])/* * scale*/;
+                    _vertices[i].x = (floatArray[vertexOffset + (iV++)] * scale + this._ffdVertices[iF++]);
+                    _vertices[i].y = - (floatArray[vertexOffset + (iV++)] * scale + this._ffdVertices[iF++]);
                     _vertices2[i].x = _vertices[i].x;
                     _vertices2[i].y = _vertices[i].y;
                 }
@@ -624,16 +587,11 @@ namespace DragonBones
         {
             if (isSkinnedMesh)
             {
-                // Identity transform.
-                _helpVector3.x = 0.0f;
-                _helpVector3.y = 0.0f;
-                _helpVector3.z = 0.0f;
-
                 var transform = _renderDisplay.transform;
 
                 transform.localPosition = new Vector3(0.0f, 0.0f, transform.localPosition.z);
-                transform.localEulerAngles = _helpVector3;
-                transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+                transform.localEulerAngles = Vector3.zero;
+                transform.localScale = Vector3.one;
             }
             else
             {
@@ -667,7 +625,7 @@ namespace DragonBones
                     _helpVector3.y = 0.0f;
                     _helpVector3.z = global.rotation * Transform.RAD_DEG;
 
-                    //这里这样处理，是因为子骨架的插槽也要处理z值,那就在容器中反一下，子插槽在正过来
+                    //这里这样处理，是因为子骨架的插槽也要处理z值,那就在容器中反一下，子插槽再正过来
                     if (flipX != flipY)
                     {
                         _helpVector3.z = -_helpVector3.z;

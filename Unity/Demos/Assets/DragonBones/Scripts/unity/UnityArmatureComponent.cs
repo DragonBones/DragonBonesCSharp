@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using System.Collections;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -8,22 +7,58 @@ using UnityEditor;
 namespace DragonBones
 {
     /// <summary>
-    /// 龙骨插槽排序模式
+    /// The slots sorting mode
     /// </summary>
-	public enum SortingMode
+    /// <version>DragonBones 4.5</version>
+    /// <language>en_US</language>
+    /// 
+    /// <summary>
+    /// 插槽排序模式
+    /// </summary>
+    /// <version>DragonBones 4.5</version>
+    /// <language>zh_CN</language>
+    public enum SortingMode
     {
+        /// <summary>
+        /// Sort by Z values
+        /// </summary>
+        /// <version>DragonBones 4.5</version>
+        /// <language>en_US</language>
+        /// 
         /// <summary>
         /// 按照插槽显示对象的z值排序
         /// </summary>
-		SortByZ,
+        /// <version>DragonBones 4.5</version>
+        /// <language>zh_CN</language>
+        SortByZ,
         /// <summary>
-        /// 按照插槽显示对象的sortingOrder排序
+        /// Renderer's order within a sorting layer.
         /// </summary>
-		SortByOrder,
+        /// <version>DragonBones 4.5</version>
+        /// <language>en_US</language>
+        /// 
+        /// <summary>
+        /// 在同一层sorting layer中插槽按照sortingOrder排序
+        /// </summary>
+        /// <version>DragonBones 4.5</version>
+        /// <language>zh_CN</language>
+        SortByOrder,
+        /// <summary>
+        /// Adding a SortingGroup component to a GameObject will ensure that all Renderers within the GameObject's descendants will be sorted and rendered together.
+        /// </summary>
+        /// <version>DragonBones 4.5</version>
+        /// <language>en_US</language>
+        /// 
+        /// <summary>
+        /// 使用Sorting Group组件，可以在同一个Sorting Layer内将一组对象和其他对象分开来渲染。它会确保同一组下渲染的所有子对象一起被排序，这对管理复杂的场景非常有用。
+        /// </summary>
+        /// <version>DragonBones 4.5</version>
+        /// <language>zh_CN</language>
+        SortByGroup,
     }
     
     ///<inheritDoc/>
-    [ExecuteInEditMode,DisallowMultipleComponent]
+    [ExecuteInEditMode, DisallowMultipleComponent]
     public class UnityArmatureComponent : DragonBoneEventDispatcher, IArmatureProxy
     {
         ///<private/>
@@ -35,13 +70,32 @@ namespace DragonBones
         ///<private/>
         public string armatureName = null;
         /// <summary>
+        /// Is it the UGUI model?
+        /// </summary>
+        /// <version>DragonBones 4.5</version>
+        /// <language>en_US</language>
+        /// 
+        /// <summary>
         /// 是否是UGUI模式
         /// </summary>
+        /// <version>DragonBones 4.5</version>
+        /// <language>zh_CN</language>
         public bool isUGUI = false;
-
+        ///<private/>
         public bool addNormal = false;
         public GameObject bonesRoot;
         public List<UnityBone> unityBones = null;
+        /// <summary>
+        /// Display bones hierarchy
+        /// </summary>
+        /// <version>DragonBones 4.5</version>
+        /// <language>en_US</language>
+        /// 
+        /// <summary>
+        /// 显示骨骼层级
+        /// </summary>
+        /// <version>DragonBones 4.5</version>
+        /// <language>zh_CN</language>
         public bool boneHierarchy = false;
 
         internal readonly ColorTransform _colorTransform = new ColorTransform();
@@ -64,8 +118,7 @@ namespace DragonBones
         protected int _sortingOrder = 0;
         [SerializeField]
         protected float _zSpace = 0.0f;
-
-        //public bool zorderIsDirty = false;
+        
         [SerializeField]
         protected bool _flipX = false;
         [SerializeField]
@@ -164,6 +217,17 @@ namespace DragonBones
             get { return _armature != null ? _armature.animation : null; }
         }
 
+        /// <summary>
+        /// The slots sorting mode
+        /// </summary>
+        /// <version>DragonBones 4.5</version>
+        /// <language>en_US</language>
+        /// 
+        /// <summary>
+        /// 插槽排序模式
+        /// </summary>
+        /// <version>DragonBones 4.5</version>
+        /// <language>zh_CN</language>
         public SortingMode sortingMode
         {
             get { return _sortingMode; }
@@ -202,8 +266,18 @@ namespace DragonBones
                 }
             }
         }
-        
-        
+
+        /// <summary>
+        /// Name of the Renderer's sorting layer.
+        /// </summary>
+        /// <version>DragonBones 4.5</version>
+        /// <language>en_US</language>
+        /// 
+        /// <summary>
+        /// sorting layer名称。
+        /// </summary>
+        /// <version>DragonBones 4.5</version>
+        /// <language>zh_CN</language>
         public string sortingLayerName
         {
             get { return _sortingLayerName; }
@@ -244,7 +318,17 @@ namespace DragonBones
             }
         }
 
-        
+        /// <summary>
+        /// Renderer's order within a sorting layer.
+        /// </summary>
+        /// <version>DragonBones 4.5</version>
+        /// <language>en_US</language>
+        /// 
+        /// <summary>
+        /// 插槽按照sortingOrder在同一层sorting layer中排序
+        /// </summary>
+        /// <version>DragonBones 4.5</version>
+        /// <language>zh_CN</language>
         public int sortingOrder
         {
             get { return _sortingOrder; }
@@ -283,7 +367,17 @@ namespace DragonBones
 				}
             }
         }
-        
+        /// <summary>
+        /// The Z axis spacing of slot display objects
+        /// </summary>
+        /// <version>DragonBones 4.5</version>
+        /// <language>zh_CN</language>
+        /// 
+        /// <summary>
+        /// 插槽显示对象的z轴间隔
+        /// </summary>
+        /// <version>DragonBones 4.5</version>
+        /// <language>zh_CN</language>
         public float zSpace
         {
             get { return _zSpace; }
@@ -320,15 +414,23 @@ namespace DragonBones
                                 {
 									us.meshRenderer.sortingOrder = sortingOrder;
 								}
-
-								//us.meshRenderer.sortingOrder = sortingOrder;
 							}
 						}
 					}
                 }
             }
         }
-
+        /// <summary>
+        /// Playing repeat times. [-1: Use default value of the animation data, 0: No end loop playing, [1~N]: Repeat N times]
+        /// </summary>
+        /// <version>DragonBones 4.5</version>
+        /// <language>en_US</language>
+        /// 
+        /// <summary>
+        /// 循环播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
+        /// </summary>
+        /// <version>DragonBones 4.5</version>
+        /// <language>zh_CN</language>
         public int playTimes
         {
             set
@@ -341,7 +443,17 @@ namespace DragonBones
                 return _playTimes;
             }
         }
-        
+        /// <summary>
+        /// The play speed of current animations.   [0: Stop, (0~1): Slow, 1: Normal, (1~N): Fast]
+        /// </summary>
+        /// <version>DragonBones 4.5</version>
+        /// <language>en_US</language>
+        /// 
+        /// <summary>
+        /// 当前动画的播放速度。  [0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
+        /// </summary>
+        /// <version>DragonBones 4.5</version>
+        /// <language>zh_CN</language>
 		public float timeScale
         {
 			set
@@ -383,8 +495,18 @@ namespace DragonBones
         {
 			get { return _sortingGroup; }
 		}
-        #endif
-
+#endif
+        /// <summary>
+        /// Whether to flip the armature horizontally.
+        /// </summary>
+        /// <version>DragonBones 4.5</version>
+        /// <language>en_US</language>
+        /// 
+        /// <summary>
+        /// 是否将骨架水平翻转。
+        /// </summary>
+        /// <version>DragonBones 4.5</version>
+        /// <language>zh_CN</language>
         public bool flipX
         {
             get { return _flipX; }
@@ -399,7 +521,17 @@ namespace DragonBones
                 armature.flipX = _flipX;
             }
         }
-
+        /// <summary>
+        /// Whether to flip the armature vertically.
+        /// </summary>
+        /// <version>DragonBones 4.5</version>
+        /// <language>en_US</language>
+        /// 
+        /// <summary>
+        ///是否将骨架垂直翻转。
+        /// </summary>
+        /// <version>DragonBones 4.5</version>
+        /// <language>zh_CN</language>
         public bool flipY
         {
             get { return _flipY; }
@@ -416,8 +548,16 @@ namespace DragonBones
         }
 
         /// <summary>
-        /// 骨架之间颜色传递
+        /// The armature color.
         /// </summary>
+        /// <version>DragonBones 4.5</version>
+        /// <language>en_US</language>
+        /// 
+        /// <summary>
+        /// 骨架的颜色。
+        /// </summary>
+        /// <version>DragonBones 4.5</version>
+        /// <language>zh_CN</language>
         public ColorTransform color
         {
             get { return this._colorTransform; }
@@ -516,8 +656,8 @@ namespace DragonBones
                 return;
             }
 
-			//flipX = _armature.flipX ;
-			//flipY = _armature.flipY ;
+			_flipX = _armature.flipX ;
+			_flipY = _armature.flipY ;
 
 			#if UNITY_EDITOR
 			if(!Application.isPlaying)
@@ -589,37 +729,7 @@ namespace DragonBones
                     }
 #endif
                 }
-            }
-            
-            //QQ
-            //if (false && zorderIsDirty)
-            //{
-            //    _sortedSlots = new List<Slot>(_armature.GetSlots());
-            //    _sortedSlots.Sort(delegate (Slot x, Slot y)
-            //             {
-            //                 return x._zOrder - y._zOrder;
-            //             });
-
-            //    for (int i = 0; i < _sortedSlots.Count; ++i)
-            //    {
-            //        Slot slot = _sortedSlots[i];
-            //        var display = slot.display as GameObject;
-            //        if (display != null)
-            //        {
-            //            display.transform.SetSiblingIndex(i * 2);
-            //            if (!isUGUI && sortingMode == SortingMode.SortByOrder)
-            //            {
-            //                UnitySlot us = slot as UnitySlot;
-            //                if (us.meshRenderer != null)
-            //                {
-            //                    us.meshRenderer.sortingOrder = i;
-            //                }
-            //            }
-            //        }
-            //    }
-
-            //    zorderIsDirty = false;
-            //}
+            } 
 
             if (unityBones!=null)
             {
