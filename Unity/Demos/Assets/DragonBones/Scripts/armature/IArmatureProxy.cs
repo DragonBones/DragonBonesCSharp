@@ -20,6 +20,16 @@
          */
         void DBUpdate();
         /**
+         * only Unity using.
+         * @internal
+         */
+        void DBUpdateFlipX(bool b);
+        /**
+         * only Unity using.
+         * @internal
+         */
+        void DBUpdateFlipY(bool b);
+        /**
          * 释放代理和骨架。 (骨架会回收到对象池)
          * @version DragonBones 4.5
          * @language zh_CN

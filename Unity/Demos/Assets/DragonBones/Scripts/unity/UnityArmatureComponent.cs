@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using System.Collections;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -38,6 +39,11 @@ namespace DragonBones
         /// </summary>
         public bool isUGUI = false;
 
+        public bool addNormal = false;
+        public GameObject bonesRoot;
+        public List<UnityBone> unityBones = null;
+        public bool boneHierarchy = false;
+
         internal readonly ColorTransform _colorTransform = new ColorTransform();
 
         ///<private/>
@@ -65,10 +71,9 @@ namespace DragonBones
         [SerializeField]
         protected bool _flipY = false;
 
-        public bool addNormal = false;
-        public GameObject bonesRoot;
-        public List<UnityBone> unityBones = null;
-        public bool boneHierarchy = false;
+        internal bool _globalFlipX = false;
+        internal bool _globalFlipY = false;
+        internal bool _flipXFlag = false;
 
         private List<Slot> _sortedSlots = null;
         ///<private/>
@@ -89,6 +94,11 @@ namespace DragonBones
             unityData = null;
             armatureName = null;
             animationName = null;
+            isUGUI = false;
+            addNormal = false;
+            unityBones = null;
+            boneHierarchy = false;
+
             _colorTransform.Identity();
             _sortingMode = SortingMode.SortByZ;
             _sortingLayerName = "Default";
@@ -96,15 +106,17 @@ namespace DragonBones
             _playTimes = 0;
             _timeScale = 1.0f;
             _zSpace = 0.0f;
-            isUGUI = false;
             //zorderIsDirty = false;
             _flipX = false;
             _flipY = false;
-            addNormal = false;
-            unityBones = null;
-            boneHierarchy = false;
             _sortedSlots = null;
+
+            _globalFlipX = false;
+            _globalFlipY = false;
+
+            _flipXFlag = false;
         }
+        ///
         public void DBInit(Armature armature)
         {
             this._armature = armature;
@@ -114,7 +126,91 @@ namespace DragonBones
         {
 
         }
-        
+
+        /// <private/>
+        public void DBUpdateFlipX(bool flip)
+        {
+            if (_armature == null)
+            {
+                return;
+            }
+
+            if (_armature._parent == null)
+            {
+                _globalFlipX = _armature.flipX;
+            }
+            else
+            {
+                var parentFlipX = (_armature._parent._armature.proxy as UnityArmatureComponent)._globalFlipX;
+                if (parentFlipX && _armature.flipX)
+                {
+                    _globalFlipX = false;
+                }
+                else if (parentFlipX || _armature.flipX)
+                {
+                    _globalFlipX = true;
+                }
+                else
+                {
+                    _globalFlipX = false;
+                }
+            }
+
+            foreach (UnitySlot slot in _armature.GetSlots())
+            {
+                if (slot.childArmature != null)
+                {
+                    var childArmatureComp = slot.childArmature.proxy as UnityArmatureComponent;
+
+                    childArmatureComp.DBUpdateFlipX(_globalFlipX);
+
+                    slot.childArmature.InvalidUpdate(null, false);
+                }
+            }
+        }
+
+        /// <private/>
+        public void DBUpdateFlipY(bool b)
+        {
+            if (_armature == null)
+            {
+                return;
+            }
+
+            if (_armature._parent == null)
+            {
+                _globalFlipY = _armature.flipY;
+            }
+            else
+            {
+                var parentFlipY = (_armature._parent._armature.proxy as UnityArmatureComponent)._globalFlipY;
+                if (parentFlipY && _armature.flipY)
+                {
+                    _globalFlipY = false;
+                }
+                else if (parentFlipY || _armature.flipY)
+                {
+                    _globalFlipY = true;
+                }
+                else
+                {
+                    _globalFlipY = false;
+                }
+            }
+
+            foreach (UnitySlot slot in _armature.GetSlots())
+            {
+                if (slot.childArmature != null)
+                {
+                    var childArmatureComp = slot.childArmature.proxy as UnityArmatureComponent;
+
+                    childArmatureComp.DBUpdateFlipY(_globalFlipY);
+
+                    slot.childArmature.InvalidUpdate(null, true);
+                }
+            }
+        }
+
         ///<inheritDoc/>
         public void Dispose(bool disposeProxy = true)
         {
@@ -513,8 +609,8 @@ namespace DragonBones
                 return;
             }
 
-			flipX = _armature.flipX ;
-			flipY = _armature.flipY ;
+			//flipX = _armature.flipX ;
+			//flipY = _armature.flipY ;
 
 			#if UNITY_EDITOR
 			if(!Application.isPlaying)

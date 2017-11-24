@@ -639,6 +639,9 @@ namespace DragonBones
             {
                 this.UpdateGlobalTransform(); // Update transform.
 
+                //localPosition
+                //var flipX = _proxy._globalFlipX;
+                //var flipY = _proxy._globalFlipY;
                 var flipX = _armature.flipX;
                 var flipY = _armature.flipY;
                 var transform = _renderDisplay.transform;
@@ -649,31 +652,49 @@ namespace DragonBones
 
                 transform.localPosition = _helpVector3;
 
-                _helpVector3.x = 0.0f;
-                _helpVector3.y = 0.0f;
-                _helpVector3.z = global.rotation * Transform.RAD_DEG;
+                //localEulerAngles
+                if (_childArmature == null)
+                {
+                    _helpVector3.x = flipY ? 180.0f : 0.0f;
+                    _helpVector3.y = flipX ? 180.0f : 0.0f;
+                    _helpVector3.z = global.rotation * Transform.RAD_DEG;
+                }
+                else
+                {
+                    //If the childArmature is not null,
+                    //X, Y axis can not flip in the container of the childArmature container,
+                    //because after the flip, the Z value of the child slot is reversed,
+                    //showing the order is wrong, only in the child slot to deal with X, Y axis flip 
+                    _helpVector3.x = 0.0f;
+                    _helpVector3.y = 0.0f;
+                    _helpVector3.z = global.rotation * Transform.RAD_DEG;
+
+                    //这里这样处理，是因为子骨架的插槽也要处理z值,那就在容器中反一下，子插槽在正过来
+                    if (flipX != flipY)
+                    {
+                        //_helpVector3.z = -_helpVector3.z;
+                    }
+                }
+
                 if (flipX || flipY)
                 {
                     if (flipX && flipY)
                     {
-                        //_helpVector3.z += 180.0f;
+                        _helpVector3.z += 180.0f;
                     }
                     else
                     {
-                        _helpVector3.z = -_helpVector3.z;
                         if (flipX)
                         {
-                            _helpVector3.y = 180.0f;
-                            _helpVector3.z -= 180.0f;
+                            _helpVector3.z = 180.0f - _helpVector3.z;
                         }
-
-                        if (flipY)
+                        else
                         {
-                            _helpVector3.x = 180.0f;
+                            _helpVector3.z = -_helpVector3.z;
                         }
                     }
                 }
-                
+
                 transform.localEulerAngles = _helpVector3;
 
                 //Modify mesh skew. // TODO child armature skew.
@@ -723,7 +744,8 @@ namespace DragonBones
                         }
                     }
                 }
-                
+
+                //localScale
                 _helpVector3.x = global.scaleX;
                 _helpVector3.y = global.scaleY;
                 _helpVector3.z = 1.0f;
@@ -731,11 +753,13 @@ namespace DragonBones
                 transform.localScale = _helpVector3;
             }
 
-            if (childArmature != null)
+            if (_childArmature != null)
             {
-                //childArmature.flipX = _proxy.armature.flipX;
-                //childArmature.flipY = _proxy.armature.flipY;
-                UnityArmatureComponent unityArmature = (childArmature.proxy as UnityArmatureComponent);
+                UnityArmatureComponent unityArmature = (_childArmature.proxy as UnityArmatureComponent);
+                _childArmature.flipX = _armature.flipX;
+                _childArmature.flipY = _armature.flipY;
+                unityArmature.DBUpdateFlipX(true);
+
                 unityArmature.addNormal = _proxy.addNormal;
                 unityArmature.boneHierarchy = _proxy.boneHierarchy;
             }

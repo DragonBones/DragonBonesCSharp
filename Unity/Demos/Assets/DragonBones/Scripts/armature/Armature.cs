@@ -748,6 +748,7 @@ namespace DragonBones
                 }
 
                 this._flipX = value;
+                //this._proxy.DBUpdateFlipX(value);
                 this.InvalidUpdate();
             }
         }
@@ -762,6 +763,7 @@ namespace DragonBones
                 }
 
                 this._flipY = value;
+                //this._proxy.DBUpdateFlipX(value);
                 this.InvalidUpdate();
             }
         }
