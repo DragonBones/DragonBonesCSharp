@@ -76,10 +76,6 @@ namespace coreElement
 #endif
             _armatureComponent.AddEventListener(EventObject.FADE_IN_COMPLETE, _animationEventHandler);
             _armatureComponent.AddEventListener(EventObject.FADE_OUT_COMPLETE, _animationEventHandler);
-            
-            // Effects only controled by normalAnimation.
-            //_armatureComponent.armature.GetSlot("effects_1").displayController = NORMAL_ANIMATION_GROUP;
-            //_armatureComponent.armature.GetSlot("effects_2").displayController = NORMAL_ANIMATION_GROUP;
 
             // Get weapon childArmature.
             _weaponLeft = _armatureComponent.armature.GetSlot("weapon_l").childArmature;

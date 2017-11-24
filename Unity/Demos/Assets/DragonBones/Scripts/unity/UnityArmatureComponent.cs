@@ -71,10 +71,6 @@ namespace DragonBones
         [SerializeField]
         protected bool _flipY = false;
 
-        internal bool _globalFlipX = false;
-        internal bool _globalFlipY = false;
-        internal bool _flipXFlag = false;
-
         private List<Slot> _sortedSlots = null;
         ///<private/>
         public void DBClear()
@@ -110,11 +106,6 @@ namespace DragonBones
             _flipX = false;
             _flipY = false;
             _sortedSlots = null;
-
-            _globalFlipX = false;
-            _globalFlipY = false;
-
-            _flipXFlag = false;
         }
         ///
         public void DBInit(Armature armature)
@@ -125,90 +116,6 @@ namespace DragonBones
         public void DBUpdate()
         {
 
-        }
-
-        /// <private/>
-        public void DBUpdateFlipX(bool flip)
-        {
-            if (_armature == null)
-            {
-                return;
-            }
-
-            if (_armature._parent == null)
-            {
-                _globalFlipX = _armature.flipX;
-            }
-            else
-            {
-                var parentFlipX = (_armature._parent._armature.proxy as UnityArmatureComponent)._globalFlipX;
-                if (parentFlipX && _armature.flipX)
-                {
-                    _globalFlipX = false;
-                }
-                else if (parentFlipX || _armature.flipX)
-                {
-                    _globalFlipX = true;
-                }
-                else
-                {
-                    _globalFlipX = false;
-                }
-            }
-
-            foreach (UnitySlot slot in _armature.GetSlots())
-            {
-                if (slot.childArmature != null)
-                {
-                    var childArmatureComp = slot.childArmature.proxy as UnityArmatureComponent;
-
-                    childArmatureComp.DBUpdateFlipX(_globalFlipX);
-
-                    slot.childArmature.InvalidUpdate(null, false);
-                }
-            }
-        }
-
-        /// <private/>
-        public void DBUpdateFlipY(bool b)
-        {
-            if (_armature == null)
-            {
-                return;
-            }
-
-            if (_armature._parent == null)
-            {
-                _globalFlipY = _armature.flipY;
-            }
-            else
-            {
-                var parentFlipY = (_armature._parent._armature.proxy as UnityArmatureComponent)._globalFlipY;
-                if (parentFlipY && _armature.flipY)
-                {
-                    _globalFlipY = false;
-                }
-                else if (parentFlipY || _armature.flipY)
-                {
-                    _globalFlipY = true;
-                }
-                else
-                {
-                    _globalFlipY = false;
-                }
-            }
-
-            foreach (UnitySlot slot in _armature.GetSlots())
-            {
-                if (slot.childArmature != null)
-                {
-                    var childArmatureComp = slot.childArmature.proxy as UnityArmatureComponent;
-
-                    childArmatureComp.DBUpdateFlipY(_globalFlipY);
-
-                    slot.childArmature.InvalidUpdate(null, true);
-                }
-            }
         }
 
         ///<inheritDoc/>

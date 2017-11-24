@@ -640,8 +640,6 @@ namespace DragonBones
                 this.UpdateGlobalTransform(); // Update transform.
 
                 //localPosition
-                //var flipX = _proxy._globalFlipX;
-                //var flipY = _proxy._globalFlipY;
                 var flipX = _armature.flipX;
                 var flipY = _armature.flipY;
                 var transform = _renderDisplay.transform;
@@ -672,7 +670,7 @@ namespace DragonBones
                     //这里这样处理，是因为子骨架的插槽也要处理z值,那就在容器中反一下，子插槽在正过来
                     if (flipX != flipY)
                     {
-                        //_helpVector3.z = -_helpVector3.z;
+                        _helpVector3.z = -_helpVector3.z;
                     }
                 }
 
@@ -758,7 +756,6 @@ namespace DragonBones
                 UnityArmatureComponent unityArmature = (_childArmature.proxy as UnityArmatureComponent);
                 _childArmature.flipX = _armature.flipX;
                 _childArmature.flipY = _armature.flipY;
-                unityArmature.DBUpdateFlipX(true);
 
                 unityArmature.addNormal = _proxy.addNormal;
                 unityArmature.boneHierarchy = _proxy.boneHierarchy;
