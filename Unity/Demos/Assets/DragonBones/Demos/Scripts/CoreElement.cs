@@ -67,12 +67,12 @@ namespace coreElement
 
             var armatureDisplay = new GameObject("mecha_1502b");
 #if UNITY_5_6_OR_NEWER
-            armatureDisplay.AddComponent<UnityEngine.Rendering.SortingGroup>();
+            //armatureDisplay.AddComponent<UnityEngine.Rendering.SortingGroup>();
 #endif
             _armatureComponent = UnityFactory.factory.BuildArmatureComponent("mecha_1502b", null, null, null, armatureDisplay);
 
 #if UNITY_5_6_OR_NEWER
-            _armatureComponent.sortingMode = SortingMode.SortByOrder;
+            //_armatureComponent.sortingMode = SortingMode.SortByOrder;
 #endif
             _armatureComponent.AddEventListener(EventObject.FADE_IN_COMPLETE, _animationEventHandler);
             _armatureComponent.AddEventListener(EventObject.FADE_OUT_COMPLETE, _animationEventHandler);

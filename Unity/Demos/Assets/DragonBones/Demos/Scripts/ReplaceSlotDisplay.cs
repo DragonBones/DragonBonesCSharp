@@ -24,7 +24,7 @@ public class ReplaceSlotDisplay : MonoBehaviour
         UnityFactory.factory.LoadData(replaceData);
 
         _armatureComponent = this.GetComponent<UnityArmatureComponent>();
-        _armatureComponent.timeScale = 0.1f;
+        //_armatureComponent.timeScale = 0.1f;
         _armatureComponent.animation.timeScale = 0.1f;
         _armatureComponent.animation.Play();
     }
