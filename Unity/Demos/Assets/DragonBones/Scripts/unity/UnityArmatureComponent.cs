@@ -158,7 +158,6 @@ namespace DragonBones
             _playTimes = 0;
             _timeScale = 1.0f;
             _zSpace = 0.0f;
-            //zorderIsDirty = false;
             _flipX = false;
             _flipY = false;
             _sortedSlots = null;
@@ -366,56 +365,7 @@ namespace DragonBones
                 _UpdateSlotsSorting();
             }
         }
-        /// <summary>
-        /// Playing repeat times. [-1: Use default value of the animation data, 0: No end loop playing, [1~N]: Repeat N times]
-        /// </summary>
-        /// <version>DragonBones 4.5</version>
-        /// <language>en_US</language>
-        /// 
-        /// <summary>
-        /// 循环播放次数。 [-1: 使用动画数据默认值, 0: 无限循环播放, [1~N]: 循环播放 N 次]
-        /// </summary>
-        /// <version>DragonBones 4.5</version>
-        /// <language>zh_CN</language>
-        public int playTimes
-        {
-            get { return _playTimes; }
-            set { _playTimes = value; }
-        }
-        /// <summary>
-        /// The play speed of current animations.   [0: Stop, (0~1): Slow, 1: Normal, (1~N): Fast]
-        /// </summary>
-        /// <version>DragonBones 4.5</version>
-        /// <language>en_US</language>
-        /// 
-        /// <summary>
-        /// 当前动画的播放速度。  [0: 停止播放, (0~1): 慢速播放, 1: 正常播放, (1~N): 快速播放]
-        /// </summary>
-        /// <version>DragonBones 4.5</version>
-        /// <language>zh_CN</language>
-		public float timeScale
-        {
-            get
-            {
-                if (_armature != null)
-                {
-                    _timeScale = _armature.animation.timeScale;
-                }
-
-                return _timeScale;
-            }
-            set
-            {
-                if (_armature != null)
-                {
-                    _armature.animation.timeScale = _timeScale;
-                }
-
-                _timeScale = value;
-            }
-        }
-
-
+        
         public List<Slot> sortedSlots
         {
             get
@@ -428,57 +378,7 @@ namespace DragonBones
                 return _sortedSlots;
             }
         }
-        /// <summary>
-        /// Whether to flip the armature horizontally.
-        /// </summary>
-        /// <version>DragonBones 4.5</version>
-        /// <language>en_US</language>
-        /// 
-        /// <summary>
-        /// 是否将骨架水平翻转。
-        /// </summary>
-        /// <version>DragonBones 4.5</version>
-        /// <language>zh_CN</language>
-        public bool flipX
-        {
-            get { return _flipX; }
-            set
-            {
-                if (_flipX == value)
-                {
-                    return;
-                }
-
-                _flipX = value;
-                armature.flipX = _flipX;
-            }
-        }
-        /// <summary>
-        /// Whether to flip the armature vertically.
-        /// </summary>
-        /// <version>DragonBones 4.5</version>
-        /// <language>en_US</language>
-        /// 
-        /// <summary>
-        ///是否将骨架垂直翻转。
-        /// </summary>
-        /// <version>DragonBones 4.5</version>
-        /// <language>zh_CN</language>
-        public bool flipY
-        {
-            get { return _flipY; }
-            set
-            {
-                if (_flipY == value)
-                {
-                    return;
-                }
-
-                _flipY = value;
-                armature.flipY = _flipY;
-            }
-        }
-
+        
         /// <summary>
         /// - The armature color.
         /// </summary>

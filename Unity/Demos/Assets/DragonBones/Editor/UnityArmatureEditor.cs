@@ -10,18 +10,25 @@ namespace DragonBones
     [CustomEditor(typeof(UnityArmatureComponent))]
     public class UnityArmatureEditor : Editor
     {
+        private long _nowTime = 0;
+
         private int _armatureIndex = -1;
         private int _animationIndex = -1;
         private int _sortingModeIndex = -1;
         private int _sortingLayerIndex = -1;
-        private int _playTimes = 0;
-        private long _nowTime = 0;
+
         private List<string> _armatureNames = null;
         private List<string> _animationNames = null;
         private List<string> _sortingLayerNames = null;
         private UnityArmatureComponent _armatureComponent = null;
 
+        private SerializedProperty _playTimesPro;
+        private SerializedProperty _timeScalePro;
+        private SerializedProperty _flipXPro;
+        private SerializedProperty _flipYPro;
+
         private List<string> _sortingMode = new List<string> { SortingMode.SortByZ.ToString(), SortingMode.SortByOrder.ToString() };
+        private Dictionary<string, DragonBonesData> _allDragonBonesData = new Dictionary<string, DragonBonesData>();
         void OnEnable()
         {
             _armatureComponent = target as UnityArmatureComponent;
@@ -32,9 +39,17 @@ namespace DragonBones
 
             // 
             _nowTime = System.DateTime.Now.Ticks;
+
             _sortingModeIndex = (int)_armatureComponent.sortingMode;
             _sortingLayerNames = _GetSortingLayerNames();
             _sortingLayerIndex = _sortingLayerNames.IndexOf(_armatureComponent.sortingLayerName);
+
+            _allDragonBonesData = UnityFactory.factory.GetAllDragonBonesData();
+
+            _playTimesPro = serializedObject.FindProperty("_playTimes");
+            _timeScalePro = serializedObject.FindProperty("_timeScale");
+            _flipXPro = serializedObject.FindProperty("_flipX");
+            _flipYPro = serializedObject.FindProperty("_flipY");
 
             // Update armature.
             if (!EditorApplication.isPlayingOrWillChangePlaymode &&
@@ -59,7 +74,7 @@ namespace DragonBones
                 // Play animation.
                 if (!string.IsNullOrEmpty(_armatureComponent.animationName))
                 {
-                    _armatureComponent.animation.Play(_armatureComponent.animationName, _armatureComponent.playTimes);
+                    _armatureComponent.animation.Play(_armatureComponent.animationName, _playTimesPro.intValue);
                 }
                 _armatureComponent.CollectBones();
             }
@@ -86,10 +101,13 @@ namespace DragonBones
                 return;
             }
 
+            serializedObject.Update();
+
             if (_armatureIndex == -1)
             {
                 _UpdateParameters();
             }
+
             // DragonBones Data
             EditorGUILayout.BeginHorizontal();
 
@@ -150,7 +168,7 @@ namespace DragonBones
                 var dragonBonesData = _armatureComponent.armature.armatureData.parent;
 
                 // Armature
-                if (UnityFactory.factory.GetAllDragonBonesData().ContainsValue(dragonBonesData) && _armatureNames != null)
+                if (_allDragonBonesData.ContainsValue(dragonBonesData) && _armatureNames != null)
                 {
                     var armatureIndex = EditorGUILayout.Popup("Armature", _armatureIndex, _armatureNames.ToArray());
                     if (_armatureIndex != armatureIndex)
@@ -167,11 +185,7 @@ namespace DragonBones
 
                         _armatureComponent.gameObject.name = armatureName;
 
-                        EditorUtility.SetDirty(_armatureComponent);
-                        if (!Application.isPlaying && !_IsPrefab())
-                        {
-                            EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
-                        }
+                        MarkSceneDirty();
                     }
                 }
 
@@ -189,23 +203,17 @@ namespace DragonBones
                         {
                             _armatureComponent.animationName = _animationNames[animationIndex];
                             var animationData = _armatureComponent.animation.animations[_armatureComponent.animationName];
-                            _armatureComponent.playTimes = (int)animationData.playTimes;
-                            _armatureComponent.animation.Play(_armatureComponent.animationName, _armatureComponent.playTimes);
+                            _armatureComponent.animation.Play(_armatureComponent.animationName, _playTimesPro.intValue);
                             _UpdateParameters();
                         }
                         else
                         {
                             _armatureComponent.animationName = null;
-                            _armatureComponent.playTimes = 0;
+                            _playTimesPro.intValue = 0;
                             _armatureComponent.animation.Stop();
                         }
 
-                        EditorUtility.SetDirty(_armatureComponent);
-
-                        if (!Application.isPlaying && !_IsPrefab())
-                        {
-                            EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
-                        }
+                        MarkSceneDirty();
                     }
 
                     if (_animationIndex >= 0)
@@ -221,36 +229,33 @@ namespace DragonBones
                         {
                             if (GUILayout.Button("Play"))
                             {
-                                _armatureComponent.animation.Play(null, _armatureComponent.playTimes);
+                                _armatureComponent.animation.Play(null, _playTimesPro.intValue);
                             }
                         }
                     }
                     EditorGUILayout.EndHorizontal();
 
-
                     //playTimes
                     EditorGUILayout.BeginHorizontal();
-                    serializedObject.Update();
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty("_playTimes"), false);
-                    serializedObject.ApplyModifiedProperties();
-                    var times = serializedObject.FindProperty("_playTimes").intValue;
-                    if (_playTimes != times)
+                    var playTimes = _playTimesPro.intValue;
+                    EditorGUILayout.PropertyField(_playTimesPro, false);
+                    if (playTimes != _playTimesPro.intValue)
                     {
                         if (!string.IsNullOrEmpty(_armatureComponent.animationName))
                         {
-                            _playTimes = times;
                             _armatureComponent.animation.Reset();
-                            _armatureComponent.animation.Play(_armatureComponent.animationName, _armatureComponent.playTimes);
+                            _armatureComponent.animation.Play(_armatureComponent.animationName, _playTimesPro.intValue);
                         }
                     }
                     EditorGUILayout.EndHorizontal();
 
                     // TimeScale
-                    serializedObject.Update();
-                    EditorGUILayout.PropertyField(serializedObject.FindProperty("_timeScale"), false);
-                    serializedObject.ApplyModifiedProperties();
-                    var timeScale = serializedObject.FindProperty("_timeScale").floatValue;
-                    _armatureComponent.animation.timeScale = serializedObject.FindProperty("_timeScale").floatValue;
+                    var timeScale = _timeScalePro.floatValue;
+                    EditorGUILayout.PropertyField(_timeScalePro, false);
+                    if (timeScale != _timeScalePro.floatValue)
+                    {
+                        _armatureComponent.animation.timeScale = _timeScalePro.floatValue;
+                    }
                 }
 
                 //
@@ -270,11 +275,7 @@ namespace DragonBones
                             _sortingModeIndex = (int)_armatureComponent.sortingMode;
                         }
 
-                        EditorUtility.SetDirty(_armatureComponent);
-                        if (!Application.isPlaying && !_IsPrefab())
-                        {
-                            EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
-                        }
+                        MarkSceneDirty();
                     }
 
                     // Sorting Layer
@@ -283,11 +284,8 @@ namespace DragonBones
                     {
                         Undo.RecordObject(_armatureComponent, "Sorting Layer");
                         _armatureComponent.sortingLayerName = _sortingLayerNames[_sortingLayerIndex];
-                        EditorUtility.SetDirty(_armatureComponent);
-                        if (!Application.isPlaying && !_IsPrefab())
-                        {
-                            EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
-                        }
+
+                        MarkSceneDirty();
                     }
 
                     // Sorting Order
@@ -296,11 +294,8 @@ namespace DragonBones
                     {
                         Undo.RecordObject(_armatureComponent, "Edit Sorting Order");
                         _armatureComponent.sortingOrder = sortingOrder;
-                        EditorUtility.SetDirty(_armatureComponent);
-                        if (!Application.isPlaying && !_IsPrefab())
-                        {
-                            EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
-                        }
+
+                        MarkSceneDirty();
                     }
 
                     // ZSpace
@@ -314,18 +309,18 @@ namespace DragonBones
                 // Flip
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.PrefixLabel("Flip");
-                bool flipX = _armatureComponent.flipX;
-                bool flipY = _armatureComponent.flipY;
-                _armatureComponent.flipX = GUILayout.Toggle(_armatureComponent.flipX, "X", GUILayout.Width(30));
-                _armatureComponent.flipY = GUILayout.Toggle(_armatureComponent.flipY, "Y", GUILayout.Width(30));
-                if (_armatureComponent.flipX != flipX || _armatureComponent.flipY != flipY)
+                var flipX = _flipXPro.boolValue;
+                var flipY = _flipYPro.boolValue;
+                _flipXPro.boolValue = GUILayout.Toggle(_flipXPro.boolValue, "X", GUILayout.Width(30));
+                _flipYPro.boolValue = GUILayout.Toggle(_flipYPro.boolValue, "Y", GUILayout.Width(30));
+                if (flipX != _flipXPro.boolValue || flipY != _flipYPro.boolValue)
                 {
-                    EditorUtility.SetDirty(_armatureComponent);
-                    if (!Application.isPlaying && !_IsPrefab())
-                    {
-                        EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
-                    }
+                    _armatureComponent.armature.flipX = _flipXPro.boolValue;
+                    _armatureComponent.armature.flipY = _flipYPro.boolValue;
+
+                    MarkSceneDirty();
                 }
+
                 EditorGUILayout.EndHorizontal();
 
                 EditorGUILayout.Space();
@@ -343,6 +338,7 @@ namespace DragonBones
                 {
                     _armatureComponent.boneHierarchy = EditorGUILayout.Toggle("Bone Hierarchy", _armatureComponent.boneHierarchy);
                 }
+
                 EditorGUILayout.BeginHorizontal();
                 if (!Application.isPlaying)
                 {
@@ -378,6 +374,8 @@ namespace DragonBones
                 EditorGUILayout.EndHorizontal();
             }
 
+            serializedObject.ApplyModifiedProperties();
+
             if (!EditorApplication.isPlayingOrWillChangePlaymode && Selection.activeObject == _armatureComponent.gameObject)
             {
                 EditorUtility.SetDirty(_armatureComponent);
@@ -408,6 +406,7 @@ namespace DragonBones
                     _armatureNames = _armatureComponent.armature.armatureData.parent.armatureNames;
                     _animationNames = _armatureComponent.armature.armatureData.animationNames;
                     _armatureIndex = _armatureNames.IndexOf(_armatureComponent.armature.name);
+                    //
                     if (!string.IsNullOrEmpty(_armatureComponent.animationName))
                     {
                         _animationIndex = _animationNames.IndexOf(_armatureComponent.animationName);
@@ -442,6 +441,16 @@ namespace DragonBones
             var sortingLayersProperty = internalEditorUtilityType.GetProperty("sortingLayerNames", BindingFlags.Static | BindingFlags.NonPublic);
 
             return new List<string>(sortingLayersProperty.GetValue(null, new object[0]) as string[]);
+        }
+
+        private void MarkSceneDirty()
+        {
+            //return;
+            EditorUtility.SetDirty(_armatureComponent);
+            if (!Application.isPlaying && !_IsPrefab())
+            {
+                EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
+            }
         }
     }
 }
