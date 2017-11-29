@@ -28,7 +28,6 @@ namespace DragonBones
         private SerializedProperty _flipYPro;
 
         private List<string> _sortingMode = new List<string> { SortingMode.SortByZ.ToString(), SortingMode.SortByOrder.ToString() };
-        private Dictionary<string, DragonBonesData> _allDragonBonesData = new Dictionary<string, DragonBonesData>();
         void OnEnable()
         {
             _armatureComponent = target as UnityArmatureComponent;
@@ -43,8 +42,6 @@ namespace DragonBones
             _sortingModeIndex = (int)_armatureComponent.sortingMode;
             _sortingLayerNames = _GetSortingLayerNames();
             _sortingLayerIndex = _sortingLayerNames.IndexOf(_armatureComponent.sortingLayerName);
-
-            _allDragonBonesData = UnityFactory.factory.GetAllDragonBonesData();
 
             _playTimesPro = serializedObject.FindProperty("_playTimes");
             _timeScalePro = serializedObject.FindProperty("_timeScale");
@@ -168,7 +165,7 @@ namespace DragonBones
                 var dragonBonesData = _armatureComponent.armature.armatureData.parent;
 
                 // Armature
-                if (_allDragonBonesData.ContainsValue(dragonBonesData) && _armatureNames != null)
+                if (UnityFactory.factory.GetAllDragonBonesData().ContainsValue(dragonBonesData) && _armatureNames != null)
                 {
                     var armatureIndex = EditorGUILayout.Popup("Armature", _armatureIndex, _armatureNames.ToArray());
                     if (_armatureIndex != armatureIndex)
