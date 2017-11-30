@@ -1,75 +1,101 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 ﻿using System;
 using System.Collections.Generic;
 
 namespace DragonBones
 {
-    /**
-     * 骨骼，一个骨架中可以包含多个骨骼，骨骼以树状结构组成骨架。
-     * 骨骼在骨骼动画体系中是最重要的逻辑单元之一，负责动画中的平移旋转缩放的实现。
-     * @see dragonBones.BoneData
-     * @see dragonBones.Armature
-     * @see dragonBones.Slot
-     * @version DragonBones 3.0
-     * @language zh_CN
-     */
+    /// <summary>
+    /// - Bone is one of the most important logical units in the armature animation system,
+    /// and is responsible for the realization of translate, rotation, scaling in the animations.
+    /// A armature can contain multiple bones.
+    /// </summary>
+    /// <see cref="DragonBones.BoneData"/>
+    /// <see cref="DragonBones.Armature"/>
+    /// <see cref="DragonBones.Slot"/>
+    /// <version>DragonBones 3.0</version>
+    /// <language>en_US</language>
+
+    /// <summary>
+    /// - 骨骼在骨骼动画体系中是最重要的逻辑单元之一，负责动画中的平移、旋转、缩放的实现。
+    /// 一个骨架中可以包含多个骨骼。
+    /// </summary>
+    /// <see cref="DragonBones.BoneData"/>
+    /// <see cref="DragonBones.Armature"/>
+    /// <see cref="DragonBones.Slot"/>
+    /// <version>DragonBones 3.0</version>
+    /// <language>zh_CN</language>
     public class Bone : TransformObject
     {
-        /**
-         * @private
-         */
+        /// <summary>
+        /// - The offset mode.
+        /// </summary>
+        /// <see cref="offset"/>
+        /// <version>DragonBones 5.5</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 偏移模式。
+        /// </summary>
+        /// <see cref="offset"/>
+        /// <version>DragonBones 5.5</version>
+        /// <language>zh_CN</language>
         internal OffsetMode offsetMode;
-        /**
-         * @internal
-         * @private
-         */
+        /// <internal/>
+        /// <private/>
         internal readonly Transform animationPose = new Transform();
-        /**
-         * @internal
-         * @private
-         */
+        /// <internal/>
+        /// <private/>
         internal bool _transformDirty;
-        /**
-         * @internal
-         * @private
-         */
+        /// <internal/>
+        /// <private/>
         internal bool _childrenTransformDirty;
-        /**
-         * @internal
-         * @private
-         */
+        /// <internal/>
+        /// <private/>
         internal bool _blendDirty;
         private bool _localDirty;
 
+        /// <internal/>
+        /// <private/>
         internal bool _hasConstraint;
         private bool _visible;
         private int _cachedFrameIndex;
-        /**
-         * @internal
-         * @private
-         */
+        /// <internal/>
+        /// <private/>
         internal int _blendLayer;
-        /**
-         * @internal
-         * @private
-         */
+        /// <internal/>
+        /// <private/>
         internal float _blendLeftWeight;
-        /**
-         * @internal
-         * @private
-         */
+        /// <internal/>
+        /// <private/>
         internal float _blendLayerWeight;
-        /**
-         * @readonly
-         */
+        /// <internal/>
+        /// <private/>
         internal BoneData _boneData;
-        /**
-         * @internal
-         * @private
-         */
+        /// <internal/>
+        /// <private/>
         internal List<int> _cachedFrameIndices = new List<int>();
-        /**
-         * @private
-         */
+        /// <inheritDoc/>
         protected override void _OnClear()
         {
             base._OnClear();
@@ -90,9 +116,7 @@ namespace DragonBones
             this._boneData = null; //
             this._cachedFrameIndices = null;
         }
-        /**
-         * @private
-         */
+        /// <private/>
         private void _UpdateGlobalTransformMatrix(bool isCache)
         {            
             var flipX = this._armature.flipX;
@@ -285,10 +309,7 @@ namespace DragonBones
             }
         }
 
-        /**
-         * @internal
-         * @private
-         */
+        /// <inheritDoc/>
         internal override void _SetArmature(Armature value = null)
         {
             if (this._armature == value)
@@ -335,10 +356,8 @@ namespace DragonBones
                 }
             }
         }
-        /**
-         * @internal
-         * @private
-         */
+        /// <internal/>
+        /// <private/>
         internal void Init(BoneData boneData)
         {
             if (this._boneData != null)
@@ -350,10 +369,8 @@ namespace DragonBones
             //
             this.origin = this._boneData.transform;
         }
-        /**
-         * @internal
-         * @private
-         */
+        /// <internal/>
+        /// <private/>
         internal void Update(int cacheFrameIndex)
         {
             this._blendDirty = false;
@@ -460,10 +477,8 @@ namespace DragonBones
 
             this._localDirty = true;
         }
-        /**
-         * @internal
-         * @private
-         */
+        /// <internal/>
+        /// <private/>
         internal void UpdateByConstraint()
         {
             if (this._localDirty && (this._transformDirty || (this._parent != null && this._parent._childrenTransformDirty)))
@@ -473,22 +488,55 @@ namespace DragonBones
                 this._UpdateGlobalTransformMatrix(true);
             }
         }
-        /**
-         * 下一帧更新变换。 (当骨骼没有动画状态或动画状态播放完成时，骨骼将不在更新)
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Forces the bone to update the transform in the next frame.
+        /// When the bone is not animated or its animation state is finished, the bone will not continue to update,
+        /// and when the skeleton must be updated for some reason, the method needs to be called explicitly.
+        /// </summary>
+        /// <example>
+        /// TypeScript style, for reference only.
+        /// <pre>
+        ///     let bone = armature.getBone("arm");
+        ///     bone.offset.scaleX = 2.0;
+        ///     bone.invalidUpdate();
+        /// </pre>
+        /// </example>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 强制骨骼在下一帧更新变换。
+        /// 当该骨骼没有动画状态或其动画状态播放完成时，骨骼将不在继续更新，而此时由于某些原因必须更新骨骼时，则需要显式调用该方法。
+        /// </summary>
+        /// <example>
+        /// TypeScript 风格，仅供参考。
+        /// <pre>
+        ///     let bone = armature.getBone("arm");
+        ///     bone.offset.scaleX = 2.0;
+        ///     bone.invalidUpdate();
+        /// </pre>
+        /// </example>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public void InvalidUpdate()
         {
             this._transformDirty = true;
         }
-        /**
-         * 是否包含骨骼或插槽。
-         * @returns
-         * @see dragonBones.TransformObject
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Check whether the bone contains a specific bone or slot.
+        /// </summary>
+        /// <see cref="DragonBones.Bone"/>
+        /// <see cref="DragonBones.Slot"/>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 检查该骨骼是否包含特定的骨骼或插槽。
+        /// </summary>
+        /// <see cref="DragonBones.Bone"/>
+        /// <see cref="DragonBones.Slot"/>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public bool Contains(TransformObject value)
         {
             if (value == this)
@@ -504,18 +552,37 @@ namespace DragonBones
 
             return ancestor == this;
         }
+        /// <summary>
+        /// - The bone data.
+        /// </summary>
+        /// <version>DragonBones 4.5</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 骨骼数据。
+        /// </summary>
+        /// <version>DragonBones 4.5</version>
+        /// <language>zh_CN</language>
         public BoneData boneData
         {
             get { return this._boneData; }
         }
        
-        /**
-         * 控制此骨骼所有插槽的可见。
-         * @default true
-         * @see dragonBones.Slot
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - The visible of all slots in the bone.
+        /// </summary>
+        /// <default>true</default>
+        /// <see cref="DragonBones.Slot.visible"/>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 此骨骼所有插槽的可见。
+        /// </summary>
+        /// <default>true</default>
+        /// <see cref="DragonBones.Slot.visible"/>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public bool visible
         {
             get { return this._visible; }
@@ -538,11 +605,32 @@ namespace DragonBones
             }
         }
 
+        /// <summary>
+        /// - The bone name.
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 骨骼名称。
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public string name
         {
             get { return this._boneData.name; }
         }
 
+        /// <summary>
+        /// - Deprecated, please refer to {@link dragonBones.Armature#getSlot()}.
+        /// </summary>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 已废弃，请参考 {@link dragonBones.Armature#getSlot()}。
+        /// </summary>
+        /// <language>zh_CN</language>
+        [System.Obsolete("")]
         public Slot slot
         {
             get

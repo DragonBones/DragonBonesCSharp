@@ -1,12 +1,32 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 ﻿using System;
 using System.Collections.Generic;
 
 namespace DragonBones
 {
-    /**
-     * @internal
-     * @private
-     */
+    /// <internal/>
+    /// <private/>
     internal class ActionTimelineState : TimelineState
     {
         private void _OnCrossFrame(int frameIndex)
@@ -329,10 +349,8 @@ namespace DragonBones
             this._frameIndex = -1;
         }
     }
-    /**
-     * @internal
-     * @private
-     */
+    /// <internal/>
+    /// <private/>
     internal class ZOrderTimelineState : TimelineState
     {
         protected override void _OnArriveAtFrame()
@@ -353,10 +371,8 @@ namespace DragonBones
 
         protected override void _OnUpdateFrame() { }
     }
-    /**
-     * @internal
-     * @private
-     */
+    /// <internal/>
+    /// <private/>
     internal class BoneAllTimelineState : BoneTimelineState
     {
         protected override void _OnArriveAtFrame()
@@ -451,10 +467,8 @@ namespace DragonBones
             result.skew = Transform.NormalizeRadian(result.skew);
         }
     }
-    /**
-     * @internal
-     * @private
-     */
+    /// <internal/>
+    /// <private/>
     internal class BoneTranslateTimelineState : BoneTimelineState
     {
         protected override void _OnArriveAtFrame()
@@ -517,10 +531,8 @@ namespace DragonBones
             result.y = current.y + delta.y * this._tweenProgress;
         }
     }
-    /**
-     * @internal
-     * @private
-     */
+    /// <internal/>
+    /// <private/>
     internal class BoneRotateTimelineState : BoneTimelineState
     {
         protected override void _OnArriveAtFrame()
@@ -590,10 +602,8 @@ namespace DragonBones
             result.skew = Transform.NormalizeRadian(result.skew);
         }
     }
-    /**
-     * @internal
-     * @private
-     */
+    /// <internal/>
+    /// <private/>
     internal class BoneScaleTimelineState : BoneTimelineState
     {
         protected override void _OnArriveAtFrame()
@@ -656,10 +666,8 @@ namespace DragonBones
             result.scaleY = current.scaleY + delta.scaleY * this._tweenProgress;
         }
     }
-    /**
-     * @internal
-     * @private
-     */
+    /// <internal/>
+    /// <private/>
     internal class SlotDislayTimelineState : SlotTimelineState
     {
         protected override void _OnArriveAtFrame()
@@ -674,10 +682,8 @@ namespace DragonBones
             }
         }
     }
-    /**
-     * @internal
-     * @private
-     */
+    /// <internal/>
+    /// <private/>
     internal class SlotColorTimelineState : SlotTimelineState
     {
         private bool _dirty;
@@ -845,10 +851,8 @@ namespace DragonBones
             }
         }
     }
-    /**
-     * @internal
-     * @private
-     */
+    /// <internal/>
+    /// <private/>
     internal class SlotFFDTimelineState : SlotTimelineState
     {
         public uint meshOffset;
@@ -1057,6 +1061,8 @@ namespace DragonBones
         }
     }
 
+    /// <internal/>
+    /// <private/>
     internal class IKConstraintTimelineState : ConstraintTimelineState
     {
         private float _current;

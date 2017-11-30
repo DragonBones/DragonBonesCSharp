@@ -1,102 +1,135 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace DragonBones
 {
-    /**
-     * 龙骨数据。
-     * 一个龙骨数据包含多个骨架数据。
-     * @see dragonBones.ArmatureData
-     * @version DragonBones 3.0
-     * @language zh_CN
-     */
+    /// <summary>
+    /// - The DragonBones data.
+    /// A DragonBones data contains multiple armature data.
+    /// </summary>
+    /// <see cref="DragonBones.ArmatureData"/>
+    /// <version>DragonBones 3.0</version>
+    /// <language>en_US</language>
+
+    /// <summary>
+    /// - 龙骨数据。
+    /// 一个龙骨数据包含多个骨架数据。
+    /// </summary>
+    /// <see cref="DragonBones.ArmatureData"/>
+    /// <version>DragonBones 3.0</version>
+    /// <language>zh_CN</language>
     public class DragonBonesData : BaseObject
     {
-        /**
-         * 是否开启共享搜索。
-         * @default false
-         * @version DragonBones 4.5
-         * @language zh_CN
-         */
+        /// <private/>
         public bool autoSearch;
-        /**
-         * 动画帧频。
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - The animation frame rate.
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 动画帧频。
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public uint frameRate;
-        /**
-         * 数据版本。
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - The data version.
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 数据版本。
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public string version;
-        /**
-         * 数据名称。(该名称与龙骨项目名保持一致)
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - The DragonBones data name.
+        /// The name is consistent with the DragonBones project name.
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 龙骨数据名称。
+        /// 该名称与龙骨项目名保持一致。
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public string name;
-        /**
-         * @private
-         */
+        /// <private/>
         public ArmatureData stage;
-        /**
-         * @private
-         */
+        /// <internal/>
+        /// <private/>
         public readonly List<uint> frameIndices = new List<uint>();
-        /**
-         * @private
-         */
+        /// <internal/>
+        /// <private/>
         public readonly List<float> cachedFrames = new List<float>();
-        /**
-         * 所有骨架数据名称。
-         * @see #armatures
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - All armature data names.
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 所有的骨架数据名称。
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public readonly List<string> armatureNames = new List<string>();
-        /**
-         * 所有骨架数据。
-         * @see dragonBones.ArmatureData
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <private/>
         public readonly Dictionary<string, ArmatureData> armatures = new Dictionary<string, ArmatureData>();
-        /**
-        * @private
-        */
+        /// <internal/>
+        /// <private/>
         internal byte[] binary;
-        /**
-         * @private
-         */
+        /// <internal/>
+        /// <private/>
         internal short[] intArray;
-        /**
-         * @private
-         */
+        /// <internal/>
+        /// <private/>
         internal float[] floatArray;
-        /**
-         * @private
-         */
+        /// <internal/>
+        /// <private/>
         internal short[] frameIntArray;
-        /**
-         * @private
-         */
+        /// <internal/>
+        /// <private/>
         internal float[] frameFloatArray;
-        /**
-         * @private
-         */
+        /// <internal/>
+        /// <private/>
         internal short[] frameArray;
-        /**
-         * @private
-         */
+        /// <internal/>
+        /// <private/>
         internal ushort[] timelineArray;
-        /**
-         * @private
-         */
+        /// <private/>
         internal UserData userData = null; // Initial value.
 
+        /// <inheritDoc/>
         protected override void _OnClear()
         {
             foreach (var k in this.armatures.Keys)
@@ -128,9 +161,8 @@ namespace DragonBones
             this.userData = null;
         }
 
-        /**
-         * @private
-         */
+        /// <internal/>
+        /// <private/>
         public void AddArmature(ArmatureData value)
         {
             if (this.armatures.ContainsKey(value.name))
@@ -144,13 +176,19 @@ namespace DragonBones
             this.armatureNames.Add(value.name);
         }
 
-        /**
-         * 获取骨架数据。
-         * @param name 骨架数据名称。
-         * @see dragonBones.ArmatureData
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Get a specific armature data.
+        /// </summary>
+        /// <param name="name">- The armature data name.</param>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 获取特定的骨架数据。
+        /// </summary>
+        /// <param name="name">- 骨架数据名称。</param>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public ArmatureData GetArmature(string name)
         {
             return this.armatures.ContainsKey(name) ? this.armatures[name] : null;

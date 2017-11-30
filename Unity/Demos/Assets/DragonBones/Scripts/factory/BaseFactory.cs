@@ -1,10 +1,31 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 ﻿using System.Collections.Generic;
 
 namespace DragonBones
 {
-    /**
-     * @private
-     */
+    /// <internal/>
+    /// <private/>
     public class BuildArmaturePackage
     {
         public string dataName = "";
@@ -13,56 +34,56 @@ namespace DragonBones
         public ArmatureData armature;
         public SkinData skin;
     }
-    /**
-     * 创建骨架的基础工厂。 (通常只需要一个全局工厂实例)
-     * @see dragonBones.DragonBonesData
-     * @see dragonBones.TextureAtlasData
-     * @see dragonBones.ArmatureData
-     * @see dragonBones.Armature
-     * @version DragonBones 3.0
-     * @language zh_CN
-     */
+    /// <summary>
+    /// - Base class for the factory that create the armatures. (Typically only one global factory instance is required)
+    /// The factory instance create armatures by parsed and added DragonBonesData instances and TextureAtlasData instances.
+    /// Once the data has been parsed, it has been cached in the factory instance and does not need to be parsed again until it is cleared by the factory instance.
+    /// </summary>
+    /// <see cref="DragonBones.DragonBonesData"/>
+    /// <see cref="DragonBones.TextureAtlasData"/>
+    /// <see cref="DragonBones.ArmatureData"/>
+    /// <see cref="DragonBones.Armature"/>
+    /// <version>DragonBones 3.0</version>
+    /// <language>en_US</language>
+
+    /// <summary>
+    /// - 创建骨架的工厂基类。 （通常只需要一个全局工厂实例）
+    /// 工厂通过解析并添加的 DragonBonesData 实例和 TextureAtlasData 实例来创建骨架。
+    /// 当数据被解析过之后，已经添加到工厂中，在没有被工厂清理之前，不需要再次解析。
+    /// </summary>
+    /// <see cref="DragonBones.DragonBonesData"/>
+    /// <see cref="DragonBones.TextureAtlasData"/>
+    /// <see cref="DragonBones.ArmatureData"/>
+    /// <see cref="DragonBones.Armature"/>
+    /// <version>DragonBones 3.0</version>
+    /// <language>zh_CN</language>
     public abstract class BaseFactory
     {
-        /**
-         * @private
-         */
+        /// <private/>
         protected static ObjectDataParser _objectParser = null;
-        /**
-         * @private
-         */
+        /// <private/>
         protected static BinaryDataParser _binaryParser = null;
-        /**
-         * 是否开启共享搜索。
-         * 如果开启，创建一个骨架时，可以从多个龙骨数据中寻找骨架数据，或贴图集数据中寻找贴图数据。 (通常在有共享导出的数据时开启)
-         * @see dragonBones.DragonBonesData#autoSearch
-         * @see dragonBones.TextureAtlasData#autoSearch
-         * @version DragonBones 4.5
-         * @language zh_CN
-         */
+        /// <private/>
         public bool autoSearch = false;
-        /**
-         * @private
-         */
+        /// <private/>
         protected readonly Dictionary<string, DragonBonesData> _dragonBonesDataMap = new Dictionary<string, DragonBonesData>();
-        /**
-         * @private
-         */
+        /// <private/>
         protected readonly Dictionary<string, List<TextureAtlasData>> _textureAtlasDataMap = new Dictionary<string, List<TextureAtlasData>>();
-        /** 
-         * @private 
-         */
+        /// <private/>
         public DragonBones _dragonBones = null;
-        /**
-         * @private
-         */
+        /// <private/>
         protected DataParser _dataParser = null;
-        /**
-         * 创建一个工厂。 (通常只需要一个全局工厂实例)
-         * @param dataParser 龙骨数据解析器，如果不设置，则使用默认解析器。
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Create a factory instance. (typically only one global factory instance is required)
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 创建一个工厂实例。 （通常只需要一个全局工厂实例）
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public BaseFactory(DataParser dataParser = null)
         {
             if (BaseFactory._objectParser == null)
@@ -77,16 +98,12 @@ namespace DragonBones
 
             this._dataParser = dataParser != null ? dataParser : BaseFactory._objectParser;
         }
-        /** 
-         * @private 
-         */
+        /// <private/>
         protected bool _IsSupportMesh()
         {
             return true;
         }
-        /** 
-         * @private 
-         */
+        /// <private/>
         protected TextureData _GetTextureData(string textureAtlasName, string textureName)
         {
             if (this._textureAtlasDataMap.ContainsKey(textureAtlasName))
@@ -122,9 +139,7 @@ namespace DragonBones
 
             return null;
         }
-        /**
-         * @private
-         */
+        /// <private/>
         protected bool _FillBuildArmaturePackage(BuildArmaturePackage dataPackage,
                                                 string dragonBonesName,
                                                 string armatureName,
@@ -198,9 +213,7 @@ namespace DragonBones
 
             return false;
         }
-        /**
-         * @private
-         */
+        /// <private/>
         protected void _BuildBones(BuildArmaturePackage dataPackage, Armature armature)
         {
             var bones = dataPackage.armature.sortedBones;
@@ -229,9 +242,7 @@ namespace DragonBones
                 armature.AddConstraint(constraint);
             }
         }
-        /**
-         * @private
-         */
+        /// <private/>
         protected void _BuildSlots(BuildArmaturePackage dataPackage, Armature armature)
         {
             var currentSkin = dataPackage.skin;
@@ -289,13 +300,12 @@ namespace DragonBones
             }
         }
 
+        /// <private/>
         protected virtual Armature _BuildChildArmature(BuildArmaturePackage dataPackage, Slot slot, DisplayData displayData)
         {
             return this.BuildArmature(displayData.path, dataPackage != null ? dataPackage.dataName : "", "", dataPackage != null ? dataPackage.textureAtlasName : "");
         }
-        /**
-         * @private
-         */
+        /// <private/>
         protected object _GetSlotDisplay(BuildArmaturePackage dataPackage, DisplayData displayData, DisplayData rawDisplayData, Slot slot)
         {
             var dataName = dataPackage != null ? dataPackage.dataName : displayData.parent.parent.parent.name;
@@ -382,30 +392,39 @@ namespace DragonBones
 
             return display;
         }
-        /** 
-         * @private 
-         */
+        /// <private/>
         protected abstract TextureAtlasData _BuildTextureAtlasData(TextureAtlasData textureAtlasData, object textureAtlas);
-        /** 
-         * @private 
-         */
+        /// <private/>
         protected abstract Armature _BuildArmature(BuildArmaturePackage dataPackage);
-        /** 
-         * @private 
-         */
+        /// <private/>
         protected abstract Slot _BuildSlot(BuildArmaturePackage dataPackage, SlotData slotData, List<DisplayData> displays, Armature armature);
-        /**
-         * 解析并添加龙骨数据。
-         * @param rawData 需要解析的原始数据。
-         * @param name 为数据提供一个名称，以便可以通过这个名称获取数据，如果未设置，则使用数据中的名称。
-         * @returns DragonBonesData
-         * @see #getDragonBonesData()
-         * @see #addDragonBonesData()
-         * @see #removeDragonBonesData()
-         * @see dragonBones.DragonBonesData
-         * @version DragonBones 4.5
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Parse the raw data to a DragonBonesData instance and cache it to the factory.
+        /// </summary>
+        /// <param name="rawData">- The raw data.</param>
+        /// <param name="name">- Specify a cache name for the instance so that the instance can be obtained through this name. (If not set, use the instance name instead)</param>
+        /// <param name="scale">- Specify a scaling value for all armatures. (Default: 1.0)</param>
+        /// <returns>DragonBonesData instance</returns>
+        /// <see cref="GetDragonBonesData()"/>
+        /// <see cref="AddDragonBonesData()"/>
+        /// <see cref="RemoveDragonBonesData()"/>
+        /// <see cref="DragonBones.DragonBonesData"/>
+        /// <version>DragonBones 4.5</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 将原始数据解析为 DragonBonesData 实例，并缓存到工厂中。
+        /// </summary>
+        /// <param name="rawData">- 原始数据。</param>
+        /// <param name="name">- 为该实例指定一个缓存名称，以便可以通过此名称获取该实例。 （如果未设置，则使用该实例中的名称）</param>
+        /// <param name="scale">- 为所有的骨架指定一个缩放值。 （默认: 1.0）</param>
+        /// <returns>DragonBonesData 实例</returns>
+        /// <see cref="GetDragonBonesData()"/>
+        /// <see cref="AddDragonBonesData()"/>
+        /// <see cref="RemoveDragonBonesData()"/>
+        /// <see cref="DragonBones.DragonBonesData"/>
+        /// <version>DragonBones 4.5</version>
+        /// <language>zh_CN</language>
         public DragonBonesData ParseDragonBonesData(object rawData, string name = null, float scale = 1.0f)
         {
             var dataParser = rawData is byte[] ? BaseFactory._binaryParser : this._dataParser;
@@ -432,20 +451,35 @@ namespace DragonBones
 
             return dragonBonesData;
         }
-        /**
-         * 解析并添加贴图集数据。
-         * @param rawData 需要解析的原始数据。 (JSON)
-         * @param textureAtlas 贴图。
-         * @param name 为数据指定一个名称，以便可以通过这个名称获取数据，如果未设置，则使用数据中的名称。
-         * @param scale 为贴图集设置一个缩放值。
-         * @returns 贴图集数据
-         * @see #getTextureAtlasData()
-         * @see #addTextureAtlasData()
-         * @see #removeTextureAtlasData()
-         * @see dragonBones.TextureAtlasData
-         * @version DragonBones 4.5
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Parse the raw texture atlas data and the texture atlas object to a TextureAtlasData instance and cache it to the factory.
+        /// </summary>
+        /// <param name="rawData">- The raw texture atlas data.</param>
+        /// <param name="textureAtlas">- The texture atlas object.</param>
+        /// <param name="name">- Specify a cache name for the instance so that the instance can be obtained through this name. (If not set, use the instance name instead)</param>
+        /// <param name="scale">- Specify a scaling value for the map set. (Default: 1.0)</param>
+        /// <returns>TextureAtlasData instance</returns>
+        /// <see cref="GetTextureAtlasData()"/>
+        /// <see cref="AddTextureAtlasData()"/>
+        /// <see cref="RemoveTextureAtlasData()"/>
+        /// <see cref="DragonBones.TextureAtlasData"/>
+        /// <version>DragonBones 4.5</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 将原始贴图集数据和贴图集对象解析为 TextureAtlasData 实例，并缓存到工厂中。
+        /// </summary>
+        /// <param name="rawData">- 原始贴图集数据。</param>
+        /// <param name="textureAtlas">- 贴图集对象。</param>
+        /// <param name="name">- 为该实例指定一个缓存名称，以便可以通过此名称获取该实例。 （如果未设置，则使用该实例中的名称）</param>
+        /// <param name="scale">- 为贴图集指定一个缩放值。 （默认: 1.0）</param>
+        /// <returns>TextureAtlasData 实例</returns>
+        /// <see cref="GetTextureAtlasData()"/>
+        /// <see cref="AddTextureAtlasData()"/>
+        /// <see cref="RemoveTextureAtlasData()"/>
+        /// <see cref="DragonBones.TextureAtlasData"/>
+        /// <version>DragonBones 4.5</version>
+        /// <language>zh_CN</language>
         public TextureAtlasData ParseTextureAtlasData(Dictionary<string, object> rawData, object textureAtlas, string name = null, float scale = 1.0f)
         {
             var textureAtlasData = this._BuildTextureAtlasData(null, null);
@@ -455,10 +489,7 @@ namespace DragonBones
 
             return textureAtlasData;
         }
-        /**
-         * @version DragonBones 5.1
-         * @language zh_CN
-         */
+        /// <private/>
         public void UpdateTextureAtlasData(string name, List<object> textureAtlases)
         {
             var textureAtlasDatas = this.GetTextureAtlasData(name);
@@ -473,32 +504,56 @@ namespace DragonBones
                 }
             }
         }
-        /**
-         * 获取指定名称的龙骨数据。
-         * @param name 数据名称。
-         * @returns DragonBonesData
-         * @see #parseDragonBonesData()
-         * @see #addDragonBonesData()
-         * @see #removeDragonBonesData()
-         * @see dragonBones.DragonBonesData
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Get a specific DragonBonesData instance.
+        /// </summary>
+        /// <param name="name">- The DragonBonesData instance cache name.</param>
+        /// <returns>DragonBonesData instance</returns>
+        /// <see cref="ParseDragonBonesData()"/>
+        /// <see cref="AddDragonBonesData()"/>
+        /// <see cref="RemoveDragonBonesData()"/>
+        /// <see cref="DragonBones.DragonBonesData"/>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 获取特定的 DragonBonesData 实例。
+        /// </summary>
+        /// <param name="name">- DragonBonesData 实例的缓存名称。</param>
+        /// <returns>DragonBonesData 实例</returns>
+        /// <see cref="ParseDragonBonesData()"/>
+        /// <see cref="AddDragonBonesData()"/>
+        /// <see cref="RemoveDragonBonesData()"/>
+        /// <see cref="DragonBones.DragonBonesData"/>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public DragonBonesData GetDragonBonesData(string name)
         {
             return this._dragonBonesDataMap.ContainsKey(name) ? this._dragonBonesDataMap[name] : null;
         }
-        /**
-         * 添加龙骨数据。
-         * @param data 龙骨数据。
-         * @param name 为数据指定一个名称，以便可以通过这个名称获取数据，如果未设置，则使用数据中的名称。
-         * @see #parseDragonBonesData()
-         * @see #getDragonBonesData()
-         * @see #removeDragonBonesData()
-         * @see dragonBones.DragonBonesData
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Cache a DragonBonesData instance to the factory.
+        /// </summary>
+        /// <param name="data">- The DragonBonesData instance.</param>
+        /// <param name="name">- Specify a cache name for the instance so that the instance can be obtained through this name. (if not set, use the instance name instead)</param>
+        /// <see cref="ParseDragonBonesData()"/>
+        /// <see cref="GetDragonBonesData()"/>
+        /// <see cref="RemoveDragonBonesData()"/>
+        /// <see cref="DragonBones.DragonBonesData"/>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 将 DragonBonesData 实例缓存到工厂中。
+        /// </summary>
+        /// <param name="data">- DragonBonesData 实例。</param>
+        /// <param name="name">- 为该实例指定一个缓存名称，以便可以通过此名称获取该实例。 （如果未设置，则使用该实例中的名称）</param>
+        /// <see cref="ParseDragonBonesData()"/>
+        /// <see cref="GetDragonBonesData()"/>
+        /// <see cref="RemoveDragonBonesData()"/>
+        /// <see cref="DragonBones.DragonBonesData"/>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public void AddDragonBonesData(DragonBonesData data, string name = null)
         {
             name = !string.IsNullOrEmpty(name) ? name : data.name;
@@ -515,17 +570,29 @@ namespace DragonBones
 
             this._dragonBonesDataMap[name] = data;
         }
-        /**
-         * 移除龙骨数据。
-         * @param name 数据名称。
-         * @param disposeData 是否释放数据。
-         * @see #parseDragonBonesData()
-         * @see #getDragonBonesData()
-         * @see #addDragonBonesData()
-         * @see dragonBones.DragonBonesData
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Remove a DragonBonesData instance.
+        /// </summary>
+        /// <param name="name">- The DragonBonesData instance cache name.</param>
+        /// <param name="disposeData">- Whether to dispose data. (Default: true)</param>
+        /// <see cref="ParseDragonBonesData()"/>
+        /// <see cref="GetDragonBonesData()"/>
+        /// <see cref="AddDragonBonesData()"/>
+        /// <see cref="DragonBones.DragonBonesData"/>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 移除 DragonBonesData 实例。
+        /// </summary>
+        /// <param name="name">- DragonBonesData 实例缓存名称。</param>
+        /// <param name="disposeData">- 是否释放数据。 （默认: true）</param>
+        /// <see cref="ParseDragonBonesData()"/>
+        /// <see cref="GetDragonBonesData()"/>
+        /// <see cref="AddDragonBonesData()"/>
+        /// <see cref="DragonBones.DragonBonesData"/>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public virtual void RemoveDragonBonesData(string name, bool disposeData = true)
         {
             if (this._dragonBonesDataMap.ContainsKey(name))
@@ -538,32 +605,54 @@ namespace DragonBones
                 this._dragonBonesDataMap.Remove(name);
             }
         }
-        /**
-         * 获取指定名称的贴图集数据列表。
-         * @param name 数据名称。
-         * @returns 贴图集数据列表。
-         * @see #parseTextureAtlasData()
-         * @see #addTextureAtlasData()
-         * @see #removeTextureAtlasData()
-         * @see dragonBones.TextureAtlasData
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Get a list of specific TextureAtlasData instances.
+        /// </summary>
+        /// <param name="name">- The TextureAtlasData cahce name.</param>
+        /// <see cref="ParseTextureAtlasData()"/>
+        /// <see cref="AddTextureAtlasData()"/>
+        /// <see cref="RemoveTextureAtlasData()"/>
+        /// <see cref="DragonBones.TextureAtlasData"/>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 获取特定的 TextureAtlasData 实例列表。
+        /// </summary>
+        /// <param name="name">- TextureAtlasData 实例缓存名称。</param>
+        /// <see cref="ParseTextureAtlasData()"/>
+        /// <see cref="AddTextureAtlasData()"/>
+        /// <see cref="RemoveTextureAtlasData()"/>
+        /// <see cref="DragonBones.TextureAtlasData"/>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public List<TextureAtlasData> GetTextureAtlasData(string name)
         {
             return this._textureAtlasDataMap.ContainsKey(name) ? this._textureAtlasDataMap[name] : null;
         }
-        /**
-         * 添加贴图集数据。
-         * @param data 贴图集数据。
-         * @param name 为数据指定一个名称，以便可以通过这个名称获取数据，如果未设置，则使用数据中的名称。
-         * @see #parseTextureAtlasData()
-         * @see #getTextureAtlasData()
-         * @see #removeTextureAtlasData()
-         * @see dragonBones.TextureAtlasData
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Cache a TextureAtlasData instance to the factory.
+        /// </summary>
+        /// <param name="data">- The TextureAtlasData instance.</param>
+        /// <param name="name">- Specify a cache name for the instance so that the instance can be obtained through this name. (if not set, use the instance name instead)</param>
+        /// <see cref="ParseTextureAtlasData()"/>
+        /// <see cref="GetTextureAtlasData()"/>
+        /// <see cref="RemoveTextureAtlasData()"/>
+        /// <see cref="DragonBones.TextureAtlasData"/>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 将 TextureAtlasData 实例缓存到工厂中。
+        /// </summary>
+        /// <param name="data">- TextureAtlasData 实例。</param>
+        /// <param name="name">- 为该实例指定一个缓存名称，以便可以通过此名称获取该实例。 （如果未设置，则使用该实例中的名称）</param>
+        /// <see cref="ParseTextureAtlasData()"/>
+        /// <see cref="GetTextureAtlasData()"/>
+        /// <see cref="RemoveTextureAtlasData()"/>
+        /// <see cref="DragonBones.TextureAtlasData"/>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public void AddTextureAtlasData(TextureAtlasData data, string name = null)
         {
             name = !string.IsNullOrEmpty(name) ? name : data.name;
@@ -575,17 +664,29 @@ namespace DragonBones
                 textureAtlasList.Add(data);
             }
         }
-        /**
-         * 移除贴图集数据。
-         * @param name 数据名称。
-         * @param disposeData 是否释放数据。
-         * @see #parseTextureAtlasData()
-         * @see #getTextureAtlasData()
-         * @see #addTextureAtlasData()
-         * @see dragonBones.TextureAtlasData
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Remove a TextureAtlasData instance.
+        /// </summary>
+        /// <param name="name">- The TextureAtlasData instance cache name.</param>
+        /// <param name="disposeData">- Whether to dispose data.</param>
+        /// <see cref="ParseTextureAtlasData()"/>
+        /// <see cref="GetTextureAtlasData()"/>
+        /// <see cref="AddTextureAtlasData()"/>
+        /// <see cref="DragonBones.TextureAtlasData"/>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 移除 TextureAtlasData 实例。
+        /// </summary>
+        /// <param name="name">- TextureAtlasData 实例的缓存名称。</param>
+        /// <param name="disposeData">- 是否释放数据。</param>
+        /// <see cref="ParseTextureAtlasData()"/>
+        /// <see cref="GetTextureAtlasData()"/>
+        /// <see cref="AddTextureAtlasData()"/>
+        /// <see cref="DragonBones.TextureAtlasData"/>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public virtual void RemoveTextureAtlasData(string name, bool disposeData = true)
         {
             if (this._textureAtlasDataMap.ContainsKey(name))
@@ -602,14 +703,23 @@ namespace DragonBones
                 this._textureAtlasDataMap.Remove(name);
             }
         }
-        /**
-         * 获取骨架数据。
-         * @param name 骨架数据名称。
-         * @param dragonBonesName 龙骨数据名称。
-         * @see dragonBones.ArmatureData
-         * @version DragonBones 5.1
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Get a specific armature data.
+        /// </summary>
+        /// <param name="name">- The armature data name.</param>
+        /// <param name="dragonBonesName">- The cached name for DragonbonesData instance.</param>
+        /// <see cref="DragonBones.ArmatureData"/>
+        /// <version>DragonBones 5.1</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 获取特定的骨架数据。
+        /// </summary>
+        /// <param name="name">- 骨架数据名称。</param>
+        /// <param name="dragonBonesName">- DragonBonesData 实例的缓存名称。</param>
+        /// <see cref="DragonBones.ArmatureData"/>
+        /// <version>DragonBones 5.1</version>
+        /// <language>zh_CN</language>
         public virtual ArmatureData GetArmatureData(string name, string dragonBonesName = "")
         {
             var dataPackage = new BuildArmaturePackage();
@@ -620,12 +730,19 @@ namespace DragonBones
 
             return dataPackage.armature;
         }
-        /**
-         * 清除所有的数据。
-         * @param disposeData 是否释放数据。
-         * @version DragonBones 4.5
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Clear all cached DragonBonesData instances and TextureAtlasData instances.
+        /// </summary>
+        /// <param name="disposeData">- Whether to dispose data.</param>
+        /// <version>DragonBones 4.5</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 清除缓存的所有 DragonBonesData 实例和 TextureAtlasData 实例。
+        /// </summary>
+        /// <param name="disposeData">- 是否释放数据。</param>
+        /// <version>DragonBones 4.5</version>
+        /// <language>zh_CN</language>
         public virtual void Clear(bool disposeData = true)
         {
             if (disposeData)
@@ -647,18 +764,45 @@ namespace DragonBones
             _dragonBonesDataMap.Clear();
             _textureAtlasDataMap.Clear();
         }
-        /**
-         * 创建一个骨架。
-         * @param armatureName 骨架数据名称。
-         * @param dragonBonesName 龙骨数据名称，如果未设置，将检索所有的龙骨数据，当多个龙骨数据中包含同名的骨架数据时，可能无法创建出准确的骨架。
-         * @param skinName 皮肤名称，如果未设置，则使用默认皮肤。
-         * @param textureAtlasName 贴图集数据名称，如果未设置，则使用龙骨数据名称。
-         * @returns 骨架
-         * @see dragonBones.ArmatureData
-         * @see dragonBones.Armature
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Create a armature from cached DragonBonesData instances and TextureAtlasData instances.
+        /// </summary>
+        /// <param name="armatureName">- The armature data name.</param>
+        /// <param name="dragonBonesName">- The cached name of the DragonBonesData instance. (If not set, all DragonBonesData instances are retrieved, and when multiple DragonBonesData instances contain a the same name armature data, it may not be possible to accurately create a specific armature)</param>
+        /// <param name="skinName">- The skin name, you can set a different ArmatureData name to share it's skin data. (If not set, use the default skin data)</param>
+        /// <returns>The armature.</returns>
+        /// <example>
+        /// TypeScript style, for reference only.
+        /// <pre>
+        ///     let armature = factory.buildArmature("armatureName", "dragonBonesName");
+        ///     armature.clock = factory.clock;
+        /// </pre>
+        /// </example>
+        /// <see cref="DragonBones.DragonBonesData"/>
+        /// <see cref="DragonBones.ArmatureData"/>
+        /// <see cref="DragonBones.Armature"/>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 通过缓存的 DragonBonesData 实例和 TextureAtlasData 实例创建一个骨架。
+        /// </summary>
+        /// <param name="armatureName">- 骨架数据名称。</param>
+        /// <param name="dragonBonesName">- DragonBonesData 实例的缓存名称。 （如果未设置，将检索所有的 DragonBonesData 实例，当多个 DragonBonesData 实例中包含同名的骨架数据时，可能无法准确的创建出特定的骨架）</param>
+        /// <param name="skinName">- 皮肤名称，可以设置一个其他骨架数据名称来共享其皮肤数据（如果未设置，则使用默认的皮肤数据）。</param>
+        /// <returns>骨架。</returns>
+        /// <example>
+        /// TypeScript 风格，仅供参考。
+        /// <pre>
+        ///     let armature = factory.buildArmature("armatureName", "dragonBonesName");
+        ///     armature.clock = factory.clock;
+        /// </pre>
+        /// </example>
+        /// <see cref="DragonBones.DragonBonesData"/>
+        /// <see cref="DragonBones.ArmatureData"/>
+        /// <see cref="DragonBones.Armature"/>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public virtual Armature BuildArmature(string armatureName, string dragonBonesName = "", string skinName = null, string textureAtlasName = null)
         {
             var dataPackage = new BuildArmaturePackage();
@@ -677,9 +821,7 @@ namespace DragonBones
 
             return armature;
         }
-        /**
-         * @private
-         */
+        /// <private/>
         public void ReplaceDisplay(Slot slot, DisplayData displayData, int displayIndex = -1)
         {
             if (displayIndex < 0)
@@ -728,17 +870,45 @@ namespace DragonBones
 
             slot.displayList = displayList;
         }
-        /**
-         * 用指定资源替换指定插槽的显示对象。(用 "dragonBonesName/armatureName/slotName/displayName" 的资源替换 "slot" 的显示对象)
-         * @param dragonBonesName 指定的龙骨数据名称。
-         * @param armatureName 指定的骨架名称。
-         * @param slotName 指定的插槽名称。
-         * @param displayName 指定的显示对象名称。
-         * @param slot 指定的插槽实例。
-         * @param displayIndex 要替换的显示对象的索引，如果未设置，则替换当前正在显示的显示对象。
-         * @version DragonBones 4.5
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Replaces the current display data for a particular slot with a specific display data.
+        /// Specify display data with "dragonBonesName/armatureName/slotName/displayName".
+        /// </summary>
+        /// <param name="dragonBonesName">- The DragonBonesData instance cache name.</param>
+        /// <param name="armatureName">- The armature data name.</param>
+        /// <param name="slotName">- The slot data name.</param>
+        /// <param name="displayName">- The display data name.</param>
+        /// <param name="slot">- The slot.</param>
+        /// <param name="displayIndex">- The index of the display data that is replaced. (If it is not set, replaces the current display data)</param>
+        /// <example>
+        /// TypeScript style, for reference only.
+        /// <pre>
+        ///     let slot = armature.getSlot("weapon");
+        ///     factory.replaceSlotDisplay("dragonBonesName", "armatureName", "slotName", "displayName", slot);
+        /// </pre>
+        /// </example>
+        /// <version>DragonBones 4.5</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 用特定的显示对象数据替换特定插槽当前的显示对象数据。
+        /// 用 "dragonBonesName/armatureName/slotName/displayName" 指定显示对象数据。
+        /// </summary>
+        /// <param name="dragonBonesName">- DragonBonesData 实例的缓存名称。</param>
+        /// <param name="armatureName">- 骨架数据名称。</param>
+        /// <param name="slotName">- 插槽数据名称。</param>
+        /// <param name="displayName">- 显示对象数据名称。</param>
+        /// <param name="slot">- 插槽。</param>
+        /// <param name="displayIndex">- 被替换的显示对象数据的索引。 （如果未设置，则替换当前的显示对象数据）</param>
+        /// <example>
+        /// TypeScript 风格，仅供参考。
+        /// <pre>
+        ///     let slot = armature.getSlot("weapon");
+        ///     factory.replaceSlotDisplay("dragonBonesName", "armatureName", "slotName", "displayName", slot);
+        /// </pre>
+        /// </example>
+        /// <version>DragonBones 4.5</version>
+        /// <language>zh_CN</language>
         public bool ReplaceSlotDisplay(string dragonBonesName,
                                         string armatureName,
                                         string slotName,
@@ -761,15 +931,7 @@ namespace DragonBones
 
             return true;
         }
-        /**
-         * 用指定资源列表替换插槽的显示对象列表。
-         * @param dragonBonesName 指定的 DragonBonesData 名称。
-         * @param armatureName 指定的骨架名称。
-         * @param slotName 指定的插槽名称。
-         * @param slot 指定的插槽实例。
-         * @version DragonBones 4.5
-         * @language zh_CN
-         */
+        /// <private/>
         public bool ReplaceSlotDisplayList(string dragonBonesName, string armatureName, string slotName, Slot slot)
         {
             var armatureData = this.GetArmatureData(armatureName, dragonBonesName);
@@ -794,16 +956,49 @@ namespace DragonBones
 
             return true;
         }
-        /**
-         * 更换骨架皮肤。
-         * @param armature 骨架。
-         * @param skin 皮肤数据。
-         * @param exclude 不需要更新的插槽。
-         * @see dragonBones.Armature
-         * @see dragonBones.SkinData
-         * @version DragonBones 5.1
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Share specific skin data with specific armature.
+        /// </summary>
+        /// <param name="armature">- The armature.</param>
+        /// <param name="skin">- The skin data.</param>
+        /// <param name="isOverride">- Whether it completely override the original skin. (Default: false)</param>
+        /// <param name="exclude">- A list of slot names that do not need to be replace.</param>
+        /// <example>
+        /// TypeScript style, for reference only.
+        /// <pre>
+        ///     let armatureA = factory.buildArmature("armatureA", "dragonBonesA");
+        ///     let armatureDataB = factory.getArmatureData("armatureB", "dragonBonesB");
+        ///     if (armatureDataB && armatureDataB.defaultSkin) {
+        ///     factory.replaceSkin(armatureA, armatureDataB.defaultSkin, false, ["arm_l", "weapon_l"]);
+        ///     }
+        /// </pre>
+        /// </example>
+        /// <see cref="DragonBones.Armature"/>
+        /// <see cref="DragonBones.SkinData"/>
+        /// <version>DragonBones 5.6</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 将特定的皮肤数据共享给特定的骨架使用。
+        /// </summary>
+        /// <param name="armature">- 骨架。</param>
+        /// <param name="skin">- 皮肤数据。</param>
+        /// <param name="isOverride">- 是否完全覆盖原来的皮肤。 （默认: false）</param>
+        /// <param name="exclude">- 不需要被替换的插槽名称列表。</param>
+        /// <example>
+        /// TypeScript 风格，仅供参考。
+        /// <pre>
+        ///     let armatureA = factory.buildArmature("armatureA", "dragonBonesA");
+        ///     let armatureDataB = factory.getArmatureData("armatureB", "dragonBonesB");
+        ///     if (armatureDataB && armatureDataB.defaultSkin) {
+        ///     factory.replaceSkin(armatureA, armatureDataB.defaultSkin, false, ["arm_l", "weapon_l"]);
+        ///     }
+        /// </pre>
+        /// </example>
+        /// <see cref="DragonBones.Armature"/>
+        /// <see cref="DragonBones.SkinData"/>
+        /// <version>DragonBones 5.6</version>
+        /// <language>zh_CN</language>
         public bool ReplaceSkin(Armature armature, SkinData skin, bool isOverride = false, List<string> exclude = null)
         {
             var success = false;
@@ -835,8 +1030,6 @@ namespace DragonBones
                         continue;
                     }
                 }
-
-
                 var displayCount = displays.Count;
                 var displayList = slot.displayList; // Copy.
                 displayList.ResizeList(displayCount); // Modify displayList length.
@@ -860,19 +1053,49 @@ namespace DragonBones
 
             return success;
         }
-        /**
-         * 将骨架的动画替换成其他骨架的动画。 (通常这些骨架应该具有相同的骨架结构)
-         * @param toArmature 指定的骨架。
-         * @param fromArmatreName 其他骨架的名称。
-         * @param fromSkinName 其他骨架的皮肤名称，如果未设置，则使用默认皮肤。
-         * @param fromDragonBonesDataName 其他骨架属于的龙骨数据名称，如果未设置，则检索所有的龙骨数据。
-         * @param replaceOriginalAnimation 是否替换原有的同名动画。
-         * @returns 是否替换成功。
-         * @see dragonBones.Armature
-         * @see dragonBones.ArmatureData
-         * @version DragonBones 4.5
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Replaces the existing animation data for a specific armature with the animation data for the specific armature data.
+        /// This enables you to make a armature template so that other armature without animations can share it's animations.
+        /// </summary>
+        /// <param name="armature">- The armtaure.</param>
+        /// <param name="armatureData">- The armature data.</param>
+        /// <param name="isOverride">- Whether to completely overwrite the original animation. (Default: false)</param>
+        /// <example>
+        /// TypeScript style, for reference only.
+        /// <pre>
+        ///     let armatureA = factory.buildArmature("armatureA", "dragonBonesA");
+        ///     let armatureDataB = factory.getArmatureData("armatureB", "dragonBonesB");
+        ///     if (armatureDataB) {
+        ///     factory.replaceAnimation(armatureA, armatureDataB);
+        ///     }
+        /// </pre>
+        /// </example>
+        /// <see cref="DragonBones.Armature"/>
+        /// <see cref="DragonBones.ArmatureData"/>
+        /// <version>DragonBones 5.6</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 用特定骨架数据的动画数据替换特定骨架现有的动画数据。
+        /// 这样就能实现制作一个骨架动画模板，让其他没有制作动画的骨架共享该动画。
+        /// </summary>
+        /// <param name="armature">- 骨架。</param>
+        /// <param name="armatureData">- 骨架数据。</param>
+        /// <param name="isOverride">- 是否完全覆盖原来的动画。（默认: false）。</param>
+        /// <example>
+        /// TypeScript 风格，仅供参考。
+        /// <pre>
+        ///     let armatureA = factory.buildArmature("armatureA", "dragonBonesA");
+        ///     let armatureDataB = factory.getArmatureData("armatureB", "dragonBonesB");
+        ///     if (armatureDataB) {
+        ///     factory.replaceAnimation(armatureA, armatureDataB);
+        ///     }
+        /// </pre>
+        /// </example>
+        /// <see cref="DragonBones.Armature"/>
+        /// <see cref="DragonBones.ArmatureData"/>
+        /// <version>DragonBones 5.6</version>
+        /// <language>zh_CN</language>
         public bool ReplaceAnimation(Armature armature,
                                     ArmatureData armatureData,
                                     bool isOverride = true)
@@ -934,30 +1157,42 @@ namespace DragonBones
             return true;
         }
 
-        /** 
-         * @private 
-         */
+        /// <private/>
         public Dictionary<string, DragonBonesData> GetAllDragonBonesData()
         {
             return this._dragonBonesDataMap;
         }
-        /** 
-         * @private 
-         */
+        /// <private/>
         public Dictionary<string, List<TextureAtlasData>> GetAllTextureAtlasData()
         {
             return this._textureAtlasDataMap;
         }
 
+        /// <summary>
+        /// - An Worldclock instance updated by engine.
+        /// </summary>
+        /// <version>DragonBones 5.7</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 由引擎驱动的 WorldClock 实例。
+        /// </summary>
+        /// <version>DragonBones 5.7</version>
+        /// <language>zh_CN</language>
         public WorldClock clock
         {
             get { return this._dragonBones.clock; }
         }
+        /// <summary>
+        /// - Deprecated, please refer to {@link #replaceSkin}.
+        /// </summary>
+        /// <language>en_US</language>
 
-
-
-
-
+        /// <summary>
+        /// - 已废弃，请参考 {@link #replaceSkin}。
+        /// </summary>
+        /// <language>zh_CN</language>
+        [System.Obsolete("")]
         public bool ChangeSkin(Armature armature, SkinData skin, List<string> exclude = null)
         {
             return ReplaceSkin(armature, skin, false, exclude);

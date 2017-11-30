@@ -1,3 +1,25 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 ﻿using System.Collections.Generic;
 using UnityEngine;
 #if UNITY_EDITOR
@@ -336,10 +358,10 @@ namespace DragonBones
         /// <private/>
         protected void _RefreshTextureAtlas(UnityTextureAtlasData textureAtlasData, bool isUGUI, bool isEditor = false)
         {
-			Material material = null;
-			if(isUGUI && textureAtlasData.uiTexture == null)
+            Material material = null;
+            if(isUGUI && textureAtlasData.uiTexture == null)
             {
-				if(isEditor)
+                if(isEditor)
                 {
 #if UNITY_EDITOR
                     if (!Application.isPlaying)
@@ -347,17 +369,17 @@ namespace DragonBones
                         material = AssetDatabase.LoadAssetAtPath<Material>(textureAtlasData.imagePath + "_UI_Mat.mat");
                     }
 #endif
-				}
+                }
                 else
                 {
-					material = Resources.Load<Material>(textureAtlasData.imagePath+"_UI_Mat");
-				}
+                    material = Resources.Load<Material>(textureAtlasData.imagePath+"_UI_Mat");
+                }
 
-				if(material == null)
+                if(material == null)
                 {
-					Texture2D textureAtlas = null;
+                    Texture2D textureAtlas = null;
 
-					if(isEditor)
+                    if(isEditor)
                     {
 #if UNITY_EDITOR
                         if (!Application.isPlaying)
@@ -365,11 +387,11 @@ namespace DragonBones
                             textureAtlas = AssetDatabase.LoadAssetAtPath<Texture2D>(textureAtlasData.imagePath + ".png");
                         }
 #endif
-					}
+                    }
                     else
                     {
-						textureAtlas = Resources.Load<Texture2D>(textureAtlasData.imagePath);
-					}
+                        textureAtlas = Resources.Load<Texture2D>(textureAtlasData.imagePath);
+                    }
 
                     material = UnityFactoryHelper.GenerateMaterial(defaultUIShaderName, textureAtlas.name + "_UI_Mat", textureAtlas);
                     if (textureAtlasData.width < 2)
@@ -382,24 +404,24 @@ namespace DragonBones
                         textureAtlasData.height = (uint)textureAtlas.height;
                     }
 
-					textureAtlasData._disposeEnabled = true;
+                    textureAtlasData._disposeEnabled = true;
 #if UNITY_EDITOR
-					if(!Application.isPlaying)
+                    if(!Application.isPlaying)
                     {
-						string path = AssetDatabase.GetAssetPath(textureAtlas);
-						path = path.Substring(0,path.Length-4);
-						AssetDatabase.CreateAsset(material,path+"_UI_Mat.mat");
-						AssetDatabase.SaveAssets();
-					}
+                        string path = AssetDatabase.GetAssetPath(textureAtlas);
+                        path = path.Substring(0,path.Length-4);
+                        AssetDatabase.CreateAsset(material,path+"_UI_Mat.mat");
+                        AssetDatabase.SaveAssets();
+                    }
 #endif
-				}
+                }
 
                 //
-				textureAtlasData.uiTexture = material;
-			}
-			else if(!isUGUI && textureAtlasData.texture == null)
+                textureAtlasData.uiTexture = material;
+            }
+            else if(!isUGUI && textureAtlasData.texture == null)
             {
-				if(isEditor)
+                if(isEditor)
                 {
 #if UNITY_EDITOR
                     if (!Application.isPlaying)
@@ -407,16 +429,16 @@ namespace DragonBones
                         material = AssetDatabase.LoadAssetAtPath<Material>(textureAtlasData.imagePath + "_Mat.mat");
                     }
 #endif
-				}
+                }
                 else
                 {
-					material = Resources.Load<Material>(textureAtlasData.imagePath+"_Mat");
-				}
+                    material = Resources.Load<Material>(textureAtlasData.imagePath+"_Mat");
+                }
 
-				if(material == null)
-				{
-					Texture2D textureAtlas = null;
-					if(isEditor)
+                if(material == null)
+                {
+                    Texture2D textureAtlas = null;
+                    if(isEditor)
                     {
 #if UNITY_EDITOR
                         if (!Application.isPlaying)
@@ -424,11 +446,11 @@ namespace DragonBones
                             textureAtlas = AssetDatabase.LoadAssetAtPath<Texture2D>(textureAtlasData.imagePath + ".png");
                         }
 #endif
-					}
+                    }
                     else
                     {
-						textureAtlas = Resources.Load<Texture2D>(textureAtlasData.imagePath);
-					}
+                        textureAtlas = Resources.Load<Texture2D>(textureAtlasData.imagePath);
+                    }
 
                     material = UnityFactoryHelper.GenerateMaterial(defaultShaderName, textureAtlas.name + "_Mat", textureAtlas);
                     if (textureAtlasData.width < 2)
@@ -441,20 +463,20 @@ namespace DragonBones
                         textureAtlasData.height = (uint)textureAtlas.height;
                     }
 
-					textureAtlasData._disposeEnabled = true;
+                    textureAtlasData._disposeEnabled = true;
 #if UNITY_EDITOR
-					if(!Application.isPlaying)
+                    if(!Application.isPlaying)
                     {
-						string path = AssetDatabase.GetAssetPath(textureAtlas);
-						path = path.Substring(0,path.Length-4);
-						AssetDatabase.CreateAsset(material, path+"_Mat.mat");
-						AssetDatabase.SaveAssets();
-					}
+                        string path = AssetDatabase.GetAssetPath(textureAtlas);
+                        path = path.Substring(0,path.Length-4);
+                        AssetDatabase.CreateAsset(material, path+"_Mat.mat");
+                        AssetDatabase.SaveAssets();
+                    }
 #endif
-				}
+                }
 
-				textureAtlasData.texture = material;
-			}
+                textureAtlasData.texture = material;
+            }
         }
         
         /// <inheritDoc/>
@@ -511,39 +533,39 @@ namespace DragonBones
         /// <version>DragonBones 4.5</version>
         /// <language>zh_CN</language>
         public DragonBonesData LoadData(UnityDragonBonesData data, bool isUGUI = false, float armatureScale = 0.01f, float texScale = 1.0f)
-		{
-			DragonBonesData dragonBonesData = null;
+        {
+            DragonBonesData dragonBonesData = null;
 
-			if (data.dragonBonesJSON != null)
-			{
+            if (data.dragonBonesJSON != null)
+            {
                 dragonBonesData = LoadDragonBonesData(data.dragonBonesJSON, data.dataName, armatureScale);
 
                 if (!string.IsNullOrEmpty(data.dataName) && dragonBonesData != null && data.textureAtlas != null)
-				{
+                {
 #if UNITY_EDITOR
-					bool isDirty = false;
-					if(!Application.isPlaying)
+                    bool isDirty = false;
+                    if(!Application.isPlaying)
                     {
-						for(int i=0; i < data.textureAtlas.Length; ++i)
-						{
-							if(isUGUI)
+                        for(int i=0; i < data.textureAtlas.Length; ++i)
+                        {
+                            if(isUGUI)
                             {
-								if(data.textureAtlas[i].uiMaterial == null)
+                                if(data.textureAtlas[i].uiMaterial == null)
                                 {
-									isDirty = true;
-									break;
-								}
-							}
+                                    isDirty = true;
+                                    break;
+                                }
+                            }
                             else
                             {
-								if(data.textureAtlas[i].material == null)
+                                if(data.textureAtlas[i].material == null)
                                 {
-									isDirty = true;
-									break;
-								}
-							}
-						}
-					}
+                                    isDirty = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
 #endif
 
                     var textureAtlasDatas = this.GetTextureAtlasData(data.dataName);
@@ -586,18 +608,18 @@ namespace DragonBones
                     }
                     
 #if UNITY_EDITOR
-					if (isDirty)
+                    if (isDirty)
                     {
-						AssetDatabase.Refresh();
-						EditorUtility.SetDirty(data);
-						AssetDatabase.SaveAssets();
-					}
+                        AssetDatabase.Refresh();
+                        EditorUtility.SetDirty(data);
+                        AssetDatabase.SaveAssets();
+                    }
 #endif
-				}
-			}
+                }
+            }
 
-			return dragonBonesData;
-		}
+            return dragonBonesData;
+        }
 
         /// <summary>
         /// Parse the raw data to a DragonBonesData instance and cache it to the factory.
@@ -747,7 +769,7 @@ namespace DragonBones
         /// <version>DragonBones 4.5</version>
         /// <language>zh_CN</language>
         public UnityTextureAtlasData LoadTextureAtlasData(UnityDragonBonesData.TextureAtlas textureAtlas, string name, float scale = 1.0f, bool isUGUI = false)
-		{
+        {
             Dictionary<string, object> textureJSONData = (Dictionary<string, object>)MiniJSON.Json.Deserialize(textureAtlas.textureAtlasJSON.text);
             UnityTextureAtlasData textureAtlasData = ParseTextureAtlasData(textureJSONData, null, name, scale) as UnityTextureAtlasData;
 
@@ -784,7 +806,7 @@ namespace DragonBones
             }
 
             return textureAtlasData;
-		}
+        }
         /// <summary>
         /// Refresh the Armature textureAtlas data.
         /// </summary>
@@ -842,7 +864,7 @@ namespace DragonBones
                                         string dragonBonesName, string armatureName, string slotName, string displayName,
                                         Slot slot,Texture2D texture, Material material,
                                         bool isUGUI = false ,int displayIndex = -1)
-		{
+        {
             var armatureData = this.GetArmatureData(armatureName, dragonBonesName);
             if (armatureData == null || armatureData.defaultSkin == null)
             {
@@ -915,8 +937,8 @@ namespace DragonBones
 
 
    //         var dataPackage = new BuildArmaturePackage();
-			//if (_FillBuildArmaturePackage(dataPackage, dragonBonesName, armatureName, "", ""))
-			//{
+            //if (_FillBuildArmaturePackage(dataPackage, dragonBonesName, armatureName, "", ""))
+            //{
    //             var displays = dataPackage.skin.GetDisplays(slotName);
 
    //             DisplayData prevDispalyData = null;
@@ -977,7 +999,7 @@ namespace DragonBones
    //             ReplaceDisplay(slot, newDisplayData, displayIndex);
                 
    //         }
-		}
+        }
 
         //
         public UnityDragonBonesData GetCacheUnityDragonBonesData(string draonBonesName)

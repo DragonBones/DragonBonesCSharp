@@ -1,9 +1,33 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
 
 namespace DragonBones
 {
+    /// <internal/>
+    /// <private/>
     public class BinaryDataParser : ObjectDataParser
     {
         //JsonParse
@@ -20,16 +44,10 @@ namespace DragonBones
         private short[] _frameArrayBuffer;
         private ushort[] _timelineArrayBuffer;
 
-        /**
-         * @private
-         */
         private bool _InRange(int a, int min, int max)
         {
             return min <= a && a <= max;
         }
-        /**
-         * @private
-         */
         private string _DecodeUTF8(ushort[] data)
         {
             var EOF_byte = -1;
@@ -153,9 +171,6 @@ namespace DragonBones
 
             return result;
         }
-        /**
-         * @private
-         */
         private TimelineData _ParseBinaryTimeline(TimelineType type, uint offset, TimelineData timelineData = null)
         {
             var timeline = timelineData != null ? timelineData : BaseObject.BorrowObject<TimelineData>();
@@ -205,9 +220,6 @@ namespace DragonBones
             return timeline;
         }
 
-        /**
-         * @private
-         */
         protected override void _ParseMesh(Dictionary<string, object> rawData, MeshDisplayData mesh)
         {
             //mesh.offset = (int)rawData[ObjectDataParser.OFFSET];
@@ -242,9 +254,6 @@ namespace DragonBones
                 mesh.weight = weight;
             }
         }
-        /**
-         * @private
-         */
         protected override AnimationData _ParseAnimation(Dictionary<string, object> rawData)
         {
             var animation = BaseObject.BorrowObject<AnimationData>();
@@ -350,9 +359,6 @@ namespace DragonBones
 
             return animation;
         }
-        /**
-         * @private
-         */
         protected override void _ParseArray(Dictionary<string, object> rawData)
         {
             var offsets = rawData[ObjectDataParser.OFFSET] as List<object>;
@@ -406,9 +412,6 @@ namespace DragonBones
             this._data.frameArray = this._frameArrayBuffer;
             this._data.timelineArray = this._timelineArrayBuffer;
         }
-        /**
-         * @inheritDoc
-         */
         public override DragonBonesData ParseDragonBonesData(object rawObj, float scale = 1)
         {
             Helper.Assert(rawObj != null  && rawObj is byte[], "Data error.");

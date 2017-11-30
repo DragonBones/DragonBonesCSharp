@@ -1,3 +1,25 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,6 +28,8 @@ using System.Text;
 
 namespace DragonBones
 {
+    /// <internal/>
+    /// <private/>
     public class ObjectDataParser : DataParser
     {
         protected static bool _GetBoolean(Dictionary<string, object> rawData, string key, bool defaultValue)
@@ -42,9 +66,6 @@ namespace DragonBones
             return defaultValue;
         }
 
-        /**
-         * @private
-         */
         protected static uint _GetNumber(Dictionary<string, object> rawData, string key, uint defaultValue)
         {
             if (rawData.ContainsKey(key))
@@ -68,9 +89,6 @@ namespace DragonBones
             return defaultValue;
         }
 
-        /**
-         * @private
-         */
         protected static int _GetNumber(Dictionary<string, object> rawData, string key, int defaultValue)
         {
             if (rawData.ContainsKey(key))
@@ -92,9 +110,6 @@ namespace DragonBones
 
             return defaultValue;
         }
-        /**
-         * @private
-         */
         protected static float _GetNumber(Dictionary<string, object> rawData, string key, float defaultValue)
         {
             if (rawData.ContainsKey(key))
@@ -117,9 +132,6 @@ namespace DragonBones
             return defaultValue;
         }
 
-        /**
-         * @private
-         */
         protected static string _GetString(Dictionary<string, object> rawData, string key, string defaultValue)
         {
             if (rawData.ContainsKey(key))
@@ -180,9 +192,6 @@ namespace DragonBones
 
         }
 
-        /**
-         * @private
-         */
         private void _GetCurvePoint(float x1, float y1,
                                     float x2, float y2,
                                     float x3, float y3,
@@ -201,9 +210,6 @@ namespace DragonBones
             result.y = kA* y1 + kB* y2 + kC* y3 + kD* y4;
         }
 
-        /**
-         * @private
-         */
         private void _SamplingEasingCurve(float[] curve, List<float> samples)
         {
             var curveCount = curve.Length;
@@ -246,16 +252,10 @@ namespace DragonBones
                 samples[i] = this._helpPoint.y;
             }
         }
-        /**
-         * @private
-         */
         //private int _SortActionFrame(ActionFrame a, ActionFrame b)
         //{
         //    return a.frameStart > b.frameStart? 1 : -1;
         //}
-        /**
-         * @private
-         */
         private void _ParseActionDataInFrame(object rawData, int frameStart, BoneData bone = null, SlotData slot = null)
         {
             Dictionary<string, object> rawDic = rawData as Dictionary<string, object>;
@@ -289,9 +289,6 @@ namespace DragonBones
                 this._MergeActionFrame(rawDic[ObjectDataParser.ACTIONS], frameStart, ActionType.Play, bone, slot);
             }
         }
-        /**
-         * @private
-         */
         private void _MergeActionFrame(object rawData, int frameStart, ActionType type, BoneData bone = null, SlotData slot = null)
         {
             var actionOffset = this._armature.actions.Count;
@@ -582,9 +579,6 @@ namespace DragonBones
 
             return armature;
         }
-        /**
-         * @private
-         */
         protected BoneData _ParseBone(Dictionary<string, object> rawData)
         {
             var bone = BaseObject.BorrowObject<BoneData>();
@@ -602,9 +596,6 @@ namespace DragonBones
 
             return bone;
         }
-        /**
-         * @private
-         */
         protected ConstraintData _ParseIKConstraint(Dictionary<string, object> rawData)
         {
             var bone = _armature.GetBone(_GetString(rawData, BONE, ""));
@@ -714,9 +705,6 @@ namespace DragonBones
             return skin;
         }
 
-        /**
-         * @private
-         */
         protected DisplayData _ParseDisplay(Dictionary<string, object> rawData)
         {
             var name = ObjectDataParser._GetString(rawData, ObjectDataParser.NAME, "");
@@ -841,9 +829,6 @@ namespace DragonBones
             return display;
         }
 
-        /**
-        * @private
-        */
         protected void _ParsePivot(Dictionary<string, object> rawData, ImageDisplayData display)
         {
             if (rawData.ContainsKey(ObjectDataParser.PIVOT))
@@ -858,9 +843,6 @@ namespace DragonBones
                 display.pivot.y = 0.5f;
             }
         }
-        /**
-         * @private
-         */
         protected virtual void _ParseMesh(Dictionary<string, object> rawData, MeshDisplayData mesh)
         {
             var rawVertices = (rawData[ObjectDataParser.VERTICES] as List<object>).ConvertAll<float>(Convert.ToSingle);//float
@@ -957,9 +939,6 @@ namespace DragonBones
                 this._weightBonePoses[meshName] = rawBonePoses;
             }
         }
-        /**
-         * @private
-         */
         protected BoundingBoxData _ParseBoundingBox(Dictionary<string, object> rawData)
         {
             BoundingBoxData boundingBox = null;
@@ -1001,9 +980,6 @@ namespace DragonBones
 
             return boundingBox;
         }
-        /**
-         * @private
-         */
         protected PolygonBoundingBoxData _ParsePolygonBoundingBox(Dictionary<string, object> rawData)
         {
             var polygonBoundingBox = BaseObject.BorrowObject<PolygonBoundingBoxData>();
@@ -1060,9 +1036,6 @@ namespace DragonBones
             return polygonBoundingBox;
 
         }
-        /**
-         * @private
-         */
         protected virtual AnimationData _ParseAnimation(Dictionary<string, object> rawData)
         {
             var animation = BaseObject.BorrowObject<AnimationData>();
@@ -1259,9 +1232,6 @@ namespace DragonBones
 
             return animation;
         }
-        /**
-         * @private
-         */
         protected TimelineData _ParseTimeline(
                                                 Dictionary<string, object> rawData, List<object> rawFrames, string framesKey, TimelineType type,
                                                 bool addIntOffset, bool addFloatOffset, uint frameValueCount,
@@ -1365,9 +1335,6 @@ namespace DragonBones
             return timeline;
         }
 
-        /**
-         * @private
-         */
         protected void _ParseBoneTimeline(Dictionary<string, object> rawData)
         {
             var bone = this._armature.GetBone(ObjectDataParser._GetString(rawData, ObjectDataParser.NAME, ""));
@@ -1438,9 +1405,6 @@ namespace DragonBones
             this._bone = null; //
             this._slot = null; //
         }
-        /**
-         * @private
-         */
         protected void _ParseSlotTimeline(Dictionary<string, object> rawData)
         {
             var slot = this._armature.GetSlot(ObjectDataParser._GetString(rawData, ObjectDataParser.NAME, ""));
@@ -1500,9 +1464,6 @@ namespace DragonBones
             this._slot = null; //
         }
 
-        /**
-         * @private
-         */
         protected int _ParseFrame(Dictionary<string, object> rawData, int frameStart, int frameCount)
         {
             //rawData没用到
@@ -1512,9 +1473,6 @@ namespace DragonBones
 
             return frameOffset;
         }
-        /**
-         * @private
-         */
         protected int _ParseTweenFrame(Dictionary<string, object> rawData, int frameStart, int frameCount)
         {
             var frameOffset = this._ParseFrame(rawData, frameStart, frameCount);
@@ -1587,9 +1545,6 @@ namespace DragonBones
 
             return frameOffset;
         }
-        /**
-         * @private
-         */
         private int _ParseZOrderFrame(Dictionary<string, object> rawData, int frameStart, int frameCount)
         {
             var frameOffset = this._ParseFrame(rawData, frameStart, frameCount);
@@ -1675,9 +1630,6 @@ namespace DragonBones
 
             return frameOffset;
         }
-        /**
-         * @private
-         */
         protected int _ParseBoneAllFrame(Dictionary<string, object> rawData, int frameStart, int frameCount)
         {
 
@@ -1723,9 +1675,6 @@ namespace DragonBones
 
             return frameOffset;
         }
-        /**
-         * @private
-         */
         protected int _ParseBoneTranslateFrame(Dictionary<string, object> rawData, int frameStart, int frameCount)
         {
             var frameOffset = this._ParseTweenFrame(rawData, frameStart, frameCount);
@@ -1737,9 +1686,6 @@ namespace DragonBones
 
             return frameOffset;
         }
-        /**
-         * @private
-         */
         protected int _ParseBoneRotateFrame(Dictionary<string, object> rawData, int frameStart, int frameCount)
         {
             // Modify rotation.
@@ -1772,9 +1718,6 @@ namespace DragonBones
 
             return frameOffset;
         }
-        /**
-         * @private
-         */
         protected int _ParseBoneScaleFrame(Dictionary<string, object> rawData, int frameStart, int frameCount)
         {
             var frameOffset = this._ParseTweenFrame(rawData, frameStart, frameCount);
@@ -1786,9 +1729,6 @@ namespace DragonBones
 
             return frameOffset;
         }
-        /**
-         * @private
-         */
         protected int _ParseSlotDisplayFrame(Dictionary<string, object> rawData, int frameStart, int frameCount)
         {
             var frameOffset = this._ParseFrame(rawData, frameStart, frameCount);
@@ -1808,9 +1748,6 @@ namespace DragonBones
 
             return frameOffset;
         }
-        /**
-         * @private
-         */
         protected int _ParseSlotColorFrame(Dictionary<string, object> rawData, int frameStart, int frameCount)
         {
             var frameOffset = this._ParseTweenFrame(rawData, frameStart, frameCount);
@@ -1864,9 +1801,6 @@ namespace DragonBones
             return frameOffset;
         }
 
-        /**
-         * @private
-         */
         protected int _ParseSlotFFDFrame(Dictionary<string, object> rawData, int frameStart, int frameCount)
         {
             var frameFloatOffset = this._frameFloatArray.Count;
@@ -1976,9 +1910,6 @@ namespace DragonBones
             return frameOffset;
         }
 
-    /**
-     * @private
-     */
     protected List<ActionData> _ParseActionData(object rawData, ActionType type, BoneData bone = null, SlotData slot = null)
         {
             var actions = new List<ActionData>();
@@ -2087,9 +2018,6 @@ namespace DragonBones
             return actions;
         }
 
-        /**
-         * @private
-         */
         protected void _ParseTransform(Dictionary<string, object> rawData, Transform transform, float scale)
         {
             transform.x = ObjectDataParser._GetNumber(rawData, ObjectDataParser.X, 0.0f) * scale;
@@ -2110,9 +2038,6 @@ namespace DragonBones
             transform.scaleY = ObjectDataParser._GetNumber(rawData, ObjectDataParser.SCALE_Y, 1.0f);
         }
 
-        /**
-         * @private
-         */
         protected void _ParseColorTransform(Dictionary<string, object> rawData, ColorTransform color)
         {
             color.alphaMultiplier = ObjectDataParser._GetNumber(rawData, ObjectDataParser.ALPHA_MULTIPLIER, 100) * 0.01f;
@@ -2125,9 +2050,6 @@ namespace DragonBones
             color.blueOffset = ObjectDataParser._GetNumber(rawData, ObjectDataParser.BLUE_OFFSET, 0);
         }
 
-        /**
-         * @private
-         */
         protected virtual void _ParseArray(Dictionary<string, object> rawData)
         {
             this._intArray.Clear();
@@ -2138,9 +2060,6 @@ namespace DragonBones
             this._timelineArray.Clear();
         }
 
-        /**
-         * @private
-         */
         protected void _ModifyArray()
         {
             // Align.
@@ -2201,9 +2120,6 @@ namespace DragonBones
 
             this._defaultColorOffset = -1;
         }
-        /**
-         * @inheritDoc
-         */
         public override DragonBonesData ParseDragonBonesData(object rawObj, float scale = 1.0f)
         {
             var rawData = rawObj as Dictionary<string, object>;
@@ -2275,9 +2191,6 @@ namespace DragonBones
             return null;
         }
 
-        /**
-         * @inheritDoc
-         */
         public override bool ParseTextureAtlasData(object rawObj, TextureAtlasData textureAtlasData, float scale = 1.0f)
         {
             var rawData = rawObj as Dictionary<string, object>;
@@ -2340,6 +2253,8 @@ namespace DragonBones
         }
     }
 
+    /// <internal/>
+    /// <private/>
     class ActionFrame
     {
         public int frameStart = 0;

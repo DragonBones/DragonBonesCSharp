@@ -1,12 +1,33 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System;
 
 namespace DragonBones
 {
-    /**
-     * @private
-     */
+    /// <internal/>
+    /// <private/>
     enum BinaryOffset
     {
         WeigthBoneCount = 0,
@@ -38,9 +59,8 @@ namespace DragonBones
         FFDTimelineFloatOffset = 4
     }
 
-    /**
-     * @private
-     */
+    /// <internal/>
+    /// <private/>
     public enum ArmatureType
     {
         None = -1,
@@ -48,9 +68,7 @@ namespace DragonBones
         MovieClip = 1,
         Stage = 2
     }
-    /**
-     * @private
-     */
+    /// <private/>
     public enum DisplayType
     {
         None = -1,
@@ -59,11 +77,17 @@ namespace DragonBones
         Mesh = 2,
         BoundingBox = 3
     }
-    /**
-     * 包围盒类型。
-     * @version DragonBones 5.0
-     * @language zh_CN
-     */
+    /// <summary>
+    /// - Bounding box type.
+    /// </summary>
+    /// <version>DragonBones 5.0</version>
+    /// <language>en_US</language>
+
+    /// <summary>
+    /// - 边界框类型。
+    /// </summary>
+    /// <version>DragonBones 5.0</version>
+    /// <language>zh_CN</language>
     public enum BoundingBoxType
     {
         None = -1,
@@ -71,18 +95,16 @@ namespace DragonBones
         Ellipse = 1,
         Polygon = 2
     }
-    /**
-     * @private
-     */
+    /// <internal/>
+    /// <private/>
     public enum ActionType
     {
         Play = 0,
         Frame = 10,
         Sound = 11
     }
-    /**
-     * @private
-     */
+    /// <internal/>
+    /// <private/>
     public enum BlendMode
     {
         Normal = 0,
@@ -101,9 +123,8 @@ namespace DragonBones
         Subtract = 13
     }
 
-    /**
-     * @private
-     */
+    /// <internal/>
+    /// <private/>
     public enum TweenType
     {
         None = 0,
@@ -114,9 +135,8 @@ namespace DragonBones
         QuadInOut = 5
     }
 
-    /**
-     * @private
-     */
+    /// <internal/>
+    /// <private/>
     public enum TimelineType
     {
         Action = 0,
@@ -136,57 +156,95 @@ namespace DragonBones
         AnimationTime = 40,
         AnimationWeight = 41
     }
-    /**
-     * @private
-     */
+    /// <summary>
+    /// - Offset mode.
+    /// </summary>
+    /// <version>DragonBones 5.5</version>
+    /// <language>en_US</language>
+
+    /// <summary>
+    /// - 偏移模式。
+    /// </summary>
+    /// <version>DragonBones 5.5</version>
+    /// <language>zh_CN</language>
     public enum OffsetMode
     {
         None,
         Additive,
         Override
     }
-    /**
-     * 动画混合的淡出方式。
-     * @version DragonBones 4.5
-     * @language zh_CN
-     */
+    /// <summary>
+    /// - Animation fade out mode.
+    /// </summary>
+    /// <version>DragonBones 4.5</version>
+    /// <language>en_US</language>
+
+    /// <summary>
+    /// - 动画淡出模式。
+    /// </summary>
+    /// <version>DragonBones 4.5</version>
+    /// <language>zh_CN</language>
     public enum AnimationFadeOutMode
     {
-        /**
-         * 不淡出动画。
-         * @version DragonBones 4.5
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Do not fade out of any animation states.
+        /// </summary>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 不淡出任何的动画状态。
+        /// </summary>
+        /// <language>zh_CN</language>
         None = 0,
-        /**
-         * 淡出同层的动画。
-         * @version DragonBones 4.5
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Fade out the animation states of the same layer.
+        /// </summary>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 淡出同层的动画状态。
+        /// </summary>
+        /// <language>zh_CN</language>
         SameLayer = 1,
-        /**
-         * 淡出同组的动画。
-         * @version DragonBones 4.5
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Fade out the animation states of the same group.
+        /// </summary>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 淡出同组的动画状态。
+        /// </summary>
+        /// <language>zh_CN</language>
         SameGroup = 2,
-        /**
-         * 淡出同层并且同组的动画。
-         * @version DragonBones 4.5
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Fade out the animation states of the same layer and group.
+        /// </summary>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 淡出同层并且同组的动画状态。
+        /// </summary>
+        /// <language>zh_CN</language>
         SameLayerAndGroup = 3,
-        /**
-         * 淡出所有动画。
-         * @version DragonBones 4.5
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Fade out of all animation states.
+        /// </summary>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 淡出所有的动画状态。
+        /// </summary>
+        /// <language>zh_CN</language>
         All = 4,
-        /**
-         * 不替换同名动画。
-         * @version DragonBones 5.1
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Does not replace the animation state with the same name.
+        /// </summary>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 不替换同名的动画状态。
+        /// </summary>
+        /// <language>zh_CN</language>
         Single = 5
     }
 
@@ -196,17 +254,11 @@ namespace DragonBones
         public static readonly int UINT16_SIZE = 2;
         public static readonly int FLOAT_SIZE = 4;
 
-        /**
-         * @private
-         */
         internal static void Assert(bool condition, string message)
         {
             Debug.Assert(condition, message);
         }
 
-        /**
-         * @private
-         */
         internal static void ResizeList<T>(this List<T> list, int count, T value = default(T))
         {
             if (list.Count == count)
@@ -229,9 +281,6 @@ namespace DragonBones
             }
         }
 
-        /**
-         * @private
-         */
         internal static List<float> Convert(this List<object> list)
         {
             List<float> res = new List<float>();
@@ -243,8 +292,6 @@ namespace DragonBones
 
             return res;
         }
-
-
         internal static bool FloatEqual(float f0, float f1)
         {
             float f = Math.Abs(f0 -f1);
@@ -253,6 +300,7 @@ namespace DragonBones
         }
     }
 
+    /// <private/>
     public class DragonBones
     {
         public static bool yDown = true;

@@ -1,77 +1,115 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 ﻿using System;
 using System.Collections.Generic;
 
 namespace DragonBones
 {
-    /**
-  * 边界框数据基类。
-  * @see dragonBones.RectangleData
-  * @see dragonBones.EllipseData
-  * @see dragonBones.PolygonData
-  * @version DragonBones 5.0
-  * @language zh_CN
-  */
+    /// <summary>
+    /// - The base class of bounding box data.
+    /// </summary>
+    /// <see cref="DragonBones.RectangleData"/>
+    /// <see cref="DragonBones.EllipseData"/>
+    /// <see cref="DragonBones.PolygonData"/>
+    /// <version>DragonBones 5.0</version>
+    /// <language>en_US</language>
+
+    /// <summary>
+    /// - 边界框数据基类。
+    /// </summary>
+    /// <see cref="DragonBones.RectangleData"/>
+    /// <see cref="DragonBones.EllipseData"/>
+    /// <see cref="DragonBones.PolygonData"/>
+    /// <version>DragonBones 5.0</version>
+    /// <language>zh_CN</language>
     public abstract class BoundingBoxData : BaseObject
     {
-        /**
-         * 边界框类型。
-         * @version DragonBones 5.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - The bounding box type.
+        /// </summary>
+        /// <version>DragonBones 5.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 边界框类型。
+        /// </summary>
+        /// <version>DragonBones 5.0</version>
+        /// <language>zh_CN</language>
         public BoundingBoxType type;
-        /**
-         * 边界框颜色。
-         * @version DragonBones 5.0
-         * @language zh_CN
-         */
+        /// <private/>
         public uint color;
-        /**
-         * 边界框宽。（本地坐标系）
-         * @version DragonBones 5.0
-         * @language zh_CN
-         */
+        /// <private/>
         public float width;
-        /**
-         * 边界框高。（本地坐标系）
-         * @version DragonBones 5.0
-         * @language zh_CN
-         */
+        /// <private/>
         public float height;
 
+        /// <private/>
         protected override void _OnClear()
         {
             this.color = 0x000000;
             this.width = 0.0f;
             this.height = 0.0f;
         }
-        /**
-         * 是否包含点。
-         * @version DragonBones 5.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Check whether the bounding box contains a specific point. (Local coordinate system)
+        /// </summary>
+        /// <version>DragonBones 5.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 检查边界框是否包含特定点。（本地坐标系）
+        /// </summary>
+        /// <version>DragonBones 5.0</version>
+        /// <language>zh_CN</language>
         public abstract bool ContainsPoint(float pX, float pY);
 
-        /**
-         * 是否与线段相交。
-         * @version DragonBones 5.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Check whether the bounding box intersects a specific segment. (Local coordinate system)
+        /// </summary>
+        /// <version>DragonBones 5.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 检查边界框是否与特定线段相交。（本地坐标系）
+        /// </summary>
+        /// <version>DragonBones 5.0</version>
+        /// <language>zh_CN</language>
         public abstract int IntersectsSegment(float xA, float yA, float xB, float yB,
                                                 Point intersectionPointA = null,
                                                 Point intersectionPointB = null,
                                                 Point normalRadians = null);
     }
 
-    /**
-     * Cohen–Sutherland algorithm https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_algorithm
-     * ----------------------
-     * | 0101 | 0100 | 0110 |
-     * ----------------------
-     * | 0001 | 0000 | 0010 |
-     * ----------------------
-     * | 1001 | 1000 | 1010 |
-     * ----------------------
-     */
+    /// <summary>
+    /// - Cohen–Sutherland algorithm https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_algorithm
+    /// ----------------------
+    /// | 0101 | 0100 | 0110 |
+    /// ----------------------
+    /// | 0001 | 0000 | 0010 |
+    /// ----------------------
+    /// | 1001 | 1000 | 1010 |
+    /// ----------------------
+    /// </summary>
     enum OutCode
     {
         InSide = 0, // 0000
@@ -81,11 +119,22 @@ namespace DragonBones
         Bottom = 8  // 1000
     }
 
+    /// <summary>
+    /// - The rectangle bounding box data.
+    /// </summary>
+    /// <version>DragonBones 5.1</version>
+    /// <language>en_US</language>
+
+    /// <summary>
+    /// - 矩形边界框数据。
+    /// </summary>
+    /// <version>DragonBones 5.1</version>
+    /// <language>zh_CN</language>
     public class RectangleBoundingBoxData : BoundingBoxData
     {
-        /**
-         * Compute the bit code for a point (x, y) using the clip rectangle
-         */
+        /// <summary>
+        /// - Compute the bit code for a point (x, y) using the clip rectangle
+        /// </summary>
         private static int _ComputeOutCode(float x, float y, float xMin, float yMin, float xMax, float yMax)
         {
             var code = OutCode.InSide;  // initialised as being inside of [[clip window]]
@@ -110,9 +159,7 @@ namespace DragonBones
 
             return (int)code;
         }
-        /**
-         * @private
-         */
+        /// <private/>
         public static int RectangleIntersectsSegment(float xA, float yA, float xB, float yB,
                                                         float xMin, float yMin, float xMax, float yMax,
                                                         Point intersectionPointA = null,
@@ -283,9 +330,8 @@ namespace DragonBones
 
             return intersectionCount;
         }
-        /**
-         * @private
-         */
+        /// <inheritDoc/>
+        /// <private/>
         protected override void _OnClear()
         {
             base._OnClear();
@@ -293,9 +339,7 @@ namespace DragonBones
             this.type = BoundingBoxType.Rectangle;
         }
 
-        /**
-         * @inherDoc
-         */
+        /// <inheritDoc/>
         public override bool ContainsPoint(float pX, float pY)
         {
             var widthH = this.width * 0.5f;
@@ -311,6 +355,7 @@ namespace DragonBones
             return false;
         }
 
+        /// <inheritDoc/>
         public override int IntersectsSegment(float xA, float yA, float xB, float yB,
                                              Point intersectionPointA = null,
                                              Point intersectionPointB = null,
@@ -329,13 +374,20 @@ namespace DragonBones
         }
     }
 
-    /**
-     * 椭圆边界框。
-     * @version DragonBones 5.1
-     * @language zh_CN
-     */
+    /// <summary>
+    /// - The ellipse bounding box data.
+    /// </summary>
+    /// <version>DragonBones 5.1</version>
+    /// <language>en_US</language>
+
+    /// <summary>
+    /// - 椭圆边界框数据。
+    /// </summary>
+    /// <version>DragonBones 5.1</version>
+    /// <language>zh_CN</language>
     public class EllipseBoundingBoxData : BoundingBoxData
     {
+        /// <private/>
         public static int EllipseIntersectsSegment(float xA, float yA, float xB, float yB,
                                                     float xC, float yC, float widthH, float heightH,
                                                     Point intersectionPointA = null,
@@ -454,9 +506,8 @@ namespace DragonBones
 
             return intersectionCount;
         }
-        /**
-         * @private
-         */
+        /// <inheritDoc/>
+        /// <private/>
         protected override void _OnClear()
         {
             base._OnClear();
@@ -464,9 +515,7 @@ namespace DragonBones
             this.type = BoundingBoxType.Ellipse;
         }
 
-        /**
-         * @inherDoc
-         */
+        /// <inheritDoc/>
         public override bool ContainsPoint(float pX, float pY)
         {
             var widthH = this.width * 0.5f;
@@ -483,6 +532,7 @@ namespace DragonBones
             return false;
         }
 
+        /// <inheritDoc/>
         public override int IntersectsSegment(float xA, float yA, float xB, float yB,
                                                 Point intersectionPointA,
                                                 Point intersectionPointB,
@@ -496,11 +546,20 @@ namespace DragonBones
         }
     }
 
+    /// <summary>
+    /// - The polygon bounding box data.
+    /// </summary>
+    /// <version>DragonBones 5.1</version>
+    /// <language>en_US</language>
+
+    /// <summary>
+    /// - 多边形边界框数据。
+    /// </summary>
+    /// <version>DragonBones 5.1</version>
+    /// <language>zh_CN</language>
     public class PolygonBoundingBoxData : BoundingBoxData
     {
-        /**
-         * @private
-         */
+        /// <private/>
         public static int PolygonIntersectsSegment(float xA, float yA, float xB, float yB,
                                                     List<float> vertices,
                                                     Point intersectionPointA = null,
@@ -670,25 +729,27 @@ namespace DragonBones
             return intersectionCount;
         }
 
-        /**
-         * @private
-         */
+        /// <private/>
         public float x;
-        /**
-         * @private
-         */
+        /// <private/>
         public float y;
-        /**
-         * 多边形顶点。
-         * @version DragonBones 5.1
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - The polygon vertices.
+        /// </summary>
+        /// <version>DragonBones 5.1</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 多边形顶点。
+        /// </summary>
+        /// <version>DragonBones 5.1</version>
+        /// <language>zh_CN</language>
         public readonly List<float> vertices = new List<float>();
-        /**
-         * @private
-         */
+        /// <private/>
         public WeightData weight = null; // Initial value.
 
+        /// <inheritDoc/>
+        /// <private/>
         protected override void _OnClear()
         {
             base._OnClear();
@@ -705,9 +766,7 @@ namespace DragonBones
             this.weight = null;
         }
 
-        /**
-         * @inherDoc
-         */
+        /// <inheritDoc/>
         public override bool ContainsPoint(float pX, float pY)
         {
             var isInSide = false;
@@ -734,9 +793,7 @@ namespace DragonBones
             return isInSide;
         }
 
-        /**
-         * @inherDoc
-         */
+        /// <inheritDoc/>
         public override int IntersectsSegment(float xA, float yA, float xB, float yB,
                                                 Point intersectionPointA = null,
                                                 Point intersectionPointB = null,
