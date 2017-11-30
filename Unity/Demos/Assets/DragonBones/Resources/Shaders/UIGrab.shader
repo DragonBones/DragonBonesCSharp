@@ -79,7 +79,7 @@ Shader "DragonBones/BlendModes/UIGrab"
                 vo.screenPos = vo.vertex;
                 vo.texcoord = vi.texcoord;
 
-                //ÔÚÆ½Ì¨ÉÏ¶¨ÒåµÄ£¬ÔÚÓ³Éätexelsµ½ÏñËØÊ±ĞèÒªÆ«ÒÆµ÷Õû(ÀıÈçDirect3D 9)¡£
+                //åœ¨å¹³å°ä¸Šå®šä¹‰çš„ï¼Œåœ¨æ˜ å°„texelsåˆ°åƒç´ æ—¶éœ€è¦åç§»è°ƒæ•´(ä¾‹å¦‚Direct3D 9)ã€‚
 				#ifdef UNITY_HALF_TEXEL_OFFSET
                 vo.vertex.xy += (_ScreenParams.zw - 1.0) * float2(-1.0, 1.0);
 				#endif
@@ -90,22 +90,21 @@ Shader "DragonBones/BlendModes/UIGrab"
 
 			fixed4 frag(output vo) : SV_Target
 			{
-				half4 color = tex2D(_MainTex, vo.texcoord) * vo.color;
-                //Èç¹ûxµÄÈÎºÎ·ÖÁ¿Ğ¡ÓÚÁã£¬Ôò¶ªÆúµ±Ç°ÏñËØ¡£
-				clip(color.a - .01);
-				
-                //posµÄ·¶Î§ÊÇ¡¾-1,1¡¿+1Îª¡¾0,2¡¿£¬³ËÒÔ0.5±ä³ÉuvµÄ·¶Î§¡¾0,1¡¿
-				float2 grabTexcoord = vo.screenPos.xy / vo.screenPos.w;
-				grabTexcoord.x = (grabTexcoord.x + 1.0) * .5;
-				grabTexcoord.y = (grabTexcoord.y + 1.0) * .5; 
+				// compute the texture coordinates
+				float2 screenPos = vo.screenPos.xy / vo.screenPos.w; // screenpos ranges from -1 to 1
+				screenPos.x = (screenPos.x + 1.0) * 0.5; // I need 0 to 1
+				screenPos.y = (screenPos.y + 1.0) * 0.5; // I need 0 to 1
 
-                //½â¾öÆ½Ì¨²îÒì D3DÔ­µãÔÚ¶¥²¿£¬openGLÔÚµ×²¿
+				//è§£å†³å¹³å°å·®å¼‚ D3DåŸç‚¹åœ¨é¡¶éƒ¨ï¼ŒopenGLåœ¨åº•éƒ¨
 				#if UNITY_UV_STARTS_AT_TOP
-				grabTexcoord.y = 1.0 - grabTexcoord.y;
+				screenPos.y = 1.0 - screenPos.y;
 				#endif
 				
-                //×¥È¡µÄµ±Ç°ÆÁÄ»ÑÕÉ«
-				fixed4 grabColor = tex2D(_GrabTexture, grabTexcoord); 
+				half4 color = tex2D(_MainTex, vo.texcoord) * vo.color;
+                //å¦‚æœxçš„ä»»ä½•åˆ†é‡å°äºé›¶ï¼Œåˆ™ä¸¢å¼ƒå½“å‰åƒç´ ã€‚
+				clip(color.a - 0.01);
+                //æŠ“å–çš„å½“å‰å±å¹•é¢œè‰²
+				fixed4 grabColor = tex2D(_GrabTexture, screenPos); 
 				
                 //Add Mode TODO others blendMode
                 fixed4 result = grabColor + color;
