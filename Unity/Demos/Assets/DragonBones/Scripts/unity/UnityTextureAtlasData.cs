@@ -127,9 +127,9 @@ namespace DragonBones
 
             //framebuffer won't work in the editor mode
 #if UNITY_EDITOR
-            var newMaterial = new Material(Resources.Load<Shader>("BlendModes/Grab"));
+            var newMaterial = new Material(Resources.Load<Shader>("Shaders/Grab"));
 #else
-            var newMaterial = new Material(Resources.Load<Shader>("BlendModes/Framebuffer"));
+            var newMaterial = new Material(Resources.Load<Shader>("Shaders/Framebuffer"));
 #endif
             newMaterial.hideFlags = HideFlags.HideAndDontSave;
             newMaterial.mainTexture = (this.parent as UnityTextureAtlasData).texture.mainTexture;
