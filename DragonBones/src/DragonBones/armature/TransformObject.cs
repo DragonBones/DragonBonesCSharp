@@ -1,88 +1,103 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace DragonBones
 {
-    /**
-     * 基础变换对象。
-     * @version DragonBones 4.5
-     * @language zh_CN
-     */
+    /// <summary>
+    /// - The base class of the transform object.
+    /// </summary>
+    /// <see cref="DragonBones.Transform"/>
+    /// <version>DragonBones 4.5</version>
+    /// <language>en_US</language>
+
+    /// <summary>
+    /// - 变换对象的基类。
+    /// </summary>
+    /// <see cref="DragonBones.Transform"/>
+    /// <version>DragonBones 4.5</version>
+    /// <language>zh_CN</language>
     public abstract class TransformObject : BaseObject
     {
-        /**
-         * @private
-         */
+        /// <private/>
         protected static readonly Matrix _helpMatrix  = new Matrix();
-        /**
-         * @private
-         */
+        /// <private/>
         protected static readonly Transform _helpTransform  = new Transform();
-        /**
-         * @private
-         */
+        /// <private/>
         protected static readonly Point _helpPoint = new Point();
-        /**
-         * 对象的名称。
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
-        public string name;
-        /**
-         * 相对于骨架坐标系的矩阵。
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - A matrix relative to the armature coordinate system.
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 相对于骨架坐标系的矩阵。
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public readonly Matrix globalTransformMatrix = new Matrix();
-        /**
-         * 相对于骨架坐标系的变换。
-         * @see dragonBones.Transform
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - A transform relative to the armature coordinate system.
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 相对于骨架坐标系的变换。
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public readonly Transform global = new Transform();
-        /**
-         * 相对于骨架或父骨骼坐标系的偏移变换。
-         * @see dragonBones.Transform
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - The offset transform relative to the armature or the parent bone coordinate system.
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 相对于骨架或父骨骼坐标系的偏移变换。
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public readonly Transform offset = new Transform();
-        /**
-         * 相对于骨架或父骨骼坐标系的绑定变换。
-         * @see dragonBones.Transform
-         * @version DragonBones 3.0
-         * @readOnly
-         * @language zh_CN
-         */
+        /// <private/>
         public Transform origin;
-        /**
-         * 可以用于存储临时数据。
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <private/>
         public object userData;
-        /**
-         * @private
-         */
+        /// <private/>
         protected bool _globalDirty;
-        /**
-         * @internal
-         * @private
-         */
+        /// <internal/>
+        /// <private/>
         internal Armature _armature;
-        /**
-         * @internal
-         * @private
-         */
+        /// <internal/>
+        /// <private/>
         internal Bone _parent;
-        /**
-         * @private
-         */
+        /// <private/>
         protected override void _OnClear()
         {
-            this.name = "";
             this.globalTransformMatrix.Identity();
             this.global.Identity();
             this.offset.Identity();
@@ -94,25 +109,19 @@ namespace DragonBones
             this._parent = null; //
         }
 
-        /**
-         * @internal
-         * @private
-         */
+        /// <internal/>
+        /// <private/>
         internal virtual void _SetArmature(Armature value = null)
         {
             this._armature = value;
         }
-        /**
-         * @internal
-         * @private
-         */
+        /// <internal/>
+        /// <private/>
         internal void _SetParent(Bone value = null)
         {
             this._parent = value;
         }
-        /**
-         * @private
-         */
+        /// <private/>
         public void UpdateGlobalTransform()
         {
             if (this._globalDirty)
@@ -121,22 +130,32 @@ namespace DragonBones
                 this.global.FromMatrix(this.globalTransformMatrix);
             }
         }
-        /**
-         * 所属的骨架。
-         * @see dragonBones.Armature
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - The armature to which it belongs.
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 所属的骨架。
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public Armature armature
         {
             get{ return this._armature; }
         }
-        /**
-         * 所属的父骨骼。
-         * @see dragonBones.Bone
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - The parent bone to which it belongs.
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 所属的父骨骼。
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public Bone parent
         {
             get { return this._parent; }

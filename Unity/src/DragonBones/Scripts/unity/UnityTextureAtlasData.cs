@@ -1,3 +1,25 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
@@ -20,7 +42,7 @@ namespace DragonBones
          * @version DragonBones 3.0
          */
         public Material texture;
-		public Material uiTexture;
+        public Material uiTexture;
         /**
          * @private
          */
@@ -36,25 +58,17 @@ namespace DragonBones
 
             if (_disposeEnabled && texture != null)
             {
-#if UNITY_EDITOR
-                //Object.DestroyImmediate(texture);
-#else
-                Object.Destroy(texture);
-#endif
+                UnityFactoryHelper.DestroyUnityObject(texture);
             }
 
-			if (_disposeEnabled && uiTexture != null)
-			{
-#if UNITY_EDITOR
-				//Object.DestroyImmediate(uiTexture);
-#else
-				Object.Destroy(uiTexture);
-#endif
-			}
+            if (_disposeEnabled && uiTexture != null)
+            {
+                UnityFactoryHelper.DestroyUnityObject(uiTexture);
+            }
 
             _disposeEnabled = false;
             texture = null;
-			uiTexture = null;
+            uiTexture = null;
         }
         /**
          * @private
@@ -64,12 +78,14 @@ namespace DragonBones
             return BaseObject.BorrowObject<UnityTextureData>();
         }
     }
-    /**
-     * @private
-     */
+
+    /// <private/>
     internal class UnityTextureData : TextureData
     {
-        internal Dictionary<BlendMode, Material> _blendModeMats = new Dictionary<BlendMode, Material>();
+        /// <summary>
+        /// 叠加模式材质球的缓存池
+        /// </summary>
+        internal Dictionary<string, Material> _cacheBlendModeMats = new Dictionary<string, Material>();
 
         public UnityTextureData()
         {
@@ -79,28 +95,89 @@ namespace DragonBones
         {
             base._OnClear();
 
-            //
-            this._blendModeMats.Clear();
-        }
-
-        internal Material GetMaterial(BlendMode blendMode)
-        {
-            //已经有了，就返回一个
-            if (this._blendModeMats.ContainsKey(blendMode))
+            foreach (var key in this._cacheBlendModeMats.Keys)
             {
-                return this._blendModeMats[blendMode];
+                var mat = this._cacheBlendModeMats[key];
+                if (mat != null)
+                {
+                    UnityFactoryHelper.DestroyUnityObject(mat);
+                }
+
+                //this._cacheBlendModeMats[key] = null;
             }
 
-            //理论上，找普通材质不应该走到这里，而是到父亲里找
+            //
+            this._cacheBlendModeMats.Clear();
+        }
+
+        private Material _GetMaterial(BlendMode blendMode)
+        {
+            //normal model, return the parent shareMaterial
             if (blendMode == BlendMode.Normal)
             {
                 return (this.parent as UnityTextureAtlasData).texture;
             }
 
-            //剩下的就是支持blendMode的材质
-            var newMaterial = new Material();
+            var blendModeStr = blendMode.ToString();
 
-            return null;
+            if (this._cacheBlendModeMats.ContainsKey(blendModeStr))
+            {
+                return this._cacheBlendModeMats[blendModeStr];
+            }
+
+            //framebuffer won't work in the editor mode
+#if UNITY_EDITOR
+            var newMaterial = new Material(Resources.Load<Shader>("BlendModes/Grab"));
+#else
+            var newMaterial = new Material(Resources.Load<Shader>("BlendModes/Framebuffer"));
+#endif
+            newMaterial.hideFlags = HideFlags.HideAndDontSave;
+            newMaterial.mainTexture = (this.parent as UnityTextureAtlasData).texture.mainTexture;
+
+            this._cacheBlendModeMats.Add(blendModeStr, newMaterial);
+
+            return newMaterial;
+        }
+
+        private Material _GetUIMaterial(BlendMode blendMode)
+        {
+            //normal model, return the parent shareMaterial
+            if (blendMode == BlendMode.Normal)
+            {
+                return (this.parent as UnityTextureAtlasData).uiTexture;
+            }
+
+            var blendModeStr = "UI_" + blendMode.ToString();
+
+            if (this._cacheBlendModeMats.ContainsKey(blendModeStr))
+            {
+                return this._cacheBlendModeMats[blendModeStr];
+            }
+
+            //framebuffer won't work in the editor mode
+#if UNITY_EDITOR
+            var newMaterial = new Material(Resources.Load<Shader>("BlendModes/UIGrab"));
+#else
+            var newMaterial = new Material(Resources.Load<Shader>("BlendModes/UIFramebuffer"));
+#endif
+            newMaterial.hideFlags = HideFlags.HideAndDontSave;
+            newMaterial.mainTexture = (this.parent as UnityTextureAtlasData).texture.mainTexture;
+
+            this._cacheBlendModeMats.Add(blendModeStr, newMaterial);
+
+            return newMaterial;
+        }
+
+        internal Material GetMaterial(BlendMode blendMode, bool isUGUI = false)
+        {
+            if (isUGUI)
+            {
+                return _GetUIMaterial(blendMode);
+            }
+            else
+            {
+                return _GetMaterial(blendMode);
+            }
         }
 
         public override void CopyFrom(TextureData value)
@@ -108,7 +185,7 @@ namespace DragonBones
             base.CopyFrom(value);
 
             //
-            (value as UnityTextureData)._blendModeMats = this._blendModeMats;
+            (value as UnityTextureData)._cacheBlendModeMats = this._cacheBlendModeMats;
         }
     }
 }

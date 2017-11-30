@@ -1,42 +1,55 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 ﻿using System;
 
 namespace DragonBones
 {
-    /**
-     * @language zh_CN
-     * 2D 变换。
-     * @version DragonBones 3.0
-     */
+    /// <summary>
+    /// - 2D Transform.
+    /// </summary>
+    /// <version>DragonBones 3.0</version>
+    /// <language>en_US</language>
+
+    /// <summary>
+    /// - 2D 变换。
+    /// </summary>
+    /// <version>DragonBones 3.0</version>
+    /// <language>zh_CN</language>
     public class Transform
     {
-        /**
-         * @private
-         */
         internal static readonly float PI = 3.141593f;
-        /**
-         * @private
-         */
+        /// <private/>
         internal static readonly float PI_D = PI * 2.0f;
-        /**
-         * @private
-         */
+        /// <private/>
         internal static readonly float PI_H = PI / 2.0f;
-        /**
-         * @private
-         */
+        /// <private/>
         internal static readonly float PI_Q = PI / 4.0f;
-        /**
-         * @private
-         */
+        /// <private/>
         internal static readonly float RAD_DEG = 180.0f / PI;
-        /**
-         * @private
-         */
+        /// <private/>
         internal static readonly float DEG_RAD = PI / 180.0f;
 
-        /**
-         * @private
-         */
+        /// <private/>
         internal static float NormalizeRadian(float value)
         {
             value = (value + PI) % (PI * 2.0f);
@@ -47,59 +60,91 @@ namespace DragonBones
             return value;
         }
 
-        /**
-         * 水平位移。
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Horizontal translate.
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 水平位移。
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public float x = 0.0f;
-        /**
-         * 垂直位移。
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Vertical translate.
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 垂直位移。
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public float y = 0.0f;
-        /**
-         * 倾斜。 (以弧度为单位)
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Skew. (In radians)
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 倾斜。 （以弧度为单位）
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public float skew = 0.0f;
-        /**
-         * 旋转。 (以弧度为单位)
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - rotation. (In radians)
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 旋转。 （以弧度为单位）
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public float rotation = 0.0f;
-        /**
-         * 水平缩放。
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Horizontal Scaling.
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 水平缩放。
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public float scaleX = 1.0f;
-        /**
-         * 垂直缩放。
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - Vertical scaling.
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 垂直缩放。
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public float scaleY = 1.0f;
 
+        /// <private/>
         public Transform()
         {
             
         }
 
-        /**
-         * @private
-         */
         public override string ToString()
         {
             return "[object dragonBones.Transform] x:" + this.x + " y:" + this.y + " skew:" + this.skew* 180.0 / PI + " rotation:" + this.rotation* 180.0 / PI + " scaleX:" + this.scaleX + " scaleY:" + this.scaleY;
         }
 
-        /**
-         * @private
-         */
+        /// <private/>
         internal Transform CopyFrom(Transform value)
         {
             this.x = value.x;
@@ -112,9 +157,7 @@ namespace DragonBones
             return this;
         }
 
-        /**
-         * @private
-         */
+        /// <private/>
         internal Transform Identity()
         {
             this.x = this.y = 0.0f;
@@ -124,9 +167,7 @@ namespace DragonBones
             return this;
         }
 
-        /**
-         * @private
-         */
+        /// <private/>
         internal Transform Add(Transform value)
         {
             this.x += value.x;
@@ -139,9 +180,7 @@ namespace DragonBones
             return this;
         }
 
-        /**
-         * @private
-         */
+        /// <private/>
         internal Transform Minus(Transform value)
         {
             this.x -= value.x;
@@ -154,9 +193,7 @@ namespace DragonBones
             return this;
         }
 
-        /**
-         * @private
-         */
+        /// <private/>
         internal Transform FromMatrix(Matrix matrix)
         {
             var backupScaleX = this.scaleX;
@@ -188,12 +225,7 @@ namespace DragonBones
             return this;
         }
 
-        /**
-         * @language zh_CN
-         * 转换为矩阵。
-         * @param 矩阵。
-         * @version DragonBones 3.0
-         */
+        /// <private/>
         public Transform ToMatrix(Matrix matrix)
         {
             if (this.skew != 0.0f || this.rotation != 0.0f)

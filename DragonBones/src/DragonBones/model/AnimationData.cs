@@ -1,96 +1,142 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 ﻿using System;
 using System.Collections.Generic;
 
 namespace DragonBones
 {
-    /**
-     * 动画数据。
-     * @version DragonBones 3.0
-     * @language zh_CN
-     */
+    /// <summary>
+    /// - The animation data.
+    /// </summary>
+    /// <version>DragonBones 3.0</version>
+    /// <language>en_US</language>
+
+    /// <summary>
+    /// - 动画数据。
+    /// </summary>
+    /// <version>DragonBones 3.0</version>
+    /// <language>zh_CN</language>
     public class AnimationData : BaseObject
     {
-        /**
-         * @private
-         */
-        public uint frameIntOffset; // FrameIntArray.
-        /**
-         * @private
-         */
-        public uint frameFloatOffset; // FrameFloatArray.
-        /**
-         * @private
-         */
-        public uint frameOffset; // FrameArray.
-        /**
-         * 持续的帧数。 ([1~N])
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - FrameIntArray.
+        /// </summary>
+        /// <internal/>
+        /// <private/>
+        public uint frameIntOffset;
+        /// <summary>
+        /// - FrameFloatArray.
+        /// </summary>
+        /// <internal/>
+        /// <private/>
+        public uint frameFloatOffset;
+        /// <summary>
+        /// - FrameArray.
+        /// </summary>
+        /// <internal/>
+        /// <private/>
+        public uint frameOffset;
+        /// <summary>
+        /// - The frame count of the animation.
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 动画的帧数。
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public uint frameCount;
-        /**
-         * 播放次数。 [0: 无限循环播放, [1~N]: 循环播放 N 次]
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - The play times of the animation. [0: Loop play, [1~N]: Play N times]
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 动画的播放次数。 [0: 无限循环播放, [1~N]: 循环播放 N 次]
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public uint playTimes;
-        /**
-         * 持续时间。 (以秒为单位)
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - The duration of the animation. (In seconds)
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 动画的持续时间。 （以秒为单位）
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public float duration;
-        /**
-         * @private
-         */
+        /// <private/>
         public float scale;
-        /**
-         * 淡入时间。 (以秒为单位)
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - The fade in time of the animation. (In seconds)
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 动画的淡入时间。 （以秒为单位）
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public float fadeInTime;
-        /**
-         * @private
-         */
+        /// <private/>
         public float cacheFrameRate;
-        /**
-         * 数据名称。
-         * @version DragonBones 3.0
-         * @language zh_CN
-         */
+        /// <summary>
+        /// - The animation name.
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 动画名称。
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public string name;
-        /**
-         * @private
-         */
+        /// <private/>
         public readonly List<bool> cachedFrames = new List<bool>();
-        /**
-         * @private
-         */
+        /// <private/>
         public readonly Dictionary<string, List<TimelineData>> boneTimelines = new Dictionary<string, List<TimelineData>>();
-        /**
-         * @private
-         */
+        /// <private/>
         public readonly Dictionary<string, List<TimelineData>> slotTimelines = new Dictionary<string, List<TimelineData>>();
-        /**
-         * @private
-         */
+        /// <private/>
+        public readonly Dictionary<string, List<TimelineData>> constraintTimelines = new Dictionary<string, List<TimelineData>>();
+        /// <private/>
         public readonly Dictionary<string, List<int>> boneCachedFrameIndices = new Dictionary<string, List<int>>();
-        /**
-         * @private
-         */
+        /// <private/>
         public readonly Dictionary<string, List<int>> slotCachedFrameIndices = new Dictionary<string, List<int>>();
-        /**
-         * @private
-         */
+        /// <private/>
         public TimelineData actionTimeline = null; // Initial value.
-        /**
-         * @private
-         */
+        /// <private/>
         public TimelineData zOrderTimeline = null; // Initial value.
-        /**
-         * @private
-         */
+        /// <private/>
         public ArmatureData parent;
 
         public AnimationData()
@@ -98,6 +144,7 @@ namespace DragonBones
 
         }
 
+        /// <inheritDoc/>
         protected override void _OnClear()
         {
             foreach (var pair in boneTimelines)
@@ -109,6 +156,14 @@ namespace DragonBones
             }
 
             foreach (var pair in slotTimelines)
+            {
+                for (int i = 0; i < pair.Value.Count; ++i)
+                {
+                    pair.Value[i].ReturnToPool();
+                }
+            }
+
+            foreach (var pair in constraintTimelines)
             {
                 for (int i = 0; i < pair.Value.Count; ++i)
                 {
@@ -138,6 +193,7 @@ namespace DragonBones
             this.name = "";
             this.boneTimelines.Clear();
             this.slotTimelines.Clear();
+            this.constraintTimelines.Clear();
             this.boneCachedFrameIndices.Clear();
             this.slotCachedFrameIndices.Clear();
             this.cachedFrames.Clear();
@@ -147,6 +203,8 @@ namespace DragonBones
             this.parent = null;
         }
 
+        /// <internal/>
+        /// <private/>
         public void CacheFrames(float frameRate)
         {
             if (this.cacheFrameRate > 0.0f)
@@ -184,9 +242,7 @@ namespace DragonBones
             }
         }
 
-        /**
-         * @private
-         */
+        /// <private/>
         public void AddBoneTimeline(BoneData bone, TimelineData tiemline)
         {
             if (bone == null || tiemline == null)
@@ -205,9 +261,7 @@ namespace DragonBones
                 timelines.Add(tiemline);
             }
         }
-        /**
-         * @private
-         */
+        /// <private/>
         public void AddSlotTimeline(SlotData slot, TimelineData timeline)
         {
             if (slot == null || timeline == null)
@@ -227,40 +281,57 @@ namespace DragonBones
             }
         }
 
-        /**
-         * @private
-         */
-        public List<TimelineData> GetBoneTimeline(string name)
+        /// <private/>
+        public void AddConstraintTimeline(ConstraintData constraint, TimelineData timeline)
+        {
+            if (constraint == null || timeline == null)
+            {
+                return;
+            }
+
+            if (!this.constraintTimelines.ContainsKey(constraint.name))
+            {
+                this.constraintTimelines[constraint.name] = new List<TimelineData>();
+            }
+
+            var timelines = this.constraintTimelines[constraint.name];
+            if (!timelines.Contains(timeline))
+            {
+                timelines.Add(timeline);
+            }
+        }
+
+        /// <private/>
+        public List<TimelineData> GetBoneTimelines(string name)
         {
             return this.boneTimelines.ContainsKey(name) ? this.boneTimelines[name] : null;
         }
-        /**
-         * @private
-         */
-        public List<TimelineData> GetSlotTimeline(string name)
+        /// <private/>
+        public List<TimelineData> GetSlotTimelines(string name)
         {
             return slotTimelines.ContainsKey(name) ? slotTimelines[name] : null;
         }
-        /**
-         * @private
-         */
+
+        /// <private/>
+        public List<TimelineData> GetConstraintTimelines(string name)
+        {
+            return constraintTimelines.ContainsKey(name) ? constraintTimelines[name] : null;
+        }
+        /// <private/>
         public List<int> GetBoneCachedFrameIndices(string name)
         {
             return this.boneCachedFrameIndices.ContainsKey(name) ? this.boneCachedFrameIndices[name] : null;
         }
 
-        /**
-         * @private
-         */
+        /// <private/>
         public List<int> GetSlotCachedFrameIndices(string name)
         {
             return this.slotCachedFrameIndices.ContainsKey(name) ? this.slotCachedFrameIndices[name] : null;
         }
     }
 
-    /**
-     * @private
-     */
+    /// <internal/>
+    /// <private/>
     public class TimelineData : BaseObject
     {
         public TimelineType type;
