@@ -11,6 +11,7 @@ namespace DragonBones
     public class UnityArmatureEditor : Editor
     {
         private long _nowTime = 0;
+        private float _frameRate = 1.0f / 24.0f;
 
         private int _armatureIndex = -1;
         private int _animationIndex = -1;
@@ -20,6 +21,7 @@ namespace DragonBones
         private List<string> _armatureNames = null;
         private List<string> _animationNames = null;
         private List<string> _sortingLayerNames = null;
+
         private UnityArmatureComponent _armatureComponent = null;
 
         private SerializedProperty _playTimesPro;
@@ -27,7 +29,24 @@ namespace DragonBones
         private SerializedProperty _flipXPro;
         private SerializedProperty _flipYPro;
 
-        private List<string> _sortingMode = new List<string> { SortingMode.SortByZ.ToString(), SortingMode.SortByOrder.ToString() };
+        private readonly List<string> _sortingMode = new List<string> { SortingMode.SortByZ.ToString(), SortingMode.SortByOrder.ToString() };
+
+        void ClearUp()
+        {
+            _armatureIndex = -1;
+            _animationIndex = -1;
+            _sortingModeIndex = -1;
+            _sortingLayerIndex = -1;
+
+            _armatureNames = null;
+            _animationNames = null;
+            _sortingLayerNames = null;
+        }
+
+        void OnDisable()
+        {
+        }
+
         void OnEnable()
         {
             _armatureComponent = target as UnityArmatureComponent;
@@ -54,8 +73,13 @@ namespace DragonBones
                 _armatureComponent.unityData != null &&
                 !string.IsNullOrEmpty(_armatureComponent.armatureName))
             {
-                //clear cache
+                // Clear cache
                 UnityFactory.factory.Clear(true);
+
+                // Unload
+                EditorUtility.UnloadUnusedAssetsImmediate();
+                System.GC.Collect();
+
                 // Load data.
                 var dragonBonesData = UnityFactory.factory.LoadData(_armatureComponent.unityData);
 
@@ -73,6 +97,7 @@ namespace DragonBones
                 {
                     _armatureComponent.animation.Play(_armatureComponent.animationName, _playTimesPro.intValue);
                 }
+
                 _armatureComponent.CollectBones();
             }
 
@@ -133,7 +158,7 @@ namespace DragonBones
             }
             else
             {
-                //UnityDragonBonesData没有设置时，可以选择一个骨骼JSON文件，以此创建
+                //create UnityDragonBonesData by a json data
                 if (GUILayout.Button("JSON"))
                 {
                     PickJsonDataWindow.OpenWindow(_armatureComponent);
@@ -144,10 +169,7 @@ namespace DragonBones
             {
                 //clear cache
                 UnityFactory.factory.Clear(true);
-                _armatureNames = null;
-                _animationNames = null;
-                _armatureIndex = -1;
-                _animationIndex = -1;
+                ClearUp();
                 _armatureComponent.animationName = null;
 
                 if (UnityEditor.ChangeDragonBonesData(_armatureComponent, _armatureComponent.unityData.dragonBonesJSON))
@@ -384,20 +406,31 @@ namespace DragonBones
         {
             if (!EditorApplication.isPlayingOrWillChangePlaymode && _armatureComponent.armature != null)
             {
-                var dt = System.DateTime.Now.Ticks - _nowTime;
-                if (dt >= 1.0f / _armatureComponent.armature.armatureData.frameRate * 1000000.0f)
+                var dt = (System.DateTime.Now.Ticks - _nowTime) * 0.0000001f;
+                if (dt >= _frameRate)
                 {
-                    _armatureComponent.armature.AdvanceTime(dt * 0.0000001f);
+                    _armatureComponent.armature.AdvanceTime(dt);
+
+                    foreach (var slot in _armatureComponent.armature.GetSlots())
+                    {
+                        if (slot.childArmature != null)
+                        {
+                            slot.childArmature.AdvanceTime(dt);
+                        }
+                    }
+
+                    //
                     _nowTime = System.DateTime.Now.Ticks;
                 }
             }
         }
 
-
         private void _UpdateParameters()
         {
             if (_armatureComponent.armature != null)
             {
+                _frameRate = 1.0f / (float)_armatureComponent.armature.armatureData.frameRate;
+
                 if (_armatureComponent.armature.armatureData.parent != null)
                 {
                     _armatureNames = _armatureComponent.armature.armatureData.parent.armatureNames;
@@ -442,8 +475,8 @@ namespace DragonBones
 
         private void MarkSceneDirty()
         {
-            //return;
             EditorUtility.SetDirty(_armatureComponent);
+            //
             if (!Application.isPlaying && !_IsPrefab())
             {
                 EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
