@@ -82,6 +82,11 @@ namespace DragonBones
     /// <private/>
     internal class UnityTextureData : TextureData
     {
+        public const string SHADER_GRAP = "Shaders/Grab";
+        public const string SHADER_FRAME_BUFFER = "Shaders/Framebuffer";
+        public const string UI_SHADER_GRAP = "Shaders/UIGrab";
+        public const string UI_SHADER_FRAME_BUFFER = "Shaders/UIFramebuffer";
+
         /// <summary>
         /// 叠加模式材质球的缓存池
         /// </summary>
@@ -127,9 +132,9 @@ namespace DragonBones
 
             //framebuffer won't work in the editor mode
 #if UNITY_EDITOR
-            var newMaterial = new Material(Resources.Load<Shader>("Shaders/Grab"));
+            var newMaterial = new Material(Resources.Load<Shader>(SHADER_GRAP));
 #else
-            var newMaterial = new Material(Resources.Load<Shader>("Shaders/Framebuffer"));
+            var newMaterial = new Material(Resources.Load<Shader>(SHADER_FRAME_BUFFER));
 #endif
             newMaterial.hideFlags = HideFlags.HideAndDontSave;
             newMaterial.mainTexture = (this.parent as UnityTextureAtlasData).texture.mainTexture;
@@ -156,9 +161,9 @@ namespace DragonBones
 
             //framebuffer won't work in the editor mode
 #if UNITY_EDITOR
-            var newMaterial = new Material(Resources.Load<Shader>("BlendModes/UIGrab"));
+            var newMaterial = new Material(Resources.Load<Shader>(UI_SHADER_GRAP));
 #else
-            var newMaterial = new Material(Resources.Load<Shader>("BlendModes/UIFramebuffer"));
+            var newMaterial = new Material(Resources.Load<Shader>(UI_SHADER_FRAME_BUFFER));
 #endif
             newMaterial.hideFlags = HideFlags.HideAndDontSave;
             newMaterial.mainTexture = (this.parent as UnityTextureAtlasData).texture.mainTexture;
