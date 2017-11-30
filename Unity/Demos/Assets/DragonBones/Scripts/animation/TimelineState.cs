@@ -705,8 +705,9 @@ namespace DragonBones
 
                 if (colorOffset < 0)
                 {
-                    colorOffset += short.MaxValue;
+                    colorOffset += short.MaxValue;// Fixed out of bouds bug. 
                 }
+
                 this._current[0] = intArray[colorOffset++];
                 this._current[1] = intArray[colorOffset++];
                 this._current[2] = intArray[colorOffset++];

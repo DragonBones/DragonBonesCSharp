@@ -16,15 +16,15 @@ namespace DragonBones
         protected Armature _armature;
 
         internal Bone _target;
-        internal Bone _bone;
         internal Bone _root;
+        internal Bone _bone;
 
         protected override void _OnClear()
         {
             this._armature = null;
             this._target = null; //
-            this._bone = null; //
             this._root = null; //
+            this._bone = null; //
         }
 
         public abstract void Init(ConstraintData constraintData, Armature armature);
@@ -59,10 +59,8 @@ namespace DragonBones
         private void _ComputeA()
         {
             var ikGlobal = this._target.global;
-            var global = this._bone.global;
-            var globalTransformMatrix = this._bone.globalTransformMatrix;
-            // const boneLength = this.bone.boneData.length;
-            // const x = globalTransformMatrix.a * boneLength; 
+            var global = this._root.global;
+            var globalTransformMatrix = this._root.globalTransformMatrix;
 
             var radian = (float)Math.Atan2(ikGlobal.y - global.y, ikGlobal.x - global.x);
             if (global.scaleX < 0.0f)
@@ -172,8 +170,8 @@ namespace DragonBones
             this._constraintData = constraintData;
             this._armature = armature;
             this._target = this._armature.GetBone(this._constraintData.target.name);
-            this._bone = this._armature.GetBone(this._constraintData.bone.name);
-            this._root = this._constraintData.root != null ? this._armature.GetBone(this._constraintData.root.name) : null;
+            this._root = this._armature.GetBone(this._constraintData.root.name);
+            this._bone = this._constraintData.bone != null ? this._armature.GetBone(this._constraintData.bone.name) : null;
 
             {
                 var ikConstraintData = this._constraintData as IKConstraintData;
@@ -183,33 +181,30 @@ namespace DragonBones
                 this._weight = ikConstraintData.weight;
             }
 
-            this._bone._hasConstraint = true;
+            this._root._hasConstraint = true;
         }
 
         public override void Update()
         {
-            if (this._root == null)
+            this._root.UpdateByConstraint();
+
+            if (this._bone != null)
             {
                 this._bone.UpdateByConstraint();
-                this._ComputeA();
+                this._ComputeB();
             }
             else
             {
-                this._root.UpdateByConstraint();
-                this._bone.UpdateByConstraint();
-                this._ComputeB();
+                this._ComputeA();
             }
         }
 
         public override void InvalidUpdate()
         {
-            if (this._root == null)
+            this._root.InvalidUpdate();
+
+            if (this._bone != null)
             {
-                this._bone.InvalidUpdate();
-            }
-            else
-            {
-                this._root.InvalidUpdate();
                 this._bone.InvalidUpdate();
             }
         }

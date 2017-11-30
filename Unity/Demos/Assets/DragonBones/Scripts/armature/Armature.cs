@@ -175,7 +175,7 @@ namespace DragonBones
                     var flag = false;
                     foreach (var constraint in this._constraints)
                     {
-                        if (constraint._bone == bone && !this._bones.Contains(constraint._target))
+                        if (constraint._root == bone && !this._bones.Contains(constraint._target))
                         {
                             flag = true;
                             break;

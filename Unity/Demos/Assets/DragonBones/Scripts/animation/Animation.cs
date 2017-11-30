@@ -377,7 +377,7 @@ namespace DragonBones
                     else
                     {
                         added = true;
-                        this._animationStates.Insert(i + 1, animationState);
+                        this._animationStates.Insert(i, animationState);
                         break;
                     }
                 }

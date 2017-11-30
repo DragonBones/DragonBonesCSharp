@@ -380,7 +380,7 @@ namespace DragonBones
                         // Update constraints.
                         foreach (var constraint in this._armature._constraints)
                         {
-                            if (constraint._bone == this)
+                            if (constraint._root == this)
                             {
                                 constraint.Update();
                             }
@@ -414,7 +414,7 @@ namespace DragonBones
                     // Update constraints.
                     foreach (var constraint in this._armature._constraints)
                     {
-                        if (constraint._bone == this)
+                        if (constraint._root == this)
                         {
                             constraint.Update();
                         }

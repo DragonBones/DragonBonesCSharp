@@ -8,8 +8,8 @@
         public int order;
         public string name;
         public BoneData target;
-        public BoneData bone;
-        public BoneData root = null;
+        public BoneData root;
+        public BoneData bone = null;
 
         protected override void _OnClear()
         {

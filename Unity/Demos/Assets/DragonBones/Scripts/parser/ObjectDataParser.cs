@@ -628,9 +628,15 @@ namespace DragonBones
             constraint.target = target;
 
             var chain = ObjectDataParser._GetNumber(rawData, ObjectDataParser.CHAIN, 0);
-            if (chain > 0)
+            if (chain > 0 && bone.parent != null)
             {
                 constraint.root = bone.parent;
+                constraint.bone = bone;
+            }
+            else
+            {
+                constraint.root = bone;
+                constraint.bone = null;
             }
 
             return constraint;

@@ -224,7 +224,7 @@ namespace DragonBones
                 foreach (var constraint in this.constraints.Values)
                 {
                     // Wait constraint.
-                    if (constraint.bone == bone && !this.sortedBones.Contains(constraint.target))
+                    if (constraint.root == bone && !this.sortedBones.Contains(constraint.target))
                     {
                         flag = true;
                         break;
@@ -373,6 +373,11 @@ namespace DragonBones
                 value.parent = this;
                 this.skins[value.name] = value;
                 if (this.defaultSkin == null)
+                {
+                    this.defaultSkin = value;
+                }
+
+                if(value.name == "default")
                 {
                     this.defaultSkin = value;
                 }
@@ -532,6 +537,24 @@ namespace DragonBones
             this.transform.Identity();
             this.userData = null;
             this.parent = null;
+        }
+    }
+
+    public class SurfaceData : BoneData
+    {
+        public float vertexCountX;
+        public float vertexCountY;
+        public readonly List<float> vertices = new List<float>();
+        /**
+         * @inheritDoc
+         */
+        protected override void _OnClear()
+        {
+            base._OnClear();
+
+            this.vertexCountX = 0;
+            this.vertexCountY = 0;
+            this.vertices.Clear();
         }
     }
 

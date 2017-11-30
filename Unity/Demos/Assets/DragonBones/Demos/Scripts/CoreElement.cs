@@ -256,7 +256,7 @@ namespace coreElement
             List<string> exclude = new List<string>();
             exclude.Add("weapon_l");
             exclude.Add("weapon_r");
-            UnityFactory.factory.ChangeSkin(this._armatureComponent.armature, skinData, exclude);
+            UnityFactory.factory.ReplaceSkin(this._armatureComponent.armature, skinData, false, exclude);
         }
 
         private void _aim(float x, float y)
