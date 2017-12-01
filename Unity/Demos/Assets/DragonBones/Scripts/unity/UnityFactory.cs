@@ -933,72 +933,6 @@ namespace DragonBones
             }
 
             ReplaceDisplay(slot, newDisplayData, displayIndex);
-
-
-
-   //         var dataPackage = new BuildArmaturePackage();
-            //if (_FillBuildArmaturePackage(dataPackage, dragonBonesName, armatureName, "", ""))
-            //{
-   //             var displays = dataPackage.skin.GetDisplays(slotName);
-
-   //             DisplayData prevDispalyData = null;
-   //             foreach (var displayData in displays)
-   //             {
-   //                 if (displayData.name == displayName)
-   //                 {
-   //                     prevDispalyData = displayData;
-   //                     break;
-   //                 }
-   //             }
-                
-   //             if (prevDispalyData == null || !(prevDispalyData is ImageDisplayData))
-   //             {
-   //                 return;
-   //             }
-
-   //             TextureData prevTextureData = (prevDispalyData as ImageDisplayData).texture;
-   //             UnityTextureData newTextureData = new UnityTextureData();
-   //             newTextureData.CopyFrom(prevTextureData);
-   //             newTextureData.rotated = false;
-   //             newTextureData.region.x = 0.0f;
-   //             newTextureData.region.y = 0.0f;
-   //             newTextureData.region.width = texture.width;
-   //             newTextureData.region.height = texture.height;
-   //             newTextureData.frame = newTextureData.region;
-   //             newTextureData.name = prevTextureData.name;
-   //             newTextureData.parent = new UnityTextureAtlasData();
-   //             newTextureData.parent.width = (uint)texture.width;
-   //             newTextureData.parent.height = (uint)texture.height;
-   //             if (isUGUI)
-   //             {
-   //                 (newTextureData.parent as UnityTextureAtlasData).uiTexture = material;
-   //             }
-   //             else
-   //             {
-   //                 (newTextureData.parent as UnityTextureAtlasData).texture = material;
-   //             }
-
-   //             material.mainTexture = texture;
-
-   //             ImageDisplayData newDisplayData = prevDispalyData is MeshDisplayData ? new MeshDisplayData() : new ImageDisplayData();
-   //             newDisplayData.type = prevDispalyData.type;
-   //             newDisplayData.name = prevDispalyData.name;
-   //             newDisplayData.path = prevDispalyData.path;
-   //             newDisplayData.transform.CopyFrom(prevDispalyData.transform);
-   //             newDisplayData.parent = prevDispalyData.parent;
-   //             newDisplayData.pivot.CopyFrom((prevDispalyData as ImageDisplayData).pivot);
-   //             newDisplayData.texture = newTextureData;
-
-   //             if (newDisplayData is MeshDisplayData)
-   //             {
-   //                 (newDisplayData as MeshDisplayData).inheritAnimation = (prevDispalyData as MeshDisplayData).inheritAnimation;
-   //                 (newDisplayData as MeshDisplayData).offset = (prevDispalyData as MeshDisplayData).offset;
-   //                 (newDisplayData as MeshDisplayData).weight = (prevDispalyData as MeshDisplayData).weight;
-   //             }
-
-   //             ReplaceDisplay(slot, newDisplayData, displayIndex);
-                
-   //         }
         }
 
         //
@@ -1153,6 +1087,48 @@ namespace DragonBones
 #else
             UnityEngine.Object.Destroy(obj);
 #endif
+        }
+    }
+
+    public static class JsonHelper
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <param name="jsonParse"></param>
+        /// <returns></returns>
+        public static Dictionary<string, object> DeserializeBinaryJsonData(byte[] bytes, out int headerLength, BinaryDataParser.JsonParseDelegate jsonParse = null)
+        {
+            headerLength = 0;
+            Dictionary<string, object> result = null;
+            using (System.IO.MemoryStream ms = new System.IO.MemoryStream(bytes))
+            using (BinaryDataReader reader = new BinaryDataReader(ms))
+            {
+                ms.Position = 0;
+                byte[] tag = reader.ReadBytes(8);
+
+                byte[] array = System.Text.Encoding.ASCII.GetBytes("DBDT");
+
+                if ( tag[0] != array[0] ||
+                     tag[1] != array[1] ||
+                     tag[2] != array[2] ||
+                     tag[3] != array[3])
+                {
+                    Helper.Assert(false, "Nonsupport data.");
+                    return null;
+                }
+
+                headerLength = (int)reader.ReadUInt32();
+                var headerBytes = reader.ReadBytes(headerLength);
+                var headerString = System.Text.Encoding.UTF8.GetString(headerBytes);
+                result = jsonParse != null ? jsonParse(headerString) as Dictionary<string, object> : MiniJSON.Json.Deserialize(headerString) as Dictionary<string, object>;
+
+                reader.Close();
+                ms.Dispose();
+            }
+
+            return result;
         }
     }
 }
