@@ -277,8 +277,6 @@ namespace DragonBones
                 if (displays != null)
                 {
                     var displayList = new List<object>();
-
-                    // for (const displayData of displays) {
                     for (int i = 0, l = displays.Count; i < l; ++i)
                     {
                         var displayData = displays[i];
@@ -360,7 +358,6 @@ namespace DragonBones
                     {
                         var armatureDisplayData = displayData as ArmatureDisplayData;
                         var childArmature = this._BuildChildArmature(dataPackage, slot, displayData);
-                        //var childArmature = this.BuildArmature(armatureDisplayData.path, dataName, null, dataPackage != null ? dataPackage.textureAtlasName : null);
                         if (childArmature != null)
                         {
                             childArmature.inheritAnimation = armatureDisplayData.inheritAnimation;
@@ -822,7 +819,7 @@ namespace DragonBones
             return armature;
         }
         /// <private/>
-        public void ReplaceDisplay(Slot slot, DisplayData displayData, int displayIndex = -1)
+        public virtual void ReplaceDisplay(Slot slot, DisplayData displayData, int displayIndex = -1)
         {
             if (displayIndex < 0)
             {

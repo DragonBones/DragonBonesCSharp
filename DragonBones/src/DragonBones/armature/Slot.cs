@@ -689,7 +689,7 @@ namespace DragonBones
 
         /// <internal/>
         /// <private/>
-        internal void Init(SlotData slotData, List<DisplayData> displayDatas, object rawDisplay, object meshDisplay)
+        internal virtual void Init(SlotData slotData, List<DisplayData> displayDatas, object rawDisplay, object meshDisplay)
         {
             if (this._slotData != null)
             {

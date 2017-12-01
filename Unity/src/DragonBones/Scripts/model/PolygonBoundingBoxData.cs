@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// using System;
+// using System.Collections.Generic;
 
-namespace DragonBones
-{
+// namespace DragonBones
+// {
     //public class PolygonBoundingBoxData : BoundingBoxData
     //{
     //    /**
@@ -263,4 +263,4 @@ namespace DragonBones
     //        return intersectionCount;
     //    }
     //}
-}
+// }

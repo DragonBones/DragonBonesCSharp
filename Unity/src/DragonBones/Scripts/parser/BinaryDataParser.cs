@@ -417,35 +417,11 @@ namespace DragonBones
             Helper.Assert(rawObj != null  && rawObj is byte[], "Data error.");
 
             byte[] bytes = rawObj as byte[];
-            object header = null;
-            using (MemoryStream ms = new MemoryStream(bytes))
-            using (BinaryDataReader reader = new BinaryDataReader(ms))
-            {
-                ms.Position = 0;
-                byte[] tag = reader.ReadBytes(8);
+            int headerLength = 0;
+            object header = JsonHelper.DeserializeBinaryJsonData(bytes, out headerLength, jsonParseDelegate);
 
-                byte[] array = System.Text.Encoding.ASCII.GetBytes("DBDT");
-
-                if ( tag[0] != array[0] ||
-                     tag[1] != array[1] ||
-                     tag[2] != array[2] ||
-                     tag[3] != array[3])
-                {
-                    Helper.Assert(false, "Nonsupport data.");
-                    return null;
-                }
-
-                var headerLength = (int)reader.ReadUInt32();
-                var headerBytes = reader.ReadBytes(headerLength);
-                var headerString = System.Text.Encoding.UTF8.GetString(headerBytes);
-                header = jsonParseDelegate != null ? jsonParseDelegate(headerString) : string.Empty;
-
-                reader.Close();
-                ms.Dispose();
-
-                this._binaryOffset = 8 + 4 + headerLength;
-                this._binary = bytes;
-            }
+            this._binary = bytes;
+            this._binaryOffset = 8 + 4 + headerLength;
 
             jsonParseDelegate = null;
 

@@ -272,7 +272,7 @@ namespace DragonBones
 
                 if(isWarning)
                 {
-                    UnityEngine.Debug.LogWarning("SortingMode.SortByOrder is userd by Unity 5.6 or highter only.");
+                    LogHelper.LogWarning("SortingMode.SortByOrder is userd by Unity 5.6 or highter only.");
                     return;
                 }
 

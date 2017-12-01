@@ -37,7 +37,7 @@ namespace DragonBones
     /// </summary>
     /// <version>DragonBones 4.5</version>
     /// <language>zh_CN</language>
-    abstract public class BaseObject
+    public abstract class BaseObject
     {
         private static uint _hashCode = 0;
         private static uint _defaultMaxCount = 3000;
@@ -204,7 +204,7 @@ namespace DragonBones
         }
 
         /// <private/>
-        abstract protected void _OnClear();
+        protected abstract void _OnClear();
         /// <summary>
         /// - Clear the object and return it back to object pool。
         /// </summary>
@@ -220,6 +220,11 @@ namespace DragonBones
         {
             _OnClear();
             _ReturnObject(this);
+        }
+
+        public static implicit operator bool(BaseObject exists)
+        {
+            return exists != null;
         }
     }
 }

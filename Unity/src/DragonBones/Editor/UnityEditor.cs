@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEditor;
@@ -60,11 +60,11 @@ namespace DragonBones
         private static void _CreateUGUIArmatureObjectMenuItem()
         {
             var armatureComponent = _CreateEmptyObject(GetSelectionParentTransform());
-            armatureComponent.isUGUI=true;
-            if(armatureComponent.GetComponentInParent<Canvas>()==null)
+            armatureComponent.isUGUI = true;
+            if (armatureComponent.GetComponentInParent<Canvas>() == null)
             {
                 var canvas = GameObject.Find("/Canvas");
-                if(canvas)
+                if (canvas)
                 {
                     armatureComponent.transform.SetParent(canvas.transform);
                 }
@@ -87,11 +87,11 @@ namespace DragonBones
             foreach (var dragonBonesJSONPath in _GetDragonBonesSkePaths())
             {
                 var armatureComponent = _CreateEmptyObject(parentTransform);
-                armatureComponent.isUGUI=true;
-                if(armatureComponent.GetComponentInParent<Canvas>()==null)
+                armatureComponent.isUGUI = true;
+                if (armatureComponent.GetComponentInParent<Canvas>() == null)
                 {
                     var canvas = GameObject.Find("/Canvas");
-                    if(canvas)
+                    if (canvas)
                     {
                         armatureComponent.transform.SetParent(canvas.transform);
                     }
@@ -121,23 +121,23 @@ namespace DragonBones
                 GetTextureAtlasConfigs(textureAtlasJSONs, AssetDatabase.GetAssetPath(dragonBonesSke.GetInstanceID()));
                 UnityDragonBonesData.TextureAtlas[] textureAtlas = new UnityDragonBonesData.TextureAtlas[textureAtlasJSONs.Count];
 
-                for(int i=0;i<textureAtlasJSONs.Count;++i)
+                for (int i = 0; i < textureAtlasJSONs.Count; ++i)
                 {
                     string path = textureAtlasJSONs[i];
                     //load textureAtlas data
                     UnityDragonBonesData.TextureAtlas ta = new UnityDragonBonesData.TextureAtlas();
                     ta.textureAtlasJSON = AssetDatabase.LoadAssetAtPath<TextAsset>(path);
                     //load texture
-                    path = path.Substring(0,path.LastIndexOf(".json"));
-                    ta.texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path+".png");
+                    path = path.Substring(0, path.LastIndexOf(".json"));
+                    ta.texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path + ".png");
                     //load material
-                    ta.material = AssetDatabase.LoadAssetAtPath<Material>(path+"_Mat.mat");
-                    ta.uiMaterial = AssetDatabase.LoadAssetAtPath<Material>(path+"_UI_Mat.mat");
+                    ta.material = AssetDatabase.LoadAssetAtPath<Material>(path + "_Mat.mat");
+                    ta.uiMaterial = AssetDatabase.LoadAssetAtPath<Material>(path + "_UI_Mat.mat");
                     textureAtlas[i] = ta;
                 }
 
                 //
-                CreateUnityDragonBonesData(dragonBonesSke,textureAtlas);
+                CreateUnityDragonBonesData(dragonBonesSke, textureAtlas);
             }
         }
 
@@ -170,13 +170,13 @@ namespace DragonBones
             {
                 var textureAtlasJSONs = new List<string>();
                 UnityEditor.GetTextureAtlasConfigs(textureAtlasJSONs, AssetDatabase.GetAssetPath(dragonBoneJSON.GetInstanceID()));
-               
+
                 UnityDragonBonesData.TextureAtlas[] textureAtlas = UnityEditor.GetTextureAtlasByJSONs(textureAtlasJSONs);
 
                 UnityDragonBonesData data = UnityEditor.CreateUnityDragonBonesData(dragonBoneJSON, textureAtlas);
                 _armatureComponent.unityData = data;
 
-                var dragonBonesData = UnityFactory.factory.LoadData(data,_armatureComponent.isUGUI);
+                var dragonBonesData = UnityFactory.factory.LoadData(data, _armatureComponent.isUGUI);
                 if (dragonBonesData != null)
                 {
                     Undo.RecordObject(_armatureComponent, "Set DragonBones");
@@ -237,7 +237,7 @@ namespace DragonBones
             _armatureComponent.armatureName = armatureName;
             _armatureComponent.isUGUI = isUGUI;
 
-            _armatureComponent = UnityFactory.factory.BuildArmatureComponent(_armatureComponent.armatureName, dragonBonesName, null, _armatureComponent.unityData.dataName, _armatureComponent.gameObject,_armatureComponent.isUGUI);
+            _armatureComponent = UnityFactory.factory.BuildArmatureComponent(_armatureComponent.armatureName, dragonBonesName, null, _armatureComponent.unityData.dataName, _armatureComponent.gameObject, _armatureComponent.isUGUI);
             if (slot != null)
             {
                 slot.childArmature = _armatureComponent.armature;
@@ -246,20 +246,21 @@ namespace DragonBones
             _armatureComponent.sortingLayerName = _armatureComponent.sortingLayerName;
             _armatureComponent.sortingOrder = _armatureComponent.sortingOrder;
         }
-        
+
         public static UnityEngine.Transform GetSelectionParentTransform()
         {
             var parent = Selection.activeObject as GameObject;
             return parent != null ? parent.transform : null;
         }
-        
+
         public static void GetTextureAtlasConfigs(List<string> textureAtlasFiles, string filePath, string rawName = null, string suffix = "tex")
         {
             var folder = Directory.GetParent(filePath).ToString();
 
             var name = rawName != null ? rawName : filePath.Substring(0, filePath.LastIndexOf(".")).Substring(filePath.LastIndexOf("/") + 1);
-            if(name.LastIndexOf("_ske")==name.Length-4){
-                name = name.Substring(0,name.LastIndexOf("_ske"));
+            if (name.LastIndexOf("_ske") == name.Length - 4)
+            {
+                name = name.Substring(0, name.LastIndexOf("_ske"));
             }
             int index = 0;
             var textureAtlasName = "";
@@ -287,7 +288,7 @@ namespace DragonBones
                     break;
                 }
             }
-            
+
             if (textureAtlasFiles.Count > 0 || rawName != null)
             {
                 return;
@@ -323,22 +324,32 @@ namespace DragonBones
             }
         }
 
-        public static UnityDragonBonesData CreateUnityDragonBonesData(TextAsset dragonBonesAsset,UnityDragonBonesData.TextureAtlas[] textureAtlas)
+        public static UnityDragonBonesData CreateUnityDragonBonesData(TextAsset dragonBonesAsset, UnityDragonBonesData.TextureAtlas[] textureAtlas)
         {
-            if(dragonBonesAsset != null)
+            if (dragonBonesAsset != null)
             {
                 bool isDirty = false;
                 string path = AssetDatabase.GetAssetPath(dragonBonesAsset);
-                path = path.Substring(0, path.Length -5);
+                path = path.Substring(0, path.Length - 5);
                 int index = path.LastIndexOf("_ske");
-                if(index > 0)
+                if (index > 0)
                 {
-                    path = path.Substring(0,index);
+                    path = path.Substring(0, index);
                 }
                 //
                 string dataPath = path + "_Data.asset";
 
                 var jsonObject = (Dictionary<string, object>)MiniJSON.Json.Deserialize(dragonBonesAsset.text);
+                if (dragonBonesAsset.text == "DBDT")
+                {
+                    int headerLength  = 0;
+                    jsonObject = JsonHelper.DeserializeBinaryJsonData(dragonBonesAsset.bytes, out headerLength);
+                }
+                else
+                {
+                    jsonObject = MiniJSON.Json.Deserialize(dragonBonesAsset.text) as Dictionary<string, object>;
+                }
+
                 var dataName = jsonObject.ContainsKey("name") ? jsonObject["name"] as string : "";
 
                 //先从缓存里面取
@@ -351,16 +362,16 @@ namespace DragonBones
                 }
 
                 //资源里面也没有，那么重新创建
-                if(data == null)
+                if (data == null)
                 {
                     data = UnityDragonBonesData.CreateInstance<UnityDragonBonesData>();
                     data.dataName = dataName;
-                    AssetDatabase.CreateAsset(data,dataPath);
+                    AssetDatabase.CreateAsset(data, dataPath);
                     isDirty = true;
                 }
 
                 //
-                if(string.IsNullOrEmpty(data.dataName) || !data.dataName.Equals(dataName))
+                if (string.IsNullOrEmpty(data.dataName) || !data.dataName.Equals(dataName))
                 {
                     //走到这里，说明原先已经创建了，之后手动改了名字,既然又走了创建流程，那么名字也重置下
                     data.dataName = dataName;
@@ -372,21 +383,21 @@ namespace DragonBones
                     data.dragonBonesJSON = dragonBonesAsset;
                     isDirty = true;
                 }
-                
-                if(textureAtlas!=null && textureAtlas.Length>0 && textureAtlas[0]!=null && textureAtlas[0].texture!=null)
+
+                if (textureAtlas != null && textureAtlas.Length > 0 && textureAtlas[0] != null && textureAtlas[0].texture != null)
                 {
-                    if(data.textureAtlas == null || data.textureAtlas.Length!=textureAtlas.Length)
+                    if (data.textureAtlas == null || data.textureAtlas.Length != textureAtlas.Length)
                     {
                         isDirty = true;
                     }
                     else
                     {
-                        for(int i=0;i<textureAtlas.Length;++i)
+                        for (int i = 0; i < textureAtlas.Length; ++i)
                         {
-                            if(textureAtlas[i].material!=data.textureAtlas[i].material || 
-                                textureAtlas[i].uiMaterial!=data.textureAtlas[i].uiMaterial || 
-                                textureAtlas[i].texture!=data.textureAtlas[i].texture || 
-                                textureAtlas[i].textureAtlasJSON!=data.textureAtlas[i].textureAtlasJSON
+                            if (textureAtlas[i].material != data.textureAtlas[i].material ||
+                                textureAtlas[i].uiMaterial != data.textureAtlas[i].uiMaterial ||
+                                textureAtlas[i].texture != data.textureAtlas[i].texture ||
+                                textureAtlas[i].textureAtlasJSON != data.textureAtlas[i].textureAtlasJSON
                             )
                             {
                                 isDirty = true;
@@ -397,7 +408,7 @@ namespace DragonBones
                     data.textureAtlas = textureAtlas;
                 }
 
-                if(isDirty)
+                if (isDirty)
                 {
                     AssetDatabase.Refresh();
                     EditorUtility.SetDirty(data);
@@ -413,7 +424,7 @@ namespace DragonBones
         }
 
 
-        private static List<string> _GetDragonBonesSkePaths( bool isCreateUnityData = false)
+        private static List<string> _GetDragonBonesSkePaths(bool isCreateUnityData = false)
         {
             var dragonBonesSkePaths = new List<string>();
             foreach (var guid in Selection.assetGUIDs)
@@ -430,21 +441,14 @@ namespace DragonBones
                 if (assetPath.EndsWith(".bytes"))
                 {
                     TextAsset asset = AssetDatabase.LoadAssetAtPath<TextAsset>(assetPath);
-                    if(asset && asset.text == "DBDT"){
+                    if (asset && asset.text == "DBDT")
+                    {
                         dragonBonesSkePaths.Add(assetPath);
                     }
                 }
-                else if(!isCreateUnityData && assetPath.EndsWith("_Data.asset"))
+                else if (!isCreateUnityData && assetPath.EndsWith("_Data.asset"))
                 {
                     UnityDragonBonesData data = AssetDatabase.LoadAssetAtPath<UnityDragonBonesData>(assetPath);
-                    //if(data.dragonBonesJSON != null)
-                    //               {
-                    //    dragonBonesSkePaths.Add(AssetDatabase.GetAssetPath(data.dragonBonesJSON));
-                    //}
-                    //else if(data.dragonBonesBinary != null)
-                    //{
-                    //    dragonBonesSkePaths.Add(AssetDatabase.GetAssetPath(data.dragonBonesBinary));
-                    //}
 
                     dragonBonesSkePaths.Add(AssetDatabase.GetAssetPath(data.dragonBonesJSON));
                 }

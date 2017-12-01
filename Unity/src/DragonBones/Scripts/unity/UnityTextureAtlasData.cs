@@ -52,7 +52,7 @@ namespace DragonBones
         /**
          * @private
          */
-        override protected void _OnClear()
+        protected override void _OnClear()
         {
             base._OnClear();
 
@@ -73,7 +73,7 @@ namespace DragonBones
         /**
          * @private
          */
-        override public TextureData CreateTexture()
+        public override TextureData CreateTexture()
         {
             return BaseObject.BorrowObject<UnityTextureData>();
         }
@@ -82,6 +82,11 @@ namespace DragonBones
     /// <private/>
     internal class UnityTextureData : TextureData
     {
+        public const string SHADER_GRAP = "Shaders/DB_BlendMode_Grab";
+        public const string SHADER_FRAME_BUFFER = "Shaders/DB_BlendMode_Framebuffer";
+        public const string UI_SHADER_GRAP = "Shaders/DB_BlendMode_UIGrab";
+        public const string UI_SHADER_FRAME_BUFFER = "Shaders/DB_BlendMode_UIFramebuffer";
+
         /// <summary>
         /// 叠加模式材质球的缓存池
         /// </summary>
@@ -127,9 +132,9 @@ namespace DragonBones
 
             //framebuffer won't work in the editor mode
 #if UNITY_EDITOR
-            var newMaterial = new Material(Resources.Load<Shader>("BlendModes/Grab"));
+            var newMaterial = new Material(Resources.Load<Shader>(SHADER_GRAP));
 #else
-            var newMaterial = new Material(Resources.Load<Shader>("BlendModes/Framebuffer"));
+            var newMaterial = new Material(Resources.Load<Shader>(SHADER_GRAP));
 #endif
             newMaterial.hideFlags = HideFlags.HideAndDontSave;
             newMaterial.mainTexture = (this.parent as UnityTextureAtlasData).texture.mainTexture;
@@ -156,9 +161,9 @@ namespace DragonBones
 
             //framebuffer won't work in the editor mode
 #if UNITY_EDITOR
-            var newMaterial = new Material(Resources.Load<Shader>("BlendModes/UIGrab"));
+            var newMaterial = new Material(Resources.Load<Shader>(UI_SHADER_GRAP));
 #else
-            var newMaterial = new Material(Resources.Load<Shader>("BlendModes/UIFramebuffer"));
+            var newMaterial = new Material(Resources.Load<Shader>(UI_SHADER_FRAME_BUFFER));
 #endif
             newMaterial.hideFlags = HideFlags.HideAndDontSave;
             newMaterial.mainTexture = (this.parent as UnityTextureAtlasData).texture.mainTexture;
