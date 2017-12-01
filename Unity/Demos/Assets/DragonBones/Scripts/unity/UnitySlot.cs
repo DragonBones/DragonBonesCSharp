@@ -20,7 +20,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-﻿using UnityEngine;
+using UnityEngine;
+using System.Collections.Generic;
 
 namespace DragonBones
 {
@@ -115,11 +116,13 @@ namespace DragonBones
 
             _currentBlendMode = BlendMode.Normal;
         }
+
         /**
          * @private
          */
-        override protected void _InitDisplay(object value)
+        protected override void _InitDisplay(object value)
         {
+
         }
         /**
          * @private
@@ -134,6 +137,40 @@ namespace DragonBones
         override protected void _OnUpdateDisplay()
         {
             _renderDisplay = (_display != null ? _display : _rawDisplay) as GameObject;
+
+            //
+            _proxy = _armature.proxy as UnityArmatureComponent;
+            if (_proxy.isUGUI)
+            {
+                _uiDisplay = _renderDisplay.GetComponent<UnityUGUIDisplay>();
+                if (_uiDisplay == null)
+                {
+                    _uiDisplay = _renderDisplay.AddComponent<UnityUGUIDisplay>();
+                    _uiDisplay.raycastTarget = false;
+                }
+            }
+            else
+            {
+                _renderer = _renderDisplay.GetComponent<MeshRenderer>();
+                if (_renderer == null)
+                {
+                    _renderer = _renderDisplay.AddComponent<MeshRenderer>();
+                }
+                //
+                _meshFilter = _renderDisplay.GetComponent<MeshFilter>();
+                if (_meshFilter == null)
+                {
+                    _meshFilter = _renderDisplay.AddComponent<MeshFilter>();
+                }
+            }
+
+            //init mesh
+            if (_mesh == null)
+            {
+                _mesh = new Mesh();
+                _mesh.hideFlags = HideFlags.DontSaveInEditor | HideFlags.DontSaveInBuild;
+                _mesh.MarkDynamic();
+            }
         }
         /**
          * @private
@@ -313,30 +350,6 @@ namespace DragonBones
             var meshData = this._display == this._meshDisplay ? this._meshData : null;
             var currentTextureData = this._textureData as UnityTextureData;
 
-            if (_proxy.isUGUI)
-            {
-                _uiDisplay = _renderDisplay.GetComponent<UnityUGUIDisplay>();
-                if (_uiDisplay == null)
-                {
-                    _uiDisplay = _renderDisplay.AddComponent<UnityUGUIDisplay>();
-                    _uiDisplay.raycastTarget = false;
-                }
-            }
-            else
-            {
-                _renderer = _renderDisplay.GetComponent<MeshRenderer>();
-                if (_renderer == null)
-                {
-                    _renderer = _renderDisplay.AddComponent<MeshRenderer>();
-                }
-
-                _meshFilter = _renderDisplay.GetComponent<MeshFilter>();
-                if (_meshFilter == null)
-                {
-                    _meshFilter = _renderDisplay.AddComponent<MeshFilter>();
-                }
-            }
-
             if (this._displayIndex >= 0 && this._display != null && currentTextureData != null)
             {
                 var currentTextureAtlas = _proxy.isUGUI ? currentTextureAtlasData.uiTexture : currentTextureAtlasData.texture;
@@ -344,13 +357,6 @@ namespace DragonBones
                 {
                     var textureAtlasWidth = currentTextureAtlasData.width > 0.0f ? (int)currentTextureAtlasData.width : currentTextureAtlas.mainTexture.width;
                     var textureAtlasHeight = currentTextureAtlasData.height > 0.0f ? (int)currentTextureAtlasData.height : currentTextureAtlas.mainTexture.height;
-
-                    if (_mesh == null)
-                    {
-                        _mesh = new Mesh();
-                        _mesh.hideFlags = HideFlags.DontSaveInEditor | HideFlags.DontSaveInBuild;
-                        _mesh.MarkDynamic();
-                    }
 
                     var meshDisplay = this._mesh;
                     meshDisplay.Clear();
