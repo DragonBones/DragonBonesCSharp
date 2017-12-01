@@ -156,7 +156,7 @@ namespace DragonBones
         }
 
         /// <inheritDoc/>
-        override protected TextureAtlasData _BuildTextureAtlasData(TextureAtlasData textureAtlasData, object textureAtlas)
+        protected override TextureAtlasData _BuildTextureAtlasData(TextureAtlasData textureAtlasData, object textureAtlas)
         {
             if (textureAtlasData != null)
             {
@@ -184,7 +184,7 @@ namespace DragonBones
         }
 
         /// <private/>
-        override protected Armature _BuildArmature(BuildArmaturePackage dataPackage)
+        protected override Armature _BuildArmature(BuildArmaturePackage dataPackage)
         {
             var armature = BaseObject.BorrowObject<Armature>();
             var armatureDisplay = _armatureGameObject == null ? new GameObject(dataPackage.armature.name) : _armatureGameObject;
@@ -222,7 +222,7 @@ namespace DragonBones
             return armature;
         }
 
-        override protected Armature _BuildChildArmature(BuildArmaturePackage dataPackage, Slot slot, DisplayData displayData)
+        protected override Armature _BuildChildArmature(BuildArmaturePackage dataPackage, Slot slot, DisplayData displayData)
         {
             var childDisplayName = slot.slotData.name + " (" + displayData.path + ")"; //
             var proxy = slot.armature.proxy as UnityArmatureComponent;
@@ -255,7 +255,7 @@ namespace DragonBones
         }
 
         /// <private/>
-        override protected Slot _BuildSlot(BuildArmaturePackage dataPackage, SlotData slotData, List<DisplayData> displays, Armature armature)
+        protected override Slot _BuildSlot(BuildArmaturePackage dataPackage, SlotData slotData, List<DisplayData> displays, Armature armature)
         {
             var slot = BaseObject.BorrowObject<UnitySlot>();
             var displayList = new List<object>();

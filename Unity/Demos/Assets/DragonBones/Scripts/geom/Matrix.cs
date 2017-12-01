@@ -127,7 +127,7 @@ namespace DragonBones
         public Matrix()
         {
         }
-        override public string ToString()
+        public override string ToString()
         {
             return "[object DragonBones.Matrix] a:" + a + " b:" + b + " c:" + c + " d:" + d + " tx:" + tx + " ty:" + ty;
         }

@@ -95,7 +95,7 @@ namespace DragonBones
         /**
          * @private
          */
-        override protected void _OnClear()
+        protected override void _OnClear()
         {
             base._OnClear();
 
@@ -127,14 +127,14 @@ namespace DragonBones
         /**
          * @private
          */
-        override protected void _DisposeDisplay(object value)
+        protected override void _DisposeDisplay(object value)
         {
             UnityFactoryHelper.DestroyUnityObject(value as GameObject);
         }
         /**
          * @private
          */
-        override protected void _OnUpdateDisplay()
+        protected override void _OnUpdateDisplay()
         {
             _renderDisplay = (_display != null ? _display : _rawDisplay) as GameObject;
 
@@ -175,7 +175,7 @@ namespace DragonBones
         /**
          * @private
          */
-        override protected void _AddDisplay()
+        protected override void _AddDisplay()
         {
             _proxy = _armature.proxy as UnityArmatureComponent;
             var container = _proxy;
@@ -190,7 +190,7 @@ namespace DragonBones
         /**
          * @private
          */
-        override protected void _ReplaceDisplay(object value)
+        protected override void _ReplaceDisplay(object value)
         {
             var container = _proxy;
             var prevDisplay = value as GameObject;
@@ -207,14 +207,14 @@ namespace DragonBones
         /**
          * @private
          */
-        override protected void _RemoveDisplay()
+        protected override void _RemoveDisplay()
         {
             _renderDisplay.transform.parent = null;
         }
         /**
          * @private
          */
-        override protected void _UpdateZOrder()
+        protected override void _UpdateZOrder()
         {
             _helpVector3.Set(_renderDisplay.transform.localPosition.x, _renderDisplay.transform.localPosition.y, -_zOrder * (_proxy._zSpace + 0.001f));
 
@@ -275,14 +275,14 @@ namespace DragonBones
         /**
          * @private
          */
-        override internal void _UpdateVisible()
+        internal override void _UpdateVisible()
         {
             _renderDisplay.SetActive(_parent.visible);
         }
         /**
          * @private
          */
-        override internal void _UpdateBlendMode()
+        internal override void _UpdateBlendMode()
         {
             if (_currentBlendMode == _blendMode)
             {
@@ -314,7 +314,7 @@ namespace DragonBones
         /**
          * @private
          */
-        override protected void _UpdateColor()
+        protected override void _UpdateColor()
         {
             if (this._childArmature == null)
             {

@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System;
 
@@ -284,7 +284,7 @@ namespace DragonBones
         internal static List<float> Convert(this List<object> list)
         {
             List<float> res = new List<float>();
-            
+
             for (int i = 0; i < list.Count; i++)
             {
                 res[i] = float.Parse(list[i].ToString());
@@ -294,7 +294,7 @@ namespace DragonBones
         }
         internal static bool FloatEqual(float f0, float f1)
         {
-            float f = Math.Abs(f0 -f1);
+            float f = Math.Abs(f0 - f1);
 
             return (f < 0.000000001f);
         }
@@ -307,7 +307,7 @@ namespace DragonBones
         public static bool debug = false;
         public static bool debugDraw = false;
         public static readonly string VERSION = "5.6.1";
-        
+
         private readonly WorldClock _clock = new WorldClock();
         private readonly List<EventObject> _events = new List<EventObject>();
         private readonly List<BaseObject> _objects = new List<BaseObject>();
@@ -340,7 +340,7 @@ namespace DragonBones
                     var eventObject = this._events[i];
                     var armature = eventObject.armature;
                     if (armature._armatureData != null)
-                    { 
+                    {
                         // May be armature disposed before advanceTime.
                         armature.eventDispatcher.DispatchDBEvent(eventObject.type, eventObject);
                         if (eventObject.type == EventObject.SOUND_EVENT)

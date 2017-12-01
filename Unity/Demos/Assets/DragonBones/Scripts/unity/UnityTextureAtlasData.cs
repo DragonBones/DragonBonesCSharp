@@ -52,7 +52,7 @@ namespace DragonBones
         /**
          * @private
          */
-        override protected void _OnClear()
+        protected override void _OnClear()
         {
             base._OnClear();
 
@@ -73,7 +73,7 @@ namespace DragonBones
         /**
          * @private
          */
-        override public TextureData CreateTexture()
+        public override TextureData CreateTexture()
         {
             return BaseObject.BorrowObject<UnityTextureData>();
         }
