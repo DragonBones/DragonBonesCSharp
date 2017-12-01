@@ -372,6 +372,11 @@ namespace DragonBones
             }
         }
 
+        public static implicit operator bool(DragonBones exists)
+        {
+            return exists != null;
+        }
+
         public WorldClock clock
         {
             get { return this._clock; }

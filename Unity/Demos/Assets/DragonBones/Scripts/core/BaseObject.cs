@@ -221,5 +221,10 @@ namespace DragonBones
             _OnClear();
             _ReturnObject(this);
         }
+
+        public static implicit operator bool(BaseObject exists)
+        {
+            return exists != null;
+        }
     }
 }
