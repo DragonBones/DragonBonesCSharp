@@ -82,10 +82,10 @@ namespace DragonBones
     /// <private/>
     internal class UnityTextureData : TextureData
     {
-        public const string SHADER_GRAP = "Shaders/Grab";
-        public const string SHADER_FRAME_BUFFER = "Shaders/Framebuffer";
-        public const string UI_SHADER_GRAP = "Shaders/UIGrab";
-        public const string UI_SHADER_FRAME_BUFFER = "Shaders/UIFramebuffer";
+        public const string SHADER_GRAP = "Shaders/DB_BlendMode_Grab";
+        public const string SHADER_FRAME_BUFFER = "Shaders/DB_BlendMode_Framebuffer";
+        public const string UI_SHADER_GRAP = "Shaders/DB_BlendMode_UIGrab";
+        public const string UI_SHADER_FRAME_BUFFER = "Shaders/DB_BlendMode_UIFramebuffer";
 
         /// <summary>
         /// 叠加模式材质球的缓存池
@@ -134,7 +134,7 @@ namespace DragonBones
 #if UNITY_EDITOR
             var newMaterial = new Material(Resources.Load<Shader>(SHADER_GRAP));
 #else
-            var newMaterial = new Material(Resources.Load<Shader>(SHADER_FRAME_BUFFER));
+            var newMaterial = new Material(Resources.Load<Shader>(SHADER_GRAP));
 #endif
             newMaterial.hideFlags = HideFlags.HideAndDontSave;
             newMaterial.mainTexture = (this.parent as UnityTextureAtlasData).texture.mainTexture;
