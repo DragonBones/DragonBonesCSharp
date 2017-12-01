@@ -822,7 +822,7 @@ namespace DragonBones
             return armature;
         }
         /// <private/>
-        public void ReplaceDisplay(Slot slot, DisplayData displayData, int displayIndex = -1)
+        public virtual void ReplaceDisplay(Slot slot, DisplayData displayData, int displayIndex = -1)
         {
             if (displayIndex < 0)
             {
