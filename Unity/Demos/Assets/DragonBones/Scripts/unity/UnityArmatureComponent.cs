@@ -386,21 +386,7 @@ namespace DragonBones
 
                 _UpdateSlotsSorting();
             }
-        }
-        
-        public List<Slot> sortedSlots
-        {
-            get
-            {
-                if (_sortedSlots == null)
-                {
-                    _sortedSlots = new List<Slot>(_armature.GetSlots());
-                }
-
-                return _sortedSlots;
-            }
-        }
-        
+        }        
         /// <summary>
         /// - The armature color.
         /// </summary>
