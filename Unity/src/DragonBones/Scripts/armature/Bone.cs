@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace DragonBones
@@ -118,7 +118,7 @@ namespace DragonBones
         }
         /// <private/>
         private void _UpdateGlobalTransformMatrix(bool isCache)
-        {            
+        {
             var flipX = this._armature.flipX;
             var flipY = this._armature.flipY == DragonBones.yDown;
             var global = this.global;
@@ -188,7 +188,7 @@ namespace DragonBones
                         globalTransformMatrix.tx = global.x;
                         globalTransformMatrix.ty = global.y;
                     }
-                    
+
                     if (isCache)
                     {
                         global.FromMatrix(globalTransformMatrix);
@@ -271,7 +271,7 @@ namespace DragonBones
                 }
             }
             else
-            {                
+            {
                 if (flipX || flipY)
                 {
                     if (flipX)
@@ -427,7 +427,7 @@ namespace DragonBones
             else
             {
                 if (this._hasConstraint)
-                { 
+                {
                     // Update constraints.
                     foreach (var constraint in this._armature._constraints)
                     {
@@ -439,7 +439,7 @@ namespace DragonBones
                 }
 
                 if (this._transformDirty || (this._parent != null && this._parent._childrenTransformDirty))
-                { 
+                {
                     // Dirty.
                     cacheFrameIndex = -1;
                     this._transformDirty = true;
@@ -481,11 +481,16 @@ namespace DragonBones
         /// <private/>
         internal void UpdateByConstraint()
         {
-            if (this._localDirty && (this._transformDirty || (this._parent != null && this._parent._childrenTransformDirty)))
+            if (this._localDirty)
             {
                 this._localDirty = false;
+
+                if (this._transformDirty || (this._parent != null && this._parent._childrenTransformDirty))
+                {
+                    this._UpdateGlobalTransformMatrix(true);
+                }
+
                 this._transformDirty = true;
-                this._UpdateGlobalTransformMatrix(true);
             }
         }
         /// <summary>
@@ -567,7 +572,7 @@ namespace DragonBones
         {
             get { return this._boneData; }
         }
-       
+
         /// <summary>
         /// - The visible of all slots in the bone.
         /// </summary>
@@ -635,14 +640,14 @@ namespace DragonBones
         {
             get
             {
-                foreach(var slot in this._armature.GetSlots())
+                foreach (var slot in this._armature.GetSlots())
                 {
                     if (slot.parent == this)
                     {
                         return slot;
                     }
                 }
-                
+
                 return null;
             }
         }

@@ -34,8 +34,8 @@ namespace DragonBones
     public class UnitySlot : Slot
     {
         private static readonly int[] TRIANGLES = { 0, 1, 2, 0, 2, 3 };
-        private static Vector3 _helpVector3 = new Vector3();
         private static readonly Vector2[] _helpVector2s = { new Vector2(), new Vector2(), new Vector2(), new Vector2() };
+        private static Vector3 _helpVector3 = new Vector3();
 
         private bool _skewed;
         private UnityArmatureComponent _proxy;
@@ -52,38 +52,6 @@ namespace DragonBones
         private UnityUGUIDisplay _uiDisplay = null;
 
         private BlendMode _currentBlendMode;
-
-        public Mesh mesh
-        {
-            get { return _mesh; }
-        }
-
-        public MeshRenderer meshRenderer
-        {
-            get { return _renderer; }
-        }
-
-        public UnityTextureAtlasData currentTextureAtlasData
-        {
-            get
-            {
-                if (_textureData == null || _textureData.parent == null)
-                {
-                    return null;
-                }
-
-                return _textureData.parent as UnityTextureAtlasData;
-            }
-        }
-        public GameObject renderDisplay
-        {
-            get { return _renderDisplay; }
-        }
-
-        public UnityArmatureComponent proxy
-        {
-            get { return _proxy; }
-        }
 
         /**
          * @private
@@ -231,42 +199,44 @@ namespace DragonBones
                 _renderDisplay.transform.localPosition = zorderPos;
                 _renderDisplay.transform.SetSiblingIndex(_zOrder);
 
-                if (!_proxy.isUGUI)
+                if (_proxy.isUGUI)
                 {
-                    if (_childArmature == null)
+                    return;
+                }
+
+                if (_childArmature == null)
+                {
+                    if (_renderer == null)
                     {
+                        _renderer = _renderDisplay.GetComponent<MeshRenderer>();
                         if (_renderer == null)
                         {
-                            _renderer = _renderDisplay.GetComponent<MeshRenderer>();
-                            if (_renderer == null)
-                            {
-                                _renderer = _renderDisplay.AddComponent<MeshRenderer>();
-                            }
+                            _renderer = _renderDisplay.AddComponent<MeshRenderer>();
                         }
+                    }
 
-                        _renderer.sortingLayerName = _proxy.sortingLayerName;
-                        if (_proxy.sortingMode == SortingMode.SortByOrder)
-                        {
-                            _renderer.sortingOrder = _zOrder * UnityArmatureComponent.ORDER_SPACE;
-                        }
-                        else
-                        {
-                            _renderer.sortingOrder = _proxy.sortingOrder;
-                        }
+                    _renderer.sortingLayerName = _proxy.sortingLayerName;
+                    if (_proxy.sortingMode == SortingMode.SortByOrder)
+                    {
+                        _renderer.sortingOrder = _zOrder * UnityArmatureComponent.ORDER_SPACE;
                     }
                     else
                     {
-                        var childArmatureComp = childArmature.proxy as UnityArmatureComponent;
-                        childArmatureComp._sortingMode = _proxy._sortingMode;
-                        childArmatureComp._sortingLayerName = _proxy._sortingLayerName;
-                        if (_proxy._sortingMode == SortingMode.SortByOrder)
-                        {
-                            childArmatureComp._sortingOrder = _zOrder * UnityArmatureComponent.ORDER_SPACE; ;
-                        }
-                        else
-                        {
-                            childArmatureComp._sortingOrder = _proxy._sortingOrder;
-                        }
+                        _renderer.sortingOrder = _proxy.sortingOrder;
+                    }
+                }
+                else
+                {
+                    var childArmatureComp = childArmature.proxy as UnityArmatureComponent;
+                    childArmatureComp._sortingMode = _proxy._sortingMode;
+                    childArmatureComp._sortingLayerName = _proxy._sortingLayerName;
+                    if (_proxy._sortingMode == SortingMode.SortByOrder)
+                    {
+                        childArmatureComp._sortingOrder = _zOrder * UnityArmatureComponent.ORDER_SPACE; ;
+                    }
+                    else
+                    {
+                        childArmatureComp._sortingOrder = _proxy._sortingOrder;
                     }
                 }
             }
@@ -325,13 +295,15 @@ namespace DragonBones
                         _colors = new Color32[_mesh.vertexCount];
                     }
 
+                    var proxyTrans = _proxy._colorTransform;
                     for (int i = 0, l = _mesh.vertexCount; i < l; ++i)
                     {
-                        _colors[i].r = (byte)(_colorTransform.redMultiplier * _proxy._colorTransform.redMultiplier * 255);
-                        _colors[i].g = (byte)(_colorTransform.greenMultiplier * _proxy._colorTransform.greenMultiplier * 255);
-                        _colors[i].b = (byte)(_colorTransform.blueMultiplier * _proxy._colorTransform.blueMultiplier * 255);
-                        _colors[i].a = (byte)(_colorTransform.alphaMultiplier * _proxy._colorTransform.alphaMultiplier * 255);
+                        _colors[i].r = (byte)(_colorTransform.redMultiplier * proxyTrans.redMultiplier * 255);
+                        _colors[i].g = (byte)(_colorTransform.greenMultiplier * proxyTrans.greenMultiplier * 255);
+                        _colors[i].b = (byte)(_colorTransform.blueMultiplier * proxyTrans.blueMultiplier * 255);
+                        _colors[i].a = (byte)(_colorTransform.alphaMultiplier * proxyTrans.alphaMultiplier * 255);
                     }
+                    //
                     _mesh.colors32 = _colors;
                 }
             }
@@ -807,6 +779,39 @@ namespace DragonBones
                 _normals = null;
                 _normalVal.z = 0f;
             }
+        }
+
+        public Mesh mesh
+        {
+            get { return _mesh; }
+        }
+
+        public MeshRenderer meshRenderer
+        {
+            get { return _renderer; }
+        }
+
+        public UnityTextureAtlasData currentTextureAtlasData
+        {
+            get
+            {
+                if (_textureData == null || _textureData.parent == null)
+                {
+                    return null;
+                }
+
+                return _textureData.parent as UnityTextureAtlasData;
+            }
+        }
+        
+        public GameObject renderDisplay
+        {
+            get { return _renderDisplay; }
+        }
+
+        public UnityArmatureComponent proxy
+        {
+            get { return _proxy; }
         }
     }
 }
