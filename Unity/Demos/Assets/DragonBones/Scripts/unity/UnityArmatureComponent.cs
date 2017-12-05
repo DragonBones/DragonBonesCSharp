@@ -147,8 +147,6 @@ namespace DragonBones
         [SerializeField]
         protected bool _flipY = false;
 
-        private List<Slot> _sortedSlots = null;
-
         private bool _hasSortingGroup = false;
         /// <private/>
         public void DBClear()
@@ -182,7 +180,6 @@ namespace DragonBones
             _zSpace = 0.0f;
             _flipX = false;
             _flipY = false;
-            _sortedSlots = null;
 
             _hasSortingGroup = false;
         }
@@ -620,7 +617,6 @@ namespace DragonBones
             }
 
             unityBones = null;
-            _sortedSlots = null;
             _disposeProxy = true;
             _armature = null;
         }
