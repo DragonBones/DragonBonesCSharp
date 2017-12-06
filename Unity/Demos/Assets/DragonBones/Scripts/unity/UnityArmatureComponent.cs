@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -85,10 +85,6 @@ namespace DragonBones
     {
         public const int ORDER_SPACE = 10;
         /// <private/>
-        private bool _disposeProxy = true;
-        /// <private/>
-        internal Armature _armature = null;
-        /// <private/>
         public UnityDragonBonesData unityData = null;
         /// <private/>
         public string armatureName = null;
@@ -106,6 +102,7 @@ namespace DragonBones
         public bool isUGUI = false;
         ///<private/>
         public bool addNormal = false;
+        public bool debugDraw = false;
         public GameObject bonesRoot;
         public List<UnityBone> unityBones = null;
         /// <summary>
@@ -125,6 +122,10 @@ namespace DragonBones
 
         /// <private/>
         public string animationName = null;
+        /// <private/>
+        private bool _disposeProxy = true;
+        /// <private/>
+        internal Armature _armature = null;
         [Tooltip("0 : Loop")]
         [Range(0, 100)]
         [SerializeField]
@@ -148,6 +149,7 @@ namespace DragonBones
         protected bool _flipY = false;
 
         private bool _hasSortingGroup = false;
+        private Material _debugDrawer;
         /// <private/>
         public void DBClear()
         {
@@ -161,16 +163,17 @@ namespace DragonBones
                 }
             }
 
-            _disposeProxy = true;
-            _armature = null;
             unityData = null;
             armatureName = null;
             animationName = null;
             isUGUI = false;
             addNormal = false;
+            debugDraw = false;
             unityBones = null;
             boneHierarchy = false;
 
+            _disposeProxy = true;
+            _armature = null;
             _colorTransform.Identity();
             _sortingMode = SortingMode.SortByZ;
             _sortingLayerName = "Default";
@@ -182,6 +185,8 @@ namespace DragonBones
             _flipY = false;
 
             _hasSortingGroup = false;
+
+            _debugDrawer = null;
         }
         ///
         public void DBInit(Armature armature)
@@ -191,6 +196,142 @@ namespace DragonBones
 
         public void DBUpdate()
         {
+            
+        }
+
+        void CreateLineMaterial()
+        {
+            if (!_debugDrawer)
+            {
+                // Unity has a built-in shader that is useful for drawing
+                // simple colored things.
+                Shader shader = Shader.Find("Hidden/Internal-Colored");
+                _debugDrawer = new Material(shader);
+                _debugDrawer.hideFlags = HideFlags.HideAndDontSave;
+                // Turn on alpha blending
+                _debugDrawer.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                _debugDrawer.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                // Turn backface culling off
+                _debugDrawer.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
+                // Turn off depth writes
+                _debugDrawer.SetInt("_ZWrite", 0);
+            }
+        }
+
+        void OnRenderObject()
+        {
+            var drawed = DragonBones.debugDraw || this.debugDraw;
+            if (drawed)
+            {
+                Color boneLineColor = new Color(0.0f, 1.0f, 1.0f, 0.7f);
+                Color boundingBoxLineColor = new Color(1.0f, 0.0f, 1.0f, 1.0f);
+                CreateLineMaterial();
+                // Apply the line material
+                _debugDrawer.SetPass(0);
+
+                GL.PushMatrix();
+                // Set transformation matrix for drawing to
+                // match our transform
+                //
+                var bones = this._armature.GetBones();
+                var offset = 0.02f;
+                // draw bone line
+                for (int i = 0; i < bones.Count; i++)
+                {
+                    var bone = bones[i];
+                    var boneLength = System.Math.Max(bone.boneData.length, offset);
+
+                    var startPos = new Vector3(bone.globalTransformMatrix.tx, bone.globalTransformMatrix.ty, 0.0f);
+                    var endPos = new Vector3(bone.globalTransformMatrix.a * boneLength, bone.globalTransformMatrix.b * boneLength, 0.0f) + startPos;
+
+                    var torwardDir = (startPos - endPos).normalized;
+                    var leftStartPos = Quaternion.AngleAxis(90, Vector3.forward) * torwardDir * offset + startPos;
+                    var rightStartPos = Quaternion.AngleAxis(-90, Vector3.forward) * torwardDir * offset + startPos;
+                    var newStartPos = startPos + torwardDir * offset;
+                    //
+                    GL.Begin(GL.LINES);
+                    GL.Color(boneLineColor);
+                    GL.Vertex(leftStartPos);
+                    GL.Vertex(rightStartPos);
+                    GL.End();
+                    GL.Begin(GL.LINES);
+                    GL.Color(boneLineColor);
+                    GL.Vertex(newStartPos);
+                    GL.Vertex(endPos);
+                    GL.End();
+                }
+
+                // draw boundingBox
+                var scale = _armature.armatureData.scale;
+                Point result = new Point();
+                var slots = this._armature.GetSlots();
+                for (int i = 0; i < slots.Count; i++)
+                {
+                    var slot = slots[i] as UnitySlot;
+                    var boundingBoxData = slot.boundingBoxData;
+
+                    if (boundingBoxData == null)
+                    {
+                        continue;
+                    }
+
+                    var bone = slot.parent;
+
+                    slot.UpdateTransformAndMatrix();
+                    slot.UpdateGlobalTransform();
+                    //
+                    switch (boundingBoxData.type)
+                    {
+                        case BoundingBoxType.Rectangle:
+                            {
+                                //
+                                GL.Begin(GL.LINE_STRIP);
+                                GL.Color(boundingBoxLineColor);
+                                var tx = slot.globalTransformMatrix.tx;
+                                var ty = slot.globalTransformMatrix.ty;
+
+                                var leftTopPos = new Vector3(tx - boundingBoxData.width * scale * 0.5f, ty + boundingBoxData.height * scale * 0.5f, 0.0f);
+                                var leftBottomPos = new Vector3(tx - boundingBoxData.width * scale * 0.5f, ty - boundingBoxData.height * scale * 0.5f, 0.0f);
+                                var rightTopPos = new Vector3(tx + boundingBoxData.width * scale * 0.5f, ty + boundingBoxData.height * scale * 0.5f, 0.0f);
+                                var rightBottomPos = new Vector3(tx + boundingBoxData.width * scale * 0.5f, ty - boundingBoxData.height * scale * 0.5f, 0.0f);
+
+                                GL.Vertex(leftTopPos);
+                                GL.Vertex(rightTopPos);
+                                GL.Vertex(rightBottomPos);
+                                GL.Vertex(leftBottomPos);
+                                GL.Vertex(leftTopPos);
+
+                                GL.End();
+                            }
+                            break;
+                        case BoundingBoxType.Ellipse:
+                            {
+
+                            }
+                            break;
+                        case BoundingBoxType.Polygon:
+                            {
+                                var vertices = (boundingBoxData as PolygonBoundingBoxData).vertices;
+                                GL.Begin(GL.LINE_STRIP);
+                                GL.Color(boundingBoxLineColor);
+                                for (var j = 0; j < vertices.Count; j += 2)
+                                {
+                                    slot.globalTransformMatrix.TransformPoint(vertices[j] * scale, vertices[j + 1] * scale, result);
+                                    GL.Vertex3(result.x, result.y, 0.0f);
+                                }
+
+                                slot.globalTransformMatrix.TransformPoint(vertices[0] * scale, vertices[1] * scale, result);
+                                GL.Vertex3(result.x, result.y, 0.0f);
+                                GL.End();
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                GL.PopMatrix();
+            }
 
         }
 
@@ -261,13 +402,13 @@ namespace DragonBones
                     return;
                 }
 
-                #if UNITY_5_6_OR_NEWER
+#if UNITY_5_6_OR_NEWER
                 var isWarning = false;
-                #else
+#else
                 var isWarning = value == SortingMode.SortByOrder;
-                #endif
+#endif
 
-                if(isWarning)
+                if (isWarning)
                 {
                     LogHelper.LogWarning("SortingMode.SortByOrder is userd by Unity 5.6 or highter only.");
                     return;
@@ -276,11 +417,11 @@ namespace DragonBones
                 _sortingMode = value;
 
                 //
-                #if UNITY_5_6_OR_NEWER
-                if(_sortingMode == SortingMode.SortByOrder)
+#if UNITY_5_6_OR_NEWER
+                if (_sortingMode == SortingMode.SortByOrder)
                 {
                     _sortingGroup = GetComponent<UnityEngine.Rendering.SortingGroup>();
-                    if(_sortingGroup == null)
+                    if (_sortingGroup == null)
                     {
                         _sortingGroup = gameObject.AddComponent<UnityEngine.Rendering.SortingGroup>();
                     }
@@ -289,12 +430,12 @@ namespace DragonBones
                 {
                     _sortingGroup = GetComponent<UnityEngine.Rendering.SortingGroup>();
 
-                    if(_sortingGroup != null)
+                    if (_sortingGroup != null)
                     {
                         DestroyImmediate(_sortingGroup);
                     }
                 }
-                #endif
+#endif
 
                 _UpdateSlotsSorting();
             }
@@ -383,7 +524,7 @@ namespace DragonBones
 
                 _UpdateSlotsSorting();
             }
-        }        
+        }
         /// <summary>
         /// - The armature color.
         /// </summary>
@@ -408,7 +549,7 @@ namespace DragonBones
                 }
             }
         }
-        
+
 
 #if UNITY_5_6_OR_NEWER
         internal UnityEngine.Rendering.SortingGroup _sortingGroup;
@@ -460,9 +601,9 @@ namespace DragonBones
                 }
             }
 
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             EditorUtility.SetDirty(this);
-            #endif
+#endif
 
             _UpdateSlotsSorting();
         }
@@ -503,7 +644,7 @@ namespace DragonBones
 
                 slot._SetZorder(new Vector3(display.transform.localPosition.x, display.transform.localPosition.y, -slot._zOrder * (_zSpace + 0.001f)));
 
-                if(slot.childArmature != null)
+                if (slot.childArmature != null)
                 {
                     (slot.childArmature.proxy as UnityArmatureComponent)._UpdateSlotsSorting();
                 }
@@ -577,7 +718,7 @@ namespace DragonBones
             _flipX = _armature.flipX;
             _flipY = _armature.flipY;
 
-            #if UNITY_5_6_OR_NEWER
+#if UNITY_5_6_OR_NEWER
             var hasSortingGroup = GetComponent<UnityEngine.Rendering.SortingGroup>() != null;
             if (hasSortingGroup != _hasSortingGroup)
             {
@@ -585,7 +726,7 @@ namespace DragonBones
 
                 _UpdateSortingGroup();
             }
-            #endif
+#endif
 
             if (unityBones != null)
             {
