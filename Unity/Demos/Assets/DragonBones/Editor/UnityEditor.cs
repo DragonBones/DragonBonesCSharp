@@ -343,7 +343,7 @@ namespace DragonBones
                 if (dragonBonesAsset.text == "DBDT")
                 {
                     int headerLength  = 0;
-                    jsonObject = JsonHelper.DeserializeBinaryJsonData(dragonBonesAsset.bytes, out headerLength);
+                    jsonObject = BinaryDataParser.DeserializeBinaryJsonData(dragonBonesAsset.bytes, out headerLength);
                 }
                 else
                 {

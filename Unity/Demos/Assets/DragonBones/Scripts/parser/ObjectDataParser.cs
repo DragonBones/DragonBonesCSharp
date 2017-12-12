@@ -1892,7 +1892,7 @@ namespace DragonBones
                 this._frameIntArray[frameIntOffset + (int)BinaryOffset.FFDTimelineFFDCount] = (short)(this._frameFloatArray.Count - frameFloatOffset);
                 this._frameIntArray[frameIntOffset + (int)BinaryOffset.FFDTimelineValueCount] = (short)(this._frameFloatArray.Count - frameFloatOffset);
                 this._frameIntArray[frameIntOffset + (int)BinaryOffset.FFDTimelineValueOffset] = 0;
-                this._frameIntArray[frameIntOffset + (int)BinaryOffset.FFDTimelineFloatOffset] = (short)frameFloatOffset;
+                this._frameIntArray[frameIntOffset + (int)BinaryOffset.FFDTimelineFloatOffset] = (short)(frameFloatOffset - this._animation.frameFloatOffset);// fixed ffd timeline mesh bound
                 this._timelineArray[(int)this._timeline.offset + (int)BinaryOffset.TimelineFrameValueCount] = (ushort)(frameIntOffset - this._animation.frameIntOffset);
             }
 

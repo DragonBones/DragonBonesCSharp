@@ -522,7 +522,7 @@ namespace DragonBones
                                         if (!ffdFlags.Contains(meshOffset))
                                         {
                                             var timeline = BaseObject.BorrowObject<SlotFFDTimelineState>();
-                                            timeline.meshOffset = (uint)meshOffset; //
+                                            timeline.meshOffset = meshOffset; //
                                             timeline.slot = slot;
                                             timeline.Init(this._armature, this, null);
                                             this._slotTimelines.Add(timeline);
@@ -1175,7 +1175,7 @@ namespace DragonBones
                 {
                     if (this._boneMask.IndexOf(bone.name) < 0 && currentBone.Contains(bone))
                     {
-                    this._boneMask.Add(bone.name);
+                        this._boneMask.Add(bone.name);
                     }
                 }
             }

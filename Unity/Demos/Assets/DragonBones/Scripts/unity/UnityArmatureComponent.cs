@@ -64,19 +64,7 @@ namespace DragonBones
         /// </summary>
         /// <version>DragonBones 4.5</version>
         /// <language>zh_CN</language>
-        SortByOrder,
-        /// <summary>
-        /// Adding a SortingGroup component to a GameObject will ensure that all Renderers within the GameObject's descendants will be sorted and rendered together.
-        /// </summary>
-        /// <version>DragonBones 4.5</version>
-        /// <language>en_US</language>
-        /// 
-        /// <summary>
-        /// 使用Sorting Group组件，可以在同一个Sorting Layer内将一组对象和其他对象分开来渲染。它会确保同一组下渲染的所有子对象一起被排序，这对管理复杂的场景非常有用。
-        /// </summary>
-        /// <version>DragonBones 4.5</version>
-        /// <language>zh_CN</language>
-        //SortByGroup,
+        SortByOrder
     }
 
     ///<inheritDoc/>

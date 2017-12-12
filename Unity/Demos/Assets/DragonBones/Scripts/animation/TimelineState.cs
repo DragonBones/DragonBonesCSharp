@@ -711,7 +711,7 @@ namespace DragonBones
 
                 if (colorOffset < 0)
                 {
-                    colorOffset += short.MaxValue;// Fixed out of bouds bug. 
+                    colorOffset += 65536;// Fixed out of bouds bug. 
                 }
 
                 this._current[0] = intArray[colorOffset++];
@@ -736,7 +736,7 @@ namespace DragonBones
 
                     if (colorOffset < 0)
                     {
-                        colorOffset += short.MaxValue;
+                        colorOffset += 65536;
                     }
 
                     this._delta[0] = intArray[colorOffset++] - this._current[0];
@@ -855,7 +855,7 @@ namespace DragonBones
     /// <private/>
     internal class SlotFFDTimelineState : SlotTimelineState
     {
-        public uint meshOffset;
+        public int meshOffset;
 
         private bool _dirty;
         private int _frameFloatOffset;
@@ -944,7 +944,12 @@ namespace DragonBones
             if (this._timelineData != null)
             {
                 var frameIntOffset = this._animationData.frameIntOffset + this._timelineArray[this._timelineData.offset + (int)BinaryOffset.TimelineFrameValueCount];
-                this.meshOffset = (uint)this._frameIntArray[frameIntOffset + (int)BinaryOffset.FFDTimelineMeshOffset];
+                this.meshOffset = this._frameIntArray[frameIntOffset + (int)BinaryOffset.FFDTimelineMeshOffset];
+
+                if (this.meshOffset < 0) {
+                    this.meshOffset += 65536; // Fixed out of bouds bug. 
+                }
+
                 this._ffdCount = this._frameIntArray[frameIntOffset + (int)BinaryOffset.FFDTimelineFFDCount];
                 this._valueCount = this._frameIntArray[frameIntOffset + (int)BinaryOffset.FFDTimelineValueCount];
                 this._valueOffset = this._frameIntArray[frameIntOffset + (int)BinaryOffset.FFDTimelineValueOffset];

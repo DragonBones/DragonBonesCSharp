@@ -1120,46 +1120,4 @@ namespace DragonBones
             UnityEngine.Debug.LogWarning("[DragonBones]" + message);
         }
     }
-
-    public static class JsonHelper
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="bytes"></param>
-        /// <param name="jsonParse"></param>
-        /// <returns></returns>
-        public static Dictionary<string, object> DeserializeBinaryJsonData(byte[] bytes, out int headerLength, BinaryDataParser.JsonParseDelegate jsonParse = null)
-        {
-            headerLength = 0;
-            Dictionary<string, object> result = null;
-            using (System.IO.MemoryStream ms = new System.IO.MemoryStream(bytes))
-            using (BinaryDataReader reader = new BinaryDataReader(ms))
-            {
-                ms.Position = 0;
-                byte[] tag = reader.ReadBytes(8);
-
-                byte[] array = System.Text.Encoding.ASCII.GetBytes("DBDT");
-
-                if (tag[0] != array[0] ||
-                     tag[1] != array[1] ||
-                     tag[2] != array[2] ||
-                     tag[3] != array[3])
-                {
-                    Helper.Assert(false, "Nonsupport data.");
-                    return null;
-                }
-
-                headerLength = (int)reader.ReadUInt32();
-                var headerBytes = reader.ReadBytes(headerLength);
-                var headerString = System.Text.Encoding.UTF8.GetString(headerBytes);
-                result = jsonParse != null ? jsonParse(headerString) as Dictionary<string, object> : MiniJSON.Json.Deserialize(headerString) as Dictionary<string, object>;
-
-                reader.Close();
-                ms.Dispose();
-            }
-
-            return result;
-        }
-    }
 }
