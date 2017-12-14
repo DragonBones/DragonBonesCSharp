@@ -36,7 +36,7 @@ namespace DragonBones
             {
                 var frameOffset = this._animationData.frameOffset + this._timelineArray[(this._timelineData as TimelineData).offset + (int)BinaryOffset.TimelineFrameOffset + frameIndex];
                 var actionCount = this._frameArray[frameOffset + 1];
-                var actions = this._armature.armatureData.actions;
+                var actions = this._animationData.parent.actions; // May be the animaton data not belong to this armature data.
 
                 for (var i = 0; i < actionCount; ++i)
                 {

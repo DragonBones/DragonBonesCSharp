@@ -992,10 +992,11 @@ namespace DragonBones
 
                 vertices.ResizeList(rawVertices.Count, 0.0f);
 
+                float scale = this._armature.scale;
                 for (int i = 0, l = rawVertices.Count; i < l; i += 2)
                 {
-                    var x = rawVertices[i];
-                    var y = rawVertices[i + 1];
+                    var x = rawVertices[i] * scale;
+                    var y = rawVertices[i + 1] * scale;
 
                     vertices[i] = x;
                     vertices[i + 1] = y;
