@@ -220,18 +220,18 @@ namespace DragonBones
                 GL.PushMatrix();
                 // Set transformation matrix for drawing to
                 // match our transform
+                GL.MultMatrix(transform.localToWorldMatrix);
                 //
                 var bones = this._armature.GetBones();
                 var offset = 0.02f;
-                var armatureCompScale = this.transform.localScale;
                 // draw bone line
                 for (int i = 0; i < bones.Count; i++)
                 {
                     var bone = bones[i];
                     var boneLength = System.Math.Max(bone.boneData.length, offset);
 
-                    var startPos = new Vector3(bone.globalTransformMatrix.tx * armatureCompScale.x, bone.globalTransformMatrix.ty * armatureCompScale.y, 0.0f);
-                    var endPos = new Vector3(bone.globalTransformMatrix.a * armatureCompScale.x * boneLength, bone.globalTransformMatrix.b * armatureCompScale.y * boneLength, 0.0f) + startPos;
+                    var startPos = new Vector3(bone.globalTransformMatrix.tx, bone.globalTransformMatrix.ty, 0.0f);
+                    var endPos = new Vector3(bone.globalTransformMatrix.a * boneLength, bone.globalTransformMatrix.b * boneLength, 0.0f) + startPos;
 
                     var torwardDir = (startPos - endPos).normalized;
                     var leftStartPos = Quaternion.AngleAxis(90, Vector3.forward) * torwardDir * offset + startPos;
@@ -268,10 +268,10 @@ namespace DragonBones
                     slot.UpdateTransformAndMatrix();
                     slot.UpdateGlobalTransform();
 
-                    var tx = slot.globalTransformMatrix.tx * armatureCompScale.x;
-                    var ty = slot.globalTransformMatrix.ty * armatureCompScale.y;
-                    var boundingBoxWidth = boundingBoxData.width * armatureCompScale.x;
-                    var boundingBoxHeight = boundingBoxData.height * armatureCompScale.y;
+                    var tx = slot.globalTransformMatrix.tx;
+                    var ty = slot.globalTransformMatrix.ty;
+                    var boundingBoxWidth = boundingBoxData.width;
+                    var boundingBoxHeight = boundingBoxData.height;
                     //
                     switch (boundingBoxData.type)
                     {
@@ -308,11 +308,11 @@ namespace DragonBones
                                 for (var j = 0; j < vertices.Count; j += 2)
                                 {
                                     slot.globalTransformMatrix.TransformPoint(vertices[j], vertices[j + 1], result);
-                                    GL.Vertex3(result.x * armatureCompScale.x, result.y * armatureCompScale.y, 0.0f);
+                                    GL.Vertex3(result.x, result.y, 0.0f);
                                 }
 
                                 slot.globalTransformMatrix.TransformPoint(vertices[0], vertices[1], result);
-                                GL.Vertex3(result.x * armatureCompScale.x, result.y * armatureCompScale.y, 0.0f);
+                                GL.Vertex3(result.x, result.y, 0.0f);
                                 GL.End();
                             }
                             break;
