@@ -14,11 +14,13 @@ public abstract class BaseDemo : MonoBehaviour
     private readonly List<GameObject> _dragTargets = new List<GameObject>();
 
     protected bool _isTouched = false;
-    // private Vector3 _touchPosition = Vector3.zero;
-    // private Vector3 _touchOffset = Vector3.zero;
+    protected Vector3 _touchPosition = Vector3.zero;
+    protected Vector3 _touchOffset = Vector3.zero;
 
     private GameObject _currentDragTarget;
+    private Vector3 _worldPosition;
     private Vector3 _screenPosition;
+    protected Vector3 _dragOffsetPosition;
     private Vector3 _offset;
     void Start()
     {
@@ -34,10 +36,16 @@ public abstract class BaseDemo : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             this._isTouched = true;
+            this._touchPosition = Input.mousePosition;
+            this._touchOffset = Vector3.zero;
+
+            //QQ
+            // UnityEngine.Debug.Log("posY:" + this._touchPosition.y);
             //
             this._currentDragTarget = GetClickTarget();
             if (this._currentDragTarget != null)
             {
+                this._worldPosition = this._currentDragTarget.transform.position;
                 this._screenPosition = Camera.main.WorldToScreenPoint(this._currentDragTarget.transform.position);
                 this._offset = this._currentDragTarget.transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, this._screenPosition.z));
             }
@@ -49,18 +57,26 @@ public abstract class BaseDemo : MonoBehaviour
         {
             this._isTouched = false;
 
+            this._touchPosition = Vector3.zero;
+            this._touchOffset = Vector3.zero;
+
             this._currentDragTarget = null;
+            this._dragOffsetPosition = Vector3.zero;
             this.OnTouch(TouchType.TOUCH_END);
         }
         //
         if (this._isTouched)
         {
+            this._touchOffset = Input.mousePosition - this._touchPosition;
+            // UnityEngine.Debug.Log("moveY:" + Input.mousePosition.y);
             if (this._currentDragTarget != null)
             {
                 Vector3 currentScreenSpace = new Vector3(Input.mousePosition.x, Input.mousePosition.y, this._screenPosition.z);
                 Vector3 currentPosition = Camera.main.ScreenToWorldPoint(currentScreenSpace) + this._offset;
                 currentPosition.z = this._currentDragTarget.transform.localPosition.z;
                 this._currentDragTarget.transform.localPosition = currentPosition;
+
+                this._dragOffsetPosition = currentPosition - this._worldPosition;
             }
 
             this.OnTouch(TouchType.TOUCH_MOVE);
