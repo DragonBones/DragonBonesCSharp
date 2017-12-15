@@ -135,7 +135,7 @@ namespace DragonBones
                     }
                     else
                     {
-                        this.currentTime = this._duration;
+                        this.currentTime = this._duration + 0.000001f; // Precision problem
                     }
                 }
                 else
@@ -148,12 +148,12 @@ namespace DragonBones
                     if (passedTime < 0.0f)
                     {
                         passedTime = -passedTime;
-                        this.currentPlayTimes = (int)Math.Floor(passedTime / this._duration);
+                        this.currentPlayTimes = (int)(passedTime / this._duration);
                         this.currentTime = this._duration - (passedTime % this._duration);
                     }
                     else
                     {
-                        this.currentPlayTimes = (int)Math.Floor(passedTime / this._duration);
+                        this.currentPlayTimes = (int)(passedTime / this._duration);
                         this.currentTime = passedTime % this._duration;
                     }
                 }

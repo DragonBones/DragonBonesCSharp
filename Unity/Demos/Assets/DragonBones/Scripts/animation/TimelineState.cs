@@ -172,7 +172,7 @@ namespace DragonBones
                 if (this._frameCount > 1)
                 {
                     var timelineData = this._timelineData as TimelineData;
-                    var timelineFrameIndex = (uint)Math.Floor(this.currentTime * this._frameRate); // uint
+                    var timelineFrameIndex = (uint)(this.currentTime * this._frameRate); // uint
                     var frameIndex = (int)this._frameIndices[timelineData.frameIndicesOffset + timelineFrameIndex];
                     if (this._frameIndex != frameIndex)
                     {
@@ -186,7 +186,7 @@ namespace DragonBones
                             {
                                 if (crossedFrameIndex < 0)
                                 {
-                                    var prevFrameIndex = (int)Math.Floor(prevTime * this._frameRate);
+                                    var prevFrameIndex = (int)(prevTime * this._frameRate);
                                     crossedFrameIndex = (int)this._frameIndices[timelineData.frameIndicesOffset + prevFrameIndex];
                                     if (this.currentPlayTimes == prevPlayTimes)
                                     {
@@ -236,7 +236,7 @@ namespace DragonBones
                             {
                                 if (crossedFrameIndex < 0)
                                 {
-                                    var prevFrameIndex = (int)Math.Floor(prevTime * this._frameRate);
+                                    var prevFrameIndex = (int)(prevTime * this._frameRate);
                                     crossedFrameIndex = (int)this._frameIndices[timelineData.frameIndicesOffset + prevFrameIndex];
                                     var frameOffset = this._animationData.frameOffset + this._timelineArray[timelineData.offset + (int)BinaryOffset.TimelineFrameOffset + crossedFrameIndex];
                                     // const framePosition = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
