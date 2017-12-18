@@ -14,14 +14,12 @@ public abstract class BaseDemo : MonoBehaviour
     private readonly List<GameObject> _dragTargets = new List<GameObject>();
 
     protected bool _isTouched = false;
-    protected Vector3 _touchPosition = Vector3.zero;
-    protected Vector3 _touchOffset = Vector3.zero;
 
     private GameObject _currentDragTarget;
-    private Vector3 _worldPosition;
-    private Vector3 _screenPosition;
-    protected Vector3 _dragOffsetPosition;
-    private Vector3 _offset;
+    private Vector3 _startDragWorldPosition;
+    private Vector3 _startDragScreenPosition;
+    private Vector3 _currentDragWorldPosition;
+    private Vector3 _dragOffset;
 
     void Start()
     {
@@ -35,15 +33,13 @@ public abstract class BaseDemo : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             StartCoroutine("DragDelay");
-            this._touchPosition = Input.mousePosition;
-            this._touchOffset = Vector3.zero;
             //
-            this._currentDragTarget = GetClickTarget();
+            this._currentDragTarget = this.GetClickTarget();
             if (this._currentDragTarget != null)
             {
-                this._worldPosition = this._currentDragTarget.transform.localPosition;
-                this._screenPosition = Camera.main.WorldToScreenPoint(this._currentDragTarget.transform.localPosition);
-                this._offset = this._currentDragTarget.transform.localPosition - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, this._screenPosition.z));
+                this._startDragWorldPosition = this._currentDragTarget.transform.localPosition;
+                this._startDragScreenPosition = Camera.main.WorldToScreenPoint(this._currentDragTarget.transform.localPosition);
+                this._dragOffset = this._currentDragTarget.transform.localPosition - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, this._startDragScreenPosition.z));
             }
 
             this.OnTouch(TouchType.TOUCH_BEGIN);
@@ -52,27 +48,26 @@ public abstract class BaseDemo : MonoBehaviour
         if (Input.GetMouseButtonUp(0))
         {
             StopCoroutine("DragDelay");
+            //
             this._isTouched = false;
-
-            this._touchPosition = Vector3.zero;
-            this._touchOffset = Vector3.zero;
-
             this._currentDragTarget = null;
-            this._dragOffsetPosition = Vector3.zero;
+            this._startDragWorldPosition = Vector3.zero;
+            this._currentDragWorldPosition = Vector3.zero;
+
             this.OnTouch(TouchType.TOUCH_END);
         }
         //
         if (this._isTouched)
         {
-            this._touchOffset = Input.mousePosition - this._touchPosition;
             if (this._currentDragTarget != null)
             {
-                Vector3 currentScreenSpace = new Vector3(Input.mousePosition.x, Input.mousePosition.y, this._screenPosition.z);
-                Vector3 currentPosition = Camera.main.ScreenToWorldPoint(currentScreenSpace) + this._offset;
-                currentPosition.z = this._currentDragTarget.transform.localPosition.z;
-                this._currentDragTarget.transform.localPosition = currentPosition;
-
-                this._dragOffsetPosition = currentPosition - this._worldPosition;
+                Vector3 currentScreenPosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, this._startDragScreenPosition.z);
+                //
+                this._currentDragWorldPosition = Camera.main.ScreenToWorldPoint(currentScreenPosition) + this._dragOffset;
+                this._currentDragWorldPosition.z = this._currentDragTarget.transform.localPosition.z;
+                this._currentDragTarget.transform.localPosition = this._currentDragWorldPosition;
+                //
+                this.OnDrag(this._currentDragTarget, this._startDragWorldPosition, this._currentDragWorldPosition);
             }
 
             this.OnTouch(TouchType.TOUCH_MOVE);
@@ -84,6 +79,7 @@ public abstract class BaseDemo : MonoBehaviour
     protected virtual void OnStart() { }
     protected virtual void OnUpdate() { }
     protected virtual void OnTouch(TouchType type) { }
+    protected virtual void OnDrag(GameObject target, Vector3 startDragPos, Vector3 currentDragPos) {}
 
     protected void EnableDrag(GameObject target)
     {

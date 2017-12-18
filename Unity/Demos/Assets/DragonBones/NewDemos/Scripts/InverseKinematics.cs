@@ -35,7 +35,6 @@ public class InverseKinematics : BaseDemo
         this._aimState = this._armatureComp.animation.FadeIn("aim", -1, 0, 1, "aimGroup");
         this._aimState.Stop();
         this._aimState.resetToPose = false;
-
         // Set localPosition
         this._armatureComp.transform.localPosition = Vector3.zero;
         this._floorBoardComp.transform.localPosition = new Vector4(0.0f, -0.25f, 0.0f);
@@ -50,20 +49,19 @@ public class InverseKinematics : BaseDemo
         this.UpdateAim();
     }
 
-    protected override void OnTouch(TouchType type)
+    protected override void OnDrag(GameObject target, Vector3 startDragPos, Vector3 currentDragPos)
     {
-        if (type == TouchType.TOUCH_MOVE)
-        {
-            var minRadian = -30.0f * Mathf.Deg2Rad;
-            var maxRadian = 20.0f * Mathf.Deg2Rad;
-            var width = this._floorBoardComp.transform.localScale.x / 2.0f;
+        var minRadian = -30.0f * Mathf.Deg2Rad;
+        var maxRadian = 20.0f * Mathf.Deg2Rad;
+        var width = this._floorBoardComp.transform.localScale.x / 2.0f;
 
-            this._offsetRotation = Mathf.Min(Mathf.Max(Mathf.Atan2(this._dragOffsetPosition.y, width), minRadian), maxRadian);
+        var offsetPos = currentDragPos - startDragPos;
 
-            // Set floor board rotation
-            var floor_board = this._floorBoardComp.armature.GetSlot("floor_board").display as GameObject;
-            floor_board.transform.localEulerAngles = new Vector3(0.0f, 0.0f, -this._offsetRotation * Mathf.Rad2Deg);
-        }
+        this._offsetRotation = Mathf.Min(Mathf.Max(Mathf.Atan2(offsetPos.y, width), minRadian), maxRadian);
+
+        // Set floor board rotation
+        var floor_board = this._floorBoardComp.armature.GetSlot("floor_board").display as GameObject;
+        floor_board.transform.localEulerAngles = new Vector3(0.0f, 0.0f, -this._offsetRotation * Mathf.Rad2Deg);
     }
 
     private void UpdateFoot()
