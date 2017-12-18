@@ -5,38 +5,45 @@ using DragonBones;
 
 public class InverseKinematics : BaseDemo
 {
-
-    public UnityEngine.Transform floorBoard;
-    public UnityEngine.Transform touchPoint;
-
     private UnityArmatureComponent _armatureComp;
+    private UnityArmatureComponent _floorBoardComp;
 
     private Bone _weaponBone;
     private Bone _leftFootBone;
     private Bone _rightFootBone;
 
-    private float _offsetRotation;
+    private DragonBones.AnimationState _aimState;
 
-	private DragonBones.AnimationState _aimState;
-	private int _faceDir = 0;
-    private int _aimDir = 0;
+    private float _offsetRotation;
+    private int _faceDir = 0;
     private float _aimRadian;
 
     protected override void OnStart()
     {
-        //
+        // Load data
         UnityFactory.factory.LoadDragonBonesData("core_element/mecha_1502b_ske");
         UnityFactory.factory.LoadTextureAtlasData("core_element/mecha_1502b_tex");
-        //
+        UnityFactory.factory.LoadDragonBonesData("floor_board/floor_board_ske");
+        UnityFactory.factory.LoadTextureAtlasData("floor_board/floor_board_tex");
+        // Build armature
         this._armatureComp = UnityFactory.factory.BuildArmatureComponent("mecha_1502b");
-        //
+        this._floorBoardComp = UnityFactory.factory.BuildArmatureComponent("floor_board");
+        // Get bone
         this._weaponBone = this._armatureComp.armature.GetBone("weapon_r");
         this._leftFootBone = this._armatureComp.armature.GetBone("foot_l");
         this._rightFootBone = this._armatureComp.armature.GetBone("foot_r");
+        // Play animation
+        this._armatureComp.animation.Play("idle");
+        this._aimState = this._armatureComp.animation.FadeIn("aim", -1, 0, 1, "aimGroup");
+        this._aimState.Stop();
+        this._aimState.resetToPose = false;
+
+        // Set localPosition
+        this._armatureComp.transform.localPosition = Vector3.zero;
+        this._floorBoardComp.transform.localPosition = new Vector4(0.0f, -0.25f, 0.0f);
+
         //
-        this._armatureComp.animation.Play("walk");
-        //
-        EnableDrag(this.touchPoint.gameObject);
+        EnableDrag(this._floorBoardComp.armature.GetSlot("circle").display as GameObject);
     }
 
     protected override void OnUpdate()
@@ -51,11 +58,13 @@ public class InverseKinematics : BaseDemo
         {
             var minRadian = -30.0f * Mathf.Deg2Rad;
             var maxRadian = 20.0f * Mathf.Deg2Rad;
-            var width = this.floorBoard.transform.localScale.x / 2.0f;
+            var width = this._floorBoardComp.transform.localScale.x / 2.0f;
+
             this._offsetRotation = Mathf.Min(Mathf.Max(Mathf.Atan2(this._dragOffsetPosition.y, width), minRadian), maxRadian);
 
             // Set floor board rotation
-            this.floorBoard.localEulerAngles = new Vector3(0.0f, 0.0f, -this._offsetRotation * Mathf.Rad2Deg);
+            var floor_board = this._floorBoardComp.armature.GetSlot("floor_board").display as GameObject;
+            floor_board.transform.localEulerAngles = new Vector3(0.0f, 0.0f, -this._offsetRotation * Mathf.Rad2Deg);
         }
     }
 
@@ -64,54 +73,36 @@ public class InverseKinematics : BaseDemo
         // Set foot bone offset
         this._leftFootBone.offset.y = Mathf.Sin(_offsetRotation) * this._leftFootBone.global.x;
         this._rightFootBone.offset.y = Mathf.Sin(_offsetRotation) * this._rightFootBone.global.x;
-
-        this._leftFootBone.offset.rotation = _offsetRotation;
-        this._rightFootBone.offset.rotation = _offsetRotation;
+        //
+        this._leftFootBone.offset.rotation = _offsetRotation * this._faceDir;
+        this._rightFootBone.offset.rotation = _offsetRotation * this._faceDir;
     }
 
     private void UpdateAim()
     {
-		var position = this._armatureComp.transform.localPosition;
-        var aimOffsetY = this._weaponBone.global.y * this._armatureComp.transform.localScale.y;
-		var mouseWorldPosition = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.farClipPlane));
-        // this._aimRadian = Mathf.Atan2(Input.mousePosition.y - aimOffsetY, Input.mousePosition.x);
+        var mouseWorldPosition = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.farClipPlane));
+        var position = this._armatureComp.transform.localPosition;
+        var aimOffsetY = _armatureComp.armature.GetBone("chest").global.y * this.transform.localScale.y;
 
-		this._aimRadian = Mathf.Atan2(-(mouseWorldPosition.y - position.y - aimOffsetY), mouseWorldPosition.x - position.x);
+        this._faceDir = mouseWorldPosition.x > 0.0f ? 1 : -1;
+        this._armatureComp.armature.flipX = this._faceDir < 0;
 
-        var aimDir = 0;
-        if (this._aimRadian > 0.0f)
+        if (this._faceDir > 0)
         {
-            aimDir = -1;
+            this._aimRadian = Mathf.Atan2(-(mouseWorldPosition.y - position.y - aimOffsetY), mouseWorldPosition.x - position.x);
         }
         else
         {
-            aimDir = 1;
-        }
-
-        if (this._aimDir != aimDir)
-        {
-            this._aimDir = aimDir;
-
-            // Animation mixing.
-            if (this._aimDir >= 0)
+            this._aimRadian = Mathf.PI - Mathf.Atan2(-(mouseWorldPosition.y - position.y - aimOffsetY), mouseWorldPosition.x - position.x);
+            if (_aimRadian > Mathf.PI)
             {
-                this._aimState = this._armatureComp.animation.FadeIn(
-                    "aim_up", 0.01f, 1,
-                    0, "aimGroup"
-                );
-            }
-            else
-            {
-                this._aimState = this._armatureComp.animation.FadeIn(
-                    "aim_down", 0.01f, 1,
-                    0, "aimGroup"
-                );
+                _aimRadian -= Mathf.PI * 2.0f;
             }
         }
 
-		//
-		this._aimState.resetToPose = false;
-        this._aimState.weight = Mathf.Abs(this._aimRadian / Mathf.PI * 2);
-        this._armatureComp.armature.InvalidUpdate();
+        // Calculate progress
+        var progress = Mathf.Abs((this._aimRadian + Mathf.PI / 2) / Mathf.PI);
+        // Set currentTime
+        this._aimState.currentTime = progress * (this._aimState.totalTime);
     }
 }

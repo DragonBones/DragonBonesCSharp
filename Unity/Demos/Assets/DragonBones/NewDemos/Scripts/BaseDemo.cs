@@ -22,32 +22,28 @@ public abstract class BaseDemo : MonoBehaviour
     private Vector3 _screenPosition;
     protected Vector3 _dragOffsetPosition;
     private Vector3 _offset;
+
     void Start()
     {
         this.CreateBackground();
         this.OnStart();
     }
 
-
-    // Update is called once per frame
     void Update()
     {
         //
         if (Input.GetMouseButtonDown(0))
         {
-            this._isTouched = true;
+            StartCoroutine("DragDelay");
             this._touchPosition = Input.mousePosition;
             this._touchOffset = Vector3.zero;
-
-            //QQ
-            // UnityEngine.Debug.Log("posY:" + this._touchPosition.y);
             //
             this._currentDragTarget = GetClickTarget();
             if (this._currentDragTarget != null)
             {
-                this._worldPosition = this._currentDragTarget.transform.position;
-                this._screenPosition = Camera.main.WorldToScreenPoint(this._currentDragTarget.transform.position);
-                this._offset = this._currentDragTarget.transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, this._screenPosition.z));
+                this._worldPosition = this._currentDragTarget.transform.localPosition;
+                this._screenPosition = Camera.main.WorldToScreenPoint(this._currentDragTarget.transform.localPosition);
+                this._offset = this._currentDragTarget.transform.localPosition - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, this._screenPosition.z));
             }
 
             this.OnTouch(TouchType.TOUCH_BEGIN);
@@ -55,6 +51,7 @@ public abstract class BaseDemo : MonoBehaviour
         //
         if (Input.GetMouseButtonUp(0))
         {
+            StopCoroutine("DragDelay");
             this._isTouched = false;
 
             this._touchPosition = Vector3.zero;
@@ -68,7 +65,6 @@ public abstract class BaseDemo : MonoBehaviour
         if (this._isTouched)
         {
             this._touchOffset = Input.mousePosition - this._touchPosition;
-            // UnityEngine.Debug.Log("moveY:" + Input.mousePosition.y);
             if (this._currentDragTarget != null)
             {
                 Vector3 currentScreenSpace = new Vector3(Input.mousePosition.x, Input.mousePosition.y, this._screenPosition.z);
@@ -116,7 +112,7 @@ public abstract class BaseDemo : MonoBehaviour
             }
         }
     }
-    
+
     private void CreateBackground()
     {
         var background = new GameObject("Background");
@@ -128,11 +124,11 @@ public abstract class BaseDemo : MonoBehaviour
 
     private GameObject GetClickTarget()
     {
-        if(this._dragTargets.Count == 0)
+        if (this._dragTargets.Count == 0)
         {
             return null;
         }
-        
+
         RaycastHit hit;
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray.origin, ray.direction * 10, out hit))
@@ -147,5 +143,12 @@ public abstract class BaseDemo : MonoBehaviour
         }
 
         return null;
+    }
+
+    private IEnumerator DragDelay()
+    {
+        yield return new WaitForSeconds(0.16f);
+
+        this._isTouched = true;
     }
 }
