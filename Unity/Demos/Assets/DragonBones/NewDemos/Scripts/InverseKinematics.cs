@@ -8,7 +8,6 @@ public class InverseKinematics : BaseDemo
     private UnityArmatureComponent _armatureComp;
     private UnityArmatureComponent _floorBoardComp;
 
-    private Bone _weaponBone;
     private Bone _leftFootBone;
     private Bone _rightFootBone;
 
@@ -29,7 +28,6 @@ public class InverseKinematics : BaseDemo
         this._armatureComp = UnityFactory.factory.BuildArmatureComponent("mecha_1502b");
         this._floorBoardComp = UnityFactory.factory.BuildArmatureComponent("floor_board");
         // Get bone
-        this._weaponBone = this._armatureComp.armature.GetBone("weapon_r");
         this._leftFootBone = this._armatureComp.armature.GetBone("foot_l");
         this._rightFootBone = this._armatureComp.armature.GetBone("foot_r");
         // Play animation
