@@ -39,8 +39,9 @@ public class DragonBonesEvent : BaseDemo
 	//
 	void OnSoundEventHandler(string type, EventObject eventObject)
 	{
-		if(eventObject.name == "walk")
+		if(eventObject.name == "walkSound")
 		{
+			UnityEngine.Debug.Log("walkSound");
 			this._sound.Play();
 		}
 	}

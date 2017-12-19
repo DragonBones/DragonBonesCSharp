@@ -5,7 +5,7 @@ using DragonBones;
 
 public class ReplaceSlot : BaseDemo
 {
-    private static readonly string[] WEAPON_RIGHT_LIST = { "weapon_1004_r", "weapon_1004b_r", "weapon_1004c_r", "weapon_1004d_r", "weapon_1004e_r" };
+    private static readonly string[] WEAPON_RIGHT_LIST = { "weapon_1004_r", "weapon_1004b_r", "weapon_1004c_r", "weapon_1004d_r", "weapon_1004e_r", "weapon_1004s_r" };
 
     private GameObject _logoReplaceTxt;
 
@@ -21,15 +21,15 @@ public class ReplaceSlot : BaseDemo
     protected override void OnStart()
     {
         // Load Mecha Data
-        UnityFactory.factory.LoadDragonBonesData("mecha_idle/mecha_idle_ske");
-        UnityFactory.factory.LoadTextureAtlasData("mecha_idle/mecha_idle_tex");
+        UnityFactory.factory.LoadDragonBonesData("mecha_1004d_show/mecha_1004d_show_ske");
+        UnityFactory.factory.LoadTextureAtlasData("mecha_1004d_show/mecha_1004d_show_tex");
 
         // Load Right Weapon Data
-        UnityFactory.factory.LoadDragonBonesData("mecha_idle/replace_weapon/replace_weapon_ske");
-        UnityFactory.factory.LoadTextureAtlasData("mecha_idle/replace_weapon/replace_weapon_tex");
+        UnityFactory.factory.LoadDragonBonesData("weapon_1004_show/weapon_1004_show_ske");
+        UnityFactory.factory.LoadTextureAtlasData("weapon_1004_show/weapon_1004_show_tex");
 
         // Build Mecha Armature
-        this._armatureComp = UnityFactory.factory.BuildArmatureComponent("mecha_idle");
+        this._armatureComp = UnityFactory.factory.BuildArmatureComponent("mecha_1004d");
 
         this._armatureComp.transform.localPosition = new Vector3(0.0f, -2.0f, 0.0f);
 
@@ -76,7 +76,7 @@ public class ReplaceSlot : BaseDemo
 
             var weaponDisplayName = WEAPON_RIGHT_LIST[this._rightWeaponIndex];
 			//
-            UnityFactory.factory.ReplaceSlotDisplay("replace_weapon", "weapon_r", "weapon_r", weaponDisplayName, this._rightWeaponSlot);
+            UnityFactory.factory.ReplaceSlotDisplay("weapon_1004_show", "weapon", "weapon_r", weaponDisplayName, this._rightWeaponSlot);
         }
 
         // Logon change
@@ -104,7 +104,7 @@ public class ReplaceSlot : BaseDemo
             var textMesh = this._logoReplaceTxt.AddComponent<TextMesh>();
             textMesh.characterSize = 0.2f;
             textMesh.fontSize = 20;
-            textMesh.text = "Hello";
+            textMesh.text = "Core Element";
             textMesh.anchor = TextAnchor.MiddleCenter;
             textMesh.alignment = TextAlignment.Center;
             textMesh.richText = false;

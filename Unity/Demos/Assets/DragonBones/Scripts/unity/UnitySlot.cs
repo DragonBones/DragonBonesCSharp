@@ -120,13 +120,13 @@ namespace DragonBones
             else
             {
                 _renderer = _renderDisplay.GetComponent<MeshRenderer>();
-                if (_renderer == null && _renderDisplay.GetComponent<TextMesh>() == null)
+                if (_renderer == null)
                 {
                     _renderer = _renderDisplay.AddComponent<MeshRenderer>();
                 }
                 //
                 _meshFilter = _renderDisplay.GetComponent<MeshFilter>();
-                if (_meshFilter == null)
+                if (_meshFilter == null && _renderDisplay.GetComponent<TextMesh>() == null)
                 {
                     _meshFilter = _renderDisplay.AddComponent<MeshFilter>();
                 }

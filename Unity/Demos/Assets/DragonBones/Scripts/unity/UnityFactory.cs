@@ -230,7 +230,14 @@ namespace DragonBones
             Armature childArmature = null;
             if (childTransform == null)
             {
-                childArmature = BuildArmature(displayData.path, dataPackage.dataName);
+                if(dataPackage != null)
+                {
+                    childArmature = BuildArmature(displayData.path, dataPackage.dataName);
+                }
+                else
+                {
+                    childArmature = BuildArmature(displayData.path, displayData.parent.parent.parent.name);
+                }                
             }
             else
             {
