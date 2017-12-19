@@ -1,31 +1,37 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 using DragonBones;
 
-/**
- * How to use
- * 1. Load and parse data.
- *    factory.LoadDragonBonesData("DragonBonesDataPath");
- *    factory.LoadTextureAtlasData("TextureAtlasDataPath");
- *    
- * 2. Build armature.
- *    armatureComponent = factory.BuildArmatureComponent("armatureName");
- * 
- * 3. Play animation.
- *    armatureComponent.animation.Play("animationName");
- */
-public class HelloDragonBones :MonoBehaviour
+public class HelloDragonBones : BaseDemo
 {
-	public UnityDragonBonesData dragonBoneData;
-    
-    void Start()
+    //
+    public UnityDragonBonesData dragonBoneData;
+    protected override void OnStart()
     {
-        UnityFactory.factory.autoSearch = true;
-        UnityFactory.factory.LoadData(dragonBoneData);
+        // 1.Load and parse data
+        if (true)
+        {
+            // Scheme 1: Load UnityDragonBonesData
+            UnityFactory.factory.LoadData(this.dragonBoneData);
+        }
+        else
+        {
+            // Scheme 2: Load JsonData in Resources
+            // UnityFactory.factory.LoadDragonBonesData("mecha_1002_101d/mecha_1002_101d_ske");
+            // UnityFactory.factory.LoadTextureAtlasData("mecha_1002_101d/mecha_1002_101d_tex");
+        }
 
-        var armatureComponent = UnityFactory.factory.BuildArmatureComponent("DragonBoy");
-        armatureComponent.animation.Play("stand");
+        // 2.Build armature
+        var armatureComponent = UnityFactory.factory.BuildArmatureComponent("mecha_1002_101d");
+
+        // 3.Play animation
+        armatureComponent.animation.Play("idle");
+
+        // Set name
+        armatureComponent.name = "dynamic_mecha_1002_101d";
 
         // Set position.
-        armatureComponent.transform.localPosition = new Vector3(2.0f, 0.0f, 0.0f);
+        armatureComponent.transform.localPosition = new Vector3(3.0f, -1.5f, 1.0f);
     }
 }
