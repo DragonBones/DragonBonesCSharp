@@ -20,8 +20,8 @@ public class InverseKinematics : BaseDemo
     protected override void OnStart()
     {
         // Load data
-        UnityFactory.factory.LoadDragonBonesData("core_element/mecha_1502b_ske");
-        UnityFactory.factory.LoadTextureAtlasData("core_element/mecha_1502b_tex");
+        UnityFactory.factory.LoadDragonBonesData("mecha_1502b/mecha_1502b_ske");
+        UnityFactory.factory.LoadTextureAtlasData("mecha_1502b/mecha_1502b_tex");
         UnityFactory.factory.LoadDragonBonesData("floor_board/floor_board_ske");
         UnityFactory.factory.LoadTextureAtlasData("floor_board/floor_board_tex");
         // Build armature

@@ -37,20 +37,20 @@ namespace DragonBones
     /// <language>zh_CN</language>
     public class Transform
     {
-        internal static readonly float PI = 3.141593f;
+        public static readonly float PI = 3.141593f;
         /// <private/>
-        internal static readonly float PI_D = PI * 2.0f;
+        public static readonly float PI_D = PI * 2.0f;
         /// <private/>
-        internal static readonly float PI_H = PI / 2.0f;
+        public static readonly float PI_H = PI / 2.0f;
         /// <private/>
-        internal static readonly float PI_Q = PI / 4.0f;
+        public static readonly float PI_Q = PI / 4.0f;
         /// <private/>
-        internal static readonly float RAD_DEG = 180.0f / PI;
+        public static readonly float RAD_DEG = 180.0f / PI;
         /// <private/>
-        internal static readonly float DEG_RAD = PI / 180.0f;
+        public static readonly float DEG_RAD = PI / 180.0f;
 
         /// <private/>
-        internal static float NormalizeRadian(float value)
+        public static float NormalizeRadian(float value)
         {
             value = (value + PI) % (PI * 2.0f);
 
@@ -145,7 +145,7 @@ namespace DragonBones
         }
 
         /// <private/>
-        internal Transform CopyFrom(Transform value)
+        public Transform CopyFrom(Transform value)
         {
             this.x = value.x;
             this.y = value.y;
@@ -158,7 +158,7 @@ namespace DragonBones
         }
 
         /// <private/>
-        internal Transform Identity()
+        public Transform Identity()
         {
             this.x = this.y = 0.0f;
             this.skew = this.rotation = 0.0f;
@@ -168,7 +168,7 @@ namespace DragonBones
         }
 
         /// <private/>
-        internal Transform Add(Transform value)
+        public Transform Add(Transform value)
         {
             this.x += value.x;
             this.y += value.y;
@@ -181,7 +181,7 @@ namespace DragonBones
         }
 
         /// <private/>
-        internal Transform Minus(Transform value)
+        public Transform Minus(Transform value)
         {
             this.x -= value.x;
             this.y -= value.y;
@@ -194,7 +194,7 @@ namespace DragonBones
         }
 
         /// <private/>
-        internal Transform FromMatrix(Matrix matrix)
+        public Transform FromMatrix(Matrix matrix)
         {
             var backupScaleX = this.scaleX;
             var backupScaleY = this.scaleY;

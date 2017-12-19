@@ -159,7 +159,7 @@ namespace DragonBones
         /// <language>zh_CN</language>
         public float autoFadeOutTime;
         /// <private/>
-        internal float fadeTotalTime;
+        public float fadeTotalTime;
         /// <summary>
         /// - The name of the animation state. (Can be different from the name of the animation data)
         /// </summary>
