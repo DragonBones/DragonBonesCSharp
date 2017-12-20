@@ -28,8 +28,8 @@ public class BoundingBox : BaseDemo
         // Load Data
         UnityFactory.factory.LoadDragonBonesData("mecha_2903/mecha_2903_ske");
         UnityFactory.factory.LoadTextureAtlasData("mecha_2903/mecha_2903_tex");
-        UnityFactory.factory.LoadDragonBonesData("bounding_box/bounding_box_tester_ske");
-        UnityFactory.factory.LoadTextureAtlasData("bounding_box/bounding_box_tester_tex");
+        UnityFactory.factory.LoadDragonBonesData("bounding_box_tester/bounding_box_tester_ske");
+        UnityFactory.factory.LoadTextureAtlasData("bounding_box_tester/bounding_box_tester_tex");
         // Build Armature
         this._armatureComp = UnityFactory.factory.BuildArmatureComponent("mecha_2903d");
 

@@ -18,12 +18,12 @@ public class HelloDragonBones : BaseDemo
         else
         {
             // Scheme 2: Load JsonData in Resources
-            // UnityFactory.factory.LoadDragonBonesData("mecha_1002_101d/mecha_1002_101d_ske");
-            // UnityFactory.factory.LoadTextureAtlasData("mecha_1002_101d/mecha_1002_101d_tex");
+            // UnityFactory.factory.LoadDragonBonesData("mecha_1002_101d_show/mecha_1002_101d_show_ske");
+            // UnityFactory.factory.LoadTextureAtlasData("mecha_1002_101d_show/mecha_1002_101d_show_tex");
         }
 
         // 2.Build armature
-        var armatureComponent = UnityFactory.factory.BuildArmatureComponent("mecha_1002_101d");
+        var armatureComponent = UnityFactory.factory.BuildArmatureComponent("mecha_1002_101d", "mecha_1002_101d_show");
 
         // 3.Play animation
         armatureComponent.animation.Play("idle");

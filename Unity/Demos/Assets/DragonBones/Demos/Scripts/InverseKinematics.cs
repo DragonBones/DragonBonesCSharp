@@ -8,8 +8,11 @@ public class InverseKinematics : BaseDemo
     private UnityArmatureComponent _armatureComp;
     private UnityArmatureComponent _floorBoardComp;
 
+    private Bone _chestBone;
     private Bone _leftFootBone;
     private Bone _rightFootBone;
+    private Bone _circleBone;
+    private Bone _floorBoardBone;
 
     private DragonBones.AnimationState _aimState;
 
@@ -20,21 +23,27 @@ public class InverseKinematics : BaseDemo
     protected override void OnStart()
     {
         // Load data
-        UnityFactory.factory.LoadDragonBonesData("mecha_1502b/mecha_1502b_ske");
-        UnityFactory.factory.LoadTextureAtlasData("mecha_1502b/mecha_1502b_tex");
+        UnityFactory.factory.LoadDragonBonesData("mecha_1406/mecha_1406_ske");
+        UnityFactory.factory.LoadTextureAtlasData("mecha_1406/mecha_1406_tex");
         UnityFactory.factory.LoadDragonBonesData("floor_board/floor_board_ske");
         UnityFactory.factory.LoadTextureAtlasData("floor_board/floor_board_tex");
         // Build armature
-        this._armatureComp = UnityFactory.factory.BuildArmatureComponent("mecha_1502b");
+        this._armatureComp = UnityFactory.factory.BuildArmatureComponent("mecha_1406");
         this._floorBoardComp = UnityFactory.factory.BuildArmatureComponent("floor_board");
         // Get bone
+        this._chestBone = this._armatureComp.armature.GetBone("chest");
         this._leftFootBone = this._armatureComp.armature.GetBone("foot_l");
         this._rightFootBone = this._armatureComp.armature.GetBone("foot_r");
+        this._circleBone = this._floorBoardComp.armature.GetBone("circle");
+        this._floorBoardBone = this._floorBoardComp.armature.GetBone("floor_board");
         // Play animation
         this._armatureComp.animation.Play("idle");
-        this._aimState = this._armatureComp.animation.FadeIn("aim", -1, 0, 1, "aimGroup");
-        this._aimState.Stop();
+        this._aimState = this._armatureComp.animation.FadeIn("aim", 0.1f, 1, 0, "aimGroup");
         this._aimState.resetToPose = false;
+        this._aimState.Stop();
+        //
+        this._floorBoardComp.animation.Play("idle");
+        this._floorBoardComp.armature.GetSlot("player").display = this._armatureComp.gameObject;
         // Set localPosition
         this._armatureComp.transform.localPosition = Vector3.zero;
         this._floorBoardComp.transform.localPosition = new Vector4(0.0f, -0.25f, 0.0f);
@@ -45,40 +54,15 @@ public class InverseKinematics : BaseDemo
 
     protected override void OnUpdate()
     {
-        this.UpdateFoot();
-        this.UpdateAim();
+        this._UpdateAim();
+        this._UpdateFoot();
     }
 
-    protected override void OnDrag(GameObject target, Vector3 startDragPos, Vector3 currentDragPos)
-    {
-        var minRadian = -30.0f * Mathf.Deg2Rad;
-        var maxRadian = 20.0f * Mathf.Deg2Rad;
-        var width = this._floorBoardComp.transform.localScale.x / 2.0f;
-
-        var offsetPos = currentDragPos - startDragPos;
-
-        this._offsetRotation = Mathf.Min(Mathf.Max(Mathf.Atan2(offsetPos.y, width), minRadian), maxRadian);
-
-        // Set floor board rotation
-        var floor_board = this._floorBoardComp.armature.GetSlot("floor_board").display as GameObject;
-        floor_board.transform.localEulerAngles = new Vector3(0.0f, 0.0f, -this._offsetRotation * Mathf.Rad2Deg);
-    }
-
-    private void UpdateFoot()
-    {
-        // Set foot bone offset
-        this._leftFootBone.offset.y = Mathf.Sin(_offsetRotation) * this._leftFootBone.global.x;
-        this._rightFootBone.offset.y = Mathf.Sin(_offsetRotation) * this._rightFootBone.global.x;
-        //
-        this._leftFootBone.offset.rotation = _offsetRotation * this._faceDir;
-        this._rightFootBone.offset.rotation = _offsetRotation * this._faceDir;
-    }
-
-    private void UpdateAim()
+    private void _UpdateAim()
     {
         var mouseWorldPosition = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.farClipPlane));
         var position = this._armatureComp.transform.localPosition;
-        var aimOffsetY = _armatureComp.armature.GetBone("chest").global.y * this.transform.localScale.y;
+        var aimOffsetY = this._chestBone.global.y * this.transform.localScale.y;
 
         this._faceDir = mouseWorldPosition.x > 0.0f ? 1 : -1;
         this._armatureComp.armature.flipX = this._faceDir < 0;
@@ -101,4 +85,33 @@ public class InverseKinematics : BaseDemo
         // Set currentTime
         this._aimState.currentTime = progress * (this._aimState.totalTime);
     }
+
+    private void _UpdateFoot()
+    {
+        var minRadian = -25.0f * Mathf.Deg2Rad;
+        var maxRadian = 25.0f * Mathf.Deg2Rad;
+        var circleRadian = Mathf.Atan2(-this._circleBone.global.y, this._circleBone.global.x);
+
+        if (this._circleBone.global.x < 0.0)
+        {
+            circleRadian = DragonBones.Transform.NormalizeRadian(circleRadian + Mathf.PI);
+        }
+
+        this._offsetRotation = Mathf.Min(Mathf.Max(circleRadian, minRadian), maxRadian);
+        this._floorBoardBone.offset.rotation = this._offsetRotation;
+        this._floorBoardBone.InvalidUpdate();
+
+        // Set foot bone offset
+        var tan = Mathf.Tan(this._offsetRotation);
+        var sinR = 1.0f / Mathf.Sin(Mathf.PI * 0.5f - this._offsetRotation) - 1.0f;
+
+        this._leftFootBone.offset.y = tan * this._leftFootBone.global.x + this._leftFootBone.origin.y * sinR;
+        this._leftFootBone.offset.rotation = this._offsetRotation * this._faceDir;
+        this._leftFootBone.InvalidUpdate();
+        //
+        this._rightFootBone.offset.y = tan * this._rightFootBone.global.x + this._rightFootBone.origin.y * sinR;
+        this._rightFootBone.offset.rotation = this._offsetRotation * this._faceDir;
+        this._rightFootBone.InvalidUpdate();
+    }
+
 }

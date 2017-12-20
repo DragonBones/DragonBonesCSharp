@@ -742,9 +742,14 @@ namespace DragonBones
                 _armature = null;
 
                 armature.Dispose();
+                
+                if(!Application.isPlaying)
+                {
+                    UnityFactory.factory._dragonBones.AdvanceTime(0.0f);
+                }
 
 #if UNITY_EDITOR
-                UnityFactory.factory._dragonBones.AdvanceTime(0.0f);
+                // UnityFactory.factory._dragonBones.AdvanceTime(0.0f);
 #endif
             }
 

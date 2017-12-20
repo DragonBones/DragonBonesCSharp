@@ -6,12 +6,11 @@ using DragonBones;
 
 public class ReplaceSkin : BaseDemo
 {
-    //
     private UnityArmatureComponent _bodyArmatureComp = null;
     //
-    private int _replaceSuitIndex = 0;
+    private int _replaceSuitIndex = 0;    
     private Dictionary<string, List<string>> _suitConfigs = new Dictionary<string, List<string>>();
-    private List<string> _replaceSuitParts = new List<string>();
+    private readonly List<string> _replaceSuitParts = new List<string>();
 
     void Awake()
     {
@@ -63,11 +62,7 @@ public class ReplaceSkin : BaseDemo
     protected override void OnStart()
     {
         // Load body
-        this.LoadData("you_xin/body_ske", "you_xin/body_tex");
-
-        // Load facial
-        this.LoadData("you_xin/facial_ske", "you_xin/facial_tex");
-
+        this._LoadData("you_xin/body/body_ske", "you_xin/body/body_tex");
         // Load suits
         var dragonBonesJSONPath = "";
         var textureAtlasJSONPath = "";
@@ -81,7 +76,7 @@ public class ReplaceSkin : BaseDemo
                 //you_xin/suit1/2010600a/2010600a_tex
                 textureAtlasJSONPath = "you_xin/" + suitName + "/" + partArmatureName + "/" + partArmatureName + "_tex";
                 //
-                this.LoadData(dragonBonesJSONPath, textureAtlasJSONPath);
+                this._LoadData(dragonBonesJSONPath, textureAtlasJSONPath);
             }
         }
 
@@ -92,7 +87,7 @@ public class ReplaceSkin : BaseDemo
         this._bodyArmatureComp.transform.localPosition = new Vector3(0.0f, -4.0f, 0.0f);
 
         // Add loop complete event listener
-        this._bodyArmatureComp.AddDBEventListener(EventObject.LOOP_COMPLETE, this.OnFrameEventHandler);
+        this._bodyArmatureComp.AddDBEventListener(EventObject.LOOP_COMPLETE, this._OnFrameEventHandler);
 
         // Play idle animation
         this._bodyArmatureComp.animation.Play("idle", 0);
@@ -121,13 +116,13 @@ public class ReplaceSkin : BaseDemo
     }
 
     //
-    void LoadData(string dragonBonesJSONPath, string textureAtlasJSONPath)
+    private void _LoadData(string dragonBonesJSONPath, string textureAtlasJSONPath)
     {
         UnityFactory.factory.LoadDragonBonesData(dragonBonesJSONPath);
         UnityFactory.factory.LoadTextureAtlasData(textureAtlasJSONPath);
     }
     //
-    void OnFrameEventHandler(string type, EventObject eventObject)
+    private void _OnFrameEventHandler(string type, EventObject eventObject)
     {
         if (type == EventObject.LOOP_COMPLETE)
         {
@@ -165,6 +160,6 @@ public class ReplaceSkin : BaseDemo
         // Replace skin
         UnityFactory.factory.ReplaceSkin(this._bodyArmatureComp.armature, partArmatureData.defaultSkin);
         // Remove has been replaced
-        this._replaceSuitParts.Remove(partArmatureName);
+        this._replaceSuitParts.RemoveAt(randomPartIndex);
     }
 }

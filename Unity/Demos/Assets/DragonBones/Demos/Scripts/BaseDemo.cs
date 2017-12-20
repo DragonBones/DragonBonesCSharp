@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DragonBones;
 
 public enum TouchType
 {
@@ -9,10 +10,11 @@ public enum TouchType
     TOUCH_END
 }
 
-public abstract class BaseDemo : MonoBehaviour
+public class BaseDemo : MonoBehaviour
 {
     private readonly List<GameObject> _dragTargets = new List<GameObject>();
 
+    protected bool _isCreateBackground = true;
     protected bool _isTouched = false;
 
     private GameObject _currentDragTarget;
@@ -23,7 +25,11 @@ public abstract class BaseDemo : MonoBehaviour
 
     void Start()
     {
-        this.CreateBackground();
+        if(this._isCreateBackground)
+        {
+            this.CreateBackground();
+        }
+        //
         this.OnStart();
     }
 
@@ -40,6 +46,26 @@ public abstract class BaseDemo : MonoBehaviour
                 this._startDragWorldPosition = this._currentDragTarget.transform.localPosition;
                 this._startDragScreenPosition = Camera.main.WorldToScreenPoint(this._currentDragTarget.transform.localPosition);
                 this._dragOffset = this._currentDragTarget.transform.localPosition - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, this._startDragScreenPosition.z));
+                // Check is dragonbones display
+                var armatureComp = this._currentDragTarget.transform.parent.GetComponent<UnityArmatureComponent>();
+                if (armatureComp != null)
+                {
+                    var bone = armatureComp.armature.GetBoneByDisplay(this._currentDragTarget);
+                    if (bone != null)
+                    {
+                        if (bone.offsetMode != DragonBones.OffsetMode.Override)
+                        {
+                            bone.offsetMode = DragonBones.OffsetMode.Override;
+                            bone.offset.x = bone.global.x;
+                            bone.offset.y = bone.global.y;
+                        }
+                    }
+                }
+                else
+                {
+                    // Set other display position
+                    this._currentDragTarget.transform.localPosition = this._currentDragWorldPosition;
+                }
             }
 
             this.OnTouch(TouchType.TOUCH_BEGIN);
@@ -65,7 +91,26 @@ public abstract class BaseDemo : MonoBehaviour
                 //
                 this._currentDragWorldPosition = Camera.main.ScreenToWorldPoint(currentScreenPosition) + this._dragOffset;
                 this._currentDragWorldPosition.z = this._currentDragTarget.transform.localPosition.z;
-                this._currentDragTarget.transform.localPosition = this._currentDragWorldPosition;
+
+                // Check is dragonbones display
+                var armatureComp = this._currentDragTarget.transform.parent.GetComponent<UnityArmatureComponent>();
+                if (armatureComp != null)
+                {
+                    var bone = armatureComp.armature.GetBoneByDisplay(this._currentDragTarget);
+                    if (bone != null)
+                    {
+                        var localPosition = armatureComp.transform.InverseTransformPoint(this._currentDragWorldPosition);
+                        bone.offset.x = localPosition.x;
+                        bone.offset.y = -localPosition.y;
+                        bone.InvalidUpdate();
+                    }
+                }
+                else
+                {
+                    // Set other display position
+                    this._currentDragTarget.transform.localPosition = this._currentDragWorldPosition;
+                }
+
                 //
                 this.OnDrag(this._currentDragTarget, this._startDragWorldPosition, this._currentDragWorldPosition);
             }
@@ -79,7 +124,7 @@ public abstract class BaseDemo : MonoBehaviour
     protected virtual void OnStart() { }
     protected virtual void OnUpdate() { }
     protected virtual void OnTouch(TouchType type) { }
-    protected virtual void OnDrag(GameObject target, Vector3 startDragPos, Vector3 currentDragPos) {}
+    protected virtual void OnDrag(GameObject target, Vector3 startDragPos, Vector3 currentDragPos) { }
 
     protected void EnableDrag(GameObject target)
     {

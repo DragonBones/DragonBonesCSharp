@@ -39,7 +39,8 @@ public class DragonBonesEvent : BaseDemo
 	//
 	void OnSoundEventHandler(string type, EventObject eventObject)
 	{
-		if(eventObject.name == "stepSound")
+		UnityEngine.Debug.Log(eventObject.name);
+		if(eventObject.name == "footstep")
 		{
 			this._sound.Play();
 		}
@@ -47,6 +48,9 @@ public class DragonBonesEvent : BaseDemo
 	//
 	void OnAnimationEventHandler(string type, EventObject eventObject)
 	{
-		this._mechaArmatureComp.animation.FadeIn("walk", 0.2f);
+		if(eventObject.animationState.name == "skill_03")
+		{
+			this._mechaArmatureComp.animation.FadeIn("walk", 0.2f);
+		}
 	}
 }

@@ -1112,6 +1112,11 @@ namespace DragonBones
 
         internal static void DestroyUnityObject(UnityEngine.Object obj)
         {
+            if(obj == null)
+            {
+                return;
+            }
+            
 #if UNITY_EDITOR
             UnityEngine.Object.DestroyImmediate(obj);
 #else
