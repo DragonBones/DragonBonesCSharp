@@ -57,8 +57,6 @@ namespace DragonBones
                 return -1;
             }
 
-            // UnityEngine.Debug.LogError("a:name:" + a.name + " index:" + a._zOrder + " b.name:" + b.name + " index:" + b._zOrder);
-
             return 0;//fixed slots sort error
         }
 
@@ -238,11 +236,6 @@ namespace DragonBones
         private void _SortSlots()
         {
             this._slots.Sort(Armature._OnSortSlots);
-            //
-            // foreach(var slot in this._slots)
-            // {
-            //     UnityEngine.Debug.Log("name:" + slot.name + " zorder:" + slot._zOrder);
-            // }
         }
 
         /// <internal/>
