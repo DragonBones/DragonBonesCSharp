@@ -5,7 +5,7 @@ using DragonBones;
 
 public class ReplaceSlotDisplay : BaseDemo
 {
-    private static readonly string[] WEAPON_RIGHT_LIST = { "weapon_1004_r", "weapon_1004b_r", "weapon_1004c_r", "weapon_1004d_r", "weapon_1004e_r", "weapon_1004s_r" };
+    private static readonly string[] WEAPON_RIGHT_LIST = { "weapon_1004_r", "weapon_1004b_r", "weapon_1004c_r", "weapon_1004d_r", "weapon_1004e_r" };
 
     private GameObject _logoReplaceTxt;
 
