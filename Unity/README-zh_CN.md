@@ -15,21 +15,27 @@
     * 检查其他可能由于文件夹或文件名变更而导致的编译错误。
 * 确保项目结构如下:
 ```
-project
+Your project
     |-- Assets
-        |-- Scripts
-            |-- DragonBones
+        |-- DragonBones
+            |-- Demos (如果不需要，可以删除。)
+            |-- Scripts        
+                |-- 3rdParty
                 |-- animation
                 |-- armature
                 |-- ...
                 |-- unity
                 |-- ...
-            |-- 3rdParty Scripts
-            |-- Demos Scripts
+            |-- Editor
+            |-- Resources
+                |-- Shaders files
+                |-- ...
             |-- ...
         |-- Resources
             |-- DragonBonesData files
             |-- ...
+        |-- Scripts
         |-- ...
     |-- ...
+```-- ...
 ```

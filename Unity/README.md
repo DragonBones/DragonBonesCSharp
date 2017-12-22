@@ -16,19 +16,24 @@
 ```
 Your project
     |-- Assets
-        |-- Scripts
-            |-- DragonBones
+        |-- DragonBones
+            |-- Demos (You can remove it if you don't need.)
+            |-- Scripts        
+                |-- 3rdParty
                 |-- animation
                 |-- armature
                 |-- ...
                 |-- unity
                 |-- ...
-            |-- 3rdParty
-            |-- Demos
+            |-- Editor
+            |-- Resources
+                |-- Shaders files
+                |-- ...
             |-- ...
         |-- Resources
-            |-- Local DragonBonesData files
+            |-- DragonBonesData files
             |-- ...
+        |-- Scripts
         |-- ...
     |-- ...
 ```
