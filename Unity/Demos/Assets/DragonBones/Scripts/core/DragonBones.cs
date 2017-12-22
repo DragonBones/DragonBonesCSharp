@@ -306,7 +306,7 @@ namespace DragonBones
         public static bool yDown = true;
         public static bool debug = false;
         public static bool debugDraw = false;
-        public static readonly string VERSION = "5.6.1";
+        public static readonly string VERSION = "5.6.2";
 
         private readonly WorldClock _clock = new WorldClock();
         private readonly List<EventObject> _events = new List<EventObject>();
