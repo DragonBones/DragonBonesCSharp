@@ -103,7 +103,7 @@ public class ReplaceSkin : BaseDemo
             UnityFactory.factory.ReplaceSkin(this._bodyArmatureComp.armature, skin.defaultSkin);
         }
         // Replace the sencond suit
-        this._replaceSuitIndex = initSuitIndex++;
+        this._replaceSuitIndex = ++initSuitIndex;
         this._replaceSuitParts.AddRange(this._suitConfigs[suitNames[initSuitIndex]]);
     }
 
@@ -146,11 +146,9 @@ public class ReplaceSkin : BaseDemo
             {
                 this._replaceSuitIndex = 0;
             }
-
             // Refill the unset parits
             this._replaceSuitParts.AddRange(this._suitConfigs[suitNames[this._replaceSuitIndex]]);
         }
-
         // Random one part in this suit
         var randomPartIndex = Random.Range(0, this._replaceSuitParts.Count);
         //
