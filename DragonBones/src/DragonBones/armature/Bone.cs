@@ -70,9 +70,6 @@ namespace DragonBones
         /// <internal/>
         /// <private/>
         internal bool _childrenTransformDirty;
-        /// <internal/>
-        /// <private/>
-        internal bool _blendDirty;
         private bool _localDirty;
 
         /// <internal/>
@@ -80,15 +77,7 @@ namespace DragonBones
         internal bool _hasConstraint;
         private bool _visible;
         private int _cachedFrameIndex;
-        /// <internal/>
-        /// <private/>
-        internal int _blendLayer;
-        /// <internal/>
-        /// <private/>
-        internal float _blendLeftWeight;
-        /// <internal/>
-        /// <private/>
-        internal float _blendLayerWeight;
+        internal readonly BlendState _blendState = new BlendState();
         /// <internal/>
         /// <private/>
         internal BoneData _boneData;
@@ -105,14 +94,11 @@ namespace DragonBones
 
             this._transformDirty = false;
             this._childrenTransformDirty = false;
-            this._blendDirty = false;
             this._localDirty = true;
             this._hasConstraint = false;
             this._visible = true;
             this._cachedFrameIndex = -1;
-            this._blendLayer = 0;
-            this._blendLeftWeight = 1.0f;
-            this._blendLayerWeight = 0.0f;
+            this._blendState.Clear();
             this._boneData = null; //
             this._cachedFrameIndices = null;
         }
@@ -373,8 +359,8 @@ namespace DragonBones
         /// <private/>
         internal void Update(int cacheFrameIndex)
         {
-            this._blendDirty = false;
-
+            this._blendState.dirty = false;
+            
             if (cacheFrameIndex >= 0 && this._cachedFrameIndices != null)
             {
                 var cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex];

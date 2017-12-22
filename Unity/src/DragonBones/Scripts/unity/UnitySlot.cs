@@ -88,16 +88,19 @@ namespace DragonBones
         /**
          * @private
          */
-        protected override void _InitDisplay(object value)
+        protected override void _InitDisplay(object value, bool isRetain)
         {
 
         }
         /**
          * @private
          */
-        protected override void _DisposeDisplay(object value)
+        protected override void _DisposeDisplay(object value, bool isRelease)
         {
-            UnityFactoryHelper.DestroyUnityObject(value as GameObject);
+            if(!isRelease)
+            {
+                UnityFactoryHelper.DestroyUnityObject(value as GameObject);
+            }
         }
         /**
          * @private
@@ -126,7 +129,7 @@ namespace DragonBones
                 }
                 //
                 _meshFilter = _renderDisplay.GetComponent<MeshFilter>();
-                if (_meshFilter == null)
+                if (_meshFilter == null && _renderDisplay.GetComponent<TextMesh>() == null)
                 {
                     _meshFilter = _renderDisplay.AddComponent<MeshFilter>();
                 }

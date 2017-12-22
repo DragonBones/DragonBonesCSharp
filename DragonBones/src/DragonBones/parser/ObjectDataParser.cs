@@ -992,10 +992,11 @@ namespace DragonBones
 
                 vertices.ResizeList(rawVertices.Count, 0.0f);
 
+                float scale = this._armature.scale;
                 for (int i = 0, l = rawVertices.Count; i < l; i += 2)
                 {
-                    var x = rawVertices[i];
-                    var y = rawVertices[i + 1];
+                    var x = rawVertices[i] * scale;
+                    var y = rawVertices[i + 1] * scale;
 
                     vertices[i] = x;
                     vertices[i + 1] = y;
@@ -1892,7 +1893,7 @@ namespace DragonBones
                 this._frameIntArray[frameIntOffset + (int)BinaryOffset.FFDTimelineFFDCount] = (short)(this._frameFloatArray.Count - frameFloatOffset);
                 this._frameIntArray[frameIntOffset + (int)BinaryOffset.FFDTimelineValueCount] = (short)(this._frameFloatArray.Count - frameFloatOffset);
                 this._frameIntArray[frameIntOffset + (int)BinaryOffset.FFDTimelineValueOffset] = 0;
-                this._frameIntArray[frameIntOffset + (int)BinaryOffset.FFDTimelineFloatOffset] = (short)frameFloatOffset;
+                this._frameIntArray[frameIntOffset + (int)BinaryOffset.FFDTimelineFloatOffset] = (short)(frameFloatOffset - this._animation.frameFloatOffset);// fixed ffd timeline mesh bound
                 this._timelineArray[(int)this._timeline.offset + (int)BinaryOffset.TimelineFrameValueCount] = (ushort)(frameIntOffset - this._animation.frameIntOffset);
             }
 

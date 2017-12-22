@@ -36,7 +36,7 @@ namespace DragonBones
             {
                 var frameOffset = this._animationData.frameOffset + this._timelineArray[(this._timelineData as TimelineData).offset + (int)BinaryOffset.TimelineFrameOffset + frameIndex];
                 var actionCount = this._frameArray[frameOffset + 1];
-                var actions = this._armature.armatureData.actions;
+                var actions = this._animationData.parent.actions; // May be the animaton data not belong to this armature data.
 
                 for (var i = 0; i < actionCount; ++i)
                 {
@@ -172,7 +172,7 @@ namespace DragonBones
                 if (this._frameCount > 1)
                 {
                     var timelineData = this._timelineData as TimelineData;
-                    var timelineFrameIndex = (uint)Math.Floor(this.currentTime * this._frameRate); // uint
+                    var timelineFrameIndex = (uint)(this.currentTime * this._frameRate); // uint
                     var frameIndex = (int)this._frameIndices[timelineData.frameIndicesOffset + timelineFrameIndex];
                     if (this._frameIndex != frameIndex)
                     {
@@ -186,7 +186,7 @@ namespace DragonBones
                             {
                                 if (crossedFrameIndex < 0)
                                 {
-                                    var prevFrameIndex = (int)Math.Floor(prevTime * this._frameRate);
+                                    var prevFrameIndex = (int)(prevTime * this._frameRate);
                                     crossedFrameIndex = (int)this._frameIndices[timelineData.frameIndicesOffset + prevFrameIndex];
                                     if (this.currentPlayTimes == prevPlayTimes)
                                     {
@@ -236,7 +236,7 @@ namespace DragonBones
                             {
                                 if (crossedFrameIndex < 0)
                                 {
-                                    var prevFrameIndex = (int)Math.Floor(prevTime * this._frameRate);
+                                    var prevFrameIndex = (int)(prevTime * this._frameRate);
                                     crossedFrameIndex = (int)this._frameIndices[timelineData.frameIndicesOffset + prevFrameIndex];
                                     var frameOffset = this._animationData.frameOffset + this._timelineArray[timelineData.offset + (int)BinaryOffset.TimelineFrameOffset + crossedFrameIndex];
                                     // const framePosition = this._frameArray[frameOffset] * this._frameRateR; // Precision problem
@@ -711,7 +711,7 @@ namespace DragonBones
 
                 if (colorOffset < 0)
                 {
-                    colorOffset += short.MaxValue;// Fixed out of bouds bug. 
+                    colorOffset += 65536;// Fixed out of bouds bug. 
                 }
 
                 this._current[0] = intArray[colorOffset++];
@@ -736,7 +736,7 @@ namespace DragonBones
 
                     if (colorOffset < 0)
                     {
-                        colorOffset += short.MaxValue;
+                        colorOffset += 65536;
                     }
 
                     this._delta[0] = intArray[colorOffset++] - this._current[0];
@@ -855,7 +855,7 @@ namespace DragonBones
     /// <private/>
     internal class SlotFFDTimelineState : SlotTimelineState
     {
-        public uint meshOffset;
+        public int meshOffset;
 
         private bool _dirty;
         private int _frameFloatOffset;
@@ -944,7 +944,12 @@ namespace DragonBones
             if (this._timelineData != null)
             {
                 var frameIntOffset = this._animationData.frameIntOffset + this._timelineArray[this._timelineData.offset + (int)BinaryOffset.TimelineFrameValueCount];
-                this.meshOffset = (uint)this._frameIntArray[frameIntOffset + (int)BinaryOffset.FFDTimelineMeshOffset];
+                this.meshOffset = this._frameIntArray[frameIntOffset + (int)BinaryOffset.FFDTimelineMeshOffset];
+
+                if (this.meshOffset < 0) {
+                    this.meshOffset += 65536; // Fixed out of bouds bug. 
+                }
+
                 this._ffdCount = this._frameIntArray[frameIntOffset + (int)BinaryOffset.FFDTimelineFFDCount];
                 this._valueCount = this._frameIntArray[frameIntOffset + (int)BinaryOffset.FFDTimelineValueCount];
                 this._valueOffset = this._frameIntArray[frameIntOffset + (int)BinaryOffset.FFDTimelineValueOffset];

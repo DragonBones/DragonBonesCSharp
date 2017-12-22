@@ -163,7 +163,7 @@ namespace DragonBones
 #if UNITY_EDITOR
             var newMaterial = new Material(Resources.Load<Shader>(UI_SHADER_GRAP));
 #else
-            var newMaterial = new Material(Resources.Load<Shader>(UI_SHADER_FRAME_BUFFER));
+            var newMaterial = new Material(Resources.Load<Shader>(UI_SHADER_GRAP));
 #endif
             newMaterial.hideFlags = HideFlags.HideAndDontSave;
             newMaterial.mainTexture = (this.parent as UnityTextureAtlasData).texture.mainTexture;

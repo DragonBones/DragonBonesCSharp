@@ -48,7 +48,16 @@ namespace DragonBones
     {
         private static int _OnSortSlots(Slot a, Slot b)
         {
-            return a._zOrder > b._zOrder ? 1 : -1;
+            if(a._zOrder > b._zOrder)
+            {
+                return 1;
+            }
+            else if(a._zOrder < b._zOrder)
+            {
+                return -1;
+            }
+
+            return 0;//fixed slots sort error
         }
 
         /// <summary>

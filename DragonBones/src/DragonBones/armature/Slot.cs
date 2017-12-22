@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace DragonBones
@@ -160,7 +160,7 @@ namespace DragonBones
             for (int i = 0, l = _displayList.Count; i < l; ++i)
             {
                 var eachDisplay = _displayList[i];
-                if ( eachDisplay != _rawDisplay && eachDisplay != _meshDisplay && !disposeDisplayList.Contains(eachDisplay))
+                if (eachDisplay != _rawDisplay && eachDisplay != _meshDisplay && !disposeDisplayList.Contains(eachDisplay))
                 {
                     disposeDisplayList.Add(eachDisplay);
                 }
@@ -175,19 +175,19 @@ namespace DragonBones
                 }
                 else
                 {
-                    _DisposeDisplay(eachDisplay);
+                    _DisposeDisplay(eachDisplay, false);
                 }
             }
 
             if (this._meshDisplay != null && this._meshDisplay != this._rawDisplay)
-            { 
+            {
                 // May be _meshDisplay and _rawDisplay is the same one.
-                this._DisposeDisplay(this._meshDisplay);
+                this._DisposeDisplay(this._meshDisplay, false);
             }
 
             if (this._rawDisplay != null)
             {
-                this._DisposeDisplay(this._rawDisplay);
+                this._DisposeDisplay(this._rawDisplay, false);
             }
 
             this.displayController = null;
@@ -227,9 +227,9 @@ namespace DragonBones
         }
 
         /// <private/>
-        protected abstract void _InitDisplay(object value);
+        protected abstract void _InitDisplay(object value, bool isRetain);
         /// <private/>
-        protected abstract void _DisposeDisplay(object value);
+        protected abstract void _DisposeDisplay(object value, bool isRelease);
         /// <private/>
         protected abstract void _OnUpdateDisplay();
         /// <private/>
@@ -479,7 +479,7 @@ namespace DragonBones
                 if (prevChildArmature != null)
                 {
                     // Update child armature parent.
-                    prevChildArmature._parent = null; 
+                    prevChildArmature._parent = null;
                     prevChildArmature.clock = null;
                     if (prevChildArmature.inheritAnimation)
                     {
@@ -490,7 +490,7 @@ namespace DragonBones
                 if (this._childArmature != null)
                 {
                     // Update child armature parent.
-                    this._childArmature._parent = this; 
+                    this._childArmature._parent = this;
                     this._childArmature.clock = this._armature.clock;
                     if (this._childArmature.inheritAnimation)
                     {
@@ -564,7 +564,7 @@ namespace DragonBones
             return false;
         }
         /// <inheritDoc/>
-        internal override void  _SetArmature(Armature value = null)
+        internal override void _SetArmature(Armature value = null)
         {
             if (this._armature == value)
             {
@@ -654,7 +654,7 @@ namespace DragonBones
                 }
 
                 for (int i = 0, l = value.Count; i < l; ++i)
-                { 
+                {
                     // Retain input render displays.
                     var eachDisplay = value[i];
                     if (eachDisplay != null &&
@@ -662,7 +662,7 @@ namespace DragonBones
                         eachDisplay != this._meshDisplay &&
                         !(eachDisplay is Armature) && this._displayList.IndexOf(eachDisplay) < 0)
                     {
-                        this._InitDisplay(eachDisplay);
+                        this._InitDisplay(eachDisplay, true);
                     }
 
                     this._displayList[i] = eachDisplay;
@@ -708,6 +708,12 @@ namespace DragonBones
             this._meshDisplay = meshDisplay;
 
             this.rawDisplayDatas = displayDatas;
+            //
+            this._InitDisplay(this._rawDisplay, false);
+            if (this._rawDisplay != this._meshDisplay)
+            {
+                this._InitDisplay(this._meshDisplay, false);
+            }
         }
 
         /// <internal/>
@@ -744,37 +750,37 @@ namespace DragonBones
                 var cachedFrameIndex = this._cachedFrameIndices[cacheFrameIndex];
 
                 if (cachedFrameIndex >= 0 && this._cachedFrameIndex == cachedFrameIndex)
-                { 
+                {
                     // Same cache.
                     this._transformDirty = false;
                 }
                 else if (cachedFrameIndex >= 0)
-                { 
+                {
                     // Has been Cached.
                     this._transformDirty = true;
                     this._cachedFrameIndex = cachedFrameIndex;
                 }
                 else if (this._transformDirty || this._parent._childrenTransformDirty)
-                { 
+                {
                     // Dirty.
                     this._transformDirty = true;
                     this._cachedFrameIndex = -1;
                 }
                 else if (this._cachedFrameIndex >= 0)
-                { 
+                {
                     // Same cache, but not set index yet.
                     this._transformDirty = false;
                     this._cachedFrameIndices[cacheFrameIndex] = this._cachedFrameIndex;
                 }
                 else
-                { 
+                {
                     // Dirty.
                     this._transformDirty = true;
                     this._cachedFrameIndex = -1;
                 }
             }
             else if (this._transformDirty || this._parent._childrenTransformDirty)
-            { 
+            {
                 // Dirty.
                 cacheFrameIndex = -1;
                 this._transformDirty = true;
@@ -863,7 +869,7 @@ namespace DragonBones
         /// <private/>
         internal void ReplaceDisplayData(DisplayData value, int displayIndex = -1)
         {
-            if (displayIndex< 0)
+            if (displayIndex < 0)
             {
                 if (this._displayIndex < 0)
                 {
@@ -886,7 +892,7 @@ namespace DragonBones
                 }
             }
 
-            this._displayDatas [displayIndex] = value;
+            this._displayDatas[displayIndex] = value;
         }
 
         /// <summary>
@@ -1148,7 +1154,7 @@ namespace DragonBones
                 // Release replaced displays.
                 foreach (var eachDisplay in backupDisplayList)
                 {
-                    if ( eachDisplay != null &&
+                    if (eachDisplay != null &&
                         eachDisplay != this._rawDisplay &&
                         eachDisplay != this._meshDisplay &&
                         this._displayList.IndexOf(eachDisplay) < 0 &&
@@ -1166,7 +1172,7 @@ namespace DragonBones
                     }
                     else
                     {
-                        this._DisposeDisplay(eachDisplay);
+                        this._DisposeDisplay(eachDisplay, true);
                     }
                 }
             }
@@ -1280,7 +1286,7 @@ namespace DragonBones
 
                 var displayListLength = this._displayList.Count;
                 if (this._displayIndex < 0 && displayListLength == 0)
-                {  
+                {
                     // Emprty.
                     this._displayIndex = 0;
                 }
@@ -1340,5 +1346,5 @@ namespace DragonBones
                 this.display = value;
             }
         }
-}
+    }
 }

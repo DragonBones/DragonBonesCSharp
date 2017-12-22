@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace DragonBones
 {
@@ -151,13 +151,13 @@ namespace DragonBones
         internal void AdvanceTime(float passedTime)
         {
             if (passedTime < 0.0f)
-            { 
+            {
                 // Only animationState can reverse play.
                 passedTime = -passedTime;
             }
 
             if (this._armature.inheritAnimation && this._armature._parent != null)
-            { 
+            {
                 // Inherit parent animation timeScale.
                 this._inheritTimeScale = this._armature._parent._armature.animation._inheritTimeScale * this.timeScale;
             }
@@ -333,8 +333,8 @@ namespace DragonBones
             if (!(this._animations.ContainsKey(animationName)))
             {
                 Helper.Assert(false,
-                    "Non-existent animation.\n" + 
-                    "DragonBones name: " + this._armature.armatureData.parent.name + 
+                    "Non-existent animation.\n" +
+                    "DragonBones name: " + this._armature.armatureData.parent.name +
                     "Armature name: " + this._armature.name +
                     "Animation name: " + animationName
                 );
@@ -427,13 +427,16 @@ namespace DragonBones
                 var added = false;
                 for (int i = 0, l = this._animationStates.Count; i < l; ++i)
                 {
-                    if (animationState.layer >= this._animationStates[i].layer)
-                    {
-                    }
-                    else
+                    if (animationState.layer > this._animationStates[i].layer)
                     {
                         added = true;
                         this._animationStates.Insert(i, animationState);
+                        break;
+                    }
+                    else if (i != l - 1 && animationState.layer > this._animationStates[i + 1].layer)
+                    {
+                        added = true;
+                        this._animationStates.Insert(i + 1, animationState);
                         break;
                     }
                 }
@@ -462,7 +465,7 @@ namespace DragonBones
             }
 
             if (animationConfig.fadeInTime <= 0.0f)
-            { 
+            {
                 // Blend animation state, update armature.
                 this._armature.AdvanceTime(0.0f);
             }
@@ -1000,7 +1003,7 @@ namespace DragonBones
         /// <language>zh_CN</language>
         public AnimationState lastAnimationState
         {
-            get{ return this._lastAnimationState; }
+            get { return this._lastAnimationState; }
         }
     }
 }

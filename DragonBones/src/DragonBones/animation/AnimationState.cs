@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace DragonBones
@@ -159,7 +159,7 @@ namespace DragonBones
         /// <language>zh_CN</language>
         public float autoFadeOutTime;
         /// <private/>
-        internal float fadeTotalTime;
+        public float fadeTotalTime;
         /// <summary>
         /// - The name of the animation state. (Can be different from the name of the animation data)
         /// </summary>
@@ -224,6 +224,7 @@ namespace DragonBones
         /// <private/>
         internal float _fadeProgress;
         private float _weightResult;
+        internal readonly BlendState _blendState = new BlendState();
         private readonly List<string> _boneMask = new List<string>();
         private readonly List<BoneTimelineState> _boneTimelines = new List<BoneTimelineState>();
         private readonly List<SlotTimelineState> _slotTimelines = new List<SlotTimelineState>();
@@ -295,6 +296,7 @@ namespace DragonBones
             this._time = 0.0f;
             this._fadeProgress = 0.0f;
             this._weightResult = 0.0f;
+            this._blendState.Clear();
             this._boneMask.Clear();
             this._boneTimelines.Clear();
             this._slotTimelines.Clear();
@@ -323,7 +325,7 @@ namespace DragonBones
                     boneTimelines[timelineName].Add(timeline);
                 }
 
-                foreach (var bone in this._armature.GetBones()) 
+                foreach (var bone in this._armature.GetBones())
                 {
                     var timelineName = bone.name;
                     if (!this.ContainsBoneMask(timelineName))
@@ -402,7 +404,7 @@ namespace DragonBones
                 }
 
                 foreach (var timelines in boneTimelines.Values)
-                { 
+                {
                     // Remove bone timelines.
                     foreach (var timeline in timelines)
                     {
@@ -453,7 +455,7 @@ namespace DragonBones
 
                         if (timelineDatas != null)
                         {
-                            foreach (var timelineData in timelineDatas) 
+                            foreach (var timelineData in timelineDatas)
                             {
                                 switch (timelineData.type)
                                 {
@@ -522,7 +524,7 @@ namespace DragonBones
                                         if (!ffdFlags.Contains(meshOffset))
                                         {
                                             var timeline = BaseObject.BorrowObject<SlotFFDTimelineState>();
-                                            timeline.meshOffset = (uint)meshOffset; //
+                                            timeline.meshOffset = meshOffset; //
                                             timeline.slot = slot;
                                             timeline.Init(this._armature, this, null);
                                             this._slotTimelines.Add(timeline);
@@ -536,7 +538,7 @@ namespace DragonBones
                 }
 
                 foreach (var timelines in slotTimelines.Values)
-                { 
+                {
                     // Remove slot timelines.
                     foreach (var timeline in timelines)
                     {
@@ -594,7 +596,7 @@ namespace DragonBones
                             }
                         }
                         else if (this.resetToPose)
-                        { 
+                        {
                             // Pose timeline.
                             var timeline = BaseObject.BorrowObject<IKConstraintTimelineState>();
                             timeline.constraint = constraint;
@@ -643,24 +645,24 @@ namespace DragonBones
             this._fadeTime += passedTime;
 
             if (this._fadeTime >= this.fadeTotalTime)
-            { 
+            {
                 // Fade complete.
                 this._subFadeState = 1;
                 this._fadeProgress = isFadeOut ? 0.0f : 1.0f;
             }
             else if (this._fadeTime > 0.0f)
-            { 
+            {
                 // Fading.
                 this._fadeProgress = isFadeOut ? (1.0f - this._fadeTime / this.fadeTotalTime) : (this._fadeTime / this.fadeTotalTime);
             }
             else
-            { 
+            {
                 // Before fade.
                 this._fadeProgress = isFadeOut ? 1.0f : 0.0f;
             }
 
             if (this._subFadeState > 0)
-            { 
+            {
                 // Fade complete event.
                 if (!isFadeOut)
                 {
@@ -677,46 +679,6 @@ namespace DragonBones
                     eventObject.animationState = this;
                     this._armature._dragonBones.BufferEvent(eventObject);
                 }
-            }
-        }
-
-        private void _BlendBoneTimline(BoneTimelineState timeline)
-        {
-            var boneWeight = this._weightResult > 0.0f ? this._weightResult : -this._weightResult;
-            var bone = timeline.bone;
-            var bonePose = timeline.bonePose.result;
-            var animationPose = bone.animationPose;
-
-            if (!bone._blendDirty)
-            {
-                bone._blendDirty = true;
-                bone._blendLayer = this.layer;
-                bone._blendLayerWeight = boneWeight;
-                bone._blendLeftWeight = 1.0f;
-
-                animationPose.x = bonePose.x * boneWeight;
-                animationPose.y = bonePose.y * boneWeight;
-                animationPose.rotation = bonePose.rotation * boneWeight;
-                animationPose.skew = bonePose.skew * boneWeight;
-                animationPose.scaleX = (bonePose.scaleX - 1.0f) * boneWeight + 1.0f;
-                animationPose.scaleY = (bonePose.scaleY - 1.0f) * boneWeight + 1.0f;
-            }
-            else
-            {
-                boneWeight *= bone._blendLeftWeight;
-                bone._blendLayerWeight += boneWeight;
-
-                animationPose.x += bonePose.x * boneWeight;
-                animationPose.y += bonePose.y * boneWeight;
-                animationPose.rotation += bonePose.rotation * boneWeight;
-                animationPose.skew += bonePose.skew * boneWeight;
-                animationPose.scaleX += (bonePose.scaleX - 1.0f) * boneWeight;
-                animationPose.scaleY += (bonePose.scaleY - 1.0f) * boneWeight;
-            }
-
-            if (this._fadeState != 0 || this._subFadeState != 0)
-            {
-                bone._transformDirty = true;
             }
         }
 
@@ -818,6 +780,8 @@ namespace DragonBones
         /// <private/>
         internal void AdvanceTime(float passedTime, float cacheFrameRate)
         {
+            this._blendState.dirty = true;
+            
             // Update fade time.
             if (this._fadeState != 0 || this._subFadeState != 0)
             {
@@ -826,7 +790,7 @@ namespace DragonBones
 
             // Update time.
             if (this._playheadState == 3)
-            { 
+            {
                 // 11
                 if (this.timeScale != 1.0f)
                 {
@@ -852,7 +816,7 @@ namespace DragonBones
             var isUpdateBoneTimeline = true;
             var time = this._time;
             this._weightResult = this.weight * this._fadeProgress;
-            
+
             if (this._actionTimeline.playState <= 0)
             {
                 // Update main timeline.
@@ -860,24 +824,24 @@ namespace DragonBones
             }
 
             if (isCacheEnabled)
-            { 
+            {
                 // Cache time internval.
                 var internval = cacheFrameRate * 2.0f;
                 this._actionTimeline.currentTime = (float)Math.Floor(this._actionTimeline.currentTime * internval) / internval;
             }
 
             if (this._zOrderTimeline != null && this._zOrderTimeline.playState <= 0)
-            { 
+            {
                 // Update zOrder timeline.
                 this._zOrderTimeline.Update(time);
             }
 
             if (isCacheEnabled)
-            { 
+            {
                 // Update cache.
                 var cacheFrameIndex = (int)Math.Floor(this._actionTimeline.currentTime * cacheFrameRate); // uint
                 if (this._armature._cacheFrameIndex == cacheFrameIndex)
-                { 
+                {
                     // Same cache.
                     isUpdateTimeline = false;
                     isUpdateBoneTimeline = false;
@@ -886,12 +850,12 @@ namespace DragonBones
                 {
                     this._armature._cacheFrameIndex = cacheFrameIndex;
                     if (this._animationData.cachedFrames[cacheFrameIndex])
-                    { 
+                    {
                         // Cached.
                         isUpdateBoneTimeline = false;
                     }
                     else
-                    { 
+                    {
                         // Cache.
                         this._animationData.cachedFrames[cacheFrameIndex] = true;
                     }
@@ -902,59 +866,20 @@ namespace DragonBones
             {
                 if (isUpdateBoneTimeline)
                 {
-                    Bone bone = null;
-                    BoneTimelineState prevTimeline = null; //
                     for (int i = 0, l = this._boneTimelines.Count; i < l; ++i)
                     {
                         var timeline = this._boneTimelines[i];
-                        if (bone != timeline.bone)
-                        {
-                            if (bone != null)
-                            {
-                                this._BlendBoneTimline(prevTimeline);
-                                if (bone._blendDirty)
-                                {
-                                    if (bone._blendLeftWeight > 0.0f)
-                                    {
-                                        if (bone._blendLayer != this.layer)
-                                        {
-                                            if (bone._blendLayerWeight >= bone._blendLeftWeight)
-                                            {
-                                                bone._blendLeftWeight = 0.0f;
-                                                bone = null;
-                                            }
-                                            else
-                                            {
-                                                bone._blendLayer = this.layer;
-                                                bone._blendLeftWeight -= bone._blendLayerWeight;
-                                                bone._blendLayerWeight = 0.0f;
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        bone = null;
-                                    }
-                                }
-                            }
 
-                            bone = timeline.bone;
+                        if(timeline.playState <= 0)
+                        {
+                            timeline.Update(time);
                         }
 
-                        if (bone != null)
-                        {
-                            if (timeline.playState <= 0)
+                        if (i == l - 1 || timeline.bone != this._boneTimelines[i + 1].bone) {
+                            var state = timeline.bone._blendState.Update(this._weightResult, this.layer);
+                            if (state != 0)
                             {
-                                timeline.Update(time);
-                            }
-                            
-                            if (i == l - 1)
-                            {
-                                this._BlendBoneTimline(timeline);
-                            }
-                            else
-                            {
-                                prevTimeline = timeline;
+                                timeline.Blend(state);
                             }
                         }
                     }
@@ -1024,7 +949,7 @@ namespace DragonBones
                 if (this._actionTimeline.playState > 0)
                 {
                     if (this.autoFadeOutTime >= 0.0f)
-                    { 
+                    {
                         // Auto fade out.
                         this.FadeOut(this.autoFadeOutTime);
                     }
@@ -1092,7 +1017,7 @@ namespace DragonBones
             if (this._fadeState > 0)
             {
                 if (fadeOutTime > this.fadeTotalTime - this._fadeTime)
-                { 
+                {
                     // If the animation is already in fade out, the new fade out will be ignored.
                     return;
                 }
@@ -1158,24 +1083,25 @@ namespace DragonBones
         public void AddBoneMask(string name, bool recursive = true)
         {
             var currentBone = this._armature.GetBone(name);
-            if (currentBone == null) {
+            if (currentBone == null)
+            {
                 return;
             }
 
             if (this._boneMask.IndexOf(name) < 0)
-            { 
+            {
                 // Add mixing
                 this._boneMask.Add(name);
             }
 
             if (recursive)
-            { 
+            {
                 // Add recursive mixing.
                 foreach (var bone in this._armature.GetBones())
                 {
                     if (this._boneMask.IndexOf(bone.name) < 0 && currentBone.Contains(bone))
                     {
-                    this._boneMask.Add(bone.name);
+                        this._boneMask.Add(bone.name);
                     }
                 }
             }
@@ -1425,7 +1351,6 @@ namespace DragonBones
     /// <private/>
     internal class BonePose : BaseObject
     {
-
         public readonly Transform current = new Transform();
         public readonly Transform delta = new Transform();
         public readonly Transform result = new Transform();
@@ -1435,6 +1360,67 @@ namespace DragonBones
             this.current.Identity();
             this.delta.Identity();
             this.result.Identity();
+        }
+    }
+
+    internal class BlendState
+    {
+        public bool dirty;
+        public int layer;
+        public float leftWeight;
+        public float layerWeight;
+        public float blendWeight;
+
+        public int Update(float weight, int layer)
+        {
+            if (this.dirty)
+            {
+                if (this.leftWeight > 0.0f)
+                {
+                    if (this.layer != layer)
+                    {
+                        if (this.layerWeight >= this.leftWeight)
+                        {
+                            this.leftWeight = 0.0f;
+
+                            return 0;
+                        }
+                        else
+                        {
+                            this.layer = layer;
+                            this.leftWeight -= this.layerWeight;
+                            this.layerWeight = 0.0f;
+                        }
+                    }
+                }
+                else
+                {
+                    return 0;
+                }
+
+                weight *= this.leftWeight;
+                this.layerWeight += weight;
+                this.blendWeight = weight;
+
+                return 1;
+            }
+
+            this.dirty = true;
+            this.layer = layer;
+            this.layerWeight = weight;
+            this.leftWeight = 1.0f;
+            this.blendWeight = weight;
+
+            return -1;
+        }
+
+        public void Clear()
+        {
+            this.dirty = false;
+            this.layer = 0;
+            this.leftWeight = 0.0f;
+            this.layerWeight = 0.0f;
+            this.blendWeight = 0.0f;
         }
     }
 }

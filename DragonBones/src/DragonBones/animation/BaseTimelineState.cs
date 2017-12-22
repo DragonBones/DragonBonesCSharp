@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-﻿using System;
+using System;
 
 namespace DragonBones
 {
@@ -114,7 +114,7 @@ namespace DragonBones
             {
                 var playTimes = this._animationState.playTimes;
                 var totalTime = playTimes * this._duration;
-                
+
                 passedTime *= this._timeScale;
                 if (this._timeOffset != 0.0f)
                 {
@@ -135,7 +135,7 @@ namespace DragonBones
                     }
                     else
                     {
-                        this.currentTime = this._duration;
+                        this.currentTime = this._duration + 0.000001f; // Precision problem
                     }
                 }
                 else
@@ -148,12 +148,12 @@ namespace DragonBones
                     if (passedTime < 0.0f)
                     {
                         passedTime = -passedTime;
-                        this.currentPlayTimes = (int)Math.Floor(passedTime / this._duration);
+                        this.currentPlayTimes = (int)(passedTime / this._duration);
                         this.currentTime = this._duration - (passedTime % this._duration);
                     }
                     else
                     {
-                        this.currentPlayTimes = (int)Math.Floor(passedTime / this._duration);
+                        this.currentPlayTimes = (int)(passedTime / this._duration);
                         this.currentTime = passedTime % this._duration;
                     }
                 }
@@ -242,7 +242,7 @@ namespace DragonBones
                 {
                     this._frameIndex = 0;
                     if (this._timelineData != null)
-                    { 
+                    {
                         // May be pose timeline.
                         this._frameOffset = this._animationData.frameOffset + this._timelineArray[this._timelineData.offset + (int)BinaryOffset.TimelineFrameOffset];
                     }
@@ -402,6 +402,46 @@ namespace DragonBones
             this.bone = null; //
             this.bonePose = null; //
         }
+
+        public void Blend(int state)
+        {
+            var blendWeight = this.bone._blendState.blendWeight;
+            var animationPose = this.bone.animationPose;
+            var result = this.bonePose.result;
+
+            if (state > 0)
+            {
+                animationPose.x += result.x * blendWeight;
+                animationPose.y += result.y * blendWeight;
+                animationPose.rotation += result.rotation * blendWeight;
+                animationPose.skew += result.skew * blendWeight;
+                animationPose.scaleX += (result.scaleX - 1.0f) * blendWeight;
+                animationPose.scaleY += (result.scaleY - 1.0f) * blendWeight;
+            }
+            else if (blendWeight != 1.0f)
+            {
+                animationPose.x = result.x * blendWeight;
+                animationPose.y = result.y * blendWeight;
+                animationPose.rotation = result.rotation * blendWeight;
+                animationPose.skew = result.skew * blendWeight;
+                animationPose.scaleX = (result.scaleX - 1.0f) * blendWeight + 1.0f;
+                animationPose.scaleY = (result.scaleY - 1.0f) * blendWeight + 1.0f;
+            }
+            else
+            {
+                animationPose.x = result.x;
+                animationPose.y = result.y;
+                animationPose.rotation = result.rotation;
+                animationPose.skew = result.skew;
+                animationPose.scaleX = result.scaleX;
+                animationPose.scaleY = result.scaleY;
+            }
+
+            if (this._animationState._fadeState != 0 || this._animationState._subFadeState != 0)
+            {
+                this.bone._transformDirty = true;
+            }
+        }
     }
     /// <internal/>
     /// <private/>
@@ -429,5 +469,5 @@ namespace DragonBones
 
             this.constraint = null; //
         }
-}
+    }
 }
