@@ -568,7 +568,7 @@ namespace DragonBones
                 _sortingLayerName = _sortingGroup.sortingLayerName;
                 _sortingOrder = _sortingGroup.sortingOrder;
 
-                foreach (UnitySlot slot in _armature.GetSlots())
+                foreach (UnityNewSlot slot in _armature.GetSlots())
                 {
                     if (slot.childArmature != null)
                     {
@@ -587,7 +587,7 @@ namespace DragonBones
             else
             {
                 _sortingMode = SortingMode.SortByZ;
-                foreach (UnitySlot slot in _armature.GetSlots())
+                foreach (UnityNewSlot slot in _armature.GetSlots())
                 {
                     if (slot.childArmature != null)
                     {
@@ -634,7 +634,7 @@ namespace DragonBones
             }
 
             //
-            foreach (UnitySlot slot in _armature.GetSlots())
+            foreach (UnityNewSlot slot in _armature.GetSlots())
             {
                 var display = slot.display as GameObject;
                 if (display == null)
@@ -762,6 +762,8 @@ namespace DragonBones
 
                 CollectBones();
             }
+
+            // this.combineMesh = true;
         }
 
         void LateUpdate()

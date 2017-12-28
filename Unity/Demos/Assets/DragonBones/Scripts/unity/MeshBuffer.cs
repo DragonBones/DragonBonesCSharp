@@ -5,8 +5,10 @@ using DragonBones;
 
 namespace DragonBones
 {
+    [Serializable]
     public class MeshBuffer
     {
+        public string name;
         public Mesh sharedMesh;
         public Vector2[] uvBuffers;
         public Vector3[] vertexBuffers;
