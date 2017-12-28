@@ -26,6 +26,31 @@ namespace DragonBones
             return mesh;
         }
 
+        public void Dispose()
+        {
+            if(this.sharedMesh != null)
+            {
+                UnityFactoryHelper.DestroyUnityObject(this.sharedMesh);
+            }
+
+            this.name = string.Empty;
+            this.sharedMesh = null;
+            this.meshDirty = false;
+        }
+
+        public void Clear()
+        {
+            if (this.sharedMesh != null)
+            {
+                this.sharedMesh.Clear();
+                this.sharedMesh.uv = null;
+                this.sharedMesh.vertices = null;
+                this.sharedMesh.normals = null;
+                this.sharedMesh.triangles = null;
+                this.sharedMesh.colors32 = null;
+            }
+        }
+
         public void CombineMeshes(CombineInstance[] combines)
         {
             if (this.sharedMesh == null)
@@ -42,15 +67,11 @@ namespace DragonBones
             this.triangleBuffers = this.sharedMesh.triangles;
         }
 
-        public void UpdateColor32(int startOffset, int verticeCount, float r, float g, float b, float a)
+        public void UpdateMesh()
         {
-            for (int i = startOffset, l = startOffset + verticeCount; i < l; i++)
-            {
-                this.color32Buffers[i].r = (byte)(r * 255);
-                this.color32Buffers[i].g = (byte)(g * 255);
-                this.color32Buffers[i].b = (byte)(b * 255);
-                this.color32Buffers[i].a = (byte)(a * 255);
-            }
+            this.sharedMesh.vertices = this.vertexBuffers;// Must set vertices before uvs.
+            this.sharedMesh.uv = this.uvBuffers;
+            this.sharedMesh.triangles = this.triangleBuffers;
         }
     }
 }
