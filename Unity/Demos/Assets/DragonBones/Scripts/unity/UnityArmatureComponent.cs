@@ -138,43 +138,52 @@ namespace DragonBones
 
         private bool _hasSortingGroup = false;
         private Material _debugDrawer;
+
+        //
+        internal int _armatureZ;
+
+        //combineMesh
+        internal bool _combineMesh;
         /// <private/>
         public void DBClear()
         {
-            bonesRoot = null;
-            if (_armature != null)
+            this.bonesRoot = null;
+            if (this._armature != null)
             {
-                _armature = null;
-                if (_disposeProxy)
+                this._armature = null;
+                if (this._disposeProxy)
                 {
                     UnityFactoryHelper.DestroyUnityObject(gameObject);
                 }
             }
 
-            unityData = null;
-            armatureName = null;
-            animationName = null;
-            isUGUI = false;
-            addNormal = false;
-            debugDraw = false;
-            unityBones = null;
-            boneHierarchy = false;
+            this.unityData = null;
+            this.armatureName = null;
+            this.animationName = null;
+            this.isUGUI = false;
+            this.addNormal = false;
+            this.debugDraw = false;
+            this.unityBones = null;
+            this.boneHierarchy = false;
 
-            _disposeProxy = true;
-            _armature = null;
-            _colorTransform.Identity();
-            _sortingMode = SortingMode.SortByZ;
-            _sortingLayerName = "Default";
-            _sortingOrder = 0;
-            _playTimes = 0;
-            _timeScale = 1.0f;
-            _zSpace = 0.0f;
-            _flipX = false;
-            _flipY = false;
+            this._disposeProxy = true;
+            this._armature = null;
+            this._colorTransform.Identity();
+            this._sortingMode = SortingMode.SortByZ;
+            this._sortingLayerName = "Default";
+            this._sortingOrder = 0;
+            this._playTimes = 0;
+            this._timeScale = 1.0f;
+            this._zSpace = 0.0f;
+            this._flipX = false;
+            this._flipY = false;
 
-            _hasSortingGroup = false;
+            this._hasSortingGroup = false;
 
-            _debugDrawer = null;
+            this._debugDrawer = null;
+
+            this._armatureZ = 0;
+            this._combineMesh = false;
         }
         ///
         public void DBInit(Armature armature)
@@ -184,7 +193,7 @@ namespace DragonBones
 
         public void DBUpdate()
         {
-            
+
         }
 
         void CreateLineMaterial()
@@ -657,6 +666,62 @@ namespace DragonBones
         }
 #endif
 
+        public bool combineMesh
+        {
+            get { return this._combineMesh; }
+            set
+            {
+                if (this._combineMesh == value)
+                {
+                    return;
+                }
+
+                //
+                if (value)
+                {
+                    var cm = gameObject.GetComponent<CombineMeshs>();
+                    if (cm == null)
+                    {
+                        gameObject.AddComponent<CombineMeshs>();
+                    }
+                }
+                else
+                {
+                    var cm = gameObject.GetComponent<CombineMeshs>();
+                    if (cm != null)
+                    {
+                        DestroyImmediate(cm);
+                    }
+                }
+            }
+        }
+
+        internal int armatureZ
+        {
+            get { return this._armatureZ; }
+            set
+            {
+                if(this._armatureZ == value)
+                {
+                    return;
+                }
+
+                this._armatureZ = value;
+
+                foreach(UnityNewSlot slot in this._armature.GetSlots())
+                {
+                    if(slot.childArmature != null)
+                    {
+                        (slot.childArmature.proxy as UnityArmatureComponent).armatureZ = slot._zOrder;
+                    }
+                    else
+                    {
+                        slot._SetZorder((slot.renderDisplay as GameObject).transform.localPosition);                        
+                    }                    
+                }
+            }
+        }
+
         /// <private/>
         void Awake()
         {
@@ -742,8 +807,8 @@ namespace DragonBones
                 _armature = null;
 
                 armature.Dispose();
-                
-                if(!Application.isPlaying)
+
+                if (!Application.isPlaying)
                 {
                     UnityFactory.factory._dragonBones.AdvanceTime(0.0f);
                 }

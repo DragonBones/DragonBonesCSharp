@@ -234,11 +234,11 @@ namespace DragonBones
             }
 
 #if UNITY_EDITOR
-            UpdateMesh();
+            // UpdateMesh();
 #else
             if(_unityArmature.animation.isPlaying)
             {
-                UpdateMesh();
+                // UpdateMesh();
             }
 #endif
         }
