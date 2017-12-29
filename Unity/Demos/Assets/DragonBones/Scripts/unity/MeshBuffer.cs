@@ -6,10 +6,12 @@ using DragonBones;
 namespace DragonBones
 {
     [Serializable]
-    public class MeshBuffer
+    public class MeshBuffer : IDisposable
     {
         public string name;
         public Mesh sharedMesh;
+        public int vertexCount;
+        public Vector3[] rawVertextBuffers;
         public Vector2[] uvBuffers;
         public Vector3[] vertexBuffers;
         public Color32[] color32Buffers;
@@ -35,6 +37,11 @@ namespace DragonBones
 
             this.name = string.Empty;
             this.sharedMesh = null;
+            this.vertexCount = 0;
+            this.rawVertextBuffers = null;
+            this.uvBuffers = null;
+            this.vertexBuffers = null;
+            this.color32Buffers = null;
             this.meshDirty = false;
         }
 
@@ -48,6 +55,65 @@ namespace DragonBones
                 this.sharedMesh.normals = null;
                 this.sharedMesh.triangles = null;
                 this.sharedMesh.colors32 = null;
+            }
+        }
+
+        public void Copy(MeshBuffer source, int sourceOffset)
+        {
+            int index = 0;
+            int i = 0;
+            int len = 0;
+            if(this.uvBuffers == null || this.vertexBuffers == null || this.color32Buffers == null)
+            {
+                return;
+            }
+
+            //
+            for(i = 0, len = this.uvBuffers.Length; i < len; i++)
+            {
+                index = i + sourceOffset;
+                if(index >= source.uvBuffers.Length)
+                {
+                    continue;
+                }
+
+                this.uvBuffers[i] = source.uvBuffers[index];
+            }
+
+            //
+            for(i = 0, len = this.vertexBuffers.Length; i < len; i++)
+            {
+                index = i + sourceOffset;
+                if(index >= source.vertexBuffers.Length)
+                {
+                    continue;
+                }
+
+                this.vertexBuffers[i] = source.vertexBuffers[index];
+            }
+
+            // //
+            // for(i = 0, len = this.triangleBuffers.Length; i < len; i++)
+            // {
+            //     index = i + sourceOffset;
+            //     if(index >= source.triangleBuffers.Length)
+            //     {
+            //         continue;
+            //     }
+
+            //     this.triangleBuffers[i] = source.triangleBuffers[index];
+            // }
+
+            //
+            for(i = 0, len = this.color32Buffers.Length; i < len; i++)
+            {
+                index = i + sourceOffset;
+                if(index >= source.color32Buffers.Length)
+                {
+                    continue;
+                }
+
+                this.color32Buffers[i] = source.color32Buffers[index];
             }
         }
 
@@ -65,13 +131,35 @@ namespace DragonBones
             this.vertexBuffers = this.sharedMesh.vertices;
             this.color32Buffers = this.sharedMesh.colors32;
             this.triangleBuffers = this.sharedMesh.triangles;
+
+            this.vertexCount = this.vertexBuffers.Length;
+            //
+            if(this.color32Buffers == null || this.color32Buffers.Length != this.vertexCount)
+            {
+                this.color32Buffers = new Color32[vertexCount];
+            }
         }
 
         public void UpdateMesh()
         {
+            this.Clear();
             this.sharedMesh.vertices = this.vertexBuffers;// Must set vertices before uvs.
             this.sharedMesh.uv = this.uvBuffers;
             this.sharedMesh.triangles = this.triangleBuffers;
+
+            if(this.vertexBuffers != null)
+            {
+                this.vertexCount = this.vertexBuffers.Length;
+            }
+            else
+            {
+                this.vertexCount = 0;
+            }
+
+            if(this.color32Buffers == null || this.color32Buffers.Length != this.vertexCount)
+            {
+                this.color32Buffers = new Color32[this.vertexCount];
+            }
         }
     }
 }
