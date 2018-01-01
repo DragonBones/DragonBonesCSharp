@@ -18,6 +18,7 @@ namespace DragonBones
         public int[] triangleBuffers;
 
         public bool meshDirty;
+        public bool enabled;
 
         public static Mesh GenerateMesh()
         {
@@ -30,7 +31,7 @@ namespace DragonBones
 
         public void Dispose()
         {
-            if(this.sharedMesh != null)
+            if (this.sharedMesh != null)
             {
                 UnityFactoryHelper.DestroyUnityObject(this.sharedMesh);
             }
@@ -60,19 +61,19 @@ namespace DragonBones
 
         public void Copy(MeshBuffer source, int sourceOffset)
         {
-            int index = 0;
-            int i = 0;
-            int len = 0;
-            if(this.uvBuffers == null || this.vertexBuffers == null || this.color32Buffers == null)
+            if (this.uvBuffers == null || this.vertexBuffers == null || this.color32Buffers == null)
             {
                 return;
             }
 
             //
-            for(i = 0, len = this.uvBuffers.Length; i < len; i++)
+            int index = 0;
+            int i = 0;
+            int len = 0;
+            for (i = 0, len = this.uvBuffers.Length; i < len; i++)
             {
                 index = i + sourceOffset;
-                if(index >= source.uvBuffers.Length)
+                if (index >= source.uvBuffers.Length)
                 {
                     continue;
                 }
@@ -81,10 +82,10 @@ namespace DragonBones
             }
 
             //
-            for(i = 0, len = this.vertexBuffers.Length; i < len; i++)
+            for (i = 0, len = this.vertexBuffers.Length; i < len; i++)
             {
                 index = i + sourceOffset;
-                if(index >= source.vertexBuffers.Length)
+                if (index >= source.vertexBuffers.Length)
                 {
                     continue;
                 }
@@ -105,10 +106,10 @@ namespace DragonBones
             // }
 
             //
-            for(i = 0, len = this.color32Buffers.Length; i < len; i++)
+            for (i = 0, len = this.color32Buffers.Length; i < len; i++)
             {
                 index = i + sourceOffset;
-                if(index >= source.color32Buffers.Length)
+                if (index >= source.color32Buffers.Length)
                 {
                     continue;
                 }
@@ -134,20 +135,19 @@ namespace DragonBones
 
             this.vertexCount = this.vertexBuffers.Length;
             //
-            if(this.color32Buffers == null || this.color32Buffers.Length != this.vertexCount)
+            if (this.color32Buffers == null || this.color32Buffers.Length != this.vertexCount)
             {
                 this.color32Buffers = new Color32[vertexCount];
             }
         }
 
-        public void UpdateMesh()
+        public void InitMesh()
         {
-            this.Clear();
             this.sharedMesh.vertices = this.vertexBuffers;// Must set vertices before uvs.
             this.sharedMesh.uv = this.uvBuffers;
             this.sharedMesh.triangles = this.triangleBuffers;
 
-            if(this.vertexBuffers != null)
+            if (this.vertexBuffers != null)
             {
                 this.vertexCount = this.vertexBuffers.Length;
             }
@@ -156,10 +156,18 @@ namespace DragonBones
                 this.vertexCount = 0;
             }
 
-            if(this.color32Buffers == null || this.color32Buffers.Length != this.vertexCount)
+            if (this.color32Buffers == null || this.color32Buffers.Length != this.vertexCount)
             {
                 this.color32Buffers = new Color32[this.vertexCount];
             }
+        }
+
+        public void UpdateMesh()
+        {
+            this.sharedMesh.vertices = this.vertexBuffers;
+            this.sharedMesh.uv = this.uvBuffers;
+            this.sharedMesh.colors32 = this.color32Buffers;
+            this.sharedMesh.RecalculateBounds();
         }
     }
 }

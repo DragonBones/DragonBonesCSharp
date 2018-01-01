@@ -696,32 +696,6 @@ namespace DragonBones
             }
         }
 
-        internal int armatureZ
-        {
-            get { return this._armatureZ; }
-            set
-            {
-                if(this._armatureZ == value)
-                {
-                    return;
-                }
-
-                this._armatureZ = value;
-
-                foreach(UnityNewSlot slot in this._armature.GetSlots())
-                {
-                    if(slot.childArmature != null)
-                    {
-                        (slot.childArmature.proxy as UnityArmatureComponent).armatureZ = slot._zOrder;
-                    }
-                    else
-                    {
-                        slot._SetZorder((slot.renderDisplay as GameObject).transform.localPosition);                        
-                    }                    
-                }
-            }
-        }
-
         /// <private/>
         void Awake()
         {
