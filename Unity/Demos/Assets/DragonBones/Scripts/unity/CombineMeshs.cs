@@ -104,7 +104,7 @@ namespace DragonBones
                 return;
             }
             //
-            UnityEngine.Debug.Log("开始合并网格:" + this._unityArmature.armature.GetSlots().Count);
+            // UnityEngine.Debug.Log("开始合并网格:" + this._unityArmature.armature.GetSlots().Count);
 
             this._sumMeshIndex = 0;
             this._verticeIndex = 0;
@@ -238,10 +238,22 @@ namespace DragonBones
                 return;
             }
 
-            var parentTransfrom1 = (slot._armature.proxy as UnityArmatureComponent).transform;
+            var parentTransfrom = (slot._armature.proxy as UnityArmatureComponent).transform;
             CombineInstance com = new CombineInstance();
             com.mesh = slot._meshBuffer.sharedMesh;
-            com.transform = parentTransfrom1.worldToLocalMatrix * go.transform.localToWorldMatrix;
+            com.transform = go.transform.localToWorldMatrix;
+            
+            slot.InvalidUpdate();
+            // com.transform = parentTransfrom.worldToLocalMatrix * go.transform.localToWorldMatrix;
+
+            //
+            // var vertices = com.mesh.vertices;
+            // for(var i = 0; i < vertices.Length; i++)
+            // {
+            //     vertices[i].z = -this._verticeIndex * 0.001f;
+            // }
+            // com.mesh.vertices = vertices;
+            // UnityEngine.Debug.Log(slot.name + " index:" + this._verticeIndex);
 
             //
             slot._isCombineMesh = true;

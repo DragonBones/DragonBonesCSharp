@@ -670,13 +670,13 @@ namespace DragonBones
 
                     this._meshBuffer.vertexBuffers[i].x = xG;
                     this._meshBuffer.vertexBuffers[i].y = yG;
-                    this._meshBuffer.vertexBuffers[i].z = this._worldZ;
+                    // this._meshBuffer.vertexBuffers[i].z = this._worldZ;
 
                     if (meshBuffer != null)
                     {
                         meshBuffer.vertexBuffers[i + this._verticeOffset].x = xG;
                         meshBuffer.vertexBuffers[i + this._verticeOffset].y = yG;
-                        meshBuffer.vertexBuffers[i + this._verticeOffset].z = this._worldZ;
+                        // meshBuffer.vertexBuffers[i + this._verticeOffset].z = this._worldZ;
                     }
                 }
 
@@ -726,7 +726,7 @@ namespace DragonBones
                         vy = (data.floatArray[vertexOffset + (iV++)] * scale + this._ffdVertices[iF++]);
                         this._meshBuffer.vertexBuffers[i].x = (vx * a + vy * c + tx);
                         this._meshBuffer.vertexBuffers[i].y = (vx * b + vy * d + ty);
-                        this._meshBuffer.vertexBuffers[i].z = this._worldZ;
+                        // this._meshBuffer.vertexBuffers[i].z = this._worldZ;
 
                         var index = i + this._verticeOffset;
                         meshBuffer.vertexBuffers[index] = this._meshBuffer.vertexBuffers[i];
@@ -759,12 +759,12 @@ namespace DragonBones
 
                         this._meshBuffer.vertexBuffers[i].x = vx * a + vy * c + tx;
                         this._meshBuffer.vertexBuffers[i].y = vx * b + vy * d + ty;
-                        this._meshBuffer.vertexBuffers[i].z = vz;
+                        // this._meshBuffer.vertexBuffers[i].z = vz;
 
                         var index = i + this._verticeOffset;
                         meshBuffer.vertexBuffers[index].x = this._meshBuffer.vertexBuffers[i].x;
                         meshBuffer.vertexBuffers[index].y = this._meshBuffer.vertexBuffers[i].y;
-                        meshBuffer.vertexBuffers[index].z = vz;
+                        // meshBuffer.vertexBuffers[index].z = vz;
                     }
                     meshBuffer.meshDirty = true;
                 }
@@ -807,7 +807,7 @@ namespace DragonBones
 
                         this._meshBuffer.vertexBuffers[i].x = (vx * a + vy * c + tx);
                         this._meshBuffer.vertexBuffers[i].y = (vx * b + vy * d + ty);
-                        this._meshBuffer.vertexBuffers[i].z = this._worldZ;
+                        // this._meshBuffer.vertexBuffers[i].z = this._worldZ;
                     }
 
                     if (_renderer && _renderer.enabled)
@@ -835,7 +835,7 @@ namespace DragonBones
 
                         this._meshBuffer.vertexBuffers[i].x = (vx * a + vy * c + tx);
                         this._meshBuffer.vertexBuffers[i].y = (vx * b + vy * d + ty);
-                        this._meshBuffer.vertexBuffers[i].z = this._worldZ;
+                        // this._meshBuffer.vertexBuffers[i].z = this._worldZ;
                     }
 
                     if (_renderer && _renderer.enabled)
