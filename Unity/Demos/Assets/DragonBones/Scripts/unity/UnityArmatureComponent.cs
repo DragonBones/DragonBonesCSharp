@@ -737,6 +737,8 @@ namespace DragonBones
                 CollectBones();
             }
 
+                // this.zSpace = 0.2f;
+
             // this.combineMesh = true;
         }
 

@@ -26,13 +26,14 @@ public class Performance : MonoBehaviour
                 var position = new Vector3((x * 10.0f / lX - 5.0f) * 1.0f, (y * 10.0f / lY - 5.0f) * 1.0f, x + lX * y * 0.01f);
 
                 var gameObject = new GameObject("mecha_1406");
-                gameObject.AddComponent<CombineMeshs>();
                 var armatureComponent = UnityFactory.factory.BuildArmatureComponent("mecha_1406", "", "", "", gameObject);
 				// armatureComponent.gameObject.AddComponent<CombineMesh>();
                 armatureComponent.armature.cacheFrameRate = 24; // Cache animation.
                 armatureComponent.animation.Play("walk");
                 armatureComponent.transform.localPosition = position;
 				armatureComponent.transform.localScale = Vector3.one * 0.5f;
+
+                // armatureComponent.combineMesh = true;
 				
                 yield return new WaitForSecondsRealtime(0.1f);
 				text.text = "Count:" + (++index);

@@ -188,7 +188,9 @@ namespace DragonBones
                 isBreakCombineMesh = isChildAramture ||
                                     slotMeshRenderer == null ||
                                     slot._isIgnoreCombineMesh ||
-                                    !isSameMaterial;
+                                    !isSameMaterial ||
+                                    slotDisplay == null ||
+                                    !slotDisplay.activeSelf;
 
                 //如果会打断，那么先合并一次
                 if (isBreakCombineMesh)
@@ -251,7 +253,7 @@ namespace DragonBones
             slot._verticeIndex = this._verticeIndex;
             slot._verticeOffset = this._verticeOffset;
             slot._combineMesh = this;
-
+            slot._meshBuffer.enabled = false;
             DisableSlot(slot, !isSlotProxy);
 
             this._verticeIndex++;
@@ -302,19 +304,22 @@ namespace DragonBones
             if (readyCombines.Count > 1)
             {
                 MeshBuffer meshBuffer = new MeshBuffer();
-                meshBuffer.name = slotMeshProxy.name;
+                meshBuffer.name = slotMeshProxy._renderer.sharedMaterial.name;
                 meshBuffer.sharedMesh = MeshBuffer.GenerateMesh();
                 meshBuffer.sharedMesh.Clear();
 
                 meshBuffer.CombineMeshes(readyCombines.ToArray());
 
+                // var newPos = slotMeshProxy._renderDisplay.transform.localPosition;
+                // newPos.z = 0.0f;
+                // slotMeshProxy._renderDisplay.transform.localPosition = newPos;
                 slotMeshProxy._meshFilter.sharedMesh = meshBuffer.sharedMesh;
                 meshBuffer.meshDirty = true;
 
                 //
                 DisableSlot(slotMeshProxy, false);
 
-                // UnityEngine.Debug.Log("合并:" + slotMeshProxy.name);
+                UnityEngine.Debug.Log("合并:" + slotMeshProxy.name + " 数量:" + readyCombines.Count);
 
                 buffers.Add(meshBuffer);
                 //重新赋值
