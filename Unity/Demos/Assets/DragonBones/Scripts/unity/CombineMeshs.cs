@@ -70,11 +70,11 @@ namespace DragonBones
         private void LateUpdate()
         {
             //
-            if (Input.GetMouseButtonDown(0))
-            {
-                this._isCanCombineMesh = false;
-                this.RestoreArmature(this._unityArmature.armature);
-            }
+            // if (Input.GetMouseButtonDown(0))
+            // {
+            //     this._isCanCombineMesh = false;
+            //     this.RestoreArmature(this._unityArmature.armature);
+            // }
             if (this._dirty)
             {
                 this.BeginCombineMesh();
@@ -104,7 +104,7 @@ namespace DragonBones
                 return;
             }
             //
-            // UnityEngine.Debug.Log("开始合并网格:" + this._unityArmature.armature.GetSlots().Count);
+            UnityEngine.Debug.Log("开始合并网格:" + this._unityArmature.armature.GetSlots().Count);
 
             this._sumMeshIndex = 0;
             this._verticeIndex = 0;
@@ -129,7 +129,9 @@ namespace DragonBones
 
             this.meshBuffers = buffers.ToArray();
 
-            // UnityEngine.Debug.Log("合并结束:" + this._subSlotCount);
+            // this._unityArmature.armature.InvalidUpdate(null, true);
+
+            UnityEngine.Debug.Log("合并结束:" + this._subSlotCount);
         }
 
         public void CombineSingleArmatureMesh(Armature armature, List<MeshBuffer> buffers)
@@ -242,18 +244,6 @@ namespace DragonBones
             CombineInstance com = new CombineInstance();
             com.mesh = slot._meshBuffer.sharedMesh;
             com.transform = go.transform.localToWorldMatrix;
-            
-            slot.InvalidUpdate();
-            // com.transform = parentTransfrom.worldToLocalMatrix * go.transform.localToWorldMatrix;
-
-            //
-            // var vertices = com.mesh.vertices;
-            // for(var i = 0; i < vertices.Length; i++)
-            // {
-            //     vertices[i].z = -this._verticeIndex * 0.001f;
-            // }
-            // com.mesh.vertices = vertices;
-            // UnityEngine.Debug.Log(slot.name + " index:" + this._verticeIndex);
 
             //
             slot._isCombineMesh = true;
@@ -267,6 +257,9 @@ namespace DragonBones
             this._verticeIndex++;
             this._verticeOffset += com.mesh.vertices.Length;
             this._subSlotCount++;
+            
+            slot._meshDirty = true;
+            slot._transformDirty = true;
 
             // UnityEngine.Debug.Log("待合并:" + slot.name);
             readyCombines.Add(com);

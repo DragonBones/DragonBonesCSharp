@@ -296,13 +296,13 @@ namespace DragonBones
 
             var combineMeshComp = this._proxy.GetComponent<CombineMeshs>();
 
-            //已经合并过了，又触发合并，那么打断合并，还原网格数据，用自己的
+            //已经合并过了，又触发合并，那么打断合并，用自己的网格数据还原
             if (this._isCombineMesh)
             {
                 this._meshFilter.sharedMesh = this._meshBuffer.sharedMesh;
                 this._meshBuffer.UpdateMesh();
 
-                this._isIgnoreCombineMesh = true;
+                // this._isIgnoreCombineMesh = true;
                 this._isCombineMesh = false;
                 this._sumMeshIndex = -1;
                 this._verticeOffset = -1;
@@ -744,7 +744,7 @@ namespace DragonBones
                     var ty = globalTransformMatrix.ty;
 
                     //
-                    UnityEngine.Debug.Log(this.name + "index:" + this._verticeIndex);
+                    // UnityEngine.Debug.Log(this.name + "index:" + this._verticeIndex);
 
                     var meshBuffer = this._combineMesh.meshBuffers[this._sumMeshIndex];
                     var vx = 0.0f;
@@ -810,7 +810,7 @@ namespace DragonBones
                         // this._meshBuffer.vertexBuffers[i].z = this._worldZ;
                     }
 
-                    if (_renderer && _renderer.enabled)
+                    if (this._renderer && this._renderer.enabled)
                     {
                         this._meshBuffer.UpdateMesh();
                     }
@@ -838,7 +838,7 @@ namespace DragonBones
                         // this._meshBuffer.vertexBuffers[i].z = this._worldZ;
                     }
 
-                    if (_renderer && _renderer.enabled)
+                    if (this._renderer && this._renderer.enabled)
                     {
                         this._meshBuffer.UpdateMesh();
                     }
