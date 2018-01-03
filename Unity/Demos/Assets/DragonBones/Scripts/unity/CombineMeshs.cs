@@ -149,8 +149,8 @@ namespace DragonBones
                 meshBuffer.sharedMesh.Clear();
 
                 meshBuffer.CombineMeshes(combineSlot.combines.ToArray());
-                // meshBuffer.meshDirty = true;
-                meshBuffer.UpdateVertices();
+                meshBuffer.meshDirty = true;
+                // meshBuffer.UpdateVertices();
                 //
                 proxySlot._meshFilter.sharedMesh = meshBuffer.sharedMesh;
 
@@ -298,7 +298,7 @@ namespace DragonBones
                         var parentTransfrom = (slot._armature.proxy as UnityArmatureComponent).transform;
                         CombineInstance com = new CombineInstance();
                         com.mesh = slot._meshBuffer.sharedMesh;
-                        com.transform = slotDisplay.transform.localToWorldMatrix;
+                        com.transform = slotMeshProxy._renderDisplay.transform.worldToLocalMatrix * slotDisplay.transform.localToWorldMatrix;
 
                         combineSlots[combineSlots.Count - 1].combines.Add(com);
                         combineSlots[combineSlots.Count - 1].slots.Add(slot);
