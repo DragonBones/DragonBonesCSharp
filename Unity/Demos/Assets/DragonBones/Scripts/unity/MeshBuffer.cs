@@ -168,8 +168,6 @@ namespace DragonBones
         public void UpdateVertices()
         {
             this.sharedMesh.vertices = this.vertexBuffers;
-            // this.sharedMesh.uv = this.uvBuffers;
-            // this.sharedMesh.colors32 = this.color32Buffers;
             this.sharedMesh.RecalculateBounds();
         }
 

@@ -701,7 +701,6 @@ namespace DragonBones
         /// <private/>
         void Awake()
         {
-            UnityEngine.Debug.Log("Awake");
 #if UNITY_EDITOR
             if (_IsPrefab())
             {

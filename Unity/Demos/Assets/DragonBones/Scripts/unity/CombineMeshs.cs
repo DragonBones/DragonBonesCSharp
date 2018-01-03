@@ -29,11 +29,11 @@ namespace DragonBones
 
         private void OnDestroy()
         {
-            if(this._unityArmature != null)
+            if (this._unityArmature != null)
             {
                 this.RestoreArmature(this._unityArmature._armature);
 
-                if(this._unityArmature._armature != null)
+                if (this._unityArmature._armature != null)
                 {
                     this._unityArmature._armature.InvalidUpdate();
                 }
@@ -62,14 +62,14 @@ namespace DragonBones
 
         private void RestoreArmature(Armature armature)
         {
-            if(armature == null)
+            if (armature == null)
             {
                 return;
             }
             //
-            foreach(UnityNewSlot slot in armature.GetSlots())
+            foreach (UnityNewSlot slot in armature.GetSlots())
             {
-                if(slot.childArmature != null)
+                if (slot.childArmature != null)
                 {
                     RestoreArmature(armature);
                 }
@@ -130,17 +130,81 @@ namespace DragonBones
                 this.meshBuffers = null;
             }
 
-            // List<Slot> combineSlots = new List<Slot>();
-            List<MeshBuffer> buffers = new List<MeshBuffer>();
+            List<CombineSlotInfo> combineSlots = new List<CombineSlotInfo>();
             //
-            this.CombineSingleArmatureMesh(this._unityArmature.armature, buffers);
+            this.CollectMesh(this._unityArmature.armature, combineSlots);
+
+            //
+            //先合并
+            List<MeshBuffer> buffers = new List<MeshBuffer>();
+            for (var i = 0; i < combineSlots.Count; i++)
+            {
+                var combineSlot = combineSlots[i];
+
+                //
+                var proxySlot = combineSlot.proxySlot;
+                MeshBuffer meshBuffer = new MeshBuffer();
+                meshBuffer.name = proxySlot._meshBuffer.name;
+                meshBuffer.sharedMesh = MeshBuffer.GenerateMesh();
+                meshBuffer.sharedMesh.Clear();
+
+                meshBuffer.CombineMeshes(combineSlot.combines.ToArray());
+                // meshBuffer.meshDirty = true;
+                meshBuffer.UpdateVertices();
+                //
+                proxySlot._meshFilter.sharedMesh = meshBuffer.sharedMesh;
+
+                buffers.Add(meshBuffer);
+
+                //
+
+            }
 
             this.meshBuffers = buffers.ToArray();
 
+            //
+            for (var i = 0; i < combineSlots.Count; i++)
+            {
+                var combineSlot = combineSlots[i];
+
+                //
+                var proxySlot = combineSlot.proxySlot;
+                this._verticeOffset = 0;
+                for (int j = 0; j < combineSlot.slots.Count; j++)
+                {
+                    var slot = combineSlot.slots[j];
+
+                    slot._isCombineMesh = true;
+                    slot._sumMeshIndex = i;
+                    slot._verticeIndex = j;
+                    slot._verticeOffset = this._verticeOffset;
+                    slot._combineMesh = this;
+                    slot._meshBuffer.enabled = false;
+                    if (slot._renderDisplay != null)
+                    {
+                        slot._renderDisplay.SetActive(false);
+                    }
+
+                    this._verticeOffset += slot._meshBuffer.vertexBuffers.Length;
+                    this._subSlotCount++;
+
+                    // slot.Test();
+                    // slot._meshDirty = true;
+                    // slot._transformDirty = true;
+                }
+
+                //被合并的显示
+                if (proxySlot._renderDisplay != null)
+                {
+                    proxySlot._renderDisplay.SetActive(true);
+                }
+            }
+
+            UnityEngine.Debug.Log("buffers:" + buffers.Count + " slots:" + combineSlots.Count);
             UnityEngine.Debug.Log("合并结束:" + this._subSlotCount);
         }
 
-        public void CombineSingleArmatureMesh(Armature armature, List<MeshBuffer> buffers)
+        public void CollectMesh(Armature armature, List<CombineSlotInfo> combineSlots)
         {
             var slots = new List<Slot>(armature.GetSlots());
             if (slots.Count == 0)
@@ -148,7 +212,6 @@ namespace DragonBones
                 return;
             }
 
-            List<CombineInstance> readyCombines = new List<CombineInstance>();
             this._verticeIndex = 0;
             this._verticeOffset = 0;
             //
@@ -159,7 +222,6 @@ namespace DragonBones
 
             GameObject slotDisplay = null;
             MeshRenderer slotMeshRenderer = null;
-            Mesh slotMesh = null;
             Material slotMat = null;
             for (var i = 0; i < slots.Count; i++)
             {
@@ -170,11 +232,9 @@ namespace DragonBones
                 isChildAramture = slot.childArmature != null;
                 slotDisplay = slot.renderDisplay;
                 slotMeshRenderer = slot._meshRenderer;
-                slotMesh = slot.mesh;
                 slotMat = slot._meshRenderer.sharedMaterial;
 
-                if (slotMeshProxy != null &&
-                    slotMeshProxy.meshRenderer.sharedMaterial != null)
+                if (slotMeshProxy != null && slotMeshProxy._meshRenderer.sharedMaterial != null)
                 {
                     if (slotMat == null)
                     {
@@ -182,12 +242,12 @@ namespace DragonBones
                     }
                     else
                     {
-                        isSameMaterial = slotMeshProxy.meshRenderer.sharedMaterial.name == slotMat.name;
+                        isSameMaterial = slotMeshProxy._meshRenderer.sharedMaterial.name == slotMat.name;
                     }
                 }
                 else
                 {
-                    isSameMaterial = false;
+                    isSameMaterial = slotMeshProxy == null;
                 }
 
                 //先检查这个slot会不会打断网格合并
@@ -202,15 +262,25 @@ namespace DragonBones
                 if (isBreakCombineMesh)
                 {
                     // UnityEngine.Debug.Log("打断合并:" + slot.name);
-                    this.CombineMesh(slotMeshProxy, readyCombines, buffers);
+                    if (combineSlots.Count > 0)
+                    {
+                        if (combineSlots[combineSlots.Count - 1].combines.Count == 1)
+                        {
+                            combineSlots.RemoveAt(combineSlots.Count - 1);
+                        }
+                    }
+
                     slotMeshProxy = null;
                 }
-
-                if (slotMeshProxy == null && !isChildAramture &&
-                    !slot._isIgnoreCombineMesh &&
-                    slotDisplay != null && slotDisplay.activeSelf &&
-                    slotMeshRenderer != null && slotMesh != null)
+                //
+                if (slotMeshProxy == null && !isBreakCombineMesh)
                 {
+                    CombineSlotInfo combineSlot = new CombineSlotInfo();
+                    combineSlot.proxySlot = slot;
+                    combineSlot.combines = new List<CombineInstance>();
+                    combineSlot.slots = new List<UnityNewSlot>();
+                    combineSlots.Add(combineSlot);
+
                     slotMeshProxy = slot;
                     // UnityEngine.Debug.Log("新的代理:" + slot.name);
                 }
@@ -219,135 +289,43 @@ namespace DragonBones
                 if (isChildAramture)
                 {
                     //如果是子骨架，递归，子骨架必然打断
-                    this.CombineSingleArmatureMesh(slot.childArmature, buffers);
+                    this.CollectMesh(slot.childArmature, combineSlots);
                 }
                 else
                 {
-                    this.PushReadyCombines(slot, readyCombines, slot == slotMeshProxy);
-                    //如果是最后一个合并一下
-                    if (i == slots.Count - 1)
+                    if (slotDisplay != null && slotDisplay.activeSelf && !slot._isIgnoreCombineMesh)
                     {
-                        this.CombineMesh(slotMeshProxy, readyCombines, buffers);
-                        slotMeshProxy = null;
+                        var parentTransfrom = (slot._armature.proxy as UnityArmatureComponent).transform;
+                        CombineInstance com = new CombineInstance();
+                        com.mesh = slot._meshBuffer.sharedMesh;
+                        com.transform = slotDisplay.transform.localToWorldMatrix;
+
+                        combineSlots[combineSlots.Count - 1].combines.Add(com);
+                        combineSlots[combineSlots.Count - 1].slots.Add(slot);
                     }
+                    //如果是最后一个合并一下
+                    if (i != slots.Count - 1)
+                    {
+                        continue;
+                    }
+                    //
+                    if (combineSlots.Count > 0)
+                    {
+                        if (combineSlots[combineSlots.Count - 1].combines.Count == 1)
+                        {
+                            combineSlots.RemoveAt(combineSlots.Count - 1);
+                        }
+                    }
+                    slotMeshProxy = null;
                 }
             }
         }
+    }
 
-        private void PushReadyCombines(UnityNewSlot slot, List<CombineInstance> readyCombines, bool isSlotProxy)
-        {
-            GameObject go = slot.renderDisplay;
-            if (go == null || !go.activeSelf || slot._isIgnoreCombineMesh)
-            {
-                slot._isCombineMesh = false;
-                slot._sumMeshIndex = -1;
-                slot._verticeIndex = -1;
-                slot._verticeOffset = -1;
-                slot._combineMesh = null;
-                // UnityEngine.Debug.Log("不能合并:" + slot.name);
-                return;
-            }
-
-            var parentTransfrom = (slot._armature.proxy as UnityArmatureComponent).transform;
-            CombineInstance com = new CombineInstance();
-            com.mesh = slot._meshBuffer.sharedMesh;
-            com.transform = go.transform.localToWorldMatrix;
-
-            //
-            // var vertices = com.mesh.vertices;
-            // var zspace = this._unityArmature.zSpace;
-            // for(var i = 0; i < vertices.Length; i++)
-            // {
-            //     vertices[i].z = -this._verticeIndex * (zspace + UnityNewSlot.Z_OFFSET);
-            // }
-            // com.mesh.vertices = vertices;
-            
-            slot._isCombineMesh = true;
-            slot._sumMeshIndex = this._sumMeshIndex;
-            slot._verticeIndex = this._verticeIndex;
-            slot._verticeOffset = this._verticeOffset;
-            slot._combineMesh = this;
-            slot._meshBuffer.enabled = false;
-            DisableSlot(slot, !isSlotProxy);
-
-            this._verticeIndex++;
-            this._verticeOffset += com.mesh.vertices.Length;
-            this._subSlotCount++;
-            
-            // slot.Test();
-            slot._meshDirty = true;
-            slot._transformDirty = true;
-
-            // UnityEngine.Debug.Log("待合并:" + slot.name);
-            readyCombines.Add(com);
-        }
-
-        private void DisableSlot(UnityNewSlot slot, bool b)
-        {
-            GameObject go = slot.renderDisplay;
-            // UnityEngine.Debug.LogWarning(slot.name + "恢复网格:" + go.activeSelf + " b:" + b);
-            if (b)
-            {
-                slot._meshBuffer.enabled = false;
-                if (go != null)
-                {
-                    go.SetActive(false);
-                }
-            }
-            else
-            {
-                slot._meshBuffer.enabled = true;
-                if (go.activeSelf)
-                {
-                    go.SetActive(true);
-                }
-                else
-                {
-                    go.SetActive(false);
-                }
-            }
-        }
-
-        private void CombineMesh(UnityNewSlot slotMeshProxy, List<CombineInstance> readyCombines, List<MeshBuffer> buffers)
-        {
-            if (slotMeshProxy == null)
-            {
-                return;
-            }
-
-            //合并上一次的
-            if (readyCombines.Count > 1)
-            {
-                MeshBuffer meshBuffer = new MeshBuffer();
-                meshBuffer.name = slotMeshProxy._meshRenderer.sharedMaterial.name;
-                meshBuffer.sharedMesh = MeshBuffer.GenerateMesh();
-                meshBuffer.sharedMesh.Clear();
-
-                meshBuffer.CombineMeshes(readyCombines.ToArray());
-                slotMeshProxy._meshFilter.sharedMesh = meshBuffer.sharedMesh;
-                meshBuffer.meshDirty = true;
-
-                //
-                DisableSlot(slotMeshProxy, false);
-
-                UnityEngine.Debug.Log("合并:" + slotMeshProxy.name + " 数量:" + readyCombines.Count);
-
-                buffers.Add(meshBuffer);
-                //重新赋值
-                this._sumMeshIndex++;
-            }
-            else if (readyCombines.Count == 1)//单个的没必要合并
-            {
-                slotMeshProxy.CancelCombineMesh();
-
-                // UnityEngine.Debug.Log("放弃合并:" + slotMeshProxy.name);
-            }
-
-            //清理数据
-            readyCombines.Clear();
-            this._verticeIndex = 0;
-            this._verticeOffset = 0;
-            slotMeshProxy = null;
-        }
+    public struct CombineSlotInfo
+    {
+        public UnityNewSlot proxySlot;
+        public List<CombineInstance> combines;
+        public List<UnityNewSlot> slots;
     }
 }

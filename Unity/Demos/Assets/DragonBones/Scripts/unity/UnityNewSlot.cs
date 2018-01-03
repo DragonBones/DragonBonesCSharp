@@ -279,12 +279,20 @@ namespace DragonBones
 
             if (this._renderDisplay != null)
             {
-                this._renderDisplay.SetActive(this._isActive);
+                if(this._childArmature != null)
+                {
+                    this._renderDisplay.SetActive(true);
+                }
+                else
+                {
+                    this._renderDisplay.SetActive(this._isActive);
+                }
             }
 
             //
             this._isCombineMesh = false;
             this._sumMeshIndex = -1;
+            this._verticeIndex = -1;
             this._verticeOffset = -1;
             // this._combineMesh = null;
         }
@@ -692,11 +700,11 @@ namespace DragonBones
             }
         }
 
-        // internal void Test()
-        // {
-        //     this._UpdateMesh();
-        //     this._UpdateTransform(false);
-        // }
+        internal void Test()
+        {
+            this._UpdateMesh();
+            this._UpdateTransform(false);
+        }
 
         protected override void _UpdateTransform(bool isSkinnedMesh)
         {
