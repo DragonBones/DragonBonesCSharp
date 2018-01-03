@@ -69,13 +69,9 @@ namespace DragonBones
             //
             foreach (UnityNewSlot slot in armature.GetSlots())
             {
-                if (slot.childArmature != null)
+                if (slot.childArmature == null)
                 {
-                    RestoreArmature(armature);
-                }
-                else
-                {
-                    slot.CancelCombineMesh();
+                     slot.CancelCombineMesh();
                 }
             }
         }
@@ -157,18 +153,6 @@ namespace DragonBones
                 buffers.Add(meshBuffer);
 
                 //
-
-            }
-
-            this.meshBuffers = buffers.ToArray();
-
-            //
-            for (var i = 0; i < combineSlots.Count; i++)
-            {
-                var combineSlot = combineSlots[i];
-
-                //
-                var proxySlot = combineSlot.proxySlot;
                 this._verticeOffset = 0;
                 for (int j = 0; j < combineSlot.slots.Count; j++)
                 {
@@ -187,10 +171,6 @@ namespace DragonBones
 
                     this._verticeOffset += slot._meshBuffer.vertexBuffers.Length;
                     this._subSlotCount++;
-
-                    // slot.Test();
-                    // slot._meshDirty = true;
-                    // slot._transformDirty = true;
                 }
 
                 //被合并的显示
@@ -199,6 +179,18 @@ namespace DragonBones
                     proxySlot._renderDisplay.SetActive(true);
                 }
             }
+
+            this.meshBuffers = buffers.ToArray();
+
+            //
+            // for (var i = 0; i < combineSlots.Count; i++)
+            // {
+            //     var combineSlot = combineSlots[i];
+
+            //     //
+            //     var proxySlot = combineSlot.proxySlot;
+                
+            // }
 
             UnityEngine.Debug.Log("buffers:" + buffers.Count + " slots:" + combineSlots.Count);
             UnityEngine.Debug.Log("合并结束:" + this._subSlotCount);
@@ -288,36 +280,33 @@ namespace DragonBones
                 //如果不会合并，检查一下是否是子骨架
                 if (isChildAramture)
                 {
-                    //如果是子骨架，递归，子骨架必然打断
-                    this.CollectMesh(slot.childArmature, combineSlots);
+                    continue;
                 }
-                else
-                {
-                    if (slotDisplay != null && slotDisplay.activeSelf && !slot._isIgnoreCombineMesh)
-                    {
-                        var parentTransfrom = (slot._armature.proxy as UnityArmatureComponent).transform;
-                        CombineInstance com = new CombineInstance();
-                        com.mesh = slot._meshBuffer.sharedMesh;
-                        com.transform = slotMeshProxy._renderDisplay.transform.worldToLocalMatrix * slotDisplay.transform.localToWorldMatrix;
 
-                        combineSlots[combineSlots.Count - 1].combines.Add(com);
-                        combineSlots[combineSlots.Count - 1].slots.Add(slot);
-                    }
-                    //如果是最后一个合并一下
-                    if (i != slots.Count - 1)
-                    {
-                        continue;
-                    }
-                    //
-                    if (combineSlots.Count > 0)
-                    {
-                        if (combineSlots[combineSlots.Count - 1].combines.Count == 1)
-                        {
-                            combineSlots.RemoveAt(combineSlots.Count - 1);
-                        }
-                    }
-                    slotMeshProxy = null;
+                if (slotMeshProxy != null && slotDisplay != null && slotDisplay.activeSelf && !slot._isIgnoreCombineMesh)
+                {
+                    var parentTransfrom = (slot._armature.proxy as UnityArmatureComponent).transform;
+                    CombineInstance com = new CombineInstance();
+                    com.mesh = slot._meshBuffer.sharedMesh;
+                    com.transform = slotMeshProxy._renderDisplay.transform.worldToLocalMatrix * slotDisplay.transform.localToWorldMatrix;
+
+                    combineSlots[combineSlots.Count - 1].combines.Add(com);
+                    combineSlots[combineSlots.Count - 1].slots.Add(slot);
                 }
+                //如果是最后一个合并一下
+                if (i != slots.Count - 1)
+                {
+                    continue;
+                }
+                //
+                if (combineSlots.Count > 0)
+                {
+                    if (combineSlots[combineSlots.Count - 1].combines.Count == 1)
+                    {
+                        combineSlots.RemoveAt(combineSlots.Count - 1);
+                    }
+                }
+                slotMeshProxy = null;
             }
         }
     }
