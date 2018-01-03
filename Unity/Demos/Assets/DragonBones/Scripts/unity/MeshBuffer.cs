@@ -18,7 +18,6 @@ namespace DragonBones
         public int[] triangleBuffers;
 
         public bool meshDirty;
-        //被合并的slot中MeshBuffer为false
         public bool enabled;
 
         public static Mesh GenerateMesh()
@@ -166,12 +165,17 @@ namespace DragonBones
             this.enabled = true;
         }
 
-        public void UpdateMesh()
+        public void UpdateVertices()
         {
             this.sharedMesh.vertices = this.vertexBuffers;
-            this.sharedMesh.uv = this.uvBuffers;
-            this.sharedMesh.colors32 = this.color32Buffers;
+            // this.sharedMesh.uv = this.uvBuffers;
+            // this.sharedMesh.colors32 = this.color32Buffers;
             this.sharedMesh.RecalculateBounds();
+        }
+
+        public void UpdateColors()
+        {
+            this.sharedMesh.colors32 = this.color32Buffers;
         }
     }
 }

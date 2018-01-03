@@ -10,7 +10,8 @@ namespace DragonBones
     public class CombineMeshs : MonoBehaviour
     {
         public MeshBuffer[] meshBuffers;
-        public bool _dirty = false;
+        public bool dirty = false;
+
         private UnityArmatureComponent _unityArmature;
         private int _subSlotCount;
         private int _sumMeshIndex;
@@ -23,12 +24,21 @@ namespace DragonBones
         {
             this._unityArmature = GetComponent<UnityArmatureComponent>();
             this._isCanCombineMesh = true;
-            // this.BeginCombineMesh();
-            this._dirty = true;
+            this.dirty = true;
         }
 
         private void OnDestroy()
         {
+            if(this._unityArmature != null)
+            {
+                this.RestoreArmature(this._unityArmature._armature);
+
+                if(this._unityArmature._armature != null)
+                {
+                    this._unityArmature._armature.InvalidUpdate();
+                }
+            }
+
             if (this.meshBuffers != null)
             {
                 for (var i = 0; i < this.meshBuffers.Length; i++)
@@ -39,7 +49,7 @@ namespace DragonBones
             }
 
             this.meshBuffers = null;
-            this._dirty = false;
+            this.dirty = false;
 
             this._unityArmature = null;
             this._subSlotCount = 0;
@@ -50,15 +60,18 @@ namespace DragonBones
             this._isCanCombineMesh = false;
         }
 
-        private void RestoreArmature(Armature armatre)
+        private void RestoreArmature(Armature armature)
         {
-            var slots = armatre.GetSlots();
-
-            foreach (UnityNewSlot slot in slots)
+            if(armature == null)
             {
-                if (slot.childArmature != null)
+                return;
+            }
+            //
+            foreach(UnityNewSlot slot in armature.GetSlots())
+            {
+                if(slot.childArmature != null)
                 {
-                    RestoreArmature(slot.childArmature);
+                    RestoreArmature(armature);
                 }
                 else
                 {
@@ -69,16 +82,10 @@ namespace DragonBones
 
         private void LateUpdate()
         {
-            //
-            // if (Input.GetMouseButtonDown(0))
-            // {
-            //     this._isCanCombineMesh = false;
-            //     this.RestoreArmature(this._unityArmature.armature);
-            // }
-            if (this._dirty)
+            if (this.dirty)
             {
                 this.BeginCombineMesh();
-                this._dirty = false;
+                this.dirty = false;
             }
 
             if (this.meshBuffers == null)
@@ -91,7 +98,7 @@ namespace DragonBones
                 var meshBuffer = this.meshBuffers[i];
                 if (meshBuffer.meshDirty)
                 {
-                    meshBuffer.UpdateMesh();
+                    meshBuffer.UpdateVertices();
                     meshBuffer.meshDirty = false;
                 }
             }
@@ -111,7 +118,7 @@ namespace DragonBones
             this._verticeOffset = 0;
             this._subSlotCount = 0;
 
-            //这里先回复数据
+            //
             if (this.meshBuffers != null)
             {
                 for (var i = 0; i < this.meshBuffers.Length; i++)
@@ -123,13 +130,12 @@ namespace DragonBones
                 this.meshBuffers = null;
             }
 
+            // List<Slot> combineSlots = new List<Slot>();
             List<MeshBuffer> buffers = new List<MeshBuffer>();
             //
             this.CombineSingleArmatureMesh(this._unityArmature.armature, buffers);
 
             this.meshBuffers = buffers.ToArray();
-
-            // this._unityArmature.armature.InvalidUpdate(null, true);
 
             UnityEngine.Debug.Log("合并结束:" + this._subSlotCount);
         }
@@ -142,9 +148,9 @@ namespace DragonBones
                 return;
             }
 
+            List<CombineInstance> readyCombines = new List<CombineInstance>();
             this._verticeIndex = 0;
             this._verticeOffset = 0;
-            List<CombineInstance> readyCombines = new List<CombineInstance>();
             //
             var isBreakCombineMesh = false;
             var isSameMaterial = false;
@@ -163,9 +169,9 @@ namespace DragonBones
 
                 isChildAramture = slot.childArmature != null;
                 slotDisplay = slot.renderDisplay;
-                slotMeshRenderer = slot._renderer;
+                slotMeshRenderer = slot._meshRenderer;
                 slotMesh = slot.mesh;
-                slotMat = slot._renderer.sharedMaterial;
+                slotMat = slot._meshRenderer.sharedMaterial;
 
                 if (slotMeshProxy != null &&
                     slotMeshProxy.meshRenderer.sharedMaterial != null)
@@ -248,6 +254,14 @@ namespace DragonBones
             com.transform = go.transform.localToWorldMatrix;
 
             //
+            // var vertices = com.mesh.vertices;
+            // var zspace = this._unityArmature.zSpace;
+            // for(var i = 0; i < vertices.Length; i++)
+            // {
+            //     vertices[i].z = -this._verticeIndex * (zspace + UnityNewSlot.Z_OFFSET);
+            // }
+            // com.mesh.vertices = vertices;
+            
             slot._isCombineMesh = true;
             slot._sumMeshIndex = this._sumMeshIndex;
             slot._verticeIndex = this._verticeIndex;
@@ -260,6 +274,7 @@ namespace DragonBones
             this._verticeOffset += com.mesh.vertices.Length;
             this._subSlotCount++;
             
+            // slot.Test();
             slot._meshDirty = true;
             slot._transformDirty = true;
 
@@ -304,15 +319,11 @@ namespace DragonBones
             if (readyCombines.Count > 1)
             {
                 MeshBuffer meshBuffer = new MeshBuffer();
-                meshBuffer.name = slotMeshProxy._renderer.sharedMaterial.name;
+                meshBuffer.name = slotMeshProxy._meshRenderer.sharedMaterial.name;
                 meshBuffer.sharedMesh = MeshBuffer.GenerateMesh();
                 meshBuffer.sharedMesh.Clear();
 
                 meshBuffer.CombineMeshes(readyCombines.ToArray());
-
-                // var newPos = slotMeshProxy._renderDisplay.transform.localPosition;
-                // newPos.z = 0.0f;
-                // slotMeshProxy._renderDisplay.transform.localPosition = newPos;
                 slotMeshProxy._meshFilter.sharedMesh = meshBuffer.sharedMesh;
                 meshBuffer.meshDirty = true;
 

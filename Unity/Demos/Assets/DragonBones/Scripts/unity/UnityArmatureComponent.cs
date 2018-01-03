@@ -676,14 +676,16 @@ namespace DragonBones
                     return;
                 }
 
+                this._combineMesh = value;
                 //
                 if (value)
                 {
                     var cm = gameObject.GetComponent<CombineMeshs>();
                     if (cm == null)
                     {
-                        gameObject.AddComponent<CombineMeshs>();
+                        cm = gameObject.AddComponent<CombineMeshs>();
                     }
+                    cm.gameObject.hideFlags = HideFlags.NotEditable;
                 }
                 else
                 {
@@ -699,6 +701,7 @@ namespace DragonBones
         /// <private/>
         void Awake()
         {
+            UnityEngine.Debug.Log("Awake");
 #if UNITY_EDITOR
             if (_IsPrefab())
             {
@@ -737,9 +740,8 @@ namespace DragonBones
                 CollectBones();
             }
 
-                // this.zSpace = 0.2f;
-
-            // this.combineMesh = true;
+            //默认开启合并
+            this.combineMesh = true;
         }
 
         void LateUpdate()

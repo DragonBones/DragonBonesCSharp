@@ -29,10 +29,9 @@ using UnityEditor;
 namespace DragonBones
 {
     [DisallowMultipleComponent]
-    [ExecuteInEditMode, RequireComponent(typeof(UnityArmatureComponent))]
+    [RequireComponent(typeof(UnityArmatureComponent))]
     public class UnityCombineMesh : MonoBehaviour
     {
-
         private UnityArmatureComponent _unityArmature;
         private Mesh _mesh;
         private MeshRenderer _meshRenderer;
