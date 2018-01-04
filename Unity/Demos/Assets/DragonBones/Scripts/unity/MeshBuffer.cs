@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using DragonBones;
 
@@ -8,6 +9,7 @@ namespace DragonBones
     [Serializable]
     public class MeshBuffer : IDisposable
     {
+        public readonly List<UnitySlot> combineSlots = new List<UnitySlot>();
         public string name;
         public Mesh sharedMesh;
         public int vertexCount;
@@ -17,7 +19,8 @@ namespace DragonBones
         public Color32[] color32Buffers;
         public int[] triangleBuffers;
 
-        public bool meshDirty;
+        public bool vertexDirty;
+        public bool zorderDirty;
         public bool enabled;
 
         public static Mesh GenerateMesh()
@@ -29,6 +32,20 @@ namespace DragonBones
             return mesh;
         }
 
+        private static int _OnSortSlots(Slot a, Slot b)
+        {
+            if(a._zOrder > b._zOrder)
+            {
+                return 1;
+            }
+            else if(a._zOrder < b._zOrder)
+            {
+                return -1;
+            }
+
+            return 0;
+        }
+
         public void Dispose()
         {
             if (this.sharedMesh != null)
@@ -36,6 +53,7 @@ namespace DragonBones
                 UnityFactoryHelper.DestroyUnityObject(this.sharedMesh);
             }
 
+            this.combineSlots.Clear();
             this.name = string.Empty;
             this.sharedMesh = null;
             this.vertexCount = 0;
@@ -43,7 +61,7 @@ namespace DragonBones
             this.uvBuffers = null;
             this.vertexBuffers = null;
             this.color32Buffers = null;
-            this.meshDirty = false;
+            this.vertexDirty = false;
             this.enabled = false;
         }
 
@@ -58,6 +76,8 @@ namespace DragonBones
                 this.sharedMesh.triangles = null;
                 this.sharedMesh.colors32 = null;
             }
+
+            this.name = string.Empty;
         }
 
         public void Copy(MeshBuffer source, int sourceOffset)
@@ -93,6 +113,8 @@ namespace DragonBones
 
                 this.vertexBuffers[i] = source.vertexBuffers[index];
             }
+
+            
 
             // //
             // for(i = 0, len = this.triangleBuffers.Length; i < len; i++)
@@ -144,10 +166,6 @@ namespace DragonBones
 
         public void InitMesh()
         {
-            this.sharedMesh.vertices = this.vertexBuffers;// Must set vertices before uvs.
-            this.sharedMesh.uv = this.uvBuffers;
-            this.sharedMesh.triangles = this.triangleBuffers;
-
             if (this.vertexBuffers != null)
             {
                 this.vertexCount = this.vertexBuffers.Length;
@@ -162,6 +180,12 @@ namespace DragonBones
                 this.color32Buffers = new Color32[this.vertexCount];
             }
 
+            this.sharedMesh.vertices = this.vertexBuffers;// Must set vertices before uvs.
+            this.sharedMesh.uv = this.uvBuffers;
+            this.sharedMesh.colors32 = this.color32Buffers;
+            this.sharedMesh.triangles = this.triangleBuffers;
+            this.sharedMesh.RecalculateBounds();
+
             this.enabled = true;
         }
 
@@ -174,6 +198,46 @@ namespace DragonBones
         public void UpdateColors()
         {
             this.sharedMesh.colors32 = this.color32Buffers;
+        }
+
+        public void UpdateOrder()
+        {
+            this.combineSlots.Sort(_OnSortSlots);
+
+            var index = 0;
+            var newVerticeIndex = 0;
+            var oldVerticeOffset = 0;
+
+            var newUVs = new Vector2[this.vertexCount];
+            var newVertices = new Vector3[this.vertexCount];
+            var newColors = new Color32[this.vertexCount];
+            for (int i = 0; i < combineSlots.Count; i++)
+            {
+                var slot = combineSlots[i] as UnitySlot;
+                oldVerticeOffset = slot._verticeOffset;
+
+                //重新赋值
+                slot._verticeOrder = i;
+                slot._verticeOffset = newVerticeIndex;
+
+                //
+                for (int j = 0; j < slot._meshBuffer.vertexCount; j++)
+                {
+                    index = oldVerticeOffset + j;
+                    newUVs[newVerticeIndex] = this.uvBuffers[index];
+                    newVertices[newVerticeIndex] = this.vertexBuffers[index];
+                    newColors[newVerticeIndex] = this.color32Buffers[index];
+
+                    newVerticeIndex++;
+                }
+            }
+
+            //
+            this.uvBuffers = newUVs;
+            this.vertexBuffers = newVertices;
+            this.color32Buffers = newColors;
+
+            this.InitMesh();
         }
     }
 }

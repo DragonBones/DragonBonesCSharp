@@ -401,17 +401,17 @@ namespace DragonBones
                         }
                     }
                 }
-                if (!Application.isPlaying && !_armatureComponent.isUGUI)
-                {
-                    UnityCombineMesh ucm = _armatureComponent.gameObject.GetComponent<UnityCombineMesh>();
-                    if (!ucm)
-                    {
-                        if (GUILayout.Button("Add Mesh Combine", GUILayout.Height(20)))
-                        {
-                            ucm = _armatureComponent.gameObject.AddComponent<UnityCombineMesh>();
-                        }
-                    }
-                }
+                // if (!Application.isPlaying && !_armatureComponent.isUGUI)
+                // {
+                //     UnityCombineMesh ucm = _armatureComponent.gameObject.GetComponent<UnityCombineMesh>();
+                //     if (!ucm)
+                //     {
+                //         if (GUILayout.Button("Add Mesh Combine", GUILayout.Height(20)))
+                //         {
+                //             ucm = _armatureComponent.gameObject.AddComponent<UnityCombineMesh>();
+                //         }
+                //     }
+                // }
                 EditorGUILayout.EndHorizontal();
             }
 

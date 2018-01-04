@@ -568,7 +568,7 @@ namespace DragonBones
                 _sortingLayerName = _sortingGroup.sortingLayerName;
                 _sortingOrder = _sortingGroup.sortingOrder;
 
-                foreach (UnityNewSlot slot in _armature.GetSlots())
+                foreach (UnitySlot slot in _armature.GetSlots())
                 {
                     if (slot.childArmature != null)
                     {
@@ -587,7 +587,7 @@ namespace DragonBones
             else
             {
                 _sortingMode = SortingMode.SortByZ;
-                foreach (UnityNewSlot slot in _armature.GetSlots())
+                foreach (UnitySlot slot in _armature.GetSlots())
                 {
                     if (slot.childArmature != null)
                     {
@@ -634,7 +634,7 @@ namespace DragonBones
             }
 
             //
-            foreach (UnityNewSlot slot in _armature.GetSlots())
+            foreach (UnitySlot slot in _armature.GetSlots())
             {
                 var display = slot.display as GameObject;
                 if (display == null)
@@ -680,16 +680,16 @@ namespace DragonBones
                 //
                 if (value)
                 {
-                    var cm = gameObject.GetComponent<CombineMeshs>();
+                    var cm = gameObject.GetComponent<UnityCombineMeshs>();
                     if (cm == null)
                     {
-                        cm = gameObject.AddComponent<CombineMeshs>();
+                        cm = gameObject.AddComponent<UnityCombineMeshs>();
                     }
                     cm.gameObject.hideFlags = HideFlags.NotEditable;
                 }
                 else
                 {
-                    var cm = gameObject.GetComponent<CombineMeshs>();
+                    var cm = gameObject.GetComponent<UnityCombineMeshs>();
                     if (cm != null)
                     {
                         DestroyImmediate(cm);
