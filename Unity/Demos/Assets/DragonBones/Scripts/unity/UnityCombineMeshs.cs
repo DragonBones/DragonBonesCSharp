@@ -6,10 +6,15 @@ using DragonBones;
 namespace DragonBones
 {
     [DisallowMultipleComponent]
+    [ExecuteInEditMode]
     [RequireComponent(typeof(UnityArmatureComponent))]
     public class UnityCombineMeshs : MonoBehaviour
     {
+        [HideInInspector]
+        public List<string> slotNames = new List<string>();
+        [HideInInspector]
         public MeshBuffer[] meshBuffers;
+        [HideInInspector]
         public bool dirty = false;
 
         private UnityArmatureComponent _unityArmature;
@@ -96,11 +101,6 @@ namespace DragonBones
             }
         }
 
-        private void UpdateMeshBuffer()
-        {
-
-        }
-
         public void BeginCombineMesh()
         {
             if (!this._isCanCombineMesh || _unityArmature.isUGUI)
@@ -108,10 +108,9 @@ namespace DragonBones
                 return;
             }
             //
-            // UnityEngine.Debug.Log("开始合并网格:" + this._unityArmature.armature.GetSlots().Count);
-
             this._verticeOffset = 0;
             this._subSlotCount = 0;
+            this.slotNames.Clear();
 
             //
             if (this.meshBuffers != null)
@@ -171,6 +170,8 @@ namespace DragonBones
                     //
                     meshBuffer.combineSlots.Add(slot);
 
+                    this.slotNames.Add(slot.name);
+
                     this._verticeOffset += slot._meshBuffer.vertexBuffers.Length;
                     this._subSlotCount++;
                 }
@@ -184,7 +185,6 @@ namespace DragonBones
             }
 
             this.meshBuffers = buffers.ToArray();
-            // UnityEngine.Debug.Log("合并结束:" + this._subSlotCount);
         }
 
         public void CollectMesh(Armature armature, List<CombineMeshInfo> combineSlots)
@@ -254,7 +254,6 @@ namespace DragonBones
                     combineSlots.Add(combineSlot);
 
                     slotMeshProxy = slot;
-                    // UnityEngine.Debug.Log("新的代理:" + slot.name);
                 }
 
                 //如果不会合并，检查一下是否是子骨架

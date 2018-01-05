@@ -270,6 +270,12 @@ namespace DragonBones
             }
         }
 
+        public void DisallowCombineMesh()
+        {
+            this.CancelCombineMesh();
+            this._isIgnoreCombineMesh = true;
+        }
+
         internal void CancelCombineMesh()
         {
             if (this._isCombineMesh)
@@ -683,7 +689,6 @@ namespace DragonBones
                     {
                         meshBuffer.vertexBuffers[i + this._verticeOffset].x = xG;
                         meshBuffer.vertexBuffers[i + this._verticeOffset].y = yG;
-                        // meshBuffer.vertexBuffers[i + this._verticeOffset].z = vz;
                     }
                 }
 
@@ -961,12 +966,8 @@ namespace DragonBones
 
             if (_childArmature != null)
             {
-                UnityArmatureComponent unityArmature = (_childArmature.proxy as UnityArmatureComponent);
                 _childArmature.flipX = _armature.flipX;
                 _childArmature.flipY = _armature.flipY;
-
-                unityArmature.addNormal = _proxy.addNormal;
-                unityArmature.boneHierarchy = _proxy.boneHierarchy;
             }
         }
 
@@ -1009,6 +1010,11 @@ namespace DragonBones
         public UnityArmatureComponent proxy
         {
             get { return this._proxy; }
+        }
+
+        public bool isIgnoreCombineMesh
+        {
+            get { return this._isIgnoreCombineMesh; }
         }
     }
 }

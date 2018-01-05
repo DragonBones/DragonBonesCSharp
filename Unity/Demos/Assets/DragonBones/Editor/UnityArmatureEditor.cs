@@ -55,14 +55,14 @@ namespace DragonBones
 
         void ClearUp()
         {
-            _armatureIndex = -1;
-            _animationIndex = -1;
-            _sortingModeIndex = -1;
-            _sortingLayerIndex = -1;
+            this._armatureIndex = -1;
+            this._animationIndex = -1;
+            this._sortingModeIndex = -1;
+            this._sortingLayerIndex = -1;
 
-            _armatureNames = null;
-            _animationNames = null;
-            _sortingLayerNames = null;
+            this._armatureNames = null;
+            this._animationNames = null;
+            this._sortingLayerNames = null;
         }
 
         void OnDisable()
@@ -71,23 +71,23 @@ namespace DragonBones
 
         void OnEnable()
         {
-            _armatureComponent = target as UnityArmatureComponent;
+            this._armatureComponent = target as UnityArmatureComponent;
             if (_IsPrefab())
             {
                 return;
             }
 
             // 
-            _nowTime = System.DateTime.Now.Ticks;
+            this._nowTime = System.DateTime.Now.Ticks;
 
-            _sortingModeIndex = (int)_armatureComponent.sortingMode;
-            _sortingLayerNames = _GetSortingLayerNames();
-            _sortingLayerIndex = _sortingLayerNames.IndexOf(_armatureComponent.sortingLayerName);
+            this._sortingModeIndex = (int)this._armatureComponent.sortingMode;
+            this._sortingLayerNames = _GetSortingLayerNames();
+            this._sortingLayerIndex = this._sortingLayerNames.IndexOf(this._armatureComponent.sortingLayerName);
 
-            _playTimesPro = serializedObject.FindProperty("_playTimes");
-            _timeScalePro = serializedObject.FindProperty("_timeScale");
-            _flipXPro = serializedObject.FindProperty("_flipX");
-            _flipYPro = serializedObject.FindProperty("_flipY");
+            this._playTimesPro = serializedObject.FindProperty("_playTimes");
+            this._timeScalePro = serializedObject.FindProperty("_timeScale");
+            this._flipXPro = serializedObject.FindProperty("_flipX");
+            this._flipYPro = serializedObject.FindProperty("_flipY");
 
             // Update armature.
             if (!EditorApplication.isPlayingOrWillChangePlaymode &&
@@ -119,8 +119,6 @@ namespace DragonBones
                 {
                     _armatureComponent.animation.Play(_armatureComponent.animationName, _playTimesPro.intValue);
                 }
-
-                _armatureComponent.CollectBones();
             }
 
             // Update hideFlags.
@@ -196,7 +194,6 @@ namespace DragonBones
 
                 if (UnityEditor.ChangeDragonBonesData(_armatureComponent, _armatureComponent.unityData.dragonBonesJSON))
                 {
-                    _armatureComponent.CollectBones();
                     _UpdateParameters();
                 }
             }
@@ -219,10 +216,6 @@ namespace DragonBones
                         var armatureName = _armatureNames[_armatureIndex];
                         UnityEditor.ChangeArmatureData(_armatureComponent, armatureName, dragonBonesData.name);
                         _UpdateParameters();
-                        if (_armatureComponent.bonesRoot != null && _armatureComponent.unityBones != null)
-                        {
-                            _armatureComponent.ShowBones();
-                        }
 
                         _armatureComponent.gameObject.name = armatureName;
 
@@ -365,54 +358,19 @@ namespace DragonBones
                 EditorGUILayout.EndHorizontal();
 
                 EditorGUILayout.Space();
-
-                //normals
-                EditorGUILayout.BeginHorizontal();
-                _armatureComponent.addNormal = EditorGUILayout.Toggle("Normals", _armatureComponent.addNormal);
-                EditorGUILayout.EndHorizontal();
-                EditorGUILayout.Space();
             }
 
             if (_armatureComponent.armature != null && _armatureComponent.armature.parent == null)
             {
-                if (_armatureComponent.unityBones != null && _armatureComponent.bonesRoot != null)
+                if(!Application.isPlaying)
                 {
-                    _armatureComponent.boneHierarchy = EditorGUILayout.Toggle("Bone Hierarchy", _armatureComponent.boneHierarchy);
-                }
+                    this._armatureComponent.combineMesh =  EditorGUILayout.Toggle("AutoCombineMeshs", this._armatureComponent.combineMesh);
 
-                EditorGUILayout.BeginHorizontal();
-                if (!Application.isPlaying)
-                {
-                    if (_armatureComponent.unityBones != null && _armatureComponent.bonesRoot != null)
+                    if(GUILayout.Button("Show Slots"))
                     {
-                        if (GUILayout.Button("Remove Bones", GUILayout.Height(20)))
-                        {
-                            if (EditorUtility.DisplayDialog("DragonBones Alert", "Are you sure you want to remove bones", "Yes", "No"))
-                            {
-                                _armatureComponent.RemoveBones();
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (GUILayout.Button("Show Bones", GUILayout.Height(20)))
-                        {
-                            _armatureComponent.ShowBones();
-                        }
+                        ShowSlotsWindow.OpenWindow(this._armatureComponent);
                     }
                 }
-                // if (!Application.isPlaying && !_armatureComponent.isUGUI)
-                // {
-                //     UnityCombineMesh ucm = _armatureComponent.gameObject.GetComponent<UnityCombineMesh>();
-                //     if (!ucm)
-                //     {
-                //         if (GUILayout.Button("Add Mesh Combine", GUILayout.Height(20)))
-                //         {
-                //             ucm = _armatureComponent.gameObject.AddComponent<UnityCombineMesh>();
-                //         }
-                //     }
-                // }
-                EditorGUILayout.EndHorizontal();
             }
 
             serializedObject.ApplyModifiedProperties();

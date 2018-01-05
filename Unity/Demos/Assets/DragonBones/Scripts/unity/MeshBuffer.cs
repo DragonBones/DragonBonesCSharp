@@ -6,7 +6,7 @@ using DragonBones;
 
 namespace DragonBones
 {
-    [Serializable]
+    // [Serializable]
     public class MeshBuffer : IDisposable
     {
         public readonly List<UnitySlot> combineSlots = new List<UnitySlot>();
@@ -78,67 +78,6 @@ namespace DragonBones
             }
 
             this.name = string.Empty;
-        }
-
-        public void Copy(MeshBuffer source, int sourceOffset)
-        {
-            if (this.uvBuffers == null || this.vertexBuffers == null || this.color32Buffers == null)
-            {
-                return;
-            }
-
-            //
-            int index = 0;
-            int i = 0;
-            int len = 0;
-            for (i = 0, len = this.uvBuffers.Length; i < len; i++)
-            {
-                index = i + sourceOffset;
-                if (index >= source.uvBuffers.Length)
-                {
-                    continue;
-                }
-
-                this.uvBuffers[i] = source.uvBuffers[index];
-            }
-
-            //
-            for (i = 0, len = this.vertexBuffers.Length; i < len; i++)
-            {
-                index = i + sourceOffset;
-                if (index >= source.vertexBuffers.Length)
-                {
-                    continue;
-                }
-
-                this.vertexBuffers[i] = source.vertexBuffers[index];
-            }
-
-            
-
-            // //
-            // for(i = 0, len = this.triangleBuffers.Length; i < len; i++)
-            // {
-            //     index = i + sourceOffset;
-            //     if(index >= source.triangleBuffers.Length)
-            //     {
-            //         continue;
-            //     }
-
-            //     this.triangleBuffers[i] = source.triangleBuffers[index];
-            // }
-
-            //
-            for (i = 0, len = this.color32Buffers.Length; i < len; i++)
-            {
-                index = i + sourceOffset;
-                if (index >= source.color32Buffers.Length)
-                {
-                    continue;
-                }
-
-                this.color32Buffers[i] = source.color32Buffers[index];
-            }
         }
 
         public void CombineMeshes(CombineInstance[] combines)

@@ -230,14 +230,14 @@ namespace DragonBones
             Armature childArmature = null;
             if (childTransform == null)
             {
-                if(dataPackage != null)
+                if (dataPackage != null)
                 {
                     childArmature = BuildArmature(displayData.path, dataPackage.dataName);
                 }
                 else
                 {
                     childArmature = BuildArmature(displayData.path, displayData.parent.parent.parent.name);
-                }                
+                }
             }
             else
             {
@@ -275,12 +275,29 @@ namespace DragonBones
             var armatureDisplay = armature.display as GameObject;
             var transform = armatureDisplay.transform.Find(slotData.name);
             var gameObject = transform == null ? null : transform.gameObject;
+            var isNeedIngoreCombineMesh = false;
             if (gameObject == null)
             {
                 gameObject = new GameObject(slotData.name);
             }
+            else
+            {
+                if (gameObject.hideFlags == HideFlags.None)
+                {
+                    var combineMeshs = (armature.proxy as UnityArmatureComponent).GetComponent<UnityCombineMeshs>();
+                    if (combineMeshs != null)
+                    {
+                        isNeedIngoreCombineMesh = !combineMeshs.slotNames.Contains(slotData.name);
+                    }
+                }
+            }
 
             slot.Init(slotData, displays, gameObject, gameObject);
+
+            if (isNeedIngoreCombineMesh)
+            {
+                slot.DisallowCombineMesh();
+            }
 
             return slot;
         }
@@ -837,7 +854,7 @@ namespace DragonBones
                 }
             }
         }
-         /// <private/>
+        /// <private/>
         public override void ReplaceDisplay(Slot slot, DisplayData displayData, int displayIndex = -1)
         {
             //UGUI Display Object and Normal Display Object cannot be replaced with each other
@@ -1112,11 +1129,11 @@ namespace DragonBones
 
         internal static void DestroyUnityObject(UnityEngine.Object obj)
         {
-            if(obj == null)
+            if (obj == null)
             {
                 return;
             }
-            
+
 #if UNITY_EDITOR
             UnityEngine.Object.DestroyImmediate(obj);
 #else
