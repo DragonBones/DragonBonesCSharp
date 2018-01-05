@@ -270,29 +270,6 @@ namespace DragonBones
             }
         }
 
-        internal bool isActive
-        {
-            get { return this._isActive; }
-            set
-            {
-                this._isActive = value;
-                if (this._renderDisplay == null)
-                {
-                    return;
-                }
-                this._renderDisplay.SetActive(this._isActive);
-
-                if (this._isActive)
-                {
-                    this._renderDisplay.hideFlags = HideFlags.None;
-                }
-                else
-                {
-                    this._renderDisplay.hideFlags = HideFlags.HideInHierarchy;
-                }
-            }
-        }
-
         internal void CancelCombineMesh()
         {
             if (this._isCombineMesh)
@@ -312,12 +289,14 @@ namespace DragonBones
             {
                 if (this._childArmature != null)
                 {
-                    this.isActive = true;
+                    this._renderDisplay.SetActive(true);
                 }
                 else
                 {
-                    this.isActive = this._isActive;
+                    this._renderDisplay.SetActive(this._isActive);
                 }
+                //
+                this._renderDisplay.hideFlags = HideFlags.None;
             }
 
             //
@@ -359,8 +338,7 @@ namespace DragonBones
          */
         internal override void _UpdateVisible()
         {
-            // _renderDisplay.SetActive(_parent.visible);
-            this.isActive = _parent.visible;
+            this._renderDisplay.SetActive(this._parent.visible);
 
             if (this._isCombineMesh && !this._parent.visible)
             {
@@ -616,7 +594,7 @@ namespace DragonBones
                 }
             }
 
-            this.isActive = false;
+            this._renderDisplay.SetActive(this._isActive);
             if (_proxy.isUGUI)
             {
                 _uiDisplay.material = null;
@@ -671,7 +649,6 @@ namespace DragonBones
                 {
                     meshBuffer = this._combineMesh.meshBuffers[this._sumMeshIndex];
                 }
-                var vz = -this._verticeOrder * (this._proxy._zSpace + Z_OFFSET);
                 int iB = weightData.offset + (int)BinaryOffset.WeigthBoneIndices + weightData.bones.Count, iV = weightFloatOffset, iF = 0;
                 for (int i = 0; i < vertextCount; ++i)
                 {
@@ -806,8 +783,6 @@ namespace DragonBones
                     var ry = 0.0f;
                     var vx = 0.0f;
                     var vy = 0.0f;
-                    // var vz = -this._verticeIndex * (this._proxy._zSpace + Z_OFFSET);
-                    var vz = -this._zOrder * (this._proxy._zSpace + 0.1f);
                     var meshBuffer = this._combineMesh.meshBuffers[this._sumMeshIndex];
                     for (int i = 0, l = this._meshBuffer.vertexBuffers.Length; i < l; i++)
                     {
@@ -824,7 +799,6 @@ namespace DragonBones
                         index = i + this._verticeOffset;
                         meshBuffer.vertexBuffers[index].x = vx;
                         meshBuffer.vertexBuffers[index].y = vy;
-                        // meshBuffer.vertexBuffers[index].z = vz;
                     }
                     //
                     meshBuffer.vertexDirty = true;
