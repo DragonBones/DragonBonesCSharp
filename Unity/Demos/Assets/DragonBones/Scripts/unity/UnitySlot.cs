@@ -724,17 +724,36 @@ namespace DragonBones
                 var ry = 0.0f;
                 var vx = 0.0f;
                 var vy = 0.0f;
+                MeshBuffer meshBuffer = null;
+                if(this._isCombineMesh)
+                {
+                    meshBuffer = this._combineMesh.meshBuffers[this._sumMeshIndex];
+                }
+
                 for (int i = 0, iV = 0, iF = 0, l = vertextCount; i < l; ++i)
                 {
                     rx = (data.floatArray[vertexOffset + (iV++)] * scale + this._ffdVertices[iF++]);
                     ry = (data.floatArray[vertexOffset + (iV++)] * scale + this._ffdVertices[iF++]);
-                    vx = (rx * a + ry * c + tx);
-                    vy = (rx * b + ry * d + ty);
                     this._meshBuffer.rawVertextBuffers[i].x = rx;
                     this._meshBuffer.rawVertextBuffers[i].y = ry;
-                }
 
-                if (this._meshRenderer && this._meshRenderer.enabled)
+                    vx = (rx * a + ry * c + tx);
+                    vy = (rx * b + ry * d + ty);
+
+                    this._meshBuffer.vertexBuffers[i].x = vx;
+                    this._meshBuffer.vertexBuffers[i].y = vy;
+
+                    if(meshBuffer != null)
+                    {
+                        meshBuffer.vertexBuffers[i + this._verticeOffset].x = vx;
+                        meshBuffer.vertexBuffers[i + this._verticeOffset].y = vy;
+                    }
+                }
+                if(meshBuffer != null)
+                {
+                    meshBuffer.vertexDirty = true;
+                }
+                else if (this._meshRenderer && this._meshRenderer.enabled)
                 {
                     this._meshBuffer.UpdateVertices();
                 }
