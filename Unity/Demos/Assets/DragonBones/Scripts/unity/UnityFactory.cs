@@ -264,7 +264,6 @@ namespace DragonBones
         /// <private/>
         protected override Slot _BuildSlot(BuildArmaturePackage dataPackage, SlotData slotData, List<DisplayData> displays, Armature armature)
         {
-            // var slot = BaseObject.BorrowObject<UnitySlot>();
             var slot = BaseObject.BorrowObject<UnitySlot>();
             var displayList = new List<object>();
             if (displays != null)

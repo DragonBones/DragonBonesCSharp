@@ -118,9 +118,9 @@ namespace DragonBones
         protected bool _flipX = false;
         [SerializeField]
         protected bool _flipY = false;
-        //combineMesh
+        //default open combineMeshs
         [SerializeField]
-        protected bool _combineMesh;
+        protected bool _closeCombineMeshs;
 
         private bool _hasSortingGroup = false;
         private Material _debugDrawer;
@@ -163,7 +163,7 @@ namespace DragonBones
             this._debugDrawer = null;
 
             this._armatureZ = 0;
-            this._combineMesh = false;
+            this._closeCombineMeshs = false;
         }
         ///
         public void DBInit(Armature armature)
@@ -646,29 +646,6 @@ namespace DragonBones
         }
 #endif
 
-        public bool combineMesh
-        {
-            get { return this._combineMesh; }
-            set
-            {
-                if (this._combineMesh == value)
-                {
-                    return;
-                }
-
-                this._combineMesh = value;
-
-                if (this._combineMesh)
-                {
-                    OpenCombineMeshs();
-                }
-                else
-                {
-                    CloseCombineMeshs();
-                }
-            }
-        }
-
         /// <private/>
         void Awake()
         {
@@ -709,7 +686,14 @@ namespace DragonBones
             }
 
             //默认开启合并
-            this.combineMesh = true;
+            if(this._closeCombineMeshs)
+            {
+                this.CloseCombineMeshs();
+            }
+            else
+            {
+                this.OpenCombineMeshs();
+            }
         }
 
         void LateUpdate()
@@ -778,7 +762,7 @@ namespace DragonBones
             }
         }
 
-        private void CloseCombineMeshs()
+        public void CloseCombineMeshs()
         {
             var cm = gameObject.GetComponent<UnityCombineMeshs>();
             if (cm != null)

@@ -6,7 +6,7 @@ using DragonBones;
 
 namespace DragonBones
 {
-    // [Serializable]
+    //[Serializable]
     public class MeshBuffer : IDisposable
     {
         public readonly List<UnitySlot> combineSlots = new List<UnitySlot>();
@@ -150,6 +150,7 @@ namespace DragonBones
             var newUVs = new Vector2[this.vertexCount];
             var newVertices = new Vector3[this.vertexCount];
             var newColors = new Color32[this.vertexCount];
+            CombineInstance[] combines = new CombineInstance[this.combineSlots.Count];
             for (int i = 0; i < combineSlots.Count; i++)
             {
                 var slot = combineSlots[i] as UnitySlot;
@@ -158,6 +159,13 @@ namespace DragonBones
                 //重新赋值
                 slot._verticeOrder = i;
                 slot._verticeOffset = newVerticeIndex;
+
+                //
+                CombineInstance com = new CombineInstance();
+                slot._meshBuffer.InitMesh();
+                com.mesh = slot._meshBuffer.sharedMesh;
+
+                combines[i] = com;
 
                 //
                 for (int j = 0; j < slot._meshBuffer.vertexCount; j++)
@@ -172,9 +180,15 @@ namespace DragonBones
             }
 
             //
+            this.sharedMesh.Clear();
+            this.sharedMesh.CombineMeshes(combines);        
+
+            //
             this.uvBuffers = newUVs;
             this.vertexBuffers = newVertices;
             this.color32Buffers = newColors;
+
+            this.triangleBuffers = this.sharedMesh.triangles;
 
             this.InitMesh();
         }

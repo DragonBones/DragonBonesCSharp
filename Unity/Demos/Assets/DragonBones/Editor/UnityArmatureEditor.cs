@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
@@ -50,6 +50,7 @@ namespace DragonBones
         private SerializedProperty _timeScalePro;
         private SerializedProperty _flipXPro;
         private SerializedProperty _flipYPro;
+        private SerializedProperty _closeCombineMeshsPro;
 
         private readonly List<string> _sortingMode = new List<string> { SortingMode.SortByZ.ToString(), SortingMode.SortByOrder.ToString() };
 
@@ -88,6 +89,7 @@ namespace DragonBones
             this._timeScalePro = serializedObject.FindProperty("_timeScale");
             this._flipXPro = serializedObject.FindProperty("_flipX");
             this._flipYPro = serializedObject.FindProperty("_flipY");
+            this._closeCombineMeshsPro = serializedObject.FindProperty("_closeCombineMeshs");
 
             // Update armature.
             if (!EditorApplication.isPlayingOrWillChangePlaymode &&
@@ -362,13 +364,26 @@ namespace DragonBones
 
             if (_armatureComponent.armature != null && _armatureComponent.armature.parent == null)
             {
-                if(!Application.isPlaying)
+                if (!Application.isPlaying)
                 {
-                    this._armatureComponent.combineMesh =  EditorGUILayout.Toggle("AutoCombineMeshs", this._armatureComponent.combineMesh);
-
-                    if(GUILayout.Button("Show Slots"))
+                    //
+                    var oldValue = this._closeCombineMeshsPro.boolValue;
+                    if (!this._closeCombineMeshsPro.boolValue)
                     {
-                        ShowSlotsWindow.OpenWindow(this._armatureComponent);
+                        this._closeCombineMeshsPro.boolValue = EditorGUILayout.Toggle("CloseCombineMeshs", this._closeCombineMeshsPro.boolValue);
+
+                        if (GUILayout.Button("Show Slots"))
+                        {
+                            ShowSlotsWindow.OpenWindow(this._armatureComponent);
+                        }
+                    }
+
+                    if(oldValue != this._closeCombineMeshsPro.boolValue)
+                    {
+                        if(this._closeCombineMeshsPro.boolValue)
+                        {
+                            this._armatureComponent.CloseCombineMeshs();
+                        }
                     }
                 }
             }

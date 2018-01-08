@@ -284,6 +284,7 @@ namespace DragonBones
                 {
                     this._meshFilter.sharedMesh = this._meshBuffer.sharedMesh;
                     this._meshBuffer.UpdateVertices();
+                    this._meshBuffer.UpdateColors();
                 }
 
                 this._meshBuffer.enabled = true;
@@ -719,16 +720,10 @@ namespace DragonBones
                 var tx = globalTransformMatrix.tx;
                 var ty = globalTransformMatrix.ty;
 
-                var index = 0;
                 var rx = 0.0f;
                 var ry = 0.0f;
                 var vx = 0.0f;
                 var vy = 0.0f;
-                MeshBuffer meshBuffer = null;
-                if (this._isCombineMesh)
-                {
-                    meshBuffer = this._combineMesh.meshBuffers[this._sumMeshIndex];
-                }
                 for (int i = 0, iV = 0, iF = 0, l = vertextCount; i < l; ++i)
                 {
                     rx = (data.floatArray[vertexOffset + (iV++)] * scale + this._ffdVertices[iF++]);
@@ -737,27 +732,11 @@ namespace DragonBones
                     vy = (rx * b + ry * d + ty);
                     this._meshBuffer.rawVertextBuffers[i].x = rx;
                     this._meshBuffer.rawVertextBuffers[i].y = ry;
-                    this._meshBuffer.vertexBuffers[i].x = vx;
-                    this._meshBuffer.vertexBuffers[i].y = vy;
-
-                    if (meshBuffer != null)
-                    {
-                        index = i + this._verticeOffset;
-                        meshBuffer.vertexBuffers[index].x = vx;
-                        meshBuffer.vertexBuffers[index].y = vy;
-                    }
                 }
 
-                if (meshBuffer != null)
+                if (this._meshRenderer && this._meshRenderer.enabled)
                 {
-                    meshBuffer.vertexDirty = true;
-                }
-                else
-                {
-                    if (this._meshRenderer && this._meshRenderer.enabled)
-                    {
-                        this._meshBuffer.UpdateVertices();
-                    }
+                    this._meshBuffer.UpdateVertices();
                 }
             }
         }
