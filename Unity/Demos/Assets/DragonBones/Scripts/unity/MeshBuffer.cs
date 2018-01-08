@@ -160,7 +160,6 @@ namespace DragonBones
                 //重新赋值
                 slot._verticeOrder = i;
                 slot._verticeOffset = newVerticeIndex;
-
                 //
                 CombineInstance com = new CombineInstance();
                 slot._meshBuffer.InitMesh();
@@ -169,6 +168,7 @@ namespace DragonBones
                 combines[i] = com;
 
                 //
+                var zspace = (slot._armature.proxy as UnityArmatureComponent).zSpace;
                 for (int j = 0; j < slot._meshBuffer.vertexCount; j++)
                 {
                     index = oldVerticeOffset + j;
@@ -176,14 +176,15 @@ namespace DragonBones
                     newVertices[newVerticeIndex] = this.vertexBuffers[index];
                     newColors[newVerticeIndex] = this.color32Buffers[index];
 
+                    newVertices[newVerticeIndex].z = -slot._verticeOrder * (zspace + UnitySlot.Z_OFFSET);
+
                     newVerticeIndex++;
                 }
             }
 
             //
             this.sharedMesh.Clear();
-            this.sharedMesh.CombineMeshes(combines);        
-
+            this.sharedMesh.CombineMeshes(combines);
             //
             this.uvBuffers = newUVs;
             this.vertexBuffers = newVertices;

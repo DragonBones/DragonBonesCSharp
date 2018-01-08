@@ -218,12 +218,6 @@ namespace DragonBones
             if (this._isCombineMesh)
             {
                 var meshBuffer = this._combineMesh.meshBuffers[this._sumMeshIndex];
-                var vz = -this._verticeOrder * (this._proxy._zSpace + Z_OFFSET);
-                for (var i = 0; i < this._meshBuffer.vertexBuffers.Length; i++)
-                {
-                    meshBuffer.vertexBuffers[this._verticeOffset + i].z = vz;
-                }
-
                 meshBuffer.zorderDirty = true;
             }
 

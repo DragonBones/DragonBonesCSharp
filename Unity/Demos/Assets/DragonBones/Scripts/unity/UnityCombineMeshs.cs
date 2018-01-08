@@ -130,11 +130,10 @@ namespace DragonBones
 
             //
             //先合并
-            List<MeshBuffer> buffers = new List<MeshBuffer>();
+            this.meshBuffers = new MeshBuffer[combineSlots.Count];
             for (var i = 0; i < combineSlots.Count; i++)
             {
                 var combineSlot = combineSlots[i];
-
                 //
                 var proxySlot = combineSlot.proxySlot;
                 MeshBuffer meshBuffer = new MeshBuffer();
@@ -147,7 +146,7 @@ namespace DragonBones
                 //
                 proxySlot._meshFilter.sharedMesh = meshBuffer.sharedMesh;
 
-                buffers.Add(meshBuffer);
+                this.meshBuffers[i] = meshBuffer;
 
                 //
                 this._verticeOffset = 0;
@@ -173,8 +172,10 @@ namespace DragonBones
                         transform.localEulerAngles = Vector3.zero;
                         transform.localScale = Vector3.one;
                     }
+                    //
                     slot._meshDirty = true;
                     slot._transformDirty = true;
+                    slot.Update(-1);
 
                     //
                     meshBuffer.combineSlots.Add(slot);
@@ -190,17 +191,6 @@ namespace DragonBones
                 {
                     proxySlot._renderDisplay.SetActive(true);
                     proxySlot._renderDisplay.hideFlags = HideFlags.None;
-                }
-            }
-
-            this.meshBuffers = buffers.ToArray();
-
-            //Test
-            foreach(var meshBuffer in combineSlots)
-            {
-                foreach(var slot in meshBuffer.slots)
-                {
-                    slot.Update(-1);
                 }
             }
         }
