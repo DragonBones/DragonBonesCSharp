@@ -162,8 +162,6 @@ namespace DragonBones
                     slot._combineMesh = this;
                     slot._meshBuffer.enabled = false;
 
-                    slot._meshDirty = true;
-                    slot._transformDirty = true;
                     if (slot._renderDisplay != null)
                     {
                         slot._renderDisplay.SetActive(false);
@@ -175,6 +173,8 @@ namespace DragonBones
                         transform.localEulerAngles = Vector3.zero;
                         transform.localScale = Vector3.one;
                     }
+                    slot._meshDirty = true;
+                    slot._transformDirty = true;
 
                     //
                     meshBuffer.combineSlots.Add(slot);
@@ -194,6 +194,15 @@ namespace DragonBones
             }
 
             this.meshBuffers = buffers.ToArray();
+
+            //Test
+            foreach(var meshBuffer in combineSlots)
+            {
+                foreach(var slot in meshBuffer.slots)
+                {
+                    slot.Update(-1);
+                }
+            }
         }
 
         public void CollectMesh(Armature armature, List<CombineMeshInfo> combineSlots)

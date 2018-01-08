@@ -278,22 +278,30 @@ namespace DragonBones
 
         internal void CancelCombineMesh()
         {
-            UnityEngine.Debug.Log(this.name + "CancelCombineMesh");
             if (this._isCombineMesh)
             {
+                this._isCombineMesh = false;
                 if (this._meshFilter != null)
                 {
                     this._meshFilter.sharedMesh = this._meshBuffer.sharedMesh;
+                    var isSkinnedMesh = this._meshData != null && this._meshData.weight != null;
+                    if (!isSkinnedMesh)
+                    {
+                        this._meshBuffer.rawVertextBuffers.CopyTo(this._meshBuffer.vertexBuffers, 0);
+                    }
+
                     //
-                    // this._meshBuffer.vertexBuffers = this._meshBuffer.rawVertextBuffers;
-                    this._meshBuffer.rawVertextBuffers.CopyTo(this._meshBuffer.vertexBuffers, 0);
                     this._meshBuffer.UpdateVertices();
                     this._meshBuffer.UpdateColors();
+
+                    if (isSkinnedMesh)
+                    {
+                        this._UpdateMesh();
+                    }
+                    this._UpdateTransform(isSkinnedMesh);
                 }
 
                 this._meshBuffer.enabled = true;
-                this._meshDirty = true;
-                this._transformDirty = true;
             }
 
             if (this._renderDisplay != null)
