@@ -278,11 +278,15 @@ namespace DragonBones
 
         internal void CancelCombineMesh()
         {
+            UnityEngine.Debug.Log(this.name + "CancelCombineMesh");
             if (this._isCombineMesh)
             {
                 if (this._meshFilter != null)
                 {
                     this._meshFilter.sharedMesh = this._meshBuffer.sharedMesh;
+                    //
+                    // this._meshBuffer.vertexBuffers = this._meshBuffer.rawVertextBuffers;
+                    this._meshBuffer.rawVertextBuffers.CopyTo(this._meshBuffer.vertexBuffers, 0);
                     this._meshBuffer.UpdateVertices();
                     this._meshBuffer.UpdateColors();
                 }
@@ -568,7 +572,7 @@ namespace DragonBones
 
                             //vertices
                             this._meshBuffer.rawVertextBuffers[i].x = (u * scaleWidth) - pivotX;
-                            this._meshBuffer.rawVertextBuffers[i].y = ((v) * scaleHeight - pivotY);
+                            this._meshBuffer.rawVertextBuffers[i].y = -((v) * scaleHeight - pivotY);
 
                             this._meshBuffer.vertexBuffers[i].x = this._meshBuffer.rawVertextBuffers[i].x;
                             this._meshBuffer.vertexBuffers[i].y = this._meshBuffer.rawVertextBuffers[i].y;
@@ -682,7 +686,6 @@ namespace DragonBones
                             yG += (matrix.b * xL + matrix.d * yL + matrix.ty) * weight;
                         }
                     }
-
                     this._meshBuffer.vertexBuffers[i].x = xG;
                     this._meshBuffer.vertexBuffers[i].y = yG;
 
@@ -720,12 +723,13 @@ namespace DragonBones
                 var tx = globalTransformMatrix.tx;
                 var ty = globalTransformMatrix.ty;
 
+                var index = 0;
                 var rx = 0.0f;
                 var ry = 0.0f;
                 var vx = 0.0f;
                 var vy = 0.0f;
                 MeshBuffer meshBuffer = null;
-                if(this._isCombineMesh)
+                if (this._isCombineMesh)
                 {
                     meshBuffer = this._combineMesh.meshBuffers[this._sumMeshIndex];
                 }
@@ -734,22 +738,24 @@ namespace DragonBones
                 {
                     rx = (data.floatArray[vertexOffset + (iV++)] * scale + this._ffdVertices[iF++]);
                     ry = (data.floatArray[vertexOffset + (iV++)] * scale + this._ffdVertices[iF++]);
+
                     this._meshBuffer.rawVertextBuffers[i].x = rx;
-                    this._meshBuffer.rawVertextBuffers[i].y = ry;
+                    this._meshBuffer.rawVertextBuffers[i].y = -ry;
 
-                    vx = (rx * a + ry * c + tx);
-                    vy = (rx * b + ry * d + ty);
+                    this._meshBuffer.vertexBuffers[i].x = rx;
+                    this._meshBuffer.vertexBuffers[i].y = -ry;
 
-                    this._meshBuffer.vertexBuffers[i].x = vx;
-                    this._meshBuffer.vertexBuffers[i].y = vy;
-
-                    if(meshBuffer != null)
+                    if (meshBuffer != null)
                     {
-                        meshBuffer.vertexBuffers[i + this._verticeOffset].x = vx;
-                        meshBuffer.vertexBuffers[i + this._verticeOffset].y = vy;
+                        index = i + this._verticeOffset;
+                        vx = (rx * a + ry * c + tx);
+                        vy = (rx * b + ry * d + ty);
+
+                        meshBuffer.vertexBuffers[index].x = vx;
+                        meshBuffer.vertexBuffers[index].y = vy;
                     }
                 }
-                if(meshBuffer != null)
+                if (meshBuffer != null)
                 {
                     meshBuffer.vertexDirty = true;
                 }
@@ -764,15 +770,7 @@ namespace DragonBones
         {
             if (this._isCombineMesh)
             {
-                if (isSkinnedMesh)
-                {
-                    var transform = _renderDisplay.transform;
-
-                    transform.localPosition = new Vector3(0.0f, 0.0f, transform.localPosition.z);
-                    transform.localEulerAngles = Vector3.zero;
-                    transform.localScale = Vector3.one;
-                }
-                else
+                if (!isSkinnedMesh)
                 {
                     var a = globalTransformMatrix.a;
                     var b = globalTransformMatrix.b;
@@ -789,9 +787,10 @@ namespace DragonBones
                     var meshBuffer = this._combineMesh.meshBuffers[this._sumMeshIndex];
                     for (int i = 0, l = this._meshBuffer.vertexBuffers.Length; i < l; i++)
                     {
+                        index = i + this._verticeOffset;
                         //vertices
                         rx = this._meshBuffer.rawVertextBuffers[i].x;
-                        ry = this._meshBuffer.rawVertextBuffers[i].y;
+                        ry = -this._meshBuffer.rawVertextBuffers[i].y;
 
                         vx = rx * a + ry * c + tx;
                         vy = rx * b + ry * d + ty;
@@ -799,13 +798,18 @@ namespace DragonBones
                         this._meshBuffer.vertexBuffers[i].x = vx;
                         this._meshBuffer.vertexBuffers[i].y = vy;
 
-                        index = i + this._verticeOffset;
                         meshBuffer.vertexBuffers[index].x = vx;
                         meshBuffer.vertexBuffers[index].y = vy;
                     }
                     //
                     meshBuffer.vertexDirty = true;
                 }
+
+                var transform = _renderDisplay.transform;
+
+                transform.localPosition = new Vector3(0.0f, 0.0f, transform.localPosition.z);
+                transform.localEulerAngles = Vector3.zero;
+                transform.localScale = Vector3.one;
             }
             else
             {
@@ -817,33 +821,33 @@ namespace DragonBones
                     transform.localEulerAngles = Vector3.zero;
                     transform.localScale = Vector3.one;
                 }
-                else if (this._meshBuffer.vertexBuffers != null)
-                {
-                    var a = globalTransformMatrix.a;
-                    var b = globalTransformMatrix.b;
-                    var c = globalTransformMatrix.c;
-                    var d = globalTransformMatrix.d;
-                    var tx = globalTransformMatrix.tx;
-                    var ty = globalTransformMatrix.ty;
+                // else if (this._meshBuffer.vertexBuffers != null)
+                // {
+                //     var a = globalTransformMatrix.a;
+                //     var b = globalTransformMatrix.b;
+                //     var c = globalTransformMatrix.c;
+                //     var d = globalTransformMatrix.d;
+                //     var tx = globalTransformMatrix.tx;
+                //     var ty = globalTransformMatrix.ty;
 
-                    // Normal texture.  
-                    var vx = 0.0f;
-                    var vy = 0.0f;
-                    for (int i = 0, l = this._meshBuffer.vertexBuffers.Length; i < l; ++i)
-                    {
-                        //vertices
-                        vx = this._meshBuffer.rawVertextBuffers[i].x;
-                        vy = this._meshBuffer.rawVertextBuffers[i].y;
+                //     // Normal texture.  
+                //     var vx = 0.0f;
+                //     var vy = 0.0f;
+                //     for (int i = 0, l = this._meshBuffer.vertexBuffers.Length; i < l; ++i)
+                //     {
+                //         //vertices
+                //         vx = this._meshBuffer.rawVertextBuffers[i].x;
+                //         vy = this._meshBuffer.rawVertextBuffers[i].y;
 
-                        this._meshBuffer.vertexBuffers[i].x = (vx * a + vy * c + tx);
-                        this._meshBuffer.vertexBuffers[i].y = (vx * b + vy * d + ty);
-                    }
+                //         this._meshBuffer.vertexBuffers[i].x = (vx * a + vy * c + tx);
+                //         this._meshBuffer.vertexBuffers[i].y = (vx * b + vy * d + ty);
+                //     }
 
-                    if (this._meshRenderer && this._meshRenderer.enabled)
-                    {
-                        this._meshBuffer.UpdateVertices();
-                    }
-                }
+                //     if (this._meshRenderer && this._meshRenderer.enabled)
+                //     {
+                //         this._meshBuffer.UpdateVertices();
+                //     }
+                // }
                 else
                 {
                     this.UpdateGlobalTransform(); // Update transform.

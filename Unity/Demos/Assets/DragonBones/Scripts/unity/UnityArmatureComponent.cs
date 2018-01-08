@@ -690,6 +690,7 @@ namespace DragonBones
 
         void Start()
         {
+            // this._closeCombineMeshs = true;
             //默认开启合并
             if (this._closeCombineMeshs)
             {

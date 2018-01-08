@@ -91,6 +91,7 @@ namespace DragonBones
 
             //
             this.uvBuffers = this.sharedMesh.uv;
+            this.rawVertextBuffers = this.sharedMesh.vertices;
             this.vertexBuffers = this.sharedMesh.vertices;
             this.color32Buffers = this.sharedMesh.colors32;
             this.triangleBuffers = this.sharedMesh.triangles;
