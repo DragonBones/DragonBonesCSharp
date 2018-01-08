@@ -83,6 +83,8 @@ public class ReplaceSkin : BaseDemo
         // Build body
         this._bodyArmatureComp = UnityFactory.factory.BuildArmatureComponent("body");
         //
+        this._bodyArmatureComp.CloseCombineMeshs();
+        //
         this._bodyArmatureComp.transform.localScale = new Vector3(0.5f, 0.5f, 1.0f);
         this._bodyArmatureComp.transform.localPosition = new Vector3(0.0f, -4.0f, 0.0f);
 

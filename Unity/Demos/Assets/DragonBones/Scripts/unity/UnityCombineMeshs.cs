@@ -161,10 +161,23 @@ namespace DragonBones
                     slot._verticeOffset = this._verticeOffset;
                     slot._combineMesh = this;
                     slot._meshBuffer.enabled = false;
+                    slot._meshDirty = true;
+                    slot._transformDirty = true;
                     if (slot._renderDisplay != null)
                     {
                         slot._renderDisplay.SetActive(false);
                         slot._renderDisplay.hideFlags = HideFlags.HideInHierarchy;
+
+                        //
+                        var transform = slot._renderDisplay.transform;
+                        transform.localPosition = new Vector3(0.0f, 0.0f, transform.localPosition.z);
+                        transform.localEulerAngles = Vector3.zero;
+                        transform.localScale = Vector3.one;
+
+                        if (slot.name == "pelvis")
+                        {
+                            UnityEngine.Debug.Log("prlvis 123123");
+                        }
                     }
 
                     //
@@ -189,6 +202,11 @@ namespace DragonBones
 
         public void CollectMesh(Armature armature, List<CombineMeshInfo> combineSlots)
         {
+            if (armature == null)
+            {
+                return;
+            }
+
             var slots = new List<Slot>(armature.GetSlots());
             if (slots.Count == 0)
             {

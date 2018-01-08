@@ -684,9 +684,9 @@ namespace DragonBones
                     _armature.animation.Play(animationName, _playTimes);
                 }
             }
-
+            
             //默认开启合并
-            if(this._closeCombineMeshs)
+            if (this._closeCombineMeshs)
             {
                 this.CloseCombineMeshs();
             }
@@ -739,6 +739,7 @@ namespace DragonBones
 
         private void OpenCombineMeshs()
         {
+            //
             var cm = gameObject.GetComponent<UnityCombineMeshs>();
             if (cm == null)
             {
@@ -746,12 +747,10 @@ namespace DragonBones
             }
             //
             
-            //
             if (this._armature == null)
             {
                 return;
             }
-
             var slots = this._armature.GetSlots();
             foreach (var slot in slots)
             {
@@ -764,18 +763,18 @@ namespace DragonBones
 
         public void CloseCombineMeshs()
         {
+            //
             var cm = gameObject.GetComponent<UnityCombineMeshs>();
             if (cm != null)
             {
                 DestroyImmediate(cm);
             }
-
-            //
+            
             if (this._armature == null)
             {
                 return;
             }
-
+            //
             var slots = this._armature.GetSlots();
             foreach (var slot in slots)
             {

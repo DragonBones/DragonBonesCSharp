@@ -49,6 +49,9 @@ public class InverseKinematics : BaseDemo
         this._floorBoardComp.transform.localPosition = new Vector4(0.0f, -0.25f, 0.0f);
 
         //
+        this._floorBoardComp.CloseCombineMeshs();
+
+        //
         EnableDrag(this._floorBoardComp.armature.GetSlot("circle").display as GameObject);
     }
 

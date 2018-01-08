@@ -30,6 +30,8 @@ public class ReplaceSlotDisplay : BaseDemo
 
         // Build Mecha Armature
         this._armatureComp = UnityFactory.factory.BuildArmatureComponent("mecha_1004d");
+        //
+        this._armatureComp.CloseCombineMeshs();
 
         this._armatureComp.animation.Play("idle");
 
