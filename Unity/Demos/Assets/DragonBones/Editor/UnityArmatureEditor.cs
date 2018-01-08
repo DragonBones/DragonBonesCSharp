@@ -364,7 +364,7 @@ namespace DragonBones
 
             if (_armatureComponent.armature != null && _armatureComponent.armature.parent == null)
             {
-                if (!Application.isPlaying)
+                if (!Application.isPlaying && !this._armatureComponent.isUGUI)
                 {
                     //
                     var oldValue = this._closeCombineMeshsPro.boolValue;

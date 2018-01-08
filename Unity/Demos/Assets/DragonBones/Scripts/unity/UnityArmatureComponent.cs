@@ -685,6 +685,11 @@ namespace DragonBones
                 }
             }
             
+            
+        }
+
+        void Start()
+        {
             //默认开启合并
             if (this._closeCombineMeshs)
             {
@@ -739,6 +744,11 @@ namespace DragonBones
 
         private void OpenCombineMeshs()
         {
+            if(this.isUGUI)
+            {
+                return;
+            }
+
             //
             var cm = gameObject.GetComponent<UnityCombineMeshs>();
             if (cm == null)
@@ -763,6 +773,7 @@ namespace DragonBones
 
         public void CloseCombineMeshs()
         {
+            this._closeCombineMeshs = true;
             //
             var cm = gameObject.GetComponent<UnityCombineMeshs>();
             if (cm != null)
