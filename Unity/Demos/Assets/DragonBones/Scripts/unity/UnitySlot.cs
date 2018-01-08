@@ -568,7 +568,7 @@ namespace DragonBones
 
                             //vertices
                             this._meshBuffer.rawVertextBuffers[i].x = (u * scaleWidth) - pivotX;
-                            this._meshBuffer.rawVertextBuffers[i].y = -((v) * scaleHeight - pivotY);
+                            this._meshBuffer.rawVertextBuffers[i].y = ((v) * scaleHeight - pivotY);
 
                             this._meshBuffer.vertexBuffers[i].x = this._meshBuffer.rawVertextBuffers[i].x;
                             this._meshBuffer.vertexBuffers[i].y = this._meshBuffer.rawVertextBuffers[i].y;
@@ -735,7 +735,7 @@ namespace DragonBones
                     rx = (data.floatArray[vertexOffset + (iV++)] * scale + this._ffdVertices[iF++]);
                     ry = (data.floatArray[vertexOffset + (iV++)] * scale + this._ffdVertices[iF++]);
                     this._meshBuffer.rawVertextBuffers[i].x = rx;
-                    this._meshBuffer.rawVertextBuffers[i].y = -ry;
+                    this._meshBuffer.rawVertextBuffers[i].y = ry;
 
                     vx = (rx * a + ry * c + tx);
                     vy = (rx * b + ry * d + ty);
@@ -791,7 +791,7 @@ namespace DragonBones
                     {
                         //vertices
                         rx = this._meshBuffer.rawVertextBuffers[i].x;
-                        ry = -this._meshBuffer.rawVertextBuffers[i].y;
+                        ry = this._meshBuffer.rawVertextBuffers[i].y;
 
                         vx = rx * a + ry * c + tx;
                         vy = rx * b + ry * d + ty;
@@ -805,12 +805,6 @@ namespace DragonBones
                     }
                     //
                     meshBuffer.vertexDirty = true;
-
-                    // var transform = _renderDisplay.transform;
-
-                    // transform.localPosition = new Vector3(0.0f, 0.0f, transform.localPosition.z);
-                    // transform.localEulerAngles = Vector3.zero;
-                    // transform.localScale = Vector3.one;
                 }
             }
             else
@@ -823,33 +817,33 @@ namespace DragonBones
                     transform.localEulerAngles = Vector3.zero;
                     transform.localScale = Vector3.one;
                 }
-                // else if (this._meshBuffer.vertexBuffers != null)
-                // {
-                //     var a = globalTransformMatrix.a;
-                //     var b = globalTransformMatrix.b;
-                //     var c = globalTransformMatrix.c;
-                //     var d = globalTransformMatrix.d;
-                //     var tx = globalTransformMatrix.tx;
-                //     var ty = globalTransformMatrix.ty;
+                else if (this._meshBuffer.vertexBuffers != null)
+                {
+                    var a = globalTransformMatrix.a;
+                    var b = globalTransformMatrix.b;
+                    var c = globalTransformMatrix.c;
+                    var d = globalTransformMatrix.d;
+                    var tx = globalTransformMatrix.tx;
+                    var ty = globalTransformMatrix.ty;
 
-                //     // Normal texture.  
-                //     var vx = 0.0f;
-                //     var vy = 0.0f;
-                //     for (int i = 0, l = this._meshBuffer.vertexBuffers.Length; i < l; ++i)
-                //     {
-                //         //vertices
-                //         vx = this._meshBuffer.rawVertextBuffers[i].x;
-                //         vy = -this._meshBuffer.rawVertextBuffers[i].y;
+                    // Normal texture.  
+                    var vx = 0.0f;
+                    var vy = 0.0f;
+                    for (int i = 0, l = this._meshBuffer.vertexBuffers.Length; i < l; ++i)
+                    {
+                        //vertices
+                        vx = this._meshBuffer.rawVertextBuffers[i].x;
+                        vy = this._meshBuffer.rawVertextBuffers[i].y;
 
-                //         this._meshBuffer.vertexBuffers[i].x = (vx * a + vy * c + tx);
-                //         this._meshBuffer.vertexBuffers[i].y = (vx * b + vy * d + ty);
-                //     }
+                        this._meshBuffer.vertexBuffers[i].x = (vx * a + vy * c + tx);
+                        this._meshBuffer.vertexBuffers[i].y = (vx * b + vy * d + ty);
+                    }
 
-                //     if (this._meshRenderer && this._meshRenderer.enabled)
-                //     {
-                //         this._meshBuffer.UpdateVertices();
-                //     }
-                // }
+                    if (this._meshRenderer && this._meshRenderer.enabled)
+                    {
+                        this._meshBuffer.UpdateVertices();
+                    }
+                }
                 else
                 {
                     this.UpdateGlobalTransform(); // Update transform.
