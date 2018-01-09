@@ -823,33 +823,6 @@ namespace DragonBones
                     transform.localEulerAngles = Vector3.zero;
                     transform.localScale = Vector3.one;
                 }
-                // else if (this._meshBuffer.vertexBuffers != null)
-                // {
-                //     var a = globalTransformMatrix.a;
-                //     var b = globalTransformMatrix.b;
-                //     var c = globalTransformMatrix.c;
-                //     var d = globalTransformMatrix.d;
-                //     var tx = globalTransformMatrix.tx;
-                //     var ty = globalTransformMatrix.ty;
-
-                //     // Normal texture.  
-                //     var vx = 0.0f;
-                //     var vy = 0.0f;
-                //     for (int i = 0, l = this._meshBuffer.vertexBuffers.Length; i < l; ++i)
-                //     {
-                //         //vertices
-                //         vx = this._meshBuffer.rawVertextBuffers[i].x;
-                //         vy = this._meshBuffer.rawVertextBuffers[i].y;
-
-                //         this._meshBuffer.vertexBuffers[i].x = (vx * a + vy * c + tx);
-                //         this._meshBuffer.vertexBuffers[i].y = (vx * b + vy * d + ty);
-                //     }
-
-                //     if (this._meshRenderer && this._meshRenderer.enabled)
-                //     {
-                //         this._meshBuffer.UpdateVertices();
-                //     }
-                // }
                 else
                 {
                     this.UpdateGlobalTransform(); // Update transform.
