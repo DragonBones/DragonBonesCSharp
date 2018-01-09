@@ -82,10 +82,11 @@ namespace DragonBones
     /// <private/>
     internal class UnityTextureData : TextureData
     {
-        public const string SHADER_GRAP = "Shaders/DB_BlendMode_Grab";
-        public const string SHADER_FRAME_BUFFER = "Shaders/DB_BlendMode_Framebuffer";
-        public const string UI_SHADER_GRAP = "Shaders/DB_BlendMode_UIGrab";
-        public const string UI_SHADER_FRAME_BUFFER = "Shaders/DB_BlendMode_UIFramebuffer";
+        public const string SHADER_PATH = "Shaders/";
+        public const string SHADER_GRAP = "DB_BlendMode_Grab";
+        public const string SHADER_FRAME_BUFFER = "DB_BlendMode_Framebuffer";
+        public const string UI_SHADER_GRAP = "DB_BlendMode_UIGrab";
+        public const string UI_SHADER_FRAME_BUFFER = "DB_BlendMode_UIFramebuffer";
 
         /// <summary>
         /// 叠加模式材质球的缓存池
@@ -132,12 +133,14 @@ namespace DragonBones
 
             //framebuffer won't work in the editor mode
 #if UNITY_EDITOR
-            var newMaterial = new Material(Resources.Load<Shader>(SHADER_GRAP));
+            var newMaterial = new Material(Resources.Load<Shader>(SHADER_PATH + SHADER_GRAP));
 #else
-            var newMaterial = new Material(Resources.Load<Shader>(SHADER_GRAP));
+            var newMaterial = new Material(Resources.Load<Shader>(SHADER_PATH + SHADER_GRAP));
 #endif
+            var texture = (this.parent as UnityTextureAtlasData).texture.mainTexture;
+            newMaterial.name = texture.name + "_" + SHADER_GRAP + "_Mat";
             newMaterial.hideFlags = HideFlags.HideAndDontSave;
-            newMaterial.mainTexture = (this.parent as UnityTextureAtlasData).texture.mainTexture;
+            newMaterial.mainTexture = texture;
 
             this._cacheBlendModeMats.Add(blendModeStr, newMaterial);
 
@@ -161,10 +164,12 @@ namespace DragonBones
 
             //framebuffer won't work in the editor mode
 #if UNITY_EDITOR
-            var newMaterial = new Material(Resources.Load<Shader>(UI_SHADER_GRAP));
+            var newMaterial = new Material(Resources.Load<Shader>(SHADER_PATH + UI_SHADER_GRAP));
 #else
-            var newMaterial = new Material(Resources.Load<Shader>(UI_SHADER_GRAP));
+            var newMaterial = new Material(Resources.Load<Shader>(SHADER_PATH + UI_SHADER_GRAP));
 #endif
+            var texture = (this.parent as UnityTextureAtlasData).texture.mainTexture;
+            newMaterial.name = texture.name + "_" + SHADER_GRAP + "_Mat";
             newMaterial.hideFlags = HideFlags.HideAndDontSave;
             newMaterial.mainTexture = (this.parent as UnityTextureAtlasData).texture.mainTexture;
 

@@ -88,24 +88,7 @@ namespace DragonBones
         /// <version>DragonBones 4.5</version>
         /// <language>zh_CN</language>
         public bool isUGUI = false;
-        ///<private/>
-        public bool addNormal = false;
         public bool debugDraw = false;
-        public GameObject bonesRoot;
-        public List<UnityBone> unityBones = null;
-        /// <summary>
-        /// Display bones hierarchy
-        /// </summary>
-        /// <version>DragonBones 4.5</version>
-        /// <language>en_US</language>
-        /// 
-        /// <summary>
-        /// 显示骨骼层级
-        /// </summary>
-        /// <version>DragonBones 4.5</version>
-        /// <language>zh_CN</language>
-        public bool boneHierarchy = false;
-
         internal readonly ColorTransform _colorTransform = new ColorTransform();
 
         /// <private/>
@@ -135,46 +118,52 @@ namespace DragonBones
         protected bool _flipX = false;
         [SerializeField]
         protected bool _flipY = false;
+        //default open combineMeshs
+        [SerializeField]
+        protected bool _closeCombineMeshs;
 
         private bool _hasSortingGroup = false;
         private Material _debugDrawer;
+
+        //
+        internal int _armatureZ;
+
         /// <private/>
         public void DBClear()
         {
-            bonesRoot = null;
-            if (_armature != null)
+            if (this._armature != null)
             {
-                _armature = null;
-                if (_disposeProxy)
+                this._armature = null;
+                if (this._disposeProxy)
                 {
                     UnityFactoryHelper.DestroyUnityObject(gameObject);
                 }
             }
 
-            unityData = null;
-            armatureName = null;
-            animationName = null;
-            isUGUI = false;
-            addNormal = false;
-            debugDraw = false;
-            unityBones = null;
-            boneHierarchy = false;
+            this.unityData = null;
+            this.armatureName = null;
+            this.animationName = null;
+            this.isUGUI = false;
+            this.debugDraw = false;
 
-            _disposeProxy = true;
-            _armature = null;
-            _colorTransform.Identity();
-            _sortingMode = SortingMode.SortByZ;
-            _sortingLayerName = "Default";
-            _sortingOrder = 0;
-            _playTimes = 0;
-            _timeScale = 1.0f;
-            _zSpace = 0.0f;
-            _flipX = false;
-            _flipY = false;
+            this._disposeProxy = true;
+            this._armature = null;
+            this._colorTransform.Identity();
+            this._sortingMode = SortingMode.SortByZ;
+            this._sortingLayerName = "Default";
+            this._sortingOrder = 0;
+            this._playTimes = 0;
+            this._timeScale = 1.0f;
+            this._zSpace = 0.0f;
+            this._flipX = false;
+            this._flipY = false;
 
-            _hasSortingGroup = false;
+            this._hasSortingGroup = false;
 
-            _debugDrawer = null;
+            this._debugDrawer = null;
+
+            this._armatureZ = 0;
+            this._closeCombineMeshs = false;
         }
         ///
         public void DBInit(Armature armature)
@@ -184,7 +173,7 @@ namespace DragonBones
 
         public void DBUpdate()
         {
-            
+
         }
 
         void CreateLineMaterial()
@@ -694,8 +683,22 @@ namespace DragonBones
                 {
                     _armature.animation.Play(animationName, _playTimes);
                 }
+            }
+            
+            
+        }
 
-                CollectBones();
+        void Start()
+        {
+            // this._closeCombineMeshs = true;
+            //默认开启合并
+            if (this._closeCombineMeshs)
+            {
+                this.CloseCombineMeshs();
+            }
+            else
+            {
+                this.OpenCombineMeshs();
             }
         }
 
@@ -718,19 +721,6 @@ namespace DragonBones
                 _UpdateSortingGroup();
             }
 #endif
-
-            if (unityBones != null)
-            {
-                int len = unityBones.Count;
-                for (int i = 0; i < len; ++i)
-                {
-                    UnityBone bone = unityBones[i];
-                    if (bone != null)
-                    {
-                        bone._Update();
-                    }
-                }
-            }
         }
 
         /// <private/>
@@ -742,101 +732,68 @@ namespace DragonBones
                 _armature = null;
 
                 armature.Dispose();
-                
-                if(!Application.isPlaying)
+
+                if (!Application.isPlaying)
                 {
                     UnityFactory.factory._dragonBones.AdvanceTime(0.0f);
                 }
-
-#if UNITY_EDITOR
-                // UnityFactory.factory._dragonBones.AdvanceTime(0.0f);
-#endif
             }
 
-            unityBones = null;
             _disposeProxy = true;
             _armature = null;
         }
 
-
-
-        public void CollectBones()
+        private void OpenCombineMeshs()
         {
-            if (unityBones != null)
+            if(this.isUGUI)
             {
-                foreach (UnityBone unityBone in unityBones)
+                return;
+            }
+
+            //
+            var cm = gameObject.GetComponent<UnityCombineMeshs>();
+            if (cm == null)
+            {
+                cm = gameObject.AddComponent<UnityCombineMeshs>();
+            }
+            //
+            
+            if (this._armature == null)
+            {
+                return;
+            }
+            var slots = this._armature.GetSlots();
+            foreach (var slot in slots)
+            {
+                if (slot.childArmature != null)
                 {
-                    foreach (Bone bone in armature.GetBones())
-                    {
-                        if (unityBone.name.Equals(bone.name))
-                        {
-                            unityBone._bone = bone;
-                            unityBone._proxy = this;
-                        }
-                    }
+                    (slot.childArmature.proxy as UnityArmatureComponent).OpenCombineMeshs();
                 }
             }
         }
-        public void ShowBones()
+
+        public void CloseCombineMeshs()
         {
-            RemoveBones();
-            if (bonesRoot == null)
+            this._closeCombineMeshs = true;
+            //
+            var cm = gameObject.GetComponent<UnityCombineMeshs>();
+            if (cm != null)
             {
-                GameObject go = new GameObject("Bones");
-                go.transform.SetParent(transform);
-                go.transform.localPosition = Vector3.zero;
-                go.transform.localRotation = Quaternion.identity;
-                go.transform.localScale = Vector3.one;
-                bonesRoot = go;
-                go.hideFlags = HideFlags.NotEditable;
+                DestroyImmediate(cm);
             }
-
-            if (armature != null)
+            
+            if (this._armature == null)
             {
-                unityBones = new List<UnityBone>();
-                foreach (Bone bone in armature.GetBones())
-                {
-                    GameObject go = new GameObject(bone.name);
-                    UnityBone ub = go.AddComponent<UnityBone>();
-                    ub._bone = bone;
-                    ub._proxy = this;
-                    unityBones.Add(ub);
-
-                    go.transform.SetParent(bonesRoot.transform);
-                }
-
-                foreach (UnityBone bone in unityBones)
-                {
-                    bone.GetParentGameObject();
-                }
-
-                foreach (UnityArmatureComponent child in GetComponentsInChildren<UnityArmatureComponent>(true))
-                {
-                    if (child != this)
-                    {
-                        child.ShowBones();
-                    }
-                }
+                return;
             }
-        }
-        public void RemoveBones()
-        {
-            foreach (UnityArmatureComponent child in GetComponentsInChildren<UnityArmatureComponent>(true))
+            //
+            var slots = this._armature.GetSlots();
+            foreach (var slot in slots)
             {
-                if (child != this)
+                if (slot.childArmature != null)
                 {
-                    child.RemoveBones();
+                    (slot.childArmature.proxy as UnityArmatureComponent).CloseCombineMeshs();
                 }
-            }
-
-            if (unityBones != null)
-            {
-                unityBones = null;
-            }
-
-            if (bonesRoot)
-            {
-                DestroyImmediate(bonesRoot);
             }
         }
     }

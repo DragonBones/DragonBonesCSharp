@@ -87,7 +87,7 @@ namespace DragonBones
         /// <private/>
         internal bool _meshDirty;
         /// <private/>
-        protected bool _transformDirty;
+        internal bool _transformDirty;
         /// <private/>
         protected bool _skinedMeshTransformDirty;
         /// <private/>
