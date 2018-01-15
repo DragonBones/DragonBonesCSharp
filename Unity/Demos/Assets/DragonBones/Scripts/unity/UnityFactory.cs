@@ -951,6 +951,7 @@ namespace DragonBones
             newTextureData.parent = new UnityTextureAtlasData();
             newTextureData.parent.width = (uint)texture.width;
             newTextureData.parent.height = (uint)texture.height;
+            newTextureData.parent.scale = prevTextureData.parent.scale;
             if (isUGUI)
             {
                 (newTextureData.parent as UnityTextureAtlasData).uiTexture = material;
