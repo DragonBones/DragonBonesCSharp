@@ -704,7 +704,7 @@ namespace DragonBones
                 }
                 else
                 {
-                    if (this._meshRenderer && this._meshRenderer.enabled)
+                    // if (this._meshRenderer && this._meshRenderer.enabled)
                     {
                         this._meshBuffer.UpdateVertices();
                     }
@@ -761,7 +761,8 @@ namespace DragonBones
                 {
                     meshBuffer.vertexDirty = true;
                 }
-                else if (this._meshRenderer && this._meshRenderer.enabled)
+                // else if (this._meshRenderer && this._meshRenderer.enabled)
+                else
                 {
                     this._meshBuffer.UpdateVertices();
                 }
@@ -925,7 +926,7 @@ namespace DragonBones
                                 this._meshBuffer.vertexBuffers[i].y = y * cos;
                             }
 
-                            if (this._meshRenderer && this._meshRenderer.enabled)
+                            // if (this._meshRenderer && this._meshRenderer.enabled)
                             {
                                 this._meshBuffer.UpdateVertices();
                             }
