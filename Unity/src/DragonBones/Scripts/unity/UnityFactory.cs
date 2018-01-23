@@ -251,6 +251,11 @@ namespace DragonBones
                 }
             }
 
+            if(childArmature == null)
+            {
+                return null;
+            }
+
             //
             var childArmatureDisplay = childArmature.display as GameObject;
             childArmatureDisplay.GetComponent<UnityArmatureComponent>().isUGUI = proxy.GetComponent<UnityArmatureComponent>().isUGUI;
@@ -908,7 +913,7 @@ namespace DragonBones
         /// <language>zh_CN</language>
         public void ReplaceSlotDisplay(
                                         string dragonBonesName, string armatureName, string slotName, string displayName,
-                                        Slot slot, Texture2D texture, Material material,
+                                        Slot slot, Texture2D texture, Material material = null,
                                         bool isUGUI = false, int displayIndex = -1)
         {
             var armatureData = this.GetArmatureData(armatureName, dragonBonesName);
@@ -951,6 +956,20 @@ namespace DragonBones
             newTextureData.parent = new UnityTextureAtlasData();
             newTextureData.parent.width = (uint)texture.width;
             newTextureData.parent.height = (uint)texture.height;
+            newTextureData.parent.scale = prevTextureData.parent.scale;
+            //
+            if(material == null)
+            {
+                if(isUGUI)
+                {
+                    material = UnityFactoryHelper.GenerateMaterial(defaultUIShaderName, texture.name + "_UI_Mat", texture);
+                }
+                else
+                {
+                    material = UnityFactoryHelper.GenerateMaterial(defaultShaderName, texture.name + "_Mat", texture);
+                }
+            }
+
             if (isUGUI)
             {
                 (newTextureData.parent as UnityTextureAtlasData).uiTexture = material;
@@ -1032,7 +1051,6 @@ namespace DragonBones
             //创建材质球
             Shader shader = Shader.Find(shaderName);
             Material material = new Material(shader);
-            //material.name = texture2D.name + "_Mat";
             material.name = materialName;
             material.mainTexture = texture;
 

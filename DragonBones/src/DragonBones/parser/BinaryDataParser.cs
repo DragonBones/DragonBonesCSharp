@@ -220,8 +220,8 @@ namespace DragonBones
 
                     for (int i = 0, l = rawTimelines.Count; i < l; i += 2)
                     {
-                        var timelineType = rawTimelines[i];
-                        var timelineOffset = rawTimelines[i + 1];
+                        var timelineType = int.Parse(rawTimelines[i].ToString());
+                        var timelineOffset = int.Parse(rawTimelines[i + 1].ToString());
                         var timeline = this._ParseBinaryTimeline((TimelineType)timelineType, (uint)timelineOffset);
                         this._animation.AddConstraintTimeline(constraint, timeline);
                     }
