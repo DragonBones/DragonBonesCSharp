@@ -251,6 +251,11 @@ namespace DragonBones
                 }
             }
 
+            if(childArmature == null)
+            {
+                return null;
+            }
+
             //
             var childArmatureDisplay = childArmature.display as GameObject;
             childArmatureDisplay.GetComponent<UnityArmatureComponent>().isUGUI = proxy.GetComponent<UnityArmatureComponent>().isUGUI;
