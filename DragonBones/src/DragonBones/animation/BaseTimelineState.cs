@@ -21,6 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 using System;
+using System.Collections.Generic;
 
 namespace DragonBones
 {
@@ -62,7 +63,7 @@ namespace DragonBones
         protected short[] _frameIntArray;
         protected float[] _frameFloatArray;
         protected ushort[] _timelineArray;
-        protected uint[] _frameIndices;
+        protected List<uint> _frameIndices;
 
         protected override void _OnClear()
         {
@@ -207,7 +208,7 @@ namespace DragonBones
                 this._frameFloatArray = this._dragonBonesData.frameFloatArray;
                 this._frameArray = this._dragonBonesData.frameArray;
                 this._timelineArray = this._dragonBonesData.timelineArray;
-                this._frameIndices = this._dragonBonesData.frameIndices.ToArray();
+                this._frameIndices = this._dragonBonesData.frameIndices;
 
                 this._frameCount = this._timelineArray[this._timelineData.offset + (int)BinaryOffset.TimelineKeyFrameCount];
                 this._frameValueOffset = this._timelineArray[this._timelineData.offset + (int)BinaryOffset.TimelineFrameValueOffset];
@@ -228,8 +229,8 @@ namespace DragonBones
             {
                 if (this._frameCount > 1)
                 {
-                    uint timelineFrameIndex = (uint)Math.Floor(this.currentTime * this._frameRate); // uint
-                    var frameIndex = this._frameIndices[(this._timelineData as TimelineData).frameIndicesOffset + timelineFrameIndex];
+                    int timelineFrameIndex = (int)Math.Floor(this.currentTime * this._frameRate); // uint
+                    var frameIndex = this._frameIndices[(int)(this._timelineData as TimelineData).frameIndicesOffset + timelineFrameIndex];
                     if (this._frameIndex != frameIndex)
                     {
                         this._frameIndex = (int)frameIndex;

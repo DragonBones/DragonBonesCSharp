@@ -52,7 +52,7 @@ namespace DragonBones
         private SerializedProperty _flipYPro;
         private SerializedProperty _closeCombineMeshsPro;
 
-        private readonly List<string> _sortingMode = new List<string> { SortingMode.SortByZ.ToString(), SortingMode.SortByOrder.ToString() };
+        private string[] _sortingMode = new string[]{SortingMode.SortByZ.ToString(), SortingMode.SortByOrder.ToString()};
 
         void ClearUp()
         {
@@ -300,7 +300,7 @@ namespace DragonBones
                 if (!_armatureComponent.isUGUI)
                 {
                     //Sorting Mode
-                    _sortingModeIndex = EditorGUILayout.Popup("Sorting Mode", (int)_armatureComponent.sortingMode, _sortingMode.ToArray());
+                    _sortingModeIndex = EditorGUILayout.Popup("Sorting Mode", (int)_armatureComponent.sortingMode, _sortingMode);
                     if (_sortingModeIndex != (int)_armatureComponent.sortingMode)
                     {
                         Undo.RecordObject(_armatureComponent, "Sorting Mode");
