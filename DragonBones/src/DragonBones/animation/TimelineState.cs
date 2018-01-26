@@ -172,7 +172,7 @@ namespace DragonBones
                 if (this._frameCount > 1)
                 {
                     var timelineData = this._timelineData as TimelineData;
-                    var timelineFrameIndex = (uint)(this.currentTime * this._frameRate); // uint
+                    var timelineFrameIndex = (int)(this.currentTime * this._frameRate); // uint
                     var frameIndex = (int)this._frameIndices[timelineData.frameIndicesOffset + timelineFrameIndex];
                     if (this._frameIndex != frameIndex)
                     {
