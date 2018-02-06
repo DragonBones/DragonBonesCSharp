@@ -1,7 +1,7 @@
 # DragonBones Unity Library
 [README in English](./README.md)
 ## [示例](./Demos/)
-* [Hello DragonBones](./Demos/Assets/Scripts/Demos/HelloDragonBones.cs)
+* [Hello DragonBones](./Demos/Assets/DragonBones/Demos/Scripts/HelloDragonBones.cs)
 * 运行示例只需要使用 Unity 将 [示例文件夹](./Demos/) 当作项目打开。
 
 ## 使用方法

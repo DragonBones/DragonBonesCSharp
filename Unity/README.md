@@ -1,7 +1,7 @@
 # DragonBones Unity Library
 [中文 README](./README-zh_CN.md)
 ## [Demos](./Demos/)
-* [Hello DragonBones](./Demos/Assets/Scripts/Demos/HelloDragonBones.cs)
+* [Hello DragonBones](./Demos/Assets/DragonBones/Demos/Scripts/HelloDragonBones.cs)
 
 ## How to use
 1. Create a Unity project.
