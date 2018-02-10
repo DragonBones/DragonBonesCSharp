@@ -280,6 +280,7 @@ namespace DragonBones
             }
         }
 
+        /// <private/>
         protected void _BuildConstraints(BuildArmaturePackage dataPackage, Armature armature)
         {
             var constraints = dataPackage.armature.constraints;
@@ -760,6 +761,7 @@ namespace DragonBones
         }
         /// <summary>
         /// - Create a armature from cached DragonBonesData instances and TextureAtlasData instances.
+        /// Note that when the created armature that is no longer in use, you need to explicitly dispose {@link #dragonBones.Armature#dispose()}.
         /// </summary>
         /// <param name="armatureName">- The armature data name.</param>
         /// <param name="dragonBonesName">- The cached name of the DragonBonesData instance. (If not set, all DragonBonesData instances are retrieved, and when multiple DragonBonesData instances contain a the same name armature data, it may not be possible to accurately create a specific armature)</param>
@@ -774,16 +776,16 @@ namespace DragonBones
         /// </example>
         /// <see cref="DragonBones.DragonBonesData"/>
         /// <see cref="DragonBones.ArmatureData"/>
-        /// <see cref="DragonBones.Armature"/>
         /// <version>DragonBones 3.0</version>
         /// <language>en_US</language>
 
         /// <summary>
         /// - 通过缓存的 DragonBonesData 实例和 TextureAtlasData 实例创建一个骨架。
+        /// 注意，创建的骨架不再使用时，需要显式释放 {@link #dragonBones.Armature#dispose()}。
         /// </summary>
         /// <param name="armatureName">- 骨架数据名称。</param>
         /// <param name="dragonBonesName">- DragonBonesData 实例的缓存名称。 （如果未设置，将检索所有的 DragonBonesData 实例，当多个 DragonBonesData 实例中包含同名的骨架数据时，可能无法准确的创建出特定的骨架）</param>
-        /// <param name="skinName">- 皮肤名称，可以设置一个其他骨架数据名称来共享其皮肤数据（如果未设置，则使用默认的皮肤数据）。</param>
+        /// <param name="skinName">- 皮肤名称，可以设置一个其他骨架数据名称来共享其皮肤数据。（如果未设置，则使用默认的皮肤数据）</param>
         /// <returns>骨架。</returns>
         /// <example>
         /// TypeScript 风格，仅供参考。
@@ -794,7 +796,6 @@ namespace DragonBones
         /// </example>
         /// <see cref="DragonBones.DragonBonesData"/>
         /// <see cref="DragonBones.ArmatureData"/>
-        /// <see cref="DragonBones.Armature"/>
         /// <version>DragonBones 3.0</version>
         /// <language>zh_CN</language>
         public virtual Armature BuildArmature(string armatureName, string dragonBonesName = "", string skinName = null, string textureAtlasName = null)
@@ -1076,7 +1077,7 @@ namespace DragonBones
         /// </summary>
         /// <param name="armature">- 骨架。</param>
         /// <param name="armatureData">- 骨架数据。</param>
-        /// <param name="isOverride">- 是否完全覆盖原来的动画。（默认: false）。</param>
+        /// <param name="isOverride">- 是否完全覆盖原来的动画。（默认: false）</param>
         /// <example>
         /// TypeScript 风格，仅供参考。
         /// <pre>

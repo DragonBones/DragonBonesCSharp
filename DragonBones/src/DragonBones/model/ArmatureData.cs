@@ -425,14 +425,14 @@ namespace DragonBones
         /// <summary>
         /// - Get a specific done data.
         /// </summary>
-        /// <param name="name">- The bone name.</param>
+        /// <param name="boneName">- The bone name.</param>
         /// <version>DragonBones 3.0</version>
         /// <language>en_US</language>
 
         /// <summary>
         /// - 获取特定的骨骼数据。
         /// </summary>
-        /// <param name="name">- 骨骼名称。</param>
+        /// <param name="boneName">- 骨骼名称。</param>
         /// <version>DragonBones 3.0</version>
         /// <language>zh_CN</language>
         public BoneData GetBone(string boneName)
@@ -442,14 +442,14 @@ namespace DragonBones
         /// <summary>
         /// - Get a specific slot data.
         /// </summary>
-        /// <param name="name">- The slot name.</param>
+        /// <param name="slotName">- The slot name.</param>
         /// <version>DragonBones 3.0</version>
         /// <language>en_US</language>
 
         /// <summary>
         /// - 获取特定的插槽数据。
         /// </summary>
-        /// <param name="name">- 插槽名称。</param>
+        /// <param name="slotName">- 插槽名称。</param>
         /// <version>DragonBones 3.0</version>
         /// <language>zh_CN</language>
         public SlotData GetSlot(string slotName)
@@ -464,14 +464,14 @@ namespace DragonBones
         /// <summary>
         /// - Get a specific skin data.
         /// </summary>
-        /// <param name="name">- The skin name.</param>
+        /// <param name="skinName">- The skin name.</param>
         /// <version>DragonBones 3.0</version>
         /// <language>en_US</language>
 
         /// <summary>
         /// - 获取特定皮肤数据。
         /// </summary>
-        /// <param name="name">- 皮肤名称。</param>
+        /// <param name="skinName">- 皮肤名称。</param>
         /// <version>DragonBones 3.0</version>
         /// <language>zh_CN</language>
         public SkinData GetSkin(string skinName)
@@ -479,6 +479,7 @@ namespace DragonBones
             return !string.IsNullOrEmpty(skinName) ? (skins.ContainsKey(skinName) ? skins[skinName] : null) : defaultSkin;
         }
 
+        /// <private/>
         public MeshDisplayData GetMesh(string skinName, string slotName, string meshName)
         {
             var skin = this.GetSkin(skinName);
@@ -492,14 +493,14 @@ namespace DragonBones
         /// <summary>
         /// - Get a specific animation data.
         /// </summary>
-        /// <param name="name">- The animation name.</param>
+        /// <param name="animationName">- The animation animationName.</param>
         /// <version>DragonBones 3.0</version>
         /// <language>en_US</language>
 
         /// <summary>
         /// - 获取特定的动画数据。
         /// </summary>
-        /// <param name="name">- 动画名称。</param>
+        /// <param name="animationName">- 动画名称。</param>
         /// <version>DragonBones 3.0</version>
         /// <language>zh_CN</language>
         public AnimationData GetAnimation(string animationName)

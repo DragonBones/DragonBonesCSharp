@@ -191,8 +191,6 @@ namespace DragonBones
         /// <language>zh_CN</language>
         public string group;
 
-        /// <internal/>
-        /// <private/>
         private int _timelineDirty;
         /// <summary>
         /// - xx: Play Enabled, Fade Play Enabled
@@ -223,7 +221,11 @@ namespace DragonBones
         /// <internal/>
         /// <private/>
         internal float _fadeProgress;
+        /// <internal/>
+        /// <private/>
         private float _weightResult;
+        /// <internal/>
+        /// <private/>
         internal readonly BlendState _blendState = new BlendState();
         private readonly List<string> _boneMask = new List<string>();
         private readonly List<BoneTimelineState> _boneTimelines = new List<BoneTimelineState>();
@@ -239,6 +241,8 @@ namespace DragonBones
         /// <private/>
         internal ActionTimelineState _actionTimeline = null; // Initial value.
         private ZOrderTimelineState _zOrderTimeline = null; // Initial value.
+        /// <internal/>
+        /// <private/>
         public AnimationState _parent = null; // Initial value.
         /// <private/>
         protected override void _OnClear()
@@ -1110,14 +1114,14 @@ namespace DragonBones
         /// <summary>
         /// - Check if a specific bone mask is included.
         /// </summary>
-        /// <param name="name">- The bone name.</param>
+        /// <param name="boneName">- The bone name.</param>
         /// <version>DragonBones 3.0</version>
         /// <language>en_US</language>
 
         /// <summary>
         /// - 检查是否包含特定骨骼遮罩。
         /// </summary>
-        /// <param name="name">- 骨骼名称。</param>
+        /// <param name="boneName">- 骨骼名称。</param>
         /// <version>DragonBones 3.0</version>
         /// <language>zh_CN</language>
         public bool ContainsBoneMask(string boneName)
@@ -1127,7 +1131,7 @@ namespace DragonBones
         /// <summary>
         /// - Add a specific bone mask.
         /// </summary>
-        /// <param name="name">- The bone name.</param>
+        /// <param name="boneName">- The bone name.</param>
         /// <param name="recursive">- Whether or not to add a mask to the bone's sub-bone.</param>
         /// <version>DragonBones 3.0</version>
         /// <language>en_US</language>
@@ -1135,7 +1139,7 @@ namespace DragonBones
         /// <summary>
         /// - 添加特定的骨骼遮罩。
         /// </summary>
-        /// <param name="name">- 骨骼名称。</param>
+        /// <param name="boneName">- 骨骼名称。</param>
         /// <param name="recursive">- 是否为该骨骼的子骨骼添加遮罩。</param>
         /// <version>DragonBones 3.0</version>
         /// <language>zh_CN</language>
@@ -1170,7 +1174,7 @@ namespace DragonBones
         /// <summary>
         /// - Remove the mask of a specific bone.
         /// </summary>
-        /// <param name="name">- The bone name.</param>
+        /// <param name="boneName">- The bone name.</param>
         /// <param name="recursive">- Whether to remove the bone's sub-bone mask.</param>
         /// <version>DragonBones 3.0</version>
         /// <language>en_US</language>
@@ -1178,7 +1182,7 @@ namespace DragonBones
         /// <summary>
         /// - 删除特定骨骼的遮罩。
         /// </summary>
-        /// <param name="name">- 骨骼名称。</param>
+        /// <param name="boneName">- 骨骼名称。</param>
         /// <param name="recursive">- 是否删除该骨骼的子骨骼遮罩。</param>
         /// <version>DragonBones 3.0</version>
         /// <language>zh_CN</language>
@@ -1422,6 +1426,8 @@ namespace DragonBones
         }
     }
 
+    /// <internal/>
+    /// <private/>
     internal class BlendState
     {
         public bool dirty;
@@ -1430,6 +1436,9 @@ namespace DragonBones
         public float layerWeight;
         public float blendWeight;
 
+        /// <summary>
+        /// -1: First blending, 0: No blending, 1: Blending.
+        /// </summary>
         public int Update(float weight, int p_layer)
         {
             if (this.dirty)

@@ -24,6 +24,8 @@ using System.Collections.Generic;
 
 namespace DragonBones
 {
+    /// <internal/>
+    /// <private/>
     public class VerticesData
     {
         public bool isShared;
@@ -156,6 +158,8 @@ namespace DragonBones
         }
     }
     
+    /// <internal/>
+    /// <private/>
     public class PathDisplayData : DisplayData
     {
         public bool closed;

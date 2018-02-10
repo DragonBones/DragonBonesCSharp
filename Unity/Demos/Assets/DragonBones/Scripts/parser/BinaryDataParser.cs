@@ -304,12 +304,6 @@ namespace DragonBones
             return base.ParseDragonBonesData(header, scale);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="bytes"></param>
-        /// <param name="jsonParse"></param>
-        /// <returns></returns>
         public static Dictionary<string, object> DeserializeBinaryJsonData(byte[] bytes, out int headerLength, BinaryDataParser.JsonParseDelegate jsonParse = null)
         {
             headerLength = 0;

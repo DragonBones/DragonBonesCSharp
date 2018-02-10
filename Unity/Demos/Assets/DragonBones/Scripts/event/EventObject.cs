@@ -145,6 +145,36 @@ namespace DragonBones
         /// <language>zh_CN</language>
         public const string SOUND_EVENT = "soundEvent";
 
+        /// <internal/>
+        /// <private/>
+        /// <summary>
+        /// - The armature that dispatch the event.
+        /// </summary>
+        /// <see cref="DragonBones.Armature"/>
+        /// <version>DragonBones 4.5</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 发出该事件的骨架。
+        /// </summary>
+        /// <see cref="DragonBones.Armature"/>
+        /// <version>DragonBones 4.5</version>
+        /// <language>zh_CN</language>
+        /// <summary>
+        /// - The custom data.
+        /// </summary>
+        /// <see cref="DragonBones.CustomData"/>
+        /// <private/>
+        /// <version>DragonBones 5.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 自定义数据。
+        /// </summary>
+        /// <see cref="DragonBones.CustomData"/>
+        /// <private/>
+        /// <version>DragonBones 5.0</version>
+        /// <language>zh_CN</language>
         public static void ActionDataToInstance(ActionData data, EventObject instance, Armature armature)
         {
             if (data.type == ActionType.Play)
@@ -208,19 +238,6 @@ namespace DragonBones
         /// <version>DragonBones 4.5</version>
         /// <language>zh_CN</language>
         public string name;
-        /// <summary>
-        /// - The armature that dispatch the event.
-        /// </summary>
-        /// <see cref="DragonBones.Armature"/>
-        /// <version>DragonBones 4.5</version>
-        /// <language>en_US</language>
-
-        /// <summary>
-        /// - 发出该事件的骨架。
-        /// </summary>
-        /// <see cref="DragonBones.Armature"/>
-        /// <version>DragonBones 4.5</version>
-        /// <language>zh_CN</language>
         public Armature armature;
         /// <summary>
         /// - The bone that dispatch the event.
@@ -264,20 +281,8 @@ namespace DragonBones
         /// <version>DragonBones 4.5</version>
         /// <language>zh_CN</language>
         public AnimationState animationState;
+        /// <private/>
         public ActionData actionData;
-        /// <summary>
-        /// - The custom data.
-        /// </summary>
-        /// <see cref="DragonBones.CustomData"/>
-        /// <version>DragonBones 5.0</version>
-        /// <language>en_US</language>
-
-        /// <summary>
-        /// - 自定义数据。
-        /// </summary>
-        /// <see cref="DragonBones.CustomData"/>
-        /// <version>DragonBones 5.0</version>
-        /// <language>zh_CN</language>
         public UserData data;
 
         /// <private/>

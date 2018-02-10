@@ -77,10 +77,13 @@ namespace DragonBones
         internal bool _hasConstraint;
         private bool _visible;
         private int _cachedFrameIndex;
+        /// <internal/>
+        /// <private/>
         internal readonly BlendState _blendState = new BlendState();
         /// <internal/>
         /// <private/>
         internal BoneData _boneData;
+        /// <private/>
         protected Bone _parent;
         /// <internal/>
         /// <private/>
@@ -591,11 +594,21 @@ namespace DragonBones
             get { return this._boneData.name; }
         }
 
+        /// <summary>
+        /// - The parent bone to which it belongs.
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 所属的父骨骼。
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public Bone parent
         {
             get { return this._parent; }
         }
-
         /// <summary>
         /// - Deprecated, please refer to {@link dragonBones.Armature#getSlot()}.
         /// </summary>

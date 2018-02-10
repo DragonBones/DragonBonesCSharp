@@ -37,6 +37,7 @@ namespace DragonBones
     /// <language>zh_CN</language>
     public class Transform
     {
+        /// <private/>
         public static readonly float PI = 3.141593f;
         /// <private/>
         public static readonly float PI_D = PI * 2.0f;

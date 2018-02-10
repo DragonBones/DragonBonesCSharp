@@ -224,6 +224,8 @@ namespace DragonBones
             }
         }
 
+        /// <internal/>
+        /// <private/>
         internal void _AddConstraint(Constraint value)
         {
             if (!this._constraints.Contains(value))

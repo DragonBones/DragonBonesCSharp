@@ -118,12 +118,14 @@ namespace DragonBones
         internal SlotData _slotData;
         /// <private/>
         protected List<DisplayData> _rawDisplayDatas;
+        /// <internal/>
         /// <private/>
         protected DisplayData _displayData;
         /// <private/>
         protected BoundingBoxData _boundingBoxData;
         /// <private/>
         protected TextureData _textureData;
+        /// <internal/>
         public DeformVertices _deformVertices;
         /// <private/>
         protected object _rawDisplay;
@@ -133,6 +135,7 @@ namespace DragonBones
         protected object _display;
         /// <private/>
         protected Armature _childArmature;
+        /// <private/>
         protected Bone _parent;
         /// <internal/>
         /// <private/>
@@ -243,8 +246,13 @@ namespace DragonBones
         protected abstract void _UpdateMesh();
         /// <private/>
         protected abstract void _UpdateTransform();
+        /// <private/>
         protected abstract void _IdentityTransform();
 
+        /// <summary>
+        /// - Support default skin data.
+        /// </summary>
+        /// <private/>
         protected DisplayData _GetDefaultRawDisplayData(int displayIndex)
         {
             var defaultSkin = this._armature._armatureData.defaultSkin;
@@ -1308,6 +1316,10 @@ namespace DragonBones
         /// TypeScript style, for reference only.
         /// <pre>
         ///     let slot = armature.getSlot("weapon");
+        /// let prevChildArmature = slot.childArmature;
+        /// if (prevChildArmature) {
+        /// prevChildArmature.dispose();
+        ///     }
         ///     slot.childArmature = factory.buildArmature("weapon_blabla", "weapon_blabla_project");
         /// </pre>
         /// </example>
@@ -1316,11 +1328,16 @@ namespace DragonBones
 
         /// <summary>
         /// - 插槽此时显示的子骨架。
+        /// 注意，被替换的对象并不会被回收，根据语言和引擎的不同，需要额外处理。
         /// </summary>
         /// <example>
         /// TypeScript 风格，仅供参考。
         /// <pre>
         ///     let slot = armature.getSlot("weapon");
+        /// let prevChildArmature = slot.childArmature;
+        /// if (prevChildArmature) {
+        /// prevChildArmature.dispose();
+        ///     }
         ///     slot.childArmature = factory.buildArmature("weapon_blabla", "weapon_blabla_project");
         /// </pre>
         /// </example>
@@ -1340,6 +1357,17 @@ namespace DragonBones
             }
         }
 
+        /// <summary>
+        /// - The parent bone to which it belongs.
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 所属的父骨骼。
+        /// </summary>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public Bone parent
         {
             get { return this._parent; }

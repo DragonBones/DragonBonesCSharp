@@ -917,8 +917,6 @@ namespace DragonBones
             {
                 var frameIntOffset = this._animationData.frameIntOffset + this._timelineArray[this._timelineData.offset + (int)BinaryOffset.TimelineFrameValueCount];
                 this.vertexOffset = this._frameIntArray[frameIntOffset + (int)BinaryOffset.DeformVertexOffset];
-
-
                 if (this.vertexOffset < 0)
                 {
                     this.vertexOffset += 65536; // Fixed out of bouds bug. 

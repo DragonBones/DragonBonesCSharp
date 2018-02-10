@@ -878,8 +878,6 @@ namespace DragonBones
 
                 this._floatArray.ResizeList(this._floatArray.Count + (weightCount * 3), 0.0f);
                 this._helpMatrixA.CopyFromArray(rawSlotPose, 0);
-
-
                 for (int i = 0, iW = 0, iB = weightOffset + (int)BinaryOffset.WeigthBoneIndices + weightBoneCount, iV = floatOffset; i < vertexCount; ++i)
                 {
                     var iD = i * 2;
