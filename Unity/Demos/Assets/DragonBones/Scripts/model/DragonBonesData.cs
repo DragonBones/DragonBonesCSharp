@@ -189,9 +189,9 @@ namespace DragonBones
         /// <param name="name">- 骨架数据名称。</param>
         /// <version>DragonBones 3.0</version>
         /// <language>zh_CN</language>
-        public ArmatureData GetArmature(string name)
+        public ArmatureData GetArmature(string armatureName)
         {
-            return this.armatures.ContainsKey(name) ? this.armatures[name] : null;
+            return this.armatures.ContainsKey(armatureName) ? this.armatures[armatureName] : null;
         }
     }
 }

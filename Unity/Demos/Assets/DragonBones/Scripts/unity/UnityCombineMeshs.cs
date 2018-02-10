@@ -173,7 +173,11 @@ namespace DragonBones
                         transform.localScale = Vector3.one;
                     }
                     //
-                    slot._meshDirty = true;
+                    if(slot._deformVertices != null)
+                    {
+                        slot._deformVertices.verticesDirty = true;
+                    }
+                    
                     slot._transformDirty = true;
                     slot.Update(-1);
 

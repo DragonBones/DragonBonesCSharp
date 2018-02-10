@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace DragonBones
@@ -140,7 +140,8 @@ namespace DragonBones
                 action.ReturnToPool();
             }
 
-            foreach (var action in this.actions) {
+            foreach (var action in this.actions)
+            {
                 action.ReturnToPool();
             }
 
@@ -228,7 +229,7 @@ namespace DragonBones
                 {
                     continue;
                 }
-                
+
                 var flag = false;
                 foreach (var constraint in this.constraints.Values)
                 {
@@ -260,7 +261,7 @@ namespace DragonBones
         public void CacheFrames(uint frameRate)
         {
             if (this.cacheFrameRate > 0)
-            { 
+            {
                 // TODO clear cache.
                 return;
             }
@@ -380,7 +381,7 @@ namespace DragonBones
                     this.defaultSkin = value;
                 }
 
-                if(value.name == "default")
+                if (value.name == "default")
                 {
                     this.defaultSkin = value;
                 }
@@ -434,9 +435,9 @@ namespace DragonBones
         /// <param name="name">- 骨骼名称。</param>
         /// <version>DragonBones 3.0</version>
         /// <language>zh_CN</language>
-        public BoneData GetBone(string name)
+        public BoneData GetBone(string boneName)
         {
-            return (!string.IsNullOrEmpty(name) && bones.ContainsKey(name)) ? bones[name] : null;
+            return (!string.IsNullOrEmpty(boneName) && bones.ContainsKey(boneName)) ? bones[boneName] : null;
         }
         /// <summary>
         /// - Get a specific slot data.
@@ -451,14 +452,14 @@ namespace DragonBones
         /// <param name="name">- 插槽名称。</param>
         /// <version>DragonBones 3.0</version>
         /// <language>zh_CN</language>
-        public SlotData GetSlot(string name)
+        public SlotData GetSlot(string slotName)
         {
-            return (!string.IsNullOrEmpty(name) && slots.ContainsKey(name)) ? slots[name] : null;
+            return (!string.IsNullOrEmpty(slotName) && slots.ContainsKey(slotName)) ? slots[slotName] : null;
         }
         /// <private/>
-        public ConstraintData GetConstraint(string name)
+        public ConstraintData GetConstraint(string constraintName)
         {
-            return this.constraints.ContainsKey(name) ? this.constraints[name] : null;
+            return this.constraints.ContainsKey(constraintName) ? this.constraints[constraintName] : null;
         }
         /// <summary>
         /// - Get a specific skin data.
@@ -473,9 +474,20 @@ namespace DragonBones
         /// <param name="name">- 皮肤名称。</param>
         /// <version>DragonBones 3.0</version>
         /// <language>zh_CN</language>
-        public SkinData GetSkin(string name)
+        public SkinData GetSkin(string skinName)
         {
-            return !string.IsNullOrEmpty(name) ? (skins.ContainsKey(name) ? skins[name] : null) : defaultSkin;
+            return !string.IsNullOrEmpty(skinName) ? (skins.ContainsKey(skinName) ? skins[skinName] : null) : defaultSkin;
+        }
+
+        public MeshDisplayData GetMesh(string skinName, string slotName, string meshName)
+        {
+            var skin = this.GetSkin(skinName);
+            if (skin == null)
+            {
+                return null;
+            }
+
+            return skin.GetDisplay(slotName, meshName) as MeshDisplayData;
         }
         /// <summary>
         /// - Get a specific animation data.
@@ -490,9 +502,9 @@ namespace DragonBones
         /// <param name="name">- 动画名称。</param>
         /// <version>DragonBones 3.0</version>
         /// <language>zh_CN</language>
-        public AnimationData GetAnimation(string name)
+        public AnimationData GetAnimation(string animationName)
         {
-            return !string.IsNullOrEmpty(name) ? (animations.ContainsKey(name) ? animations[name] : null) : defaultAnimation;
+            return !string.IsNullOrEmpty(animationName) ? (animations.ContainsKey(animationName) ? animations[animationName] : null) : defaultAnimation;
         }
     }
 

@@ -92,9 +92,6 @@ namespace DragonBones
         /// <internal/>
         /// <private/>
         internal Armature _armature;
-        /// <internal/>
-        /// <private/>
-        internal Bone _parent;
         /// <private/>
         protected override void _OnClear()
         {
@@ -106,20 +103,6 @@ namespace DragonBones
 
             this._globalDirty = false;
             this._armature = null; //
-            this._parent = null; //
-        }
-
-        /// <internal/>
-        /// <private/>
-        internal virtual void _SetArmature(Armature value = null)
-        {
-            this._armature = value;
-        }
-        /// <internal/>
-        /// <private/>
-        internal void _SetParent(Bone value = null)
-        {
-            this._parent = value;
         }
         /// <private/>
         public void UpdateGlobalTransform()
@@ -144,21 +127,6 @@ namespace DragonBones
         public Armature armature
         {
             get{ return this._armature; }
-        }
-        /// <summary>
-        /// - The parent bone to which it belongs.
-        /// </summary>
-        /// <version>DragonBones 3.0</version>
-        /// <language>en_US</language>
-
-        /// <summary>
-        /// - 所属的父骨骼。
-        /// </summary>
-        /// <version>DragonBones 3.0</version>
-        /// <language>zh_CN</language>
-        public Bone parent
-        {
-            get { return this._parent; }
         }
     }
 }

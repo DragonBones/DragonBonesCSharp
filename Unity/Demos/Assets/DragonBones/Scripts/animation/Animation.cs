@@ -56,6 +56,8 @@ namespace DragonBones
         /// <language>zh_CN</language>
         public float timeScale;
 
+        private bool _lockUpdate;
+
         // Update bones and slots cachedFrameIndices.
         private bool _animationDirty;
         private float _inheritTimeScale;
@@ -80,6 +82,8 @@ namespace DragonBones
 
             this.timeScale = 1.0f;
 
+            this._lockUpdate = false;
+
             this._animationDirty = false;
             this._inheritTimeScale = 1.0f;
             this._animationNames.Clear();
@@ -97,6 +101,11 @@ namespace DragonBones
                 case AnimationFadeOutMode.SameLayer:
                     foreach (var animationState in this._animationStates)
                     {
+                        if (animationState._parent != null)
+                        {
+                            continue;
+                        }
+
                         if (animationState.layer == animationConfig.layer)
                         {
                             animationState.FadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut);
@@ -106,6 +115,11 @@ namespace DragonBones
                 case AnimationFadeOutMode.SameGroup:
                     foreach (var animationState in this._animationStates)
                     {
+                        if (animationState._parent != null)
+                        {
+                            continue;
+                        }
+
                         if (animationState.group == animationConfig.group)
                         {
                             animationState.FadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut);
@@ -115,6 +129,11 @@ namespace DragonBones
                 case AnimationFadeOutMode.SameLayerAndGroup:
                     foreach (var animationState in this._animationStates)
                     {
+                        if (animationState._parent != null)
+                        {
+                            continue;
+                        }
+
                         if (animationState.layer == animationConfig.layer &&
                             animationState.group == animationConfig.group)
                         {
@@ -125,6 +144,11 @@ namespace DragonBones
                 case AnimationFadeOutMode.All:
                     foreach (var animationState in this._animationStates)
                     {
+                        if (animationState._parent != null)
+                        {
+                            continue;
+                        }
+
                         animationState.FadeOut(animationConfig.fadeOutTime, animationConfig.pauseFadeOut);
                     }
                     break;
@@ -197,7 +221,21 @@ namespace DragonBones
 
                         foreach (var slot in this._armature.GetSlots())
                         {
-                            slot._cachedFrameIndices = animationData.GetSlotCachedFrameIndices(slot.name);
+                            var rawDisplayDatas = slot.rawDisplayDatas;
+                            if (rawDisplayDatas != null && rawDisplayDatas.Count > 0)
+                            {
+                                var rawDsplayData = rawDisplayDatas[0];
+                                if (rawDsplayData != null)
+                                {
+                                    if (rawDsplayData.parent == this._armature.armatureData.defaultSkin)
+                                    {
+                                        slot._cachedFrameIndices = animationData.GetSlotCachedFrameIndices(slot.name);
+                                        continue;
+                                    }
+                                }
+                            }
+
+                            slot._cachedFrameIndices = null;
                         }
                     }
 
@@ -464,10 +502,13 @@ namespace DragonBones
                 }
             }
 
-            if (animationConfig.fadeInTime <= 0.0f)
+            if (!this._lockUpdate)
             {
-                // Blend animation state, update armature.
-                this._armature.AdvanceTime(0.0f);
+                if (animationConfig.fadeInTime <= 0.0f)
+                {
+                    // Blend animation state, update armature.
+                    this._armature.AdvanceTime(0.0f);
+                }
             }
 
             this._lastAnimationState = animationState;

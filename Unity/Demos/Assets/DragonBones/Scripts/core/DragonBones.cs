@@ -52,11 +52,11 @@ namespace DragonBones
         FrameTweenEasingOrCurveSampleCount = 2,
         FrameCurveSamples = 3,
 
-        FFDTimelineMeshOffset = 0,
-        FFDTimelineFFDCount = 1,
-        FFDTimelineValueCount = 2,
-        FFDTimelineValueOffset = 3,
-        FFDTimelineFloatOffset = 4
+        DeformVertexOffset = 0,
+        DeformCount = 1,
+        DeformValueCount = 2,
+        DeformValueOffset = 3,
+        DeformFloatOffset = 4
     }
 
     /// <internal/>
@@ -75,7 +75,8 @@ namespace DragonBones
         Image = 0,
         Armature = 1,
         Mesh = 2,
-        BoundingBox = 3
+        BoundingBox = 3,
+        Path = 4
     }
     /// <summary>
     /// - Bounding box type.
@@ -149,7 +150,7 @@ namespace DragonBones
 
         SlotDisplay = 20,
         SlotColor = 21,
-        SlotFFD = 22,
+        SlotDeform = 22,
 
         IKConstraint = 30,
 
@@ -306,7 +307,7 @@ namespace DragonBones
         public static bool yDown = true;
         public static bool debug = false;
         public static bool debugDraw = false;
-        public static readonly string VERSION = "5.6.201";
+        public static readonly string VERSION = "5.6.300";
 
         private readonly WorldClock _clock = new WorldClock();
         private readonly List<EventObject> _events = new List<EventObject>();
@@ -331,8 +332,6 @@ namespace DragonBones
                 this._objects.Clear();
             }
 
-            this._clock.AdvanceTime(passedTime);
-
             if (this._events.Count > 0)
             {
                 for (int i = 0; i < this._events.Count; ++i)
@@ -354,6 +353,8 @@ namespace DragonBones
 
                 this._events.Clear();
             }
+
+            this._clock.AdvanceTime(passedTime);
         }
 
         public void BufferEvent(EventObject value)
