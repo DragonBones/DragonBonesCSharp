@@ -106,7 +106,7 @@ namespace DragonBones
                 radian += (float)Math.PI;
             }
 
-            global.rotation += (radian - global.rotation) * this._weight;
+            global.rotation += Transform.NormalizeRadian(radian - global.rotation) * this._weight;
             global.ToMatrix(globalTransformMatrix);
         }
 
@@ -160,9 +160,10 @@ namespace DragonBones
                 var rY = dX * r;
 
                 var isPPR = false;
-                if (parent._parent != null)
+                var parentParent = parent.parent;
+                if (parentParent != null)
                 {
-                    var parentParentMatrix = parent._parent.globalTransformMatrix;
+                    var parentParentMatrix = parentParent.globalTransformMatrix;
                     isPPR = parentParentMatrix.a * parentParentMatrix.d - parentParentMatrix.b * parentParentMatrix.c < 0.0f;
                 }
 

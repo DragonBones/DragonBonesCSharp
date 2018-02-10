@@ -193,7 +193,7 @@ namespace DragonBones
 
         /// <internal/>
         /// <private/>
-        private bool _timelineDirty;
+        private int _timelineDirty;
         /// <summary>
         /// - xx: Play Enabled, Fade Play Enabled
         /// </summary>
@@ -239,6 +239,7 @@ namespace DragonBones
         /// <private/>
         internal ActionTimelineState _actionTimeline = null; // Initial value.
         private ZOrderTimelineState _zOrderTimeline = null; // Initial value.
+        public AnimationState _parent = null; // Initial value.
         /// <private/>
         protected override void _OnClear()
         {
@@ -286,7 +287,7 @@ namespace DragonBones
             this.name = string.Empty;
             this.group = string.Empty;
 
-            this._timelineDirty = true;
+            this._timelineDirty = 2;
             this._playheadState = 0;
             this._fadeState = -1;
             this._subFadeState = -1;
@@ -306,9 +307,49 @@ namespace DragonBones
             this._armature = null; //
             this._actionTimeline = null; //
             this._zOrderTimeline = null;
+            this._parent = null;
         }
 
         private void _UpdateTimelines()
+        {
+            { // Update constraint timelines.
+                foreach (var constraint in this._armature._constraints)
+                {
+                    var timelineDatas = this._animationData.GetConstraintTimelines(constraint.name);
+
+                    if (timelineDatas != null)
+                    {
+                        foreach (var timelineData in timelineDatas)
+                        {
+                            switch (timelineData.type)
+                            {
+                                case TimelineType.IKConstraint:
+                                    {
+                                        var timeline = BaseObject.BorrowObject<IKConstraintTimelineState>();
+                                        timeline.constraint = constraint;
+                                        timeline.Init(this._armature, this, timelineData);
+                                        this._constraintTimelines.Add(timeline);
+                                        break;
+                                    }
+
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                    else if (this.resetToPose)
+                    { // Pose timeline.
+                        var timeline = BaseObject.BorrowObject<IKConstraintTimelineState>();
+                        timeline.constraint = constraint;
+                        timeline.Init(this._armature, this, null);
+                        this._constraintTimelines.Add(timeline);
+                        this._poseTimelines.Add(timeline);
+                    }
+                }
+            }
+        }
+
+        private void _UpdateBoneAndSlotTimelines()
         {
             { // Update bone timelines.
                 Dictionary<string, List<BoneTimelineState>> boneTimelines = new Dictionary<string, List<BoneTimelineState>>();
@@ -477,13 +518,13 @@ namespace DragonBones
                                             colorFlag = true;
                                             break;
                                         }
-                                    case TimelineType.SlotFFD:
+                                    case TimelineType.SlotDeform:
                                         {
-                                            var timeline = BaseObject.BorrowObject<SlotFFDTimelineState>();
+                                            var timeline = BaseObject.BorrowObject<DeformTimelineState>();
                                             timeline.slot = slot;
                                             timeline.Init(this._armature, this, timelineData);
                                             this._slotTimelines.Add(timeline);
-                                            ffdFlags.Add((int)timeline.meshOffset);
+                                            ffdFlags.Add((int)timeline.vertexOffset);
                                             break;
                                         }
 
@@ -520,11 +561,11 @@ namespace DragonBones
                                 {
                                     if (displayData != null && displayData.type == DisplayType.Mesh)
                                     {
-                                        var meshOffset = (displayData as MeshDisplayData).offset;
+                                        var meshOffset = (displayData as MeshDisplayData).vertices.offset;
                                         if (!ffdFlags.Contains(meshOffset))
                                         {
-                                            var timeline = BaseObject.BorrowObject<SlotFFDTimelineState>();
-                                            timeline.meshOffset = meshOffset; //
+                                            var timeline = BaseObject.BorrowObject<DeformTimelineState>();
+                                            timeline.vertexOffset = meshOffset; //
                                             timeline.slot = slot;
                                             timeline.Init(this._armature, this, null);
                                             this._slotTimelines.Add(timeline);
@@ -548,75 +589,76 @@ namespace DragonBones
                 }
             }
 
-            {
-                // Update constraint timelines.
-                Dictionary<string, List<ConstraintTimelineState>> constraintTimelines = new Dictionary<string, List<ConstraintTimelineState>>();
-                foreach (var timeline in this._constraintTimelines)
-                { // Create constraint timelines map.
-                    var timelineName = timeline.constraint.name;
-                    if (!(constraintTimelines.ContainsKey(timelineName)))
-                    {
-                        constraintTimelines[timelineName] = new List<ConstraintTimelineState>();
-                    }
+            // {
+            //     // Update constraint timelines.
+            //     Dictionary<string, List<ConstraintTimelineState>> constraintTimelines = new Dictionary<string, List<ConstraintTimelineState>>();
+            //     foreach (var timeline in this._constraintTimelines)
+            //     { // Create constraint timelines map.
+            //         var timelineName = timeline.constraint.name;
+            //         if (!(constraintTimelines.ContainsKey(timelineName)))
+            //         {
+            //             constraintTimelines[timelineName] = new List<ConstraintTimelineState>();
+            //         }
 
-                    constraintTimelines[timelineName].Add(timeline);
-                }
+            //         constraintTimelines[timelineName].Add(timeline);
+            //     }
 
-                foreach (var constraint in this._armature._constraints)
-                {
-                    var timelineName = constraint.name;
-                    var timelineDatas = this._animationData.GetConstraintTimelines(timelineName);
+            //     foreach (var constraint in this._armature._constraints)
+            //     {
+            //         var timelineName = constraint.name;
+            //         var timelineDatas = this._animationData.GetConstraintTimelines(timelineName);
 
-                    if (constraintTimelines.ContainsKey(timelineName))
-                    {
-                        // Remove constraint timeline from map.
-                        constraintTimelines.Remove(timelineName);
-                    }
-                    else
-                    {
-                        // Create new constraint timeline.
-                        if (timelineDatas != null)
-                        {
-                            foreach (var timelineData in timelineDatas)
-                            {
-                                switch (timelineData.type)
-                                {
-                                    case TimelineType.IKConstraint:
-                                        {
-                                            var timeline = BaseObject.BorrowObject<IKConstraintTimelineState>();
-                                            timeline.constraint = constraint;
-                                            timeline.Init(this._armature, this, timelineData);
-                                            this._constraintTimelines.Add(timeline);
-                                            break;
-                                        }
+            //         if (constraintTimelines.ContainsKey(timelineName))
+            //         {
+            //             // Remove constraint timeline from map.
+            //             constraintTimelines.Remove(timelineName);
+            //         }
+            //         else
+            //         {
+            //             // Create new constraint timeline.
+            //             if (timelineDatas != null)
+            //             {
+            //                 foreach (var timelineData in timelineDatas)
+            //                 {
+            //                     switch (timelineData.type)
+            //                     {
+            //                         case TimelineType.IKConstraint:
+            //                             {
+            //                                 var timeline = BaseObject.BorrowObject<IKConstraintTimelineState>();
+            //                                 timeline.constraint = constraint;
+            //                                 timeline.Init(this._armature, this, timelineData);
+            //                                 this._constraintTimelines.Add(timeline);
+            //                                 break;
+            //                             }
 
-                                    default:
-                                        break;
-                                }
-                            }
-                        }
-                        else if (this.resetToPose)
-                        {
-                            // Pose timeline.
-                            var timeline = BaseObject.BorrowObject<IKConstraintTimelineState>();
-                            timeline.constraint = constraint;
-                            timeline.Init(this._armature, this, null);
-                            this._constraintTimelines.Add(timeline);
-                            this._poseTimelines.Add(timeline);
-                        }
-                    }
-                }
+            //                         default:
+            //                             break;
+            //                     }
+            //                 }
+            //             }
+            //             else if (this.resetToPose)
+            //             {
+            //                 // Pose timeline.
+            //                 var timeline = BaseObject.BorrowObject<IKConstraintTimelineState>();
+            //                 timeline.constraint = constraint;
+            //                 timeline.Init(this._armature, this, null);
+            //                 this._constraintTimelines.Add(timeline);
+            //                 this._poseTimelines.Add(timeline);
+            //             }
+            //         }
+            //     }
 
-                foreach (var timelines in constraintTimelines.Values)
-                { // Remove constraint timelines.
-                    foreach (var timeline in timelines)
-                    {
-                        this._constraintTimelines.Remove(timeline);
-                        timeline.ReturnToPool();
-                    }
-                }
-            }
+            //     foreach (var timelines in constraintTimelines.Values)
+            //     { // Remove constraint timelines.
+            //         foreach (var timeline in timelines)
+            //         {
+            //             this._constraintTimelines.Remove(timeline);
+            //             timeline.ReturnToPool();
+            //         }
+            //     }
+            // }
         }
+
         private void _AdvanceFadeTime(float passedTime)
         {
             var isFadeOut = this._fadeState > 0;
@@ -781,7 +823,7 @@ namespace DragonBones
         internal void AdvanceTime(float passedTime, float cacheFrameRate)
         {
             this._blendState.dirty = true;
-            
+
             // Update fade time.
             if (this._fadeState != 0 || this._subFadeState != 0)
             {
@@ -800,10 +842,16 @@ namespace DragonBones
                 this._time += passedTime;
             }
 
-            if (this._timelineDirty)
+            // Update timeline.
+            if (this._timelineDirty != 0)
             {
-                this._timelineDirty = false;
-                this._UpdateTimelines();
+                if (this._timelineDirty == 2)
+                {
+                    this._UpdateTimelines();
+                }
+
+                this._timelineDirty = 0;
+                this._UpdateBoneAndSlotTimelines();
             }
 
             if (this.weight == 0.0f)
@@ -816,6 +864,11 @@ namespace DragonBones
             var isUpdateBoneTimeline = true;
             var time = this._time;
             this._weightResult = this.weight * this._fadeProgress;
+
+            if (this._parent != null)
+            {
+                this._weightResult *= this._parent._weightResult / this._parent._fadeProgress;
+            }
 
             if (this._actionTimeline.playState <= 0)
             {
@@ -870,12 +923,13 @@ namespace DragonBones
                     {
                         var timeline = this._boneTimelines[i];
 
-                        if(timeline.playState <= 0)
+                        if (timeline.playState <= 0)
                         {
                             timeline.Update(time);
                         }
 
-                        if (i == l - 1 || timeline.bone != this._boneTimelines[i + 1].bone) {
+                        if (i == l - 1 || timeline.bone != this._boneTimelines[i + 1].bone)
+                        {
                             var state = timeline.bone._blendState.Update(this._weightResult, this.layer);
                             if (state != 0)
                             {
@@ -1041,6 +1095,11 @@ namespace DragonBones
                 {
                     timeline.FadeOut();
                 }
+
+                foreach (var timeline in this._constraintTimelines)
+                {
+                    timeline.FadeOut();
+                }
             }
 
             this.displayControl = false; //
@@ -1061,9 +1120,9 @@ namespace DragonBones
         /// <param name="name">- 骨骼名称。</param>
         /// <version>DragonBones 3.0</version>
         /// <language>zh_CN</language>
-        public bool ContainsBoneMask(string name)
+        public bool ContainsBoneMask(string boneName)
         {
-            return this._boneMask.Count == 0 || this._boneMask.IndexOf(name) >= 0;
+            return this._boneMask.Count == 0 || this._boneMask.IndexOf(boneName) >= 0;
         }
         /// <summary>
         /// - Add a specific bone mask.
@@ -1080,18 +1139,18 @@ namespace DragonBones
         /// <param name="recursive">- 是否为该骨骼的子骨骼添加遮罩。</param>
         /// <version>DragonBones 3.0</version>
         /// <language>zh_CN</language>
-        public void AddBoneMask(string name, bool recursive = true)
+        public void AddBoneMask(string boneName, bool recursive = true)
         {
-            var currentBone = this._armature.GetBone(name);
+            var currentBone = this._armature.GetBone(boneName);
             if (currentBone == null)
             {
                 return;
             }
 
-            if (this._boneMask.IndexOf(name) < 0)
+            if (this._boneMask.IndexOf(boneName) < 0)
             {
                 // Add mixing
-                this._boneMask.Add(name);
+                this._boneMask.Add(boneName);
             }
 
             if (recursive)
@@ -1106,7 +1165,7 @@ namespace DragonBones
                 }
             }
 
-            this._timelineDirty = true;
+            this._timelineDirty = 1;
         }
         /// <summary>
         /// - Remove the mask of a specific bone.
@@ -1123,16 +1182,16 @@ namespace DragonBones
         /// <param name="recursive">- 是否删除该骨骼的子骨骼遮罩。</param>
         /// <version>DragonBones 3.0</version>
         /// <language>zh_CN</language>
-        public void RemoveBoneMask(string name, bool recursive = true)
+        public void RemoveBoneMask(string boneName, bool recursive = true)
         {
-            if (this._boneMask.Contains(name))
+            if (this._boneMask.Contains(boneName))
             {
-                this._boneMask.Remove(name);
+                this._boneMask.Remove(boneName);
             }
 
             if (recursive)
             {
-                var currentBone = this._armature.GetBone(name);
+                var currentBone = this._armature.GetBone(boneName);
                 if (currentBone != null)
                 {
                     var bones = this._armature.GetBones();
@@ -1166,7 +1225,7 @@ namespace DragonBones
                 }
             }
 
-            this._timelineDirty = true;
+            this._timelineDirty = 1;
         }
         /// <summary>
         /// - Remove all bone masks.
@@ -1182,7 +1241,7 @@ namespace DragonBones
         public void RemoveAllBoneMask()
         {
             this._boneMask.Clear();
-            this._timelineDirty = true;
+            this._timelineDirty = 1;
         }
         /// <summary>
         /// - Whether the animation state is fading in.
@@ -1371,13 +1430,13 @@ namespace DragonBones
         public float layerWeight;
         public float blendWeight;
 
-        public int Update(float weight, int layer)
+        public int Update(float weight, int p_layer)
         {
             if (this.dirty)
             {
                 if (this.leftWeight > 0.0f)
                 {
-                    if (this.layer != layer)
+                    if (this.layer != p_layer)
                     {
                         if (this.layerWeight >= this.leftWeight)
                         {
@@ -1387,7 +1446,7 @@ namespace DragonBones
                         }
                         else
                         {
-                            this.layer = layer;
+                            this.layer = p_layer;
                             this.leftWeight -= this.layerWeight;
                             this.layerWeight = 0.0f;
                         }
@@ -1402,16 +1461,16 @@ namespace DragonBones
                 this.layerWeight += weight;
                 this.blendWeight = weight;
 
-                return 1;
+                return 2;
             }
 
             this.dirty = true;
-            this.layer = layer;
+            this.layer = p_layer;
             this.layerWeight = weight;
             this.leftWeight = 1.0f;
             this.blendWeight = weight;
 
-            return -1;
+            return 1;
         }
 
         public void Clear()

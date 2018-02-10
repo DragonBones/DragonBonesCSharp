@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-﻿namespace DragonBones
+namespace DragonBones
 {
     /// <summary>
     /// - The properties of the object carry basic information about an event,
@@ -145,6 +145,33 @@
         /// <language>zh_CN</language>
         public const string SOUND_EVENT = "soundEvent";
 
+        public static void ActionDataToInstance(ActionData data, EventObject instance, Armature armature)
+        {
+            if (data.type == ActionType.Play)
+            {
+                instance.type = EventObject.FRAME_EVENT;
+            }
+            else
+            {
+                instance.type = data.type == ActionType.Frame ? EventObject.FRAME_EVENT : EventObject.SOUND_EVENT;
+            }
+
+            instance.name = data.name;
+            instance.armature = armature;
+            instance.actionData = data;
+            instance.data = data.data;
+
+            if (data.bone != null)
+            {
+                instance.bone = armature.GetBone(data.bone.name);
+            }
+
+            if (data.slot != null)
+            {
+                instance.slot = armature.GetSlot(data.slot.name);
+            }
+        }
+
         /// <summary>
         /// - If is a frame event, the value is used to describe the time that the event was in the animation timeline. (In seconds)
         /// </summary>
@@ -237,6 +264,7 @@
         /// <version>DragonBones 4.5</version>
         /// <language>zh_CN</language>
         public AnimationState animationState;
+        public ActionData actionData;
         /// <summary>
         /// - The custom data.
         /// </summary>
@@ -262,6 +290,7 @@
             this.bone = null;
             this.slot = null;
             this.animationState = null;
+            this.actionData = null;
             this.data = null;
         }
     }

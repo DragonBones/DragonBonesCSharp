@@ -745,8 +745,6 @@ namespace DragonBones
         /// <version>DragonBones 5.1</version>
         /// <language>zh_CN</language>
         public readonly List<float> vertices = new List<float>();
-        /// <private/>
-        public WeightData weight = null; // Initial value.
 
         /// <inheritDoc/>
         /// <private/>
@@ -754,16 +752,10 @@ namespace DragonBones
         {
             base._OnClear();
 
-            if (this.weight != null)
-            {
-                this.weight.ReturnToPool();
-            }
-
             this.type = BoundingBoxType.Polygon;
             this.x = 0.0f;
             this.y = 0.0f;
             this.vertices.Clear();
-            this.weight = null;
         }
 
         /// <inheritDoc/>
@@ -800,7 +792,7 @@ namespace DragonBones
                                                 Point normalRadians = null)
         {
             var intersectionCount = 0;
-            if (RectangleBoundingBoxData.RectangleIntersectsSegment(xA, yA, xB, yB, this.x, this.y, this.width, this.height, null, null, null) != 0)
+            if (RectangleBoundingBoxData.RectangleIntersectsSegment(xA, yA, xB, yB, this.x, this.y, this.x + this.width, this.y + this.height, null, null, null) != 0)
             {
                 intersectionCount = PolygonBoundingBoxData.PolygonIntersectsSegment
                                                             (

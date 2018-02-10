@@ -302,31 +302,31 @@ namespace DragonBones
         }
 
         /// <private/>
-        public List<TimelineData> GetBoneTimelines(string name)
+        public List<TimelineData> GetBoneTimelines(string timelineName)
         {
-            return this.boneTimelines.ContainsKey(name) ? this.boneTimelines[name] : null;
+            return this.boneTimelines.ContainsKey(timelineName) ? this.boneTimelines[timelineName] : null;
         }
         /// <private/>
-        public List<TimelineData> GetSlotTimelines(string name)
+        public List<TimelineData> GetSlotTimelines(string timelineName)
         {
-            return slotTimelines.ContainsKey(name) ? slotTimelines[name] : null;
-        }
-
-        /// <private/>
-        public List<TimelineData> GetConstraintTimelines(string name)
-        {
-            return constraintTimelines.ContainsKey(name) ? constraintTimelines[name] : null;
-        }
-        /// <private/>
-        public List<int> GetBoneCachedFrameIndices(string name)
-        {
-            return this.boneCachedFrameIndices.ContainsKey(name) ? this.boneCachedFrameIndices[name] : null;
+            return slotTimelines.ContainsKey(timelineName) ? slotTimelines[timelineName] : null;
         }
 
         /// <private/>
-        public List<int> GetSlotCachedFrameIndices(string name)
+        public List<TimelineData> GetConstraintTimelines(string timelineName)
         {
-            return this.slotCachedFrameIndices.ContainsKey(name) ? this.slotCachedFrameIndices[name] : null;
+            return constraintTimelines.ContainsKey(timelineName) ? constraintTimelines[timelineName] : null;
+        }
+        /// <private/>
+        public List<int> GetBoneCachedFrameIndices(string boneName)
+        {
+            return this.boneCachedFrameIndices.ContainsKey(boneName) ? this.boneCachedFrameIndices[boneName] : null;
+        }
+
+        /// <private/>
+        public List<int> GetSlotCachedFrameIndices(string slotName)
+        {
+            return this.slotCachedFrameIndices.ContainsKey(slotName) ? this.slotCachedFrameIndices[slotName] : null;
         }
     }
 
