@@ -251,7 +251,7 @@ namespace DragonBones
                 }
             }
 
-            if(childArmature == null)
+            if (childArmature == null)
             {
                 return null;
             }
@@ -910,88 +910,110 @@ namespace DragonBones
                                         Slot slot, Texture2D texture, Material material = null,
                                         bool isUGUI = false, int displayIndex = -1)
         {
-            // var armatureData = this.GetArmatureData(armatureName, dragonBonesName);
-            // if (armatureData == null || armatureData.defaultSkin == null)
-            // {
-            //     return;
-            // }
+            var armatureData = this.GetArmatureData(armatureName, dragonBonesName);
+            if (armatureData == null || armatureData.defaultSkin == null)
+            {
+                return;
+            }
 
-            // var displays = armatureData.defaultSkin.GetDisplays(slotName);
-            // if (displays == null)
-            // {
-            //     return;
-            // }
+            var displays = armatureData.defaultSkin.GetDisplays(slotName);
+            if (displays == null)
+            {
+                return;
+            }
 
-            // DisplayData prevDispalyData = null;
-            // foreach (var displayData in displays)
-            // {
-            //     if (displayData.name == displayName)
-            //     {
-            //         prevDispalyData = displayData;
-            //         break;
-            //     }
-            // }
+            DisplayData prevDispalyData = null;
+            foreach (var displayData in displays)
+            {
+                if (displayData.name == displayName)
+                {
+                    prevDispalyData = displayData;
+                    break;
+                }
+            }
 
-            // if (prevDispalyData == null || !(prevDispalyData is ImageDisplayData))
-            // {
-            //     return;
-            // }
+            if (prevDispalyData == null || !((prevDispalyData is ImageDisplayData) || (prevDispalyData is MeshDisplayData)))
+            {
+                return;
+            }
 
-            // TextureData prevTextureData = (prevDispalyData as ImageDisplayData).texture;
-            // UnityTextureData newTextureData = new UnityTextureData();
-            // newTextureData.CopyFrom(prevTextureData);
-            // newTextureData.rotated = false;
-            // newTextureData.region.x = 0.0f;
-            // newTextureData.region.y = 0.0f;
-            // newTextureData.region.width = texture.width;
-            // newTextureData.region.height = texture.height;
-            // newTextureData.frame = newTextureData.region;
-            // newTextureData.name = prevTextureData.name;
-            // newTextureData.parent = new UnityTextureAtlasData();
-            // newTextureData.parent.width = (uint)texture.width;
-            // newTextureData.parent.height = (uint)texture.height;
-            // newTextureData.parent.scale = prevTextureData.parent.scale;
-            // //
-            // if(material == null)
-            // {
-            //     if(isUGUI)
-            //     {
-            //         material = UnityFactoryHelper.GenerateMaterial(defaultUIShaderName, texture.name + "_UI_Mat", texture);
-            //     }
-            //     else
-            //     {
-            //         material = UnityFactoryHelper.GenerateMaterial(defaultShaderName, texture.name + "_Mat", texture);
-            //     }
-            // }
+            TextureData prevTextureData = null;
+            if(prevDispalyData is ImageDisplayData)
+            {
+                prevTextureData = (prevDispalyData as ImageDisplayData).texture;
+            }
+            else
+            {
+                prevTextureData = (prevDispalyData as MeshDisplayData).texture;
+            }
 
-            // if (isUGUI)
-            // {
-            //     (newTextureData.parent as UnityTextureAtlasData).uiTexture = material;
-            // }
-            // else
-            // {
-            //     (newTextureData.parent as UnityTextureAtlasData).texture = material;
-            // }
+            UnityTextureData newTextureData = new UnityTextureData();
+            newTextureData.CopyFrom(prevTextureData);
+            newTextureData.rotated = false;
+            newTextureData.region.x = 0.0f;
+            newTextureData.region.y = 0.0f;
+            newTextureData.region.width = texture.width;
+            newTextureData.region.height = texture.height;
+            newTextureData.frame = newTextureData.region;
+            newTextureData.name = prevTextureData.name;
+            newTextureData.parent = new UnityTextureAtlasData();
+            newTextureData.parent.width = (uint)texture.width;
+            newTextureData.parent.height = (uint)texture.height;
+            newTextureData.parent.scale = prevTextureData.parent.scale;
 
-            // material.mainTexture = texture;
+            //
+            if (material == null)
+            {
+                if (isUGUI)
+                {
+                    material = UnityFactoryHelper.GenerateMaterial(defaultUIShaderName, texture.name + "_UI_Mat", texture);
+                }
+                else
+                {
+                    material = UnityFactoryHelper.GenerateMaterial(defaultShaderName, texture.name + "_Mat", texture);
+                }
+            }
 
-            // ImageDisplayData newDisplayData = prevDispalyData is MeshDisplayData ? new MeshDisplayData() : new ImageDisplayData();
-            // newDisplayData.type = prevDispalyData.type;
-            // newDisplayData.name = prevDispalyData.name;
-            // newDisplayData.path = prevDispalyData.path;
-            // newDisplayData.transform.CopyFrom(prevDispalyData.transform);
-            // newDisplayData.parent = prevDispalyData.parent;
-            // newDisplayData.pivot.CopyFrom((prevDispalyData as ImageDisplayData).pivot);
-            // newDisplayData.texture = newTextureData;
+            if (isUGUI)
+            {
+                (newTextureData.parent as UnityTextureAtlasData).uiTexture = material;
+            }
+            else
+            {
+                (newTextureData.parent as UnityTextureAtlasData).texture = material;
+            }
 
-            // if (newDisplayData is MeshDisplayData)
-            // {
-            //     (newDisplayData as MeshDisplayData).inheritDeform = (prevDispalyData as MeshDisplayData).inheritDeform;
-            //     (newDisplayData as MeshDisplayData).offset = (prevDispalyData as MeshDisplayData).offset;
-            //     (newDisplayData as MeshDisplayData).weight = (prevDispalyData as MeshDisplayData).weight;
-            // }
+            material.mainTexture = texture;
 
-            // ReplaceDisplay(slot, newDisplayData, displayIndex);
+            DisplayData newDisplayData = null;
+            if (prevDispalyData is ImageDisplayData)
+            {
+                newDisplayData = new ImageDisplayData();
+                newDisplayData.type = prevDispalyData.type;
+                newDisplayData.name = prevDispalyData.name;
+                newDisplayData.path = prevDispalyData.path;
+                newDisplayData.transform.CopyFrom(prevDispalyData.transform);
+                newDisplayData.parent = prevDispalyData.parent;
+                (newDisplayData as ImageDisplayData).pivot.CopyFrom((prevDispalyData as ImageDisplayData).pivot);
+                (newDisplayData as ImageDisplayData).texture = newTextureData;
+            }
+            else if (prevDispalyData is MeshDisplayData)
+            {
+                newDisplayData = new MeshDisplayData();
+                newDisplayData.type = prevDispalyData.type;
+                newDisplayData.name = prevDispalyData.name;
+                newDisplayData.path = prevDispalyData.path;
+                newDisplayData.transform.CopyFrom(prevDispalyData.transform);
+                newDisplayData.parent = prevDispalyData.parent;
+                (newDisplayData as MeshDisplayData).texture = newTextureData;
+
+                (newDisplayData as MeshDisplayData).vertices.inheritDeform = (prevDispalyData as MeshDisplayData).vertices.inheritDeform;
+                (newDisplayData as MeshDisplayData).vertices.offset = (prevDispalyData as MeshDisplayData).vertices.offset;
+                (newDisplayData as MeshDisplayData).vertices.data = (prevDispalyData as MeshDisplayData).vertices.data;
+                (newDisplayData as MeshDisplayData).vertices.weight = (prevDispalyData as MeshDisplayData).vertices.weight;
+            }
+
+            ReplaceDisplay(slot, newDisplayData, displayIndex);
         }
 
         //
