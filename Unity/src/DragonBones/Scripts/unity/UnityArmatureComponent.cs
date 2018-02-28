@@ -616,7 +616,7 @@ namespace DragonBones
             //
             foreach (UnitySlot slot in _armature.GetSlots())
             {
-                var display = slot.display as GameObject;
+                var display = slot._renderDisplay;
                 if (display == null)
                 {
                     continue;
