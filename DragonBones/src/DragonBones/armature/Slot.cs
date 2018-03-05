@@ -1162,7 +1162,7 @@ namespace DragonBones
                 {
                     if (eachDisplay is Armature)
                     {
-                        (eachDisplay as Armature).Dispose();
+                        // (eachDisplay as Armature).Dispose();
                     }
                     else
                     {
