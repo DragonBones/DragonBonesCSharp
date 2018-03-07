@@ -206,6 +206,16 @@ namespace DragonBones
             var skewX = (float)Math.Atan(-matrix.c / matrix.d);
             this.rotation = (float)Math.Atan(matrix.b / matrix.a);
 
+            if(skewX == float.NaN)
+            {
+                skewX = 0.0f;
+            }
+
+            if(this.rotation == float.NaN)
+            {
+                this.rotation = 0.0f; 
+            }
+
             this.scaleX = (float)((this.rotation > -PI_Q && this.rotation < PI_Q) ? matrix.a / Math.Cos(this.rotation) : matrix.b / Math.Sin(this.rotation));
             this.scaleY = (float)((skewX > -PI_Q && skewX < PI_Q) ? matrix.d / Math.Cos(skewX) : -matrix.c / Math.Sin(skewX));
 
