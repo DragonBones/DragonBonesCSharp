@@ -275,11 +275,11 @@ namespace DragonBones
                         childArmatureComp._sortingLayerName = _proxy._sortingLayerName;
                         if (_proxy._sortingMode == SortingMode.SortByOrder)
                         {
-                            childArmatureComp._sortingOrder = _zOrder * UnityArmatureComponent.ORDER_SPACE; ;
+                            childArmatureComp.sortingOrder = _zOrder * UnityArmatureComponent.ORDER_SPACE;
                         }
                         else
                         {
-                            childArmatureComp._sortingOrder = _proxy._sortingOrder;
+                            childArmatureComp.sortingOrder = _proxy._sortingOrder;
                         }
                     }
                 }
