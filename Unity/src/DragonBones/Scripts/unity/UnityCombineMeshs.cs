@@ -268,6 +268,7 @@ namespace DragonBones
                 //先检查这个slot会不会打断网格合并
                 isBreakCombineMesh = isChildAramture ||
                                     slot._isIgnoreCombineMesh ||
+                                    slot._blendMode != BlendMode.Normal ||
                                     !isSameMaterial;
 
                 //如果会打断，那么先合并一次

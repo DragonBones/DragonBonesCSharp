@@ -206,12 +206,12 @@ namespace DragonBones
             var skewX = (float)Math.Atan(-matrix.c / matrix.d);
             this.rotation = (float)Math.Atan(matrix.b / matrix.a);
 
-            if(skewX == float.NaN)
+            if(float.IsNaN(skewX))
             {
                 skewX = 0.0f;
             }
 
-            if(this.rotation == float.NaN)
+            if(float.IsNaN(this.rotation))
             {
                 this.rotation = 0.0f; 
             }
