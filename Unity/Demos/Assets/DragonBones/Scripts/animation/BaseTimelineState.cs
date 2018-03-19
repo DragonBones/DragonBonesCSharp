@@ -410,7 +410,7 @@ namespace DragonBones
             var animationPose = this.bone.animationPose;
             var result = this.bonePose.result;
 
-            if (state > 0)
+            if (state == 2)
             {
                 animationPose.x += result.x * blendWeight;
                 animationPose.y += result.y * blendWeight;

@@ -58,12 +58,12 @@ namespace DragonBones
         {
             this._armatureIndex = -1;
             this._animationIndex = -1;
-            this._sortingModeIndex = -1;
-            this._sortingLayerIndex = -1;
+            // this._sortingModeIndex = -1;
+            // this._sortingLayerIndex = -1;
 
             this._armatureNames = null;
             this._animationNames = null;
-            this._sortingLayerNames = null;
+            // this._sortingLayerNames = null;
         }
 
         void OnDisable()
@@ -429,7 +429,6 @@ namespace DragonBones
                 if (_armatureComponent.armature.armatureData.parent != null)
                 {
                     _armatureNames = _armatureComponent.armature.armatureData.parent.armatureNames;
-                    //_animationNames = _armatureComponent.armature.armatureData.animationNames;
                     _animationNames = _armatureComponent.animation.animationNames;
                     _armatureIndex = _armatureNames.IndexOf(_armatureComponent.armature.name);
                     //

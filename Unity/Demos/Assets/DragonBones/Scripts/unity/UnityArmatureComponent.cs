@@ -267,7 +267,11 @@ namespace DragonBones
                         case BoundingBoxType.Rectangle:
                             {
                                 //
+                                #if UNITY_5_6_OR_NEWER
                                 GL.Begin(GL.LINE_STRIP);
+                                #else
+                                GL.Begin(GL.LINES);
+                                #endif
                                 GL.Color(boundingBoxLineColor);
 
                                 var leftTopPos = new Vector3(tx - boundingBoxWidth * 0.5f, ty + boundingBoxHeight * 0.5f, 0.0f);
@@ -292,7 +296,11 @@ namespace DragonBones
                         case BoundingBoxType.Polygon:
                             {
                                 var vertices = (boundingBoxData as PolygonBoundingBoxData).vertices;
+                                #if UNITY_5_6_OR_NEWER
                                 GL.Begin(GL.LINE_STRIP);
+                                #else
+                                GL.Begin(GL.LINES);
+                                #endif
                                 GL.Color(boundingBoxLineColor);
                                 for (var j = 0; j < vertices.Count; j += 2)
                                 {
@@ -616,7 +624,7 @@ namespace DragonBones
             //
             foreach (UnitySlot slot in _armature.GetSlots())
             {
-                var display = slot.display as GameObject;
+                var display = slot._renderDisplay;
                 if (display == null)
                 {
                     continue;

@@ -251,7 +251,7 @@ namespace DragonBones
                 }
             }
 
-            if(childArmature == null)
+            if (childArmature == null)
             {
                 return null;
             }
@@ -267,15 +267,9 @@ namespace DragonBones
         }
 
         /// <private/>
-        protected override Slot _BuildSlot(BuildArmaturePackage dataPackage, SlotData slotData, List<DisplayData> displays, Armature armature)
+        protected override Slot _BuildSlot(BuildArmaturePackage dataPackage, SlotData slotData, Armature armature)
         {
             var slot = BaseObject.BorrowObject<UnitySlot>();
-            var displayList = new List<object>();
-            if (displays != null)
-            {
-                displayList.ResizeList(displays.Count);
-            }
-
             var armatureDisplay = armature.display as GameObject;
             var transform = armatureDisplay.transform.Find(slotData.name);
             var gameObject = transform == null ? null : transform.gameObject;
@@ -296,7 +290,7 @@ namespace DragonBones
                 }
             }
 
-            slot.Init(slotData, displays, gameObject, gameObject);
+            slot.Init(slotData, armature, gameObject, gameObject);
 
             if (isNeedIngoreCombineMesh)
             {
@@ -938,12 +932,21 @@ namespace DragonBones
                 }
             }
 
-            if (prevDispalyData == null || !(prevDispalyData is ImageDisplayData))
+            if (prevDispalyData == null || !((prevDispalyData is ImageDisplayData) || (prevDispalyData is MeshDisplayData)))
             {
                 return;
             }
 
-            TextureData prevTextureData = (prevDispalyData as ImageDisplayData).texture;
+            TextureData prevTextureData = null;
+            if(prevDispalyData is ImageDisplayData)
+            {
+                prevTextureData = (prevDispalyData as ImageDisplayData).texture;
+            }
+            else
+            {
+                prevTextureData = (prevDispalyData as MeshDisplayData).texture;
+            }
+
             UnityTextureData newTextureData = new UnityTextureData();
             newTextureData.CopyFrom(prevTextureData);
             newTextureData.rotated = false;
@@ -957,10 +960,11 @@ namespace DragonBones
             newTextureData.parent.width = (uint)texture.width;
             newTextureData.parent.height = (uint)texture.height;
             newTextureData.parent.scale = prevTextureData.parent.scale;
+
             //
-            if(material == null)
+            if (material == null)
             {
-                if(isUGUI)
+                if (isUGUI)
                 {
                     material = UnityFactoryHelper.GenerateMaterial(defaultUIShaderName, texture.name + "_UI_Mat", texture);
                 }
@@ -981,20 +985,32 @@ namespace DragonBones
 
             material.mainTexture = texture;
 
-            ImageDisplayData newDisplayData = prevDispalyData is MeshDisplayData ? new MeshDisplayData() : new ImageDisplayData();
-            newDisplayData.type = prevDispalyData.type;
-            newDisplayData.name = prevDispalyData.name;
-            newDisplayData.path = prevDispalyData.path;
-            newDisplayData.transform.CopyFrom(prevDispalyData.transform);
-            newDisplayData.parent = prevDispalyData.parent;
-            newDisplayData.pivot.CopyFrom((prevDispalyData as ImageDisplayData).pivot);
-            newDisplayData.texture = newTextureData;
-
-            if (newDisplayData is MeshDisplayData)
+            DisplayData newDisplayData = null;
+            if (prevDispalyData is ImageDisplayData)
             {
-                (newDisplayData as MeshDisplayData).inheritAnimation = (prevDispalyData as MeshDisplayData).inheritAnimation;
-                (newDisplayData as MeshDisplayData).offset = (prevDispalyData as MeshDisplayData).offset;
-                (newDisplayData as MeshDisplayData).weight = (prevDispalyData as MeshDisplayData).weight;
+                newDisplayData = new ImageDisplayData();
+                newDisplayData.type = prevDispalyData.type;
+                newDisplayData.name = prevDispalyData.name;
+                newDisplayData.path = prevDispalyData.path;
+                newDisplayData.transform.CopyFrom(prevDispalyData.transform);
+                newDisplayData.parent = prevDispalyData.parent;
+                (newDisplayData as ImageDisplayData).pivot.CopyFrom((prevDispalyData as ImageDisplayData).pivot);
+                (newDisplayData as ImageDisplayData).texture = newTextureData;
+            }
+            else if (prevDispalyData is MeshDisplayData)
+            {
+                newDisplayData = new MeshDisplayData();
+                newDisplayData.type = prevDispalyData.type;
+                newDisplayData.name = prevDispalyData.name;
+                newDisplayData.path = prevDispalyData.path;
+                newDisplayData.transform.CopyFrom(prevDispalyData.transform);
+                newDisplayData.parent = prevDispalyData.parent;
+                (newDisplayData as MeshDisplayData).texture = newTextureData;
+
+                (newDisplayData as MeshDisplayData).vertices.inheritDeform = (prevDispalyData as MeshDisplayData).vertices.inheritDeform;
+                (newDisplayData as MeshDisplayData).vertices.offset = (prevDispalyData as MeshDisplayData).vertices.offset;
+                (newDisplayData as MeshDisplayData).vertices.data = (prevDispalyData as MeshDisplayData).vertices.data;
+                (newDisplayData as MeshDisplayData).vertices.weight = (prevDispalyData as MeshDisplayData).vertices.weight;
             }
 
             ReplaceDisplay(slot, newDisplayData, displayIndex);

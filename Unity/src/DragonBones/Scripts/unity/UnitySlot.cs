@@ -1,3 +1,25 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012-2017 DragonBones team and other contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 ﻿/**
  * The MIT License (MIT)
  *
@@ -253,11 +275,11 @@ namespace DragonBones
                         childArmatureComp._sortingLayerName = _proxy._sortingLayerName;
                         if (_proxy._sortingMode == SortingMode.SortByOrder)
                         {
-                            childArmatureComp._sortingOrder = _zOrder * UnityArmatureComponent.ORDER_SPACE; ;
+                            childArmatureComp.sortingOrder = _zOrder * UnityArmatureComponent.ORDER_SPACE;
                         }
                         else
                         {
-                            childArmatureComp._sortingOrder = _proxy._sortingOrder;
+                            childArmatureComp.sortingOrder = _proxy._sortingOrder;
                         }
                     }
                 }
@@ -278,7 +300,7 @@ namespace DragonBones
                 if (this._meshFilter != null)
                 {
                     this._meshFilter.sharedMesh = this._meshBuffer.sharedMesh;
-                    var isSkinnedMesh = this._meshData != null && this._meshData.weight != null;
+                    var isSkinnedMesh = this._deformVertices != null && this._deformVertices.verticesData != null && this._deformVertices.verticesData.weight != null;
                     if (!isSkinnedMesh)
                     {
                         this._meshBuffer.rawVertextBuffers.CopyTo(this._meshBuffer.vertexBuffers, 0);
@@ -291,8 +313,12 @@ namespace DragonBones
                     if (isSkinnedMesh)
                     {
                         this._UpdateMesh();
+                        this._IdentityTransform();
                     }
-                    this._UpdateTransform(isSkinnedMesh);
+                    else
+                    {
+                        this._UpdateTransform();
+                    }
                 }
 
                 this._meshBuffer.enabled = true;
@@ -442,7 +468,7 @@ namespace DragonBones
          */
         protected override void _UpdateFrame()
         {
-            var meshData = this._display == this._meshDisplay ? this._meshData : null;
+            var currentVerticesData = (this._deformVertices != null && this._display == this._meshDisplay) ? this._deformVertices.verticesData : null;
             var currentTextureData = this._textureData as UnityTextureData;
 
             this._meshBuffer.Clear();
@@ -463,14 +489,15 @@ namespace DragonBones
                     var sourceWidth = currentTextureData.region.width;
                     var sourceHeight = currentTextureData.region.height;
 
-                    if (meshData != null)
+                    if (currentVerticesData != null)
                     {
-                        var data = meshData.parent.parent.parent;
+                        var data = currentVerticesData.data;
+                        var meshOffset = currentVerticesData.offset;
                         var intArray = data.intArray;
                         var floatArray = data.floatArray;
-                        var vertexCount = intArray[meshData.offset + (int)BinaryOffset.MeshVertexCount];
-                        var triangleCount = intArray[meshData.offset + (int)BinaryOffset.MeshTriangleCount];
-                        int vertexOffset = intArray[meshData.offset + (int)BinaryOffset.MeshFloatOffset];
+                        var vertexCount = intArray[meshOffset + (int)BinaryOffset.MeshVertexCount];
+                        var triangleCount = intArray[meshOffset + (int)BinaryOffset.MeshTriangleCount];
+                        int vertexOffset = intArray[meshOffset + (int)BinaryOffset.MeshFloatOffset];
                         if (vertexOffset < 0)
                         {
                             vertexOffset += 65536; // Fixed out of bouds bug. 
@@ -504,7 +531,13 @@ namespace DragonBones
 
                         for (int i = 0; i < triangleCount * 3; ++i)
                         {
-                            this._meshBuffer.triangleBuffers[i] = intArray[meshData.offset + (int)BinaryOffset.MeshVertexIndices + i];
+                            this._meshBuffer.triangleBuffers[i] = intArray[meshOffset + (int)BinaryOffset.MeshVertexIndices + i];
+                        }
+
+                        var isSkinned = currentVerticesData.weight != null;
+                        if (isSkinned)
+                        {
+                            this._IdentityTransform();
                         }
                     }
                     else
@@ -573,8 +606,8 @@ namespace DragonBones
                             }
 
                             //vertices
-                            this._meshBuffer.rawVertextBuffers[i].x = (u * scaleWidth) - pivotX;
-                            this._meshBuffer.rawVertextBuffers[i].y = -((v) * scaleHeight - pivotY);
+                            this._meshBuffer.rawVertextBuffers[i].x = u * scaleWidth - pivotX;
+                            this._meshBuffer.rawVertextBuffers[i].y = (1.0f - v) * scaleHeight - pivotY;
 
                             this._meshBuffer.vertexBuffers[i].x = this._meshBuffer.rawVertextBuffers[i].x;
                             this._meshBuffer.vertexBuffers[i].y = this._meshBuffer.rawVertextBuffers[i].y;
@@ -610,21 +643,21 @@ namespace DragonBones
             this._renderDisplay.SetActive(this._isActive);
             if (_proxy.isUGUI)
             {
-                _uiDisplay.material = null;
-                _uiDisplay.texture = null;
-                _uiDisplay.sharedMesh = null;
+                this._uiDisplay.material = null;
+                this._uiDisplay.texture = null;
+                this._uiDisplay.sharedMesh = null;
             }
             else
             {
-                _meshFilter.sharedMesh = null;
-                _meshRenderer.sharedMaterial = null;
+                this._meshFilter.sharedMesh = null;
+                this._meshRenderer.sharedMaterial = null;
             }
 
             _helpVector3.x = 0.0f;
             _helpVector3.y = 0.0f;
-            _helpVector3.z = _renderDisplay.transform.localPosition.z;
+            _helpVector3.z = this._renderDisplay.transform.localPosition.z;
 
-            _renderDisplay.transform.localPosition = _helpVector3;
+            this._renderDisplay.transform.localPosition = _helpVector3;
 
             if (this._isCombineMesh)
             {
@@ -632,22 +665,33 @@ namespace DragonBones
             }
         }
 
+        protected override void _IdentityTransform()
+        {
+            var transform = this._renderDisplay.transform;
+
+            transform.localPosition = new Vector3(0.0f, 0.0f, transform.localPosition.z);
+            transform.localEulerAngles = Vector3.zero;
+            transform.localScale = Vector3.one;
+        }
+
         protected override void _UpdateMesh()
         {
-            if (this._meshBuffer.sharedMesh == null || this._meshData == null)
+            if (this._meshBuffer.sharedMesh == null || this._deformVertices == null)
             {
                 return;
             }
-
-            var hasFFD = this._ffdVertices.Count > 0;
+            
             var scale = this._armature.armatureData.scale;
-            var meshData = this._meshData;
-            var weightData = meshData.weight;
+            var deformVertices = this._deformVertices.vertices;
+            var bones = this._deformVertices.bones;
+            var hasDeform = deformVertices.Count > 0;
+            var verticesData = this._deformVertices.verticesData;
+            var weightData = verticesData.weight;
 
-            var data = meshData.parent.parent.parent;
+            var data = verticesData.data;
             var intArray = data.intArray;
             var floatArray = data.floatArray;
-            var vertextCount = intArray[meshData.offset + (int)BinaryOffset.MeshVertexCount];
+            var vertextCount = intArray[verticesData.offset + (int)BinaryOffset.MeshVertexCount];
 
             if (weightData != null)
             {
@@ -670,7 +714,7 @@ namespace DragonBones
                     for (var j = 0; j < boneCount; ++j)
                     {
                         var boneIndex = intArray[iB++];
-                        var bone = this._meshBones[boneIndex];
+                        var bone = bones[boneIndex];
                         if (bone != null)
                         {
                             var matrix = bone.globalTransformMatrix;
@@ -678,10 +722,10 @@ namespace DragonBones
                             var xL = floatArray[iV++] * scale;
                             var yL = floatArray[iV++] * scale;
 
-                            if (hasFFD)
+                            if (hasDeform)
                             {
-                                xL += this._ffdVertices[iF++];
-                                yL += this._ffdVertices[iF++];
+                                xL += deformVertices[iF++];
+                                yL += deformVertices[iF++];
                             }
 
                             xG += (matrix.a * xL + matrix.c * yL + matrix.tx) * weight;
@@ -710,9 +754,9 @@ namespace DragonBones
                     }
                 }
             }
-            else if (this._ffdVertices.Count > 0)
+            else if (deformVertices.Count > 0)
             {
-                int vertexOffset = data.intArray[meshData.offset + (int)BinaryOffset.MeshFloatOffset];
+                int vertexOffset = data.intArray[verticesData.offset + (int)BinaryOffset.MeshFloatOffset];
                 if (vertexOffset < 0)
                 {
                     vertexOffset += 65536; // Fixed out of bouds bug. 
@@ -738,8 +782,8 @@ namespace DragonBones
 
                 for (int i = 0, iV = 0, iF = 0, l = vertextCount; i < l; ++i)
                 {
-                    rx = (data.floatArray[vertexOffset + (iV++)] * scale + this._ffdVertices[iF++]);
-                    ry = (data.floatArray[vertexOffset + (iV++)] * scale + this._ffdVertices[iF++]);
+                    rx = (data.floatArray[vertexOffset + (iV++)] * scale + deformVertices[iF++]);
+                    ry = (data.floatArray[vertexOffset + (iV++)] * scale + deformVertices[iF++]);
 
                     this._meshBuffer.rawVertextBuffers[i].x = rx;
                     this._meshBuffer.rawVertextBuffers[i].y = -ry;
@@ -769,177 +813,157 @@ namespace DragonBones
             }
         }
 
-        protected override void _UpdateTransform(bool isSkinnedMesh)
+        protected override void _UpdateTransform()
         {
             if (this._isCombineMesh)
             {
-                if (!isSkinnedMesh)
+                var a = globalTransformMatrix.a;
+                var b = globalTransformMatrix.b;
+                var c = globalTransformMatrix.c;
+                var d = globalTransformMatrix.d;
+                var tx = globalTransformMatrix.tx;
+                var ty = globalTransformMatrix.ty;
+
+                var index = 0;
+                var rx = 0.0f;
+                var ry = 0.0f;
+                var vx = 0.0f;
+                var vy = 0.0f;
+                var meshBuffer = this._combineMesh.meshBuffers[this._sumMeshIndex];
+                for (int i = 0, l = this._meshBuffer.vertexBuffers.Length; i < l; i++)
                 {
-                    var a = globalTransformMatrix.a;
-                    var b = globalTransformMatrix.b;
-                    var c = globalTransformMatrix.c;
-                    var d = globalTransformMatrix.d;
-                    var tx = globalTransformMatrix.tx;
-                    var ty = globalTransformMatrix.ty;
+                    index = i + this._verticeOffset;
+                    //vertices
+                    rx = this._meshBuffer.rawVertextBuffers[i].x;
+                    ry = -this._meshBuffer.rawVertextBuffers[i].y;
 
-                    var index = 0;
-                    var rx = 0.0f;
-                    var ry = 0.0f;
-                    var vx = 0.0f;
-                    var vy = 0.0f;
-                    var meshBuffer = this._combineMesh.meshBuffers[this._sumMeshIndex];
-                    for (int i = 0, l = this._meshBuffer.vertexBuffers.Length; i < l; i++)
-                    {
-                        index = i + this._verticeOffset;
-                        //vertices
-                        rx = this._meshBuffer.rawVertextBuffers[i].x;
-                        ry = -this._meshBuffer.rawVertextBuffers[i].y;
+                    vx = rx * a + ry * c + tx;
+                    vy = rx * b + ry * d + ty;
 
-                        vx = rx * a + ry * c + tx;
-                        vy = rx * b + ry * d + ty;
+                    this._meshBuffer.vertexBuffers[i].x = vx;
+                    this._meshBuffer.vertexBuffers[i].y = vy;
 
-                        this._meshBuffer.vertexBuffers[i].x = vx;
-                        this._meshBuffer.vertexBuffers[i].y = vy;
-
-                        meshBuffer.vertexBuffers[index].x = vx;
-                        meshBuffer.vertexBuffers[index].y = vy;
-                    }
-                    //
-                    meshBuffer.vertexDirty = true;
+                    meshBuffer.vertexBuffers[index].x = vx;
+                    meshBuffer.vertexBuffers[index].y = vy;
                 }
-
-                var transform = _renderDisplay.transform;
-
-                transform.localPosition = new Vector3(0.0f, 0.0f, transform.localPosition.z);
-                transform.localEulerAngles = Vector3.zero;
-                transform.localScale = Vector3.one;
+                //
+                meshBuffer.vertexDirty = true;
             }
             else
             {
-                if (isSkinnedMesh)
-                {
-                    var transform = _renderDisplay.transform;
+                this.UpdateGlobalTransform(); // Update transform.
 
-                    transform.localPosition = new Vector3(0.0f, 0.0f, transform.localPosition.z);
-                    transform.localEulerAngles = Vector3.zero;
-                    transform.localScale = Vector3.one;
+                //localPosition
+                var flipX = _armature.flipX;
+                var flipY = _armature.flipY;
+                var transform = _renderDisplay.transform;
+
+                _helpVector3.x = global.x;
+                _helpVector3.y = global.y;
+                _helpVector3.z = transform.localPosition.z;
+
+                transform.localPosition = _helpVector3;
+
+                //localEulerAngles
+                if (_childArmature == null)
+                {
+                    _helpVector3.x = flipY ? 180.0f : 0.0f;
+                    _helpVector3.y = flipX ? 180.0f : 0.0f;
+                    _helpVector3.z = global.rotation * Transform.RAD_DEG;
                 }
                 else
                 {
-                    this.UpdateGlobalTransform(); // Update transform.
+                    //If the childArmature is not null,
+                    //X, Y axis can not flip in the container of the childArmature container,
+                    //because after the flip, the Z value of the child slot is reversed,
+                    //showing the order is wrong, only in the child slot to deal with X, Y axis flip 
+                    _helpVector3.x = 0.0f;
+                    _helpVector3.y = 0.0f;
+                    _helpVector3.z = global.rotation * Transform.RAD_DEG;
 
-                    //localPosition
-                    var flipX = _armature.flipX;
-                    var flipY = _armature.flipY;
-                    var transform = _renderDisplay.transform;
-
-                    _helpVector3.x = global.x;
-                    _helpVector3.y = global.y;
-                    _helpVector3.z = transform.localPosition.z;
-
-                    transform.localPosition = _helpVector3;
-
-                    //localEulerAngles
-                    if (_childArmature == null)
+                    //这里这样处理，是因为子骨架的插槽也要处理z值,那就在容器中反一下，子插槽再正过来
+                    if (flipX != flipY)
                     {
-                        _helpVector3.x = flipY ? 180.0f : 0.0f;
-                        _helpVector3.y = flipX ? 180.0f : 0.0f;
-                        _helpVector3.z = global.rotation * Transform.RAD_DEG;
+                        _helpVector3.z = -_helpVector3.z;
+                    }
+                }
+
+                if (flipX || flipY)
+                {
+                    if (flipX && flipY)
+                    {
+                        _helpVector3.z += 180.0f;
                     }
                     else
                     {
-                        //If the childArmature is not null,
-                        //X, Y axis can not flip in the container of the childArmature container,
-                        //because after the flip, the Z value of the child slot is reversed,
-                        //showing the order is wrong, only in the child slot to deal with X, Y axis flip 
-                        _helpVector3.x = 0.0f;
-                        _helpVector3.y = 0.0f;
-                        _helpVector3.z = global.rotation * Transform.RAD_DEG;
-
-                        //这里这样处理，是因为子骨架的插槽也要处理z值,那就在容器中反一下，子插槽再正过来
-                        if (flipX != flipY)
+                        if (flipX)
+                        {
+                            _helpVector3.z = 180.0f - _helpVector3.z;
+                        }
+                        else
                         {
                             _helpVector3.z = -_helpVector3.z;
                         }
                     }
+                }
 
-                    if (flipX || flipY)
+                transform.localEulerAngles = _helpVector3;
+
+                //Modify mesh skew. // TODO child armature skew.
+                if ((this._display == this._rawDisplay || this._display == this._meshDisplay) && this._meshBuffer.sharedMesh != null)
+                {
+                    var skew = global.skew;
+                    var dSkew = skew;
+                    if (flipX && flipY)
                     {
-                        if (flipX && flipY)
+                        dSkew = -skew + Transform.PI;
+                    }
+                    else if (!flipX && !flipY)
+                    {
+                        dSkew = -skew - Transform.PI;
+                    }
+
+                    var skewed = dSkew < -0.01f || 0.01f < dSkew;
+                    if (_skewed || skewed)
+                    {
+                        _skewed = skewed;
+
+                        var isPositive = global.scaleX >= 0.0f;
+                        var cos = Mathf.Cos(dSkew);
+                        var sin = Mathf.Sin(dSkew);
+
+                        var x = 0.0f;
+                        var y = 0.0f;
+                        for (int i = 0, l = this._meshBuffer.vertexBuffers.Length; i < l; ++i)
                         {
-                            _helpVector3.z += 180.0f;
-                        }
-                        else
-                        {
-                            if (flipX)
+                            x = this._meshBuffer.rawVertextBuffers[i].x;
+                            y = this._meshBuffer.rawVertextBuffers[i].y;
+
+                            if (isPositive)
                             {
-                                _helpVector3.z = 180.0f - _helpVector3.z;
+                                this._meshBuffer.vertexBuffers[i].x = x + y * sin;
                             }
                             else
                             {
-                                _helpVector3.z = -_helpVector3.z;
+                                this._meshBuffer.vertexBuffers[i].x = -x + y * sin;
                             }
+
+                            this._meshBuffer.vertexBuffers[i].y = y * cos;
+                        }
+
+                        // if (this._meshRenderer && this._meshRenderer.enabled)
+                        {
+                            this._meshBuffer.UpdateVertices();
                         }
                     }
-
-                    transform.localEulerAngles = _helpVector3;
-
-                    //Modify mesh skew. // TODO child armature skew.
-                    if ((this._display == this._rawDisplay || this._display == this._meshDisplay) && this._meshBuffer.sharedMesh != null)
-                    {
-                        var skew = global.skew;
-                        var dSkew = skew;
-                        if (flipX && flipY)
-                        {
-                            dSkew = -skew + Transform.PI;
-                        }
-                        else if (!flipX && !flipY)
-                        {
-                            dSkew = -skew - Transform.PI;
-                        }
-
-                        var skewed = dSkew < -0.01f || 0.01f < dSkew;
-                        if (_skewed || skewed)
-                        {
-                            _skewed = skewed;
-
-                            var isPositive = global.scaleX >= 0.0f;
-                            var cos = Mathf.Cos(dSkew);
-                            var sin = Mathf.Sin(dSkew);
-
-                            var x = 0.0f;
-                            var y = 0.0f;
-                            for (int i = 0, l = this._meshBuffer.vertexBuffers.Length; i < l; ++i)
-                            {
-                                x = this._meshBuffer.rawVertextBuffers[i].x;
-                                y = this._meshBuffer.rawVertextBuffers[i].y;
-
-                                if (isPositive)
-                                {
-                                    this._meshBuffer.vertexBuffers[i].x = x + y * sin;
-                                }
-                                else
-                                {
-                                    this._meshBuffer.vertexBuffers[i].x = -x + y * sin;
-                                }
-
-                                this._meshBuffer.vertexBuffers[i].y = y * cos;
-                            }
-
-                            // if (this._meshRenderer && this._meshRenderer.enabled)
-                            {
-                                this._meshBuffer.UpdateVertices();
-                            }
-                        }
-                    }
-
-                    //localScale
-                    _helpVector3.x = global.scaleX;
-                    _helpVector3.y = global.scaleY;
-                    _helpVector3.z = 1.0f;
-
-                    transform.localScale = _helpVector3;
                 }
+
+                //localScale
+                _helpVector3.x = global.scaleX;
+                _helpVector3.y = global.scaleY;
+                _helpVector3.z = 1.0f;
+
+                transform.localScale = _helpVector3;
             }
 
             if (_childArmature != null)

@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace DragonBones
@@ -140,7 +140,8 @@ namespace DragonBones
                 action.ReturnToPool();
             }
 
-            foreach (var action in this.actions) {
+            foreach (var action in this.actions)
+            {
                 action.ReturnToPool();
             }
 
@@ -228,7 +229,7 @@ namespace DragonBones
                 {
                     continue;
                 }
-                
+
                 var flag = false;
                 foreach (var constraint in this.constraints.Values)
                 {
@@ -260,7 +261,7 @@ namespace DragonBones
         public void CacheFrames(uint frameRate)
         {
             if (this.cacheFrameRate > 0)
-            { 
+            {
                 // TODO clear cache.
                 return;
             }
@@ -380,7 +381,7 @@ namespace DragonBones
                     this.defaultSkin = value;
                 }
 
-                if(value.name == "default")
+                if (value.name == "default")
                 {
                     this.defaultSkin = value;
                 }
@@ -424,75 +425,87 @@ namespace DragonBones
         /// <summary>
         /// - Get a specific done data.
         /// </summary>
-        /// <param name="name">- The bone name.</param>
+        /// <param name="boneName">- The bone name.</param>
         /// <version>DragonBones 3.0</version>
         /// <language>en_US</language>
 
         /// <summary>
         /// - 获取特定的骨骼数据。
         /// </summary>
-        /// <param name="name">- 骨骼名称。</param>
+        /// <param name="boneName">- 骨骼名称。</param>
         /// <version>DragonBones 3.0</version>
         /// <language>zh_CN</language>
-        public BoneData GetBone(string name)
+        public BoneData GetBone(string boneName)
         {
-            return (!string.IsNullOrEmpty(name) && bones.ContainsKey(name)) ? bones[name] : null;
+            return (!string.IsNullOrEmpty(boneName) && bones.ContainsKey(boneName)) ? bones[boneName] : null;
         }
         /// <summary>
         /// - Get a specific slot data.
         /// </summary>
-        /// <param name="name">- The slot name.</param>
+        /// <param name="slotName">- The slot name.</param>
         /// <version>DragonBones 3.0</version>
         /// <language>en_US</language>
 
         /// <summary>
         /// - 获取特定的插槽数据。
         /// </summary>
-        /// <param name="name">- 插槽名称。</param>
+        /// <param name="slotName">- 插槽名称。</param>
         /// <version>DragonBones 3.0</version>
         /// <language>zh_CN</language>
-        public SlotData GetSlot(string name)
+        public SlotData GetSlot(string slotName)
         {
-            return (!string.IsNullOrEmpty(name) && slots.ContainsKey(name)) ? slots[name] : null;
+            return (!string.IsNullOrEmpty(slotName) && slots.ContainsKey(slotName)) ? slots[slotName] : null;
         }
         /// <private/>
-        public ConstraintData GetConstraint(string name)
+        public ConstraintData GetConstraint(string constraintName)
         {
-            return this.constraints.ContainsKey(name) ? this.constraints[name] : null;
+            return this.constraints.ContainsKey(constraintName) ? this.constraints[constraintName] : null;
         }
         /// <summary>
         /// - Get a specific skin data.
         /// </summary>
-        /// <param name="name">- The skin name.</param>
+        /// <param name="skinName">- The skin name.</param>
         /// <version>DragonBones 3.0</version>
         /// <language>en_US</language>
 
         /// <summary>
         /// - 获取特定皮肤数据。
         /// </summary>
-        /// <param name="name">- 皮肤名称。</param>
+        /// <param name="skinName">- 皮肤名称。</param>
         /// <version>DragonBones 3.0</version>
         /// <language>zh_CN</language>
-        public SkinData GetSkin(string name)
+        public SkinData GetSkin(string skinName)
         {
-            return !string.IsNullOrEmpty(name) ? (skins.ContainsKey(name) ? skins[name] : null) : defaultSkin;
+            return !string.IsNullOrEmpty(skinName) ? (skins.ContainsKey(skinName) ? skins[skinName] : null) : defaultSkin;
+        }
+
+        /// <private/>
+        public MeshDisplayData GetMesh(string skinName, string slotName, string meshName)
+        {
+            var skin = this.GetSkin(skinName);
+            if (skin == null)
+            {
+                return null;
+            }
+
+            return skin.GetDisplay(slotName, meshName) as MeshDisplayData;
         }
         /// <summary>
         /// - Get a specific animation data.
         /// </summary>
-        /// <param name="name">- The animation name.</param>
+        /// <param name="animationName">- The animation animationName.</param>
         /// <version>DragonBones 3.0</version>
         /// <language>en_US</language>
 
         /// <summary>
         /// - 获取特定的动画数据。
         /// </summary>
-        /// <param name="name">- 动画名称。</param>
+        /// <param name="animationName">- 动画名称。</param>
         /// <version>DragonBones 3.0</version>
         /// <language>zh_CN</language>
-        public AnimationData GetAnimation(string name)
+        public AnimationData GetAnimation(string animationName)
         {
-            return !string.IsNullOrEmpty(name) ? (animations.ContainsKey(name) ? animations[name] : null) : defaultAnimation;
+            return !string.IsNullOrEmpty(animationName) ? (animations.ContainsKey(animationName) ? animations[animationName] : null) : defaultAnimation;
         }
     }
 

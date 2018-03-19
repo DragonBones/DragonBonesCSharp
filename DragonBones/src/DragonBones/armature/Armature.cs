@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace DragonBones
@@ -48,11 +48,11 @@ namespace DragonBones
     {
         private static int _OnSortSlots(Slot a, Slot b)
         {
-            if(a._zOrder > b._zOrder)
+            if (a._zOrder > b._zOrder)
             {
                 return 1;
             }
-            else if(a._zOrder < b._zOrder)
+            else if (a._zOrder < b._zOrder)
             {
                 return -1;
             }
@@ -80,7 +80,6 @@ namespace DragonBones
         public object userData;
 
         private bool _lockUpdate;
-        private bool _bonesDirty;
         private bool _slotsDirty;
         private bool _zOrderDirty;
         private bool _flipX;
@@ -94,7 +93,7 @@ namespace DragonBones
         /// <internal/>
         /// <private/>
         internal readonly List<Constraint> _constraints = new List<Constraint>();
-        private readonly List<ActionData> _actions = new List<ActionData>();
+        private readonly List<EventObject> _actions = new List<EventObject>();
         /// <internal/>
         /// <private/>
         public ArmatureData _armatureData;
@@ -117,7 +116,7 @@ namespace DragonBones
         protected override void _OnClear()
         {
             if (this._clock != null)
-            { 
+            {
                 // Remove clock first.
                 this._clock.Remove(this);
             }
@@ -156,7 +155,6 @@ namespace DragonBones
             this.userData = null;
 
             this._lockUpdate = false;
-            this._bonesDirty = false;
             this._slotsDirty = false;
             this._zOrderDirty = false;
             this._flipX = false;
@@ -175,67 +173,6 @@ namespace DragonBones
             this._dragonBones = null; //
             this._clock = null;
             this._parent = null;
-        }
-
-        private void _SortBones()
-        {
-            var total = this._bones.Count;
-            if (total <= 0)
-            {
-                return;
-            }
-
-            var sortHelper = this._bones.ToArray();
-            var index = 0;
-            var count = 0;
-
-            this._bones.Clear();
-            while (count < total)
-            {
-                var bone = sortHelper[index++];
-                if (index >= total)
-                {
-                    index = 0;
-                }
-
-                if (this._bones.Contains(bone))
-                {
-                    continue;
-                }
-
-                if (bone._hasConstraint)
-                { 
-                    // Wait constraint.
-                    var flag = false;
-                    foreach (var constraint in this._constraints)
-                    {
-                        if (constraint._root == bone && !this._bones.Contains(constraint._target))
-                        {
-                            flag = true;
-                            break;
-                        }
-                    }
-
-                    if (flag)
-                    {
-                        continue;
-                    }
-                }
-
-                if (bone.parent != null && !this._bones.Contains(bone.parent))
-                { 
-                    // Wait parent.
-                    continue;
-                }
-
-                this._bones.Add(bone);
-                count++;
-            }
-        }
-
-        private void _SortSlots()
-        {
-            this._slots.Sort(Armature._OnSortSlots);
         }
 
         /// <internal/>
@@ -269,26 +206,16 @@ namespace DragonBones
         }
         /// <internal/>
         /// <private/>
-        internal void _AddBoneToBoneList(Bone value)
+        internal void _AddBone(Bone value)
         {
             if (!this._bones.Contains(value))
             {
-                this._bonesDirty = true;
                 this._bones.Add(value);
             }
         }
         /// <internal/>
         /// <private/>
-        internal void _RemoveBoneFromBoneList(Bone value)
-        {
-            if (this._bones.Contains(value))
-            {
-                this._bones.Remove(value);
-            }
-        }
-        /// <internal/>
-        /// <private/>
-        internal void _AddSlotToSlotList(Slot value)
+        internal void _AddSlot(Slot value)
         {
             if (!this._slots.Contains(value))
             {
@@ -296,18 +223,19 @@ namespace DragonBones
                 this._slots.Add(value);
             }
         }
+
         /// <internal/>
         /// <private/>
-        internal void _RemoveSlotFromSlotList(Slot value)
+        internal void _AddConstraint(Constraint value)
         {
-            if (this._slots.Contains(value))
+            if (!this._constraints.Contains(value))
             {
-                this._slots.Remove(value);
+                this._constraints.Add(value);
             }
         }
         /// <internal/>
         /// <private/>
-        internal void _BufferAction(ActionData action, bool append)
+        internal void _BufferAction(EventObject action, bool append)
         {
             if (!this._actions.Contains(action))
             {
@@ -317,7 +245,7 @@ namespace DragonBones
                 }
                 else
                 {
-                    this._actions.Insert(0, action);
+                    this._actions.Insert(0, action);                    
                 }
             }
         }
@@ -401,17 +329,10 @@ namespace DragonBones
             // Update animation.
             this._animation.AdvanceTime(passedTime);
 
-            // Sort bones and slots.
-            if (this._bonesDirty)
-            {
-                this._bonesDirty = false;
-                this._SortBones();
-            }
-
             if (this._slotsDirty)
             {
                 this._slotsDirty = false;
-                this._SortSlots();
+                this._slots.Sort(Armature._OnSortSlots);
             }
 
             // Update bones and slots.
@@ -434,10 +355,41 @@ namespace DragonBones
                 this._lockUpdate = true;
                 foreach (var action in this._actions)
                 {
-                    if (action.type == ActionType.Play)
+                    var actionData = action.actionData;
+                    if (actionData != null)
                     {
-                        this._animation.FadeIn(action.name);
+                        if (actionData.type == ActionType.Play)
+                        {
+                            if (action.slot != null)
+                            {
+                                var childArmature = action.slot.childArmature;
+                                if (childArmature != null)
+                                {
+                                    childArmature.animation.FadeIn(actionData.name);
+                                }
+                            }
+                            else if (action.bone != null)
+                            {
+                                foreach (var slot in this.GetSlots())
+                                {
+                                    if (slot.parent == action.bone)
+                                    {
+                                        var childArmature = slot.childArmature;
+                                        if (childArmature != null)
+                                        {
+                                            childArmature.animation.FadeIn(actionData.name);
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                this._animation.FadeIn(actionData.name);
+                            }
+                        }
                     }
+
+                    action.ReturnToPool();
                 }
 
                 this._actions.Clear();
@@ -533,42 +485,42 @@ namespace DragonBones
 
             return null;
         }
-         /// <summary>
-         /// - Check whether a specific segment intersects a custom bounding box for a slot in the armature.
-         /// The coordinate system of the segment and intersection is the inner coordinate system of the armature.
-         /// Custom bounding boxes need to be customized in Dragonbones Pro.
-         /// </summary>
-         /// <param name="xA">- The horizontal coordinate of the beginning of the segment.</param>
-         /// <param name="yA">- The vertical coordinate of the beginning of the segment.</param>
-         /// <param name="xB">- The horizontal coordinate of the end point of the segment.</param>
-         /// <param name="yB">- The vertical coordinate of the end point of the segment.</param>
-         /// <param name="intersectionPointA">- The first intersection at which a line segment intersects the bounding box from the beginning to the end. (If not set, the intersection point will not calculated)</param>
-         /// <param name="intersectionPointB">- The first intersection at which a line segment intersects the bounding box from the end to the beginning. (If not set, the intersection point will not calculated)</param>
-         /// <param name="normalRadians">- The normal radians of the tangent of the intersection boundary box. [x: Normal radian of the first intersection tangent, y: Normal radian of the second intersection tangent] (If not set, the normal will not calculated)</param>
-         /// <returns>The slot of the first custom bounding box where the segment intersects from the start point to the end point.</returns>
-         /// <version>DragonBones 5.0</version>
-         /// <language>en_US</language>
+        /// <summary>
+        /// - Check whether a specific segment intersects a custom bounding box for a slot in the armature.
+        /// The coordinate system of the segment and intersection is the inner coordinate system of the armature.
+        /// Custom bounding boxes need to be customized in Dragonbones Pro.
+        /// </summary>
+        /// <param name="xA">- The horizontal coordinate of the beginning of the segment.</param>
+        /// <param name="yA">- The vertical coordinate of the beginning of the segment.</param>
+        /// <param name="xB">- The horizontal coordinate of the end point of the segment.</param>
+        /// <param name="yB">- The vertical coordinate of the end point of the segment.</param>
+        /// <param name="intersectionPointA">- The first intersection at which a line segment intersects the bounding box from the beginning to the end. (If not set, the intersection point will not calculated)</param>
+        /// <param name="intersectionPointB">- The first intersection at which a line segment intersects the bounding box from the end to the beginning. (If not set, the intersection point will not calculated)</param>
+        /// <param name="normalRadians">- The normal radians of the tangent of the intersection boundary box. [x: Normal radian of the first intersection tangent, y: Normal radian of the second intersection tangent] (If not set, the normal will not calculated)</param>
+        /// <returns>The slot of the first custom bounding box where the segment intersects from the start point to the end point.</returns>
+        /// <version>DragonBones 5.0</version>
+        /// <language>en_US</language>
 
-         /// <summary>
-         /// - 检查特定线段是否与骨架的某个插槽的自定义边界框相交。
-         /// 线段和交点的坐标系均为骨架内坐标系。
-         /// 自定义边界框需要在 DragonBones Pro 中自定义。
-         /// </summary>
-         /// <param name="xA">- 线段起点的水平坐标。</param>
-         /// <param name="yA">- 线段起点的垂直坐标。</param>
-         /// <param name="xB">- 线段终点的水平坐标。</param>
-         /// <param name="yB">- 线段终点的垂直坐标。</param>
-         /// <param name="intersectionPointA">- 线段从起点到终点与边界框相交的第一个交点。 （如果未设置，则不计算交点）</param>
-         /// <param name="intersectionPointB">- 线段从终点到起点与边界框相交的第一个交点。 （如果未设置，则不计算交点）</param>
-         /// <param name="normalRadians">- 交点边界框切线的法线弧度。 [x: 第一个交点切线的法线弧度, y: 第二个交点切线的法线弧度] （如果未设置，则不计算法线）</param>
-         /// <returns>线段从起点到终点相交的第一个自定义边界框的插槽。</returns>
-         /// <version>DragonBones 5.0</version>
-         /// <language>zh_CN</language>
-         public Slot IntersectsSegment(float xA, float yA, float xB, float yB,
-                                        Point intersectionPointA = null,
-                                        Point intersectionPointB = null,
-                                        Point normalRadians = null)
-         {
+        /// <summary>
+        /// - 检查特定线段是否与骨架的某个插槽的自定义边界框相交。
+        /// 线段和交点的坐标系均为骨架内坐标系。
+        /// 自定义边界框需要在 DragonBones Pro 中自定义。
+        /// </summary>
+        /// <param name="xA">- 线段起点的水平坐标。</param>
+        /// <param name="yA">- 线段起点的垂直坐标。</param>
+        /// <param name="xB">- 线段终点的水平坐标。</param>
+        /// <param name="yB">- 线段终点的垂直坐标。</param>
+        /// <param name="intersectionPointA">- 线段从起点到终点与边界框相交的第一个交点。 （如果未设置，则不计算交点）</param>
+        /// <param name="intersectionPointB">- 线段从终点到起点与边界框相交的第一个交点。 （如果未设置，则不计算交点）</param>
+        /// <param name="normalRadians">- 交点边界框切线的法线弧度。 [x: 第一个交点切线的法线弧度, y: 第二个交点切线的法线弧度] （如果未设置，则不计算法线）</param>
+        /// <returns>线段从起点到终点相交的第一个自定义边界框的插槽。</returns>
+        /// <version>DragonBones 5.0</version>
+        /// <language>zh_CN</language>
+        public Slot IntersectsSegment(float xA, float yA, float xB, float yB,
+                                       Point intersectionPointA = null,
+                                       Point intersectionPointB = null,
+                                       Point normalRadians = null)
+        {
             var isV = xA == xB;
             var dMin = 0.0f;
             var dMax = 0.0f;
@@ -768,48 +720,6 @@ namespace DragonBones
             }
 
             return null;
-        }
-        [System.Obsolete("")]
-        public void AddBone(Bone value, string parentName)
-        {
-            Helper.Assert(value != null, "add bone is null");
-
-            value._SetArmature(this);
-            value._SetParent(!string.IsNullOrEmpty(parentName) ? this.GetBone(parentName) : null);
-        }
-        [System.Obsolete("")]
-        public void AddSlot(Slot value, string parentName)
-        {
-            var bone = this.GetBone(parentName);
-
-            Helper.Assert(value != null && bone != null, "slot value is null");
-
-            value._SetArmature(this);
-            value._SetParent(bone);
-        }
-        /// <private/>
-        internal void AddConstraint(Constraint constraint)
-        {
-            if (!this._constraints.Contains(constraint))
-            {
-                this._constraints.Add(constraint);
-            }
-        }
-        [System.Obsolete("")]
-        public void RemoveBone(Bone value)
-        {
-            Helper.Assert(value != null && value.armature == this, "bone is null");
-
-            value._SetParent(null);
-            value._SetArmature(null);
-        }
-        [System.Obsolete("")]
-        public void RemoveSlot(Slot value)
-        {
-            Helper.Assert(value != null && value.armature == this, "remove slot is null");
-
-            value._SetParent(null);
-            value._SetArmature(null);
         }
         /// <summary>
         /// - Get all bones.

@@ -179,19 +179,19 @@ namespace DragonBones
         /// <summary>
         /// - Get a specific armature data.
         /// </summary>
-        /// <param name="name">- The armature data name.</param>
+        /// <param name="armatureName">- The armature data name.</param>
         /// <version>DragonBones 3.0</version>
         /// <language>en_US</language>
 
         /// <summary>
         /// - 获取特定的骨架数据。
         /// </summary>
-        /// <param name="name">- 骨架数据名称。</param>
+        /// <param name="armatureName">- 骨架数据名称。</param>
         /// <version>DragonBones 3.0</version>
         /// <language>zh_CN</language>
-        public ArmatureData GetArmature(string name)
+        public ArmatureData GetArmature(string armatureName)
         {
-            return this.armatures.ContainsKey(name) ? this.armatures[name] : null;
+            return this.armatures.ContainsKey(armatureName) ? this.armatures[armatureName] : null;
         }
     }
 }

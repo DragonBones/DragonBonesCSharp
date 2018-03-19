@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-﻿namespace DragonBones
+namespace DragonBones
 {
     /// <summary>
     /// - The properties of the object carry basic information about an event,
@@ -145,6 +145,63 @@
         /// <language>zh_CN</language>
         public const string SOUND_EVENT = "soundEvent";
 
+        /// <internal/>
+        /// <private/>
+        /// <summary>
+        /// - The armature that dispatch the event.
+        /// </summary>
+        /// <see cref="DragonBones.Armature"/>
+        /// <version>DragonBones 4.5</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 发出该事件的骨架。
+        /// </summary>
+        /// <see cref="DragonBones.Armature"/>
+        /// <version>DragonBones 4.5</version>
+        /// <language>zh_CN</language>
+        /// <summary>
+        /// - The custom data.
+        /// </summary>
+        /// <see cref="DragonBones.CustomData"/>
+        /// <private/>
+        /// <version>DragonBones 5.0</version>
+        /// <language>en_US</language>
+
+        /// <summary>
+        /// - 自定义数据。
+        /// </summary>
+        /// <see cref="DragonBones.CustomData"/>
+        /// <private/>
+        /// <version>DragonBones 5.0</version>
+        /// <language>zh_CN</language>
+        public static void ActionDataToInstance(ActionData data, EventObject instance, Armature armature)
+        {
+            if (data.type == ActionType.Play)
+            {
+                instance.type = EventObject.FRAME_EVENT;
+            }
+            else
+            {
+                instance.type = data.type == ActionType.Frame ? EventObject.FRAME_EVENT : EventObject.SOUND_EVENT;
+            }
+
+            instance.name = data.name;
+            instance.armature = armature;
+            instance.actionData = data;
+            instance.data = data.data;
+
+            if (data.bone != null)
+            {
+                instance.bone = armature.GetBone(data.bone.name);
+            }
+
+            if (data.slot != null)
+            {
+                instance.slot = armature.GetSlot(data.slot.name);
+            }
+        }
+
         /// <summary>
         /// - If is a frame event, the value is used to describe the time that the event was in the animation timeline. (In seconds)
         /// </summary>
@@ -181,19 +238,6 @@
         /// <version>DragonBones 4.5</version>
         /// <language>zh_CN</language>
         public string name;
-        /// <summary>
-        /// - The armature that dispatch the event.
-        /// </summary>
-        /// <see cref="DragonBones.Armature"/>
-        /// <version>DragonBones 4.5</version>
-        /// <language>en_US</language>
-
-        /// <summary>
-        /// - 发出该事件的骨架。
-        /// </summary>
-        /// <see cref="DragonBones.Armature"/>
-        /// <version>DragonBones 4.5</version>
-        /// <language>zh_CN</language>
         public Armature armature;
         /// <summary>
         /// - The bone that dispatch the event.
@@ -237,19 +281,8 @@
         /// <version>DragonBones 4.5</version>
         /// <language>zh_CN</language>
         public AnimationState animationState;
-        /// <summary>
-        /// - The custom data.
-        /// </summary>
-        /// <see cref="DragonBones.CustomData"/>
-        /// <version>DragonBones 5.0</version>
-        /// <language>en_US</language>
-
-        /// <summary>
-        /// - 自定义数据。
-        /// </summary>
-        /// <see cref="DragonBones.CustomData"/>
-        /// <version>DragonBones 5.0</version>
-        /// <language>zh_CN</language>
+        /// <private/>
+        public ActionData actionData;
         public UserData data;
 
         /// <private/>
@@ -262,6 +295,7 @@
             this.bone = null;
             this.slot = null;
             this.animationState = null;
+            this.actionData = null;
             this.data = null;
         }
     }

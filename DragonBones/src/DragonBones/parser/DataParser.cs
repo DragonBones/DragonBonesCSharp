@@ -108,7 +108,7 @@ namespace DragonBones
         protected const string INHERIT_SCALE = "inheritScale";
         protected const string INHERIT_REFLECTION = "inheritReflection";
         protected const string INHERIT_ANIMATION = "inheritAnimation";
-        protected const string INHERIT_FFD = "inheritFFD";
+        protected const string INHERIT_DEFORM = "inheritDeform";
         protected const string BEND_POSITIVE = "bendPositive";
         protected const string CHAIN = "chain";
         protected const string WEIGHT = "weight";

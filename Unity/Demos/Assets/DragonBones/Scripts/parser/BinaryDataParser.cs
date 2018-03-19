@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-﻿using System;
+using System;
 using System.IO;
 using System.Collections.Generic;
 
@@ -43,7 +43,7 @@ namespace DragonBones
         private float[] _frameFloatArrayBuffer;
         private short[] _frameArrayBuffer;
         private ushort[] _timelineArrayBuffer;
-        
+
         private TimelineData _ParseBinaryTimeline(TimelineType type, uint offset, TimelineData timelineData = null)
         {
             var timeline = timelineData != null ? timelineData : BaseObject.BorrowObject<TimelineData>();
@@ -93,22 +93,19 @@ namespace DragonBones
             return timeline;
         }
 
-        protected override void _ParseMesh(Dictionary<string, object> rawData, MeshDisplayData mesh)
+        private void _ParseVertices(Dictionary<string, object> rawData, VerticesData vertices)
         {
-            //mesh.offset = (int)rawData[ObjectDataParser.OFFSET];
-            mesh.offset = int.Parse(rawData[ObjectDataParser.OFFSET].ToString());
+            vertices.offset = int.Parse(rawData[DataParser.OFFSET].ToString());
 
-            var weightOffset = this._intArrayBuffer[mesh.offset + (int)BinaryOffset.MeshWeightOffset];
-
+            var weightOffset = this._intArrayBuffer[vertices.offset + (int)BinaryOffset.MeshWeightOffset];
             if (weightOffset >= 0)
             {
                 var weight = BaseObject.BorrowObject<WeightData>();
-
-                var vertexCount = this._intArrayBuffer[mesh.offset + (int)BinaryOffset.MeshVertexCount];
+                var vertexCount = this._intArrayBuffer[vertices.offset + (int)BinaryOffset.MeshVertexCount];
                 var boneCount = this._intArrayBuffer[weightOffset + (int)BinaryOffset.WeigthBoneCount];
                 weight.offset = weightOffset;
-                
-                for (var i = 0; i < boneCount; ++i)
+
+                for (int i = 0; i < boneCount; ++i)
                 {
                     var boneIndex = this._intArrayBuffer[weightOffset + (int)BinaryOffset.WeigthBoneIndices + i];
                     weight.AddBone(this._rawBones[boneIndex]);
@@ -124,44 +121,49 @@ namespace DragonBones
                 }
 
                 weight.count = weightCount;
-                mesh.weight = weight;
+                vertices.weight = weight;
             }
+        }
+
+        protected override void _ParseMesh(Dictionary<string, object> rawData, MeshDisplayData mesh)
+        {
+            this._ParseVertices(rawData, mesh.vertices);
         }
         protected override AnimationData _ParseAnimation(Dictionary<string, object> rawData)
         {
             var animation = BaseObject.BorrowObject<AnimationData>();
-            animation.frameCount = (uint)Math.Max(ObjectDataParser._GetNumber(rawData, ObjectDataParser.DURATION, 1), 1);
-            animation.playTimes = (uint)ObjectDataParser._GetNumber(rawData, ObjectDataParser.PLAY_TIMES, 1);
+            animation.frameCount = (uint)Math.Max(ObjectDataParser._GetNumber(rawData, DataParser.DURATION, 1), 1);
+            animation.playTimes = (uint)ObjectDataParser._GetNumber(rawData, DataParser.PLAY_TIMES, 1);
             animation.duration = (float)animation.frameCount / (float)this._armature.frameRate;//Must float
-            animation.fadeInTime = ObjectDataParser._GetNumber(rawData, ObjectDataParser.FADE_IN_TIME, 0.0f);
-            animation.scale = ObjectDataParser._GetNumber(rawData, ObjectDataParser.SCALE, 1.0f);
-            animation.name = ObjectDataParser._GetString(rawData, ObjectDataParser.NAME, ObjectDataParser.DEFAULT_NAME);
+            animation.fadeInTime = ObjectDataParser._GetNumber(rawData, DataParser.FADE_IN_TIME, 0.0f);
+            animation.scale = ObjectDataParser._GetNumber(rawData, DataParser.SCALE, 1.0f);
+            animation.name = ObjectDataParser._GetString(rawData, DataParser.NAME, DataParser.DEFAULT_NAME);
             if (animation.name.Length == 0)
             {
-                animation.name = ObjectDataParser.DEFAULT_NAME;
+                animation.name = DataParser.DEFAULT_NAME;
             }
 
             // Offsets.
-            var offsets = rawData[ObjectDataParser.OFFSET] as List<object>;
+            var offsets = rawData[DataParser.OFFSET] as List<object>;
             animation.frameIntOffset = uint.Parse(offsets[0].ToString());
             animation.frameFloatOffset = uint.Parse(offsets[1].ToString());
             animation.frameOffset = uint.Parse(offsets[2].ToString());
 
             this._animation = animation;
 
-            if (rawData.ContainsKey(ObjectDataParser.ACTION))
+            if (rawData.ContainsKey(DataParser.ACTION))
             {
-                animation.actionTimeline = this._ParseBinaryTimeline(TimelineType.Action, uint.Parse(rawData[ObjectDataParser.ACTION].ToString()));
+                animation.actionTimeline = this._ParseBinaryTimeline(TimelineType.Action, uint.Parse(rawData[DataParser.ACTION].ToString()));
             }
 
-            if (rawData.ContainsKey(ObjectDataParser.Z_ORDER))
+            if (rawData.ContainsKey(DataParser.Z_ORDER))
             {
-                animation.zOrderTimeline = this._ParseBinaryTimeline(TimelineType.ZOrder, uint.Parse(rawData[ObjectDataParser.Z_ORDER].ToString()));
+                animation.zOrderTimeline = this._ParseBinaryTimeline(TimelineType.ZOrder, uint.Parse(rawData[DataParser.Z_ORDER].ToString()));
             }
 
-            if (rawData.ContainsKey(ObjectDataParser.BONE))
+            if (rawData.ContainsKey(DataParser.BONE))
             {
-                var rawTimeliness = rawData[ObjectDataParser.BONE] as Dictionary<string, object>;
+                var rawTimeliness = rawData[DataParser.BONE] as Dictionary<string, object>;
                 foreach (var k in rawTimeliness.Keys)
                 {
                     var rawTimelines = rawTimeliness[k] as List<object>;
@@ -182,9 +184,9 @@ namespace DragonBones
                 }
             }
 
-            if (rawData.ContainsKey(ObjectDataParser.SLOT))
+            if (rawData.ContainsKey(DataParser.SLOT))
             {
-                var rawTimeliness = rawData[ObjectDataParser.SLOT] as Dictionary<string, object>;
+                var rawTimeliness = rawData[DataParser.SLOT] as Dictionary<string, object>;
                 foreach (var k in rawTimeliness.Keys)
                 {
                     var rawTimelines = rawTimeliness[k] as List<object>;
@@ -205,9 +207,9 @@ namespace DragonBones
                 }
             }
 
-            if (rawData.ContainsKey(ObjectDataParser.CONSTRAINT))
+            if (rawData.ContainsKey(DataParser.CONSTRAINT))
             {
-                var rawTimeliness = rawData[ObjectDataParser.CONSTRAINT] as Dictionary<string, object>;
+                var rawTimeliness = rawData[DataParser.CONSTRAINT] as Dictionary<string, object>;
                 foreach (var k in rawTimeliness.Keys)
                 {
                     var rawTimelines = rawTimeliness[k] as List<object>;
@@ -234,7 +236,7 @@ namespace DragonBones
         }
         protected override void _ParseArray(Dictionary<string, object> rawData)
         {
-            var offsets = rawData[ObjectDataParser.OFFSET] as List<object>;
+            var offsets = rawData[DataParser.OFFSET] as List<object>;
 
             int l0 = int.Parse(offsets[0].ToString());
             int l1 = int.Parse(offsets[1].ToString());
@@ -250,7 +252,7 @@ namespace DragonBones
             float[] frameFloatArray = { };
             short[] frameArray = { };
             ushort[] timelineArray = { };
-            
+
             using (MemoryStream ms = new MemoryStream(_binary))
             using (BinaryDataReader reader = new BinaryDataReader(ms))
             {
@@ -288,7 +290,7 @@ namespace DragonBones
 
         public override DragonBonesData ParseDragonBonesData(object rawObj, float scale = 1)
         {
-            Helper.Assert(rawObj != null  && rawObj is byte[], "Data error.");
+            Helper.Assert(rawObj != null && rawObj is byte[], "Data error.");
 
             byte[] bytes = rawObj as byte[];
             int headerLength = 0;
@@ -302,12 +304,6 @@ namespace DragonBones
             return base.ParseDragonBonesData(header, scale);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="bytes"></param>
-        /// <param name="jsonParse"></param>
-        /// <returns></returns>
         public static Dictionary<string, object> DeserializeBinaryJsonData(byte[] bytes, out int headerLength, BinaryDataParser.JsonParseDelegate jsonParse = null)
         {
             headerLength = 0;

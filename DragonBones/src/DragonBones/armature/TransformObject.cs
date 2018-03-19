@@ -62,24 +62,28 @@ namespace DragonBones
         /// <summary>
         /// - A transform relative to the armature coordinate system.
         /// </summary>
+        /// <see cref="UpdateGlobalTransform()"/>
         /// <version>DragonBones 3.0</version>
         /// <language>en_US</language>
 
         /// <summary>
         /// - 相对于骨架坐标系的变换。
         /// </summary>
+        /// <see cref="UpdateGlobalTransform()"/>
         /// <version>DragonBones 3.0</version>
         /// <language>zh_CN</language>
         public readonly Transform global = new Transform();
         /// <summary>
         /// - The offset transform relative to the armature or the parent bone coordinate system.
         /// </summary>
+        /// <see cref="dragonBones.Bone.InvalidUpdate()"/>
         /// <version>DragonBones 3.0</version>
         /// <language>en_US</language>
 
         /// <summary>
         /// - 相对于骨架或父骨骼坐标系的偏移变换。
         /// </summary>
+        /// <see cref="dragonBones.Bone.InvalidUpdate()"/>
         /// <version>DragonBones 3.0</version>
         /// <language>zh_CN</language>
         public readonly Transform offset = new Transform();
@@ -92,9 +96,6 @@ namespace DragonBones
         /// <internal/>
         /// <private/>
         internal Armature _armature;
-        /// <internal/>
-        /// <private/>
-        internal Bone _parent;
         /// <private/>
         protected override void _OnClear()
         {
@@ -106,22 +107,35 @@ namespace DragonBones
 
             this._globalDirty = false;
             this._armature = null; //
-            this._parent = null; //
         }
+        /// <summary>
+        /// - For performance considerations, rotation or scale in the {@link #global} attribute of the bone or slot is not always properly accessible,
+        /// some engines do not rely on these attributes to update rendering, such as Egret.
+        /// The use of this method ensures that the access to the {@link #global} property is correctly rotation or scale.
+        /// </summary>
+        /// <example>
+        /// TypeScript style, for reference only.
+        /// <pre>
+        ///     bone.updateGlobalTransform();
+        ///     let rotation = bone.global.rotation;
+        /// </pre>
+        /// </example>
+        /// <version>DragonBones 3.0</version>
+        /// <language>en_US</language>
 
-        /// <internal/>
-        /// <private/>
-        internal virtual void _SetArmature(Armature value = null)
-        {
-            this._armature = value;
-        }
-        /// <internal/>
-        /// <private/>
-        internal void _SetParent(Bone value = null)
-        {
-            this._parent = value;
-        }
-        /// <private/>
+        /// <summary>
+        /// - 出于性能的考虑，骨骼或插槽的 {@link #global} 属性中的旋转或缩放并不总是正确可访问的，有些引擎并不依赖这些属性更新渲染，比如 Egret。
+        /// 使用此方法可以保证访问到 {@link #global} 属性中正确的旋转或缩放。
+        /// </summary>
+        /// <example>
+        /// TypeScript 风格，仅供参考。
+        /// <pre>
+        ///     bone.updateGlobalTransform();
+        ///     let rotation = bone.global.rotation;
+        /// </pre>
+        /// </example>
+        /// <version>DragonBones 3.0</version>
+        /// <language>zh_CN</language>
         public void UpdateGlobalTransform()
         {
             if (this._globalDirty)
@@ -144,21 +158,6 @@ namespace DragonBones
         public Armature armature
         {
             get{ return this._armature; }
-        }
-        /// <summary>
-        /// - The parent bone to which it belongs.
-        /// </summary>
-        /// <version>DragonBones 3.0</version>
-        /// <language>en_US</language>
-
-        /// <summary>
-        /// - 所属的父骨骼。
-        /// </summary>
-        /// <version>DragonBones 3.0</version>
-        /// <language>zh_CN</language>
-        public Bone parent
-        {
-            get { return this._parent; }
         }
     }
 }
