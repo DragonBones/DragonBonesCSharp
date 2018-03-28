@@ -262,6 +262,11 @@ namespace DragonBones
                 timeline.ReturnToPool();
             }
 
+            foreach(var timeline in this._poseTimelines)
+            {
+                timeline.ReturnToPool();
+            }
+
             foreach (var bonePose in this._bonePoses.Values)
             {
                 bonePose.ReturnToPool();
@@ -306,6 +311,7 @@ namespace DragonBones
             this._boneTimelines.Clear();
             this._slotTimelines.Clear();
             this._constraintTimelines.Clear();
+            this._poseTimelines.Clear();
             this._bonePoses.Clear();
             this._animationData = null; //
             this._armature = null; //
