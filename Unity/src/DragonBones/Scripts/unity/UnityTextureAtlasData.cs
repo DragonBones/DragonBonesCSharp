@@ -168,10 +168,10 @@ namespace DragonBones
 #else
             var newMaterial = new Material(Resources.Load<Shader>(SHADER_PATH + UI_SHADER_GRAP));
 #endif
-            var texture = (this.parent as UnityTextureAtlasData).texture.mainTexture;
+            var texture = (this.parent as UnityTextureAtlasData).uiTexture.mainTexture;
             newMaterial.name = texture.name + "_" + SHADER_GRAP + "_Mat";
             newMaterial.hideFlags = HideFlags.HideAndDontSave;
-            newMaterial.mainTexture = (this.parent as UnityTextureAtlasData).texture.mainTexture;
+            newMaterial.mainTexture = texture;
 
             this._cacheBlendModeMats.Add(blendModeStr, newMaterial);
 
