@@ -762,6 +762,10 @@ namespace DragonBones
                     textureAtlasData.imagePath = UnityFactoryHelper.GetTextureAtlasImagePath(textureAtlasJSONPath, textureAtlasData.imagePath);
 
                     _RefreshTextureAtlas(textureAtlasData, isUGUI);
+                    if (isUGUI)
+                    {
+                        _RefreshTextureAtlas(textureAtlasData, false);
+                    }
                 }
 
                 return textureAtlasData;
