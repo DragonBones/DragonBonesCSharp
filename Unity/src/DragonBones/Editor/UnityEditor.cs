@@ -247,6 +247,17 @@ namespace DragonBones
             _armatureComponent.sortingOrder = _armatureComponent.sortingOrder;
         }
 
+        public static void ReplaceAnimation(UnityArmatureComponent _armatureComponent, string armatureName)
+        {
+            _armatureComponent.armatureBaseName = armatureName;
+
+            if (!string.IsNullOrEmpty(armatureName))
+            {
+                ArmatureData baseDiceArmature = UnityFactory.factory.GetArmatureData(armatureName);
+                UnityFactory.factory.ReplaceAnimation(_armatureComponent.armature, baseDiceArmature);
+            }
+        }
+
         public static UnityEngine.Transform GetSelectionParentTransform()
         {
             var parent = Selection.activeObject as GameObject;

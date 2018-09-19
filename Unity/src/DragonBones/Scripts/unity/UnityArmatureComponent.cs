@@ -76,6 +76,8 @@ namespace DragonBones
         public UnityDragonBonesData unityData = null;
         /// <private/>
         public string armatureName = null;
+        /// <private/>
+        public string armatureBaseName = null;
         /// <summary>
         /// Is it the UGUI model?
         /// </summary>
@@ -677,6 +679,11 @@ namespace DragonBones
                 if (dragonBonesData != null && !string.IsNullOrEmpty(armatureName))
                 {
                     UnityFactory.factory.BuildArmatureComponent(armatureName, unityData.dataName, null, null, gameObject, isUGUI);
+                    if (!string.IsNullOrEmpty(armatureBaseName))
+                    {
+                        ArmatureData baseData = UnityFactory.factory.GetArmatureData(armatureBaseName);
+                        UnityFactory.factory.ReplaceAnimation(armature, baseData);
+                    }
                 }
             }
 
