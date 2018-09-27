@@ -477,11 +477,15 @@ namespace DragonBones
                 if (_armatureComponent.armature.armatureData.parent != null)
                 {
                     _armatureNames = _armatureComponent.armature.armatureData.parent.armatureNames;
+                    _armatureIndex = _armatureNames.IndexOf(_armatureComponent.armature.name);
+
                     _armatureBaseNames = new List<string>(_armatureComponent.armature.armatureData.parent.armatureNames);
                     _armatureBaseNames.Insert(0, "Default");
-                    _animationNames = _armatureComponent.animation.animationNames;
-                    _armatureIndex = _armatureNames.IndexOf(_armatureComponent.armature.name);
                     _armatureBaseIndex = Math.Max(0, _armatureBaseNames.IndexOf(_armatureComponent.armatureBaseName));
+                    UpdateBaseAnimation();
+
+                    _animationNames = _armatureComponent.animation.animationNames;
+
                     //
                     if (!string.IsNullOrEmpty(_armatureComponent.animationName))
                     {
