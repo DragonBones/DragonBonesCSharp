@@ -681,7 +681,7 @@ namespace DragonBones
                     UnityFactory.factory.BuildArmatureComponent(armatureName, unityData.dataName, null, null, gameObject, isUGUI);
                     if (!string.IsNullOrEmpty(armatureBaseName))
                     {
-                        ArmatureData baseData = UnityFactory.factory.GetArmatureData(armatureBaseName);
+                        ArmatureData baseData = UnityFactory.factory.GetArmatureData(armatureBaseName, unityData.dataName);
                         UnityFactory.factory.ReplaceAnimation(armature, baseData);
                     }
                 }

@@ -253,7 +253,8 @@ namespace DragonBones
 
             if (!string.IsNullOrEmpty(armatureName))
             {
-                ArmatureData baseDiceArmature = UnityFactory.factory.GetArmatureData(armatureName);
+                string dragonBonesName = _armatureComponent.unityData.dataName;
+                ArmatureData baseDiceArmature = UnityFactory.factory.GetArmatureData(armatureName, dragonBonesName);
                 UnityFactory.factory.ReplaceAnimation(_armatureComponent.armature, baseDiceArmature);
             }
         }
