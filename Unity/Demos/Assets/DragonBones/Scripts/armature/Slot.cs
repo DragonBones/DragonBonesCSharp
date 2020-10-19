@@ -438,6 +438,10 @@ namespace DragonBones
                 this._displayDirty = true;
                 this._transformDirty = true;
             }
+            
+            if (this._armature.replacedTexture != null) {
+                this._displayDirty = true;
+            }
         }
 
         /// <private/>
