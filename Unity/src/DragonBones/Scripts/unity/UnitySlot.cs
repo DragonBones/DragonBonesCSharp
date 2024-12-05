@@ -398,11 +398,17 @@ namespace DragonBones
             {
                 if (this._uiDisplay != null)
                 {
-                    this._uiDisplay.material = (this._textureData as UnityTextureData).GetMaterial(this._blendMode, true);
+                    Material material = (this._textureData as UnityTextureData).GetMaterial(this._blendMode, true);
+                    if (_proxy.CustomMaterialOverride.TryGetValue(material, out Material materialOverride))
+                        material = materialOverride;
+                    this._uiDisplay.material = material;
                 }
                 else
                 {
-                    this._meshRenderer.sharedMaterial = (this._textureData as UnityTextureData).GetMaterial(this._blendMode);
+                    Material material = (this._textureData as UnityTextureData).GetMaterial(this._blendMode);
+                    if (_proxy.CustomMaterialOverride.TryGetValue(material, out Material materialOverride))
+                        material = materialOverride;
+                    this._meshRenderer.sharedMaterial = material;
                 }
 
                 this._meshBuffer.name = this._uiDisplay != null ? this._uiDisplay.material.name : this._meshRenderer.sharedMaterial.name;
@@ -475,7 +481,9 @@ namespace DragonBones
             this._isActive = false;
             if (this._displayIndex >= 0 && this._display != null && currentTextureData != null)
             {
-                var currentTextureAtlas = _proxy.isUGUI ? currentTextureAtlasData.uiTexture : currentTextureAtlasData.texture;
+                Material currentTextureAtlas = _proxy.isUGUI ? currentTextureAtlasData.uiTexture : currentTextureAtlasData.texture;
+                if (_proxy.CustomMaterialOverride.TryGetValue(currentTextureAtlas, out Material materialOverride))
+                    currentTextureAtlas = materialOverride;
                 if (currentTextureAtlas != null)
                 {
                     this._isActive = true;

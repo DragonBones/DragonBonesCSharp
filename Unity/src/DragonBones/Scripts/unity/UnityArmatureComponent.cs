@@ -99,6 +99,9 @@ namespace DragonBones
         private bool _disposeProxy = true;
         /// <private/>
         internal Armature _armature = null;
+        private Dictionary<Material, Material> _customMaterialOverride;
+        public Dictionary<Material, Material> CustomMaterialOverride => _customMaterialOverride;
+
         [Tooltip("0 : Loop")]
         [Range(0, 100)]
         [SerializeField]
@@ -667,6 +670,7 @@ namespace DragonBones
         /// <private/>
         void Awake()
         {
+            _customMaterialOverride = new Dictionary<Material, Material>();
 #if UNITY_EDITOR
             if (_IsPrefab())
             {
@@ -707,8 +711,8 @@ namespace DragonBones
                     _armature.animation.Play(animationName, _playTimes);
                 }
             }
-
-
+            else
+                Debug.LogError($"_armature is null, name: {name}");
         }
 
         void Start()
@@ -818,6 +822,15 @@ namespace DragonBones
                     (slot.childArmature.proxy as UnityArmatureComponent).CloseCombineMeshs();
                 }
             }
+        }
+
+        public void SetMaterialOverride(Material material, Material materialOverride)
+        {
+            if (materialOverride != null)
+                _customMaterialOverride[material] = materialOverride;
+            else
+                _customMaterialOverride.Remove(material);
+            _armature.UpdateSlots();
         }
     }
 }

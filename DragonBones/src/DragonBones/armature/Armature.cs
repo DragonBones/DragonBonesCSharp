@@ -967,12 +967,7 @@ namespace DragonBones
                 }
 
                 this._replacedTexture = value;
-
-                foreach (var slot in this._slots)
-                {
-                    slot.InvalidUpdate();
-                    slot.Update(-1);
-                }
+                UpdateSlots();
             }
         }
         /// <inheritDoc/>
@@ -1025,6 +1020,15 @@ namespace DragonBones
         public Slot parent
         {
             get { return this._parent; }
+        }
+
+        internal void UpdateSlots()
+        {
+            foreach (var slot in this._slots)
+            {
+                slot.InvalidUpdate();
+                slot.Update(-1);
+            }
         }
     }
 }
