@@ -398,11 +398,17 @@ namespace DragonBones
             {
                 if (this._uiDisplay != null)
                 {
-                    this._uiDisplay.material = (this._textureData as UnityTextureData).GetMaterial(this._blendMode, true);
+                    Material material = (this._textureData as UnityTextureData).GetMaterial(this._blendMode, true);
+                    if (_proxy.CustomMaterialOverride.TryGetValue(material, out Material materialOverride))
+                        material = materialOverride;
+                    this._uiDisplay.material = material;
                 }
                 else
                 {
-                    this._meshRenderer.sharedMaterial = (this._textureData as UnityTextureData).GetMaterial(this._blendMode);
+                    Material material = (this._textureData as UnityTextureData).GetMaterial(this._blendMode);
+                    if (_proxy.CustomMaterialOverride.TryGetValue(material, out Material materialOverride))
+                        material = materialOverride;
+                    this._meshRenderer.sharedMaterial = material;
                 }
 
                 this._meshBuffer.name = this._uiDisplay != null ? this._uiDisplay.material.name : this._meshRenderer.sharedMaterial.name;
@@ -430,13 +436,15 @@ namespace DragonBones
                 if (this._isCombineMesh)
                 {
                     var meshBuffer = this._combineMesh.meshBuffers[this._sumMeshIndex];
+                    Color32 color32 = default;
+                    color32.r = (byte)(_colorTransform.redMultiplier * proxyTrans.redMultiplier * 255);
+                    color32.g = (byte)(_colorTransform.greenMultiplier * proxyTrans.greenMultiplier * 255);
+                    color32.b = (byte)(_colorTransform.blueMultiplier * proxyTrans.blueMultiplier * 255);
+                    color32.a = (byte)(_colorTransform.alphaMultiplier * proxyTrans.alphaMultiplier * 255);
                     for (var i = 0; i < this._meshBuffer.vertexBuffers.Length; i++)
                     {
                         var index = this._verticeOffset + i;
-                        this._meshBuffer.color32Buffers[i].r = (byte)(_colorTransform.redMultiplier * proxyTrans.redMultiplier * 255);
-                        this._meshBuffer.color32Buffers[i].g = (byte)(_colorTransform.greenMultiplier * proxyTrans.greenMultiplier * 255);
-                        this._meshBuffer.color32Buffers[i].b = (byte)(_colorTransform.blueMultiplier * proxyTrans.blueMultiplier * 255);
-                        this._meshBuffer.color32Buffers[i].a = (byte)(_colorTransform.alphaMultiplier * proxyTrans.alphaMultiplier * 255);
+                        this._meshBuffer.color32Buffers[i] = color32;
                         //
                         meshBuffer.color32Buffers[index] = this._meshBuffer.color32Buffers[i];
                     }
@@ -445,12 +453,14 @@ namespace DragonBones
                 }
                 else if (this._meshBuffer.sharedMesh != null)
                 {
+                    Color32 color32 = default;
+                    color32.r = (byte)(_colorTransform.redMultiplier * proxyTrans.redMultiplier * 255);
+                    color32.g = (byte)(_colorTransform.greenMultiplier * proxyTrans.greenMultiplier * 255);
+                    color32.b = (byte)(_colorTransform.blueMultiplier * proxyTrans.blueMultiplier * 255);
+                    color32.a = (byte)(_colorTransform.alphaMultiplier * proxyTrans.alphaMultiplier * 255);
                     for (int i = 0, l = this._meshBuffer.sharedMesh.vertexCount; i < l; ++i)
                     {
-                        this._meshBuffer.color32Buffers[i].r = (byte)(_colorTransform.redMultiplier * proxyTrans.redMultiplier * 255);
-                        this._meshBuffer.color32Buffers[i].g = (byte)(_colorTransform.greenMultiplier * proxyTrans.greenMultiplier * 255);
-                        this._meshBuffer.color32Buffers[i].b = (byte)(_colorTransform.blueMultiplier * proxyTrans.blueMultiplier * 255);
-                        this._meshBuffer.color32Buffers[i].a = (byte)(_colorTransform.alphaMultiplier * proxyTrans.alphaMultiplier * 255);
+                        this._meshBuffer.color32Buffers[i] = color32;
                     }
                     //
                     this._meshBuffer.UpdateColors();
@@ -475,7 +485,9 @@ namespace DragonBones
             this._isActive = false;
             if (this._displayIndex >= 0 && this._display != null && currentTextureData != null)
             {
-                var currentTextureAtlas = _proxy.isUGUI ? currentTextureAtlasData.uiTexture : currentTextureAtlasData.texture;
+                Material currentTextureAtlas = _proxy.isUGUI ? currentTextureAtlasData.uiTexture : currentTextureAtlasData.texture;
+                if (_proxy.CustomMaterialOverride.TryGetValue(currentTextureAtlas, out Material materialOverride))
+                    currentTextureAtlas = materialOverride;
                 if (currentTextureAtlas != null)
                 {
                     this._isActive = true;
