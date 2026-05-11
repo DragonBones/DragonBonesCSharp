@@ -262,11 +262,6 @@ namespace DragonBones
                 timeline.ReturnToPool();
             }
 
-            foreach(var timeline in this._poseTimelines)
-            {
-                timeline.ReturnToPool();
-            }
-
             foreach (var bonePose in this._bonePoses.Values)
             {
                 bonePose.ReturnToPool();
@@ -311,7 +306,6 @@ namespace DragonBones
             this._boneTimelines.Clear();
             this._slotTimelines.Clear();
             this._constraintTimelines.Clear();
-            this._poseTimelines.Clear();
             this._bonePoses.Clear();
             this._animationData = null; //
             this._armature = null; //
@@ -954,17 +948,20 @@ namespace DragonBones
                     for (int i = 0, l = this._slotTimelines.Count; i < l; ++i)
                     {
                         var timeline = this._slotTimelines[i];
-                        var displayController = timeline.slot.displayController;
-
-                        if (
-                            displayController == null ||
-                            displayController == this.name ||
-                            displayController == this.group
-                        )
+                        if (timeline.slot != null)
                         {
-                            if (timeline.playState <= 0)
+                            var displayController = timeline.slot.displayController;
+
+                            if (
+                                displayController == null ||
+                                displayController == this.name ||
+                                displayController == this.group
+                            )
                             {
-                                timeline.Update(time);
+                                if (timeline.playState <= 0)
+                                {
+                                    timeline.Update(time);
+                                }
                             }
                         }
                     }

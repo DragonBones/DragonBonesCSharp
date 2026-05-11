@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -36,11 +37,13 @@ namespace DragonBones
         private float _frameRate = 1.0f / 24.0f;
 
         private int _armatureIndex = -1;
+        private int _armatureBaseIndex = 0;
         private int _animationIndex = -1;
         private int _sortingModeIndex = -1;
         private int _sortingLayerIndex = -1;
 
         private List<string> _armatureNames = null;
+        private List<string> _armatureBaseNames = null;
         private List<string> _animationNames = null;
         private List<string> _sortingLayerNames = null;
 
@@ -57,11 +60,13 @@ namespace DragonBones
         void ClearUp()
         {
             this._armatureIndex = -1;
+            this._armatureBaseIndex = 0;
             this._animationIndex = -1;
             // this._sortingModeIndex = -1;
             // this._sortingLayerIndex = -1;
 
             this._armatureNames = null;
+            this._armatureBaseNames = null;
             this._animationNames = null;
             // this._sortingLayerNames = null;
         }
@@ -217,9 +222,39 @@ namespace DragonBones
 
                         var armatureName = _armatureNames[_armatureIndex];
                         UnityEditor.ChangeArmatureData(_armatureComponent, armatureName, dragonBonesData.name);
+                        UpdateBaseAnimation();
+                        UpdateAnimation();
+
                         _UpdateParameters();
 
                         _armatureComponent.gameObject.name = armatureName;
+
+                        MarkSceneDirty();
+                    }
+                }
+
+                // Armature Base Animation
+                if (UnityFactory.factory.GetAllDragonBonesData().ContainsValue(dragonBonesData) && _armatureNames != null && _armatureBaseNames != null)
+                {
+                    var armatureIndex = EditorGUILayout.Popup("Base animation", _armatureBaseIndex, _armatureBaseNames.ToArray());
+                    if (_armatureBaseIndex != armatureIndex && _armatureIndex != -1)
+                    {
+                        _armatureBaseIndex = armatureIndex;
+
+                        if (_armatureBaseIndex == 0)
+                        {
+                            var armatureName = _armatureNames[_armatureIndex];
+                            UnityEditor.ChangeArmatureData(_armatureComponent, armatureName, dragonBonesData.name);
+                            _armatureComponent.gameObject.name = armatureName;
+                            UnityEditor.ReplaceAnimation(_armatureComponent, null);
+                        }
+                        else
+                        {
+                            UpdateBaseAnimation();
+                        }
+                        UpdateAnimation();
+
+                        _UpdateParameters();
 
                         MarkSceneDirty();
                     }
@@ -235,19 +270,7 @@ namespace DragonBones
                     if (animationIndex != _animationIndex)
                     {
                         _animationIndex = animationIndex;
-                        if (animationIndex >= 0)
-                        {
-                            _armatureComponent.animationName = _animationNames[animationIndex];
-                            var animationData = _armatureComponent.animation.animations[_armatureComponent.animationName];
-                            _armatureComponent.animation.Play(_armatureComponent.animationName, _playTimesPro.intValue);
-                            _UpdateParameters();
-                        }
-                        else
-                        {
-                            _armatureComponent.animationName = null;
-                            _playTimesPro.intValue = 0;
-                            _armatureComponent.animation.Stop();
-                        }
+                        UpdateAnimation();
 
                         MarkSceneDirty();
                     }
@@ -397,6 +420,31 @@ namespace DragonBones
             }
         }
 
+        private void UpdateBaseAnimation()
+        {
+            if (_armatureBaseIndex > 0)
+            {
+                var baseArmatureName = _armatureBaseNames[_armatureBaseIndex];
+                UnityEditor.ReplaceAnimation(_armatureComponent, baseArmatureName);
+            }
+        }
+
+        private void UpdateAnimation()
+        {
+            if (_animationIndex >= 0 && _animationIndex < _animationNames.Count)
+            {
+                _armatureComponent.animationName = _animationNames[_animationIndex];
+                _armatureComponent.animation.Play(_armatureComponent.animationName, _playTimesPro.intValue);
+                _UpdateParameters();
+            }
+            else
+            {
+                _armatureComponent.animationName = null;
+                _playTimesPro.intValue = 0;
+                _armatureComponent.animation.Stop();
+            }
+        }
+
         void OnSceneGUI()
         {
             if (!EditorApplication.isPlayingOrWillChangePlaymode && _armatureComponent.armature != null)
@@ -429,8 +477,15 @@ namespace DragonBones
                 if (_armatureComponent.armature.armatureData.parent != null)
                 {
                     _armatureNames = _armatureComponent.armature.armatureData.parent.armatureNames;
-                    _animationNames = _armatureComponent.animation.animationNames;
                     _armatureIndex = _armatureNames.IndexOf(_armatureComponent.armature.name);
+
+                    _armatureBaseNames = new List<string>(_armatureComponent.armature.armatureData.parent.armatureNames);
+                    _armatureBaseNames.Insert(0, "Default");
+                    _armatureBaseIndex = Math.Max(0, _armatureBaseNames.IndexOf(_armatureComponent.armatureBaseName));
+                    UpdateBaseAnimation();
+
+                    _animationNames = _armatureComponent.animation.animationNames;
+
                     //
                     if (!string.IsNullOrEmpty(_armatureComponent.animationName))
                     {
@@ -440,16 +495,20 @@ namespace DragonBones
                 else
                 {
                     _armatureNames = null;
+                    _armatureBaseNames = null;
                     _animationNames = null;
                     _armatureIndex = -1;
+                    _armatureBaseIndex = 0;
                     _animationIndex = -1;
                 }
             }
             else
             {
                 _armatureNames = null;
+                _armatureBaseNames = null;
                 _animationNames = null;
                 _armatureIndex = -1;
+                _armatureBaseIndex = 0;
                 _animationIndex = -1;
             }
         }
