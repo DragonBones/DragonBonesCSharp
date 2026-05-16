@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-﻿/**
+ /**
  * The MIT License (MIT)
  *
  * Copyright (c) 2012-2017 DragonBones team and other contributors
@@ -78,6 +78,7 @@ namespace DragonBones
         private bool _skewed;
         private UnityArmatureComponent _proxy;
         private BlendMode _currentBlendMode;
+        private static readonly int MainTex = Shader.PropertyToID("_MainTex");
 
         /**
          * @private
@@ -475,6 +476,26 @@ namespace DragonBones
             this._isActive = false;
             if (this._displayIndex >= 0 && this._display != null && currentTextureData != null)
             {
+                var currentTextureAtlasData = this.currentTextureAtlasData;
+                if (this.armature.replacedTexture != null) { // Update replaced texture atlas.
+                    if (this.armature._replaceTextureAtlasData == null)
+                    {
+                        currentTextureAtlasData = BorrowObject<UnityTextureAtlasData>();
+                        currentTextureAtlasData.CopyFrom(this.currentTextureAtlasData);
+                        currentTextureAtlasData.texture = this.currentTextureAtlasData.texture;
+                        currentTextureAtlasData.uiTexture = this.currentTextureAtlasData.uiTexture;
+                        if(currentTextureAtlasData.uiTexture)
+                            currentTextureAtlasData.uiTexture.SetTexture(MainTex, (Texture)this.armature.replacedTexture);
+                        if(currentTextureAtlasData.texture)
+                            currentTextureAtlasData.texture.SetTexture(MainTex, (Texture)this.armature.replacedTexture);
+                        this.armature._replaceTextureAtlasData = currentTextureAtlasData;
+                    }
+                    else
+                        currentTextureAtlasData = this.armature._replaceTextureAtlasData as UnityTextureAtlasData;
+                
+                    currentTextureData = currentTextureAtlasData.GetTexture(currentTextureData.name) as UnityTextureData;
+                }
+
                 var currentTextureAtlas = _proxy.isUGUI ? currentTextureAtlasData.uiTexture : currentTextureAtlasData.texture;
                 if (currentTextureAtlas != null)
                 {
