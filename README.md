@@ -1,7 +1,7 @@
 # DragonBones C# Runtime
 [中文 README](./README-zh_CN.md)
 ## [DragonBones common library](./DragonBones/)
-## Highly suggest use [LoongBones](http://www.loongbones.app/) to create aniamtion.
+## Highly suggest use [LoongBones](http://www.loongbones.app/) to create animation.
 
 ## Supported engines
 * [Unity](http://www.unity.com/) - [How to use DragonBones in Unity](./Unity/)
